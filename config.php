@@ -28,6 +28,7 @@ define('db_name', 'DATABASE_NAME');
 define('db_table' , 'TABLE_NAME');
 
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+mysqli_set_charset($db, 'utf8');
 
 // Global config constants
 define('c_github', 'https://github.com/RPCS3/rpcs3/commit/');
