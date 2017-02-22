@@ -20,15 +20,20 @@
 */
 
 // Check the third character of the Game ID to obtain the region
-// https://www.iconfinder.com/iconsets/famfamfam_flag_icons
+// Icons from: https://www.iconfinder.com/iconsets/famfamfam_flag_icons
+// Region info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
 function getRegion($gid){
-	if (substr($gid, 2, 1) == "E") { return "<img src='/img/icons/flags/EU.png'>"; } 
-	elseif (substr($gid, 2, 1) == "U") { return "<img src='/img/icons/flags/US.png'>"; } 
-	elseif (substr($gid, 2, 1) == "J") { return "<img src='/img/icons/flags/JP.png'>"; } 
-	elseif (substr($gid, 2, 1) == "H") { return "<img src='/img/icons/flags/HK.png'>"; } 
-	elseif (substr($gid, 2, 1) == "A") { return "<img src='/img/icons/flags/CN.png'>"; } 
-	// TODO: Add missing regions whenever they show up
-	else { return ""; }
+	if (substr($gid, 2, 1) == "A")      { return "<img src='/img/icons/flags/CN.png'>"; }   // Asia 
+	elseif (substr($gid, 2, 1) == "E")  { return "<img src='/img/icons/flags/EU.png'>"; }   // Europe
+	elseif (substr($gid, 2, 1) == "H")  { return "<img src='/img/icons/flags/CN.png'>"; }   // Southern Asia
+	elseif (substr($gid, 2, 1) == "K")  { return "<img src='/img/icons/flags/HK.png'>"; }   // Hong Kong
+	elseif (substr($gid, 2, 1) == "J")  { return "<img src='/img/icons/flags/JP.png'>"; }   // Japan
+	elseif (substr($gid, 2, 1) == "U")  { return "<img src='/img/icons/flags/US.png'>"; }   // USA
+	// We don't care about those two as they won't be listed
+	elseif (substr($gid, 2, 1) == "I")  { return ""; }                                      // Internal (Sony)
+	elseif (substr($gid, 2, 1) == "X")  { return ""; }                                      // Firmware/SDK Sample
+	// One shouldn't be able to reach here, unless there are missing regions
+	else                                { return ""; }
 }
 
 // Check the first character of the Game ID to obtain the type of game
