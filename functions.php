@@ -19,11 +19,21 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-// Check the third character of the Game ID to obtain the region
-// Icons from: https://www.iconfinder.com/iconsets/famfamfam_flag_icons
-// Region info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
-function getRegion($gid){
-	if (substr($gid, 2, 1) == "A")      { return "<img src='/img/icons/flags/CN.png'>"; }   // Asia 
+
+// Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
+
+// Check the first character of the Game ID to obtain media
+function getGameMedia($gid){
+	if     (substr($gid, 0, 1) == "N")  { return "<img alt='Digital' src='/img/icons/list/psn.png' class='div-compat-fmat'>"; }  // PSN Retail
+	elseif (substr($gid, 0, 1) == "B")  { return "<img alt='Blu-Ray' src='/img/icons/list/rom.png' class='div-compat-fmat'>"; }  // PS3 Blu-Ray
+	elseif (substr($gid, 0, 1) == "X")  { return "<img alt='Blu-Ray' src='/img/icons/list/rom.png' class='div-compat-fmat'>"; }  // PS3 Blu-Ray + Extras
+	else                                { return ""; }
+}
+
+// Check the third character of the Game ID to obtain region
+function getGameRegion($gid){
+	// Icons from: https://www.iconfinder.com/iconsets/famfamfam_flag_icons
+	if     (substr($gid, 2, 1) == "A")  { return "<img src='/img/icons/flags/CN.png'>"; }   // Asia 
 	elseif (substr($gid, 2, 1) == "E")  { return "<img src='/img/icons/flags/EU.png'>"; }   // Europe
 	elseif (substr($gid, 2, 1) == "H")  { return "<img src='/img/icons/flags/CN.png'>"; }   // Southern Asia
 	elseif (substr($gid, 2, 1) == "K")  { return "<img src='/img/icons/flags/HK.png'>"; }   // Hong Kong
@@ -36,11 +46,25 @@ function getRegion($gid){
 	else                                { return ""; }
 }
 
-// Check the first character of the Game ID to obtain the type of game
-function getGameType($gid){
-	if (substr($gid, 0, 1) == "N") { return "<img alt='Digital' src='/img/icons/list/psn.png' class='div-compat-fmat'>"; } 
-	elseif (substr($gid, 0, 1) == "B") { return "<img alt='Blu-Ray' src='/img/icons/list/rom.png' class='div-compat-fmat'>"; } 
-	else { return ""; }
+// Check the fourth character of the Game ID to obtain type
+function getGameType($gid) {
+	// Physical
+	if (substr($gid, 0, 1) == "B" || substr($gid, 0, 1) == "X") {
+		if     (substr($gid, 3, 1) == "D")  { return "Demo"; }             // Demo
+		elseif (substr($gid, 3, 1) == "M")  { return "Malayan Release"; }  // Malayan Release
+		elseif (substr($gid, 3, 1) == "S")  { return "Retail Release"; }   // Retail Release
+		// We don't care about the other types as they won't be listed
+		else                                { return ""; }
+	}
+	// Digital
+	if (substr($gid, 0, 1) == "N") {
+		if     (substr($gid, 3, 1) == "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
+		elseif (substr($gid, 3, 1) == "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
+		elseif (substr($gid, 3, 1) == "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
+		elseif (substr($gid, 3, 1) == "D")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
+		// We don't care about the other types as they won't be listed
+		else                                { return ""; }
+	}
 }
 
 // Get the thread link and return it as a hyperlink wrapped around the provided text

@@ -440,8 +440,8 @@ if ($sqlQry) {
 	if (mysqli_num_rows($sqlQry) > 0) {
 		while($row = mysqli_fetch_object($sqlQry)) {
 			$s_tablecontent .= '<tr>
-			<td>'.getRegion($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_id, $row->thread_id).'</td>
-			<td>'.getGameType($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_title, $row->thread_id).'</td>
+			<td>'.getGameRegion($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_id, $row->thread_id).'</td>
+			<td>'.getGameMedia($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_title, $row->thread_id).'</td>
 			<td>'.getCommit($row->build_commit).'</td>
 			<td>'.getColoredStatus($row->status).'</td>
 			<td>'.$row->last_edit.'</td>
