@@ -30,10 +30,10 @@ define('db_table' , 'TABLE_NAME');
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
-// Global config constants
-define('c_github', 'https://github.com/RPCS3/rpcs3/commit/');
-define('c_forum', 'http://www.emunewz.net/forum/showthread.php?tid=');
-define('c_pageresults', 2); // Default results per page (50)
+// Global config variables
+$c_github = 'https://github.com/RPCS3/rpcs3/commit/';
+$c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
+$c_pageresults = 2; // Default results per page (50)
 
 // Results per page
 $a_pageresults = array(
@@ -69,6 +69,26 @@ $a_color = array(
 3 => 'f39c12',
 4 => 'e74c3c',
 5 => '2c3e50'
+);
+
+// Region flags
+$a_flags = array(
+"CN" => "<img src='/img/icons/flags/CN.png'>",
+"EU" => "<img src='/img/icons/flags/EU.png'>",
+"HK" => "<img src='/img/icons/flags/HK.png'>",
+"JP" => "<img src='/img/icons/flags/JP.png'>",
+"US" => "<img src='/img/icons/flags/US.png'>"
+);
+
+// Game media icons
+$a_media = array(
+"PSN" => "/img/icons/list/psn.png",
+"BLR" => "/img/icons/list/rom.png"
+);
+
+// CSS elements
+$a_css = array(
+"MEDIA_ICON" => "div-compat-fmat"
 );
 
 ?>
