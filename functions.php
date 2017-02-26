@@ -83,8 +83,8 @@ function getThread($text, $tid) {
 function getCommit($cid) {
 	global $c_github;
 	
-	if ($cid != "0")    { return "<a href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>"; } 
-	else                { return "<i>Unknown</i>"; }
+	if ($cid != "0")    { return "<a class='txt-compat-build' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>"; } 
+	else                { return "<div class='txt-compat-nobuild' style='background: #ffd700;'>Unknown</div>"; }
 }
 
 // Get the status color and return it as font color wrapped around the status name
@@ -96,7 +96,7 @@ function getColoredStatus($sn) {
 	if ($sn == "") { return "<i>Invalid</i>"; }
 	
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $i) { 
-		if ($sn == $a_title[$i]) { return "<font color=\"$a_color[$i]\">$a_title[$i]</font>"; }
+		if ($sn == $a_title[$i]) { return "<div class='txt-compat-status' style='background: #$a_color[$i];'>$a_title[$i]</div>"; }
 	}
 }
 

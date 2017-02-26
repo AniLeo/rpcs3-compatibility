@@ -243,8 +243,6 @@ foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) {
 	
 	// Display status name
 	$s_sortby .= $a_title[$i].'&nbsp;('.$scount[$i].')'; 
-	// If not the last value then add a separator for the next status
-	if($i < max(array_keys($a_title)))	{$s_sortby .= '&nbsp;&nbsp;•&nbsp;&nbsp;';} 
 	
 	if($s == $i) {$s_sortby .= '</b>';} 
 	$s_sortby .= '</a>'; 
