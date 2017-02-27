@@ -41,11 +41,11 @@ $r = $a_pageresults[$c_pageresults];
 // Display status (0-All; 1-Playable; 2-Ingame; 3-Intro; 4-Loadable; 5-Nothing) [Default: 0]
 $s = 0;
 // Character searched by [Default: none]
-$c = '';
+$c = "";
 // Order by [Default: none]
-$o = '';
+$o = "";
 // Search box content [Default: none]
-$sf = '';
+$sf = "";
 
 $scount = array();
 
@@ -97,7 +97,7 @@ if (isset($_GET['c'])) {
 }
 
 // Search box: Get provided input
-if (isset($_GET['sf']) && isValid($_GET['sf'])) {
+if (isset($_GET['sf']) && !empty($_GET['sf']) && isValid($_GET['sf'])) {
 	$sf = $_GET['sf'];
 }
 
@@ -129,9 +129,10 @@ if ($c != '') {
 }
 
 // QUERYGEN: Searchbox
-if ($sf != '') {
+if ($sf != "") {
 	if ($c != '') { $genquery .= " AND "; }
-	$genquery .= " (game_title LIKE '%".mysqli_real_escape_string($db, $sf)."%' OR game_id LIKE '%".mysqli_real_escape_string($db, $sf)."%') ";
+	$ssf = mysqli_real_escape_string($db, $sf);
+	$genquery .= " (game_title LIKE '%".$ssf."%' OR game_id LIKE '%".$ssf."%') ";
 }
 
 // QUERYGEN: Order
@@ -162,7 +163,7 @@ $pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
 // Select the count of games in each status
 $scquery = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
-	if ($sf != '') {
+	if ($sf != "") {
 		$ssf = mysqli_real_escape_string($db, $sf);
 		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%".$ssf."%' OR game_id LIKE '%".$ssf."%') AND status = ".$sc;
 	} else {
@@ -218,7 +219,7 @@ mysqli_close($db);
 foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $rid) { 
 	// If the value for results per page is valid and other than the default one
 	if($r == $a_pageresults[$rid] && $r != $a_pageresults[$c_pageresults]) 
-	{$g_pageresults .= 'r='.$rid;} 
+	{$g_pageresults .= 'r='.$rid.'&';} 
 }
 if (!isset($g_pageresults)) { $g_pageresults = ''; }
 
@@ -231,7 +232,7 @@ foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) {
 	$s_sortby .= '<a title='.$a_desc[$i].' href="?'; 
 	
 	// Combined search: results per page
-	$s_sortby .= $g_pageresults.'&';
+	$s_sortby .= $g_pageresults;
 	// Combined search: search by character
 	if($c != "") {$s_sortby .= 'c='.$c.'&';}
 	// Combined search: searchbox
@@ -295,9 +296,9 @@ Clickable URL: Character search
 $s_charsearch .= '<td><a href="?';
 
 // Combined search: results per page
-$s_charsearch .= $g_pageresults.'&';
+$s_charsearch .= $g_pageresults;
 // Combined search: search by status
-if($s > 0) {$s_charsearch .= '&s='.$s;} 
+if($s > 0) {$s_charsearch .= 's='.$s;} 
 
 $s_charsearch .= '"><div id="compat-inr-search">'; 
 if($c == "") { $s_charsearch .= '<b>All</b></div></a></td>'; } 
@@ -309,7 +310,7 @@ foreach (range('a', 'z') as $cs) {
 	$s_charsearch .= '<td><a href="?'; 
 	
 	// Combined search: results per page
-	$s_charsearch .= $g_pageresults.'&';
+	$s_charsearch .= $g_pageresults;
 	// Combined search: search by status
 	if($s > 0) {$s_charsearch .= 's='.$s.'&';} 
 	
@@ -323,7 +324,7 @@ foreach (range('a', 'z') as $cs) {
 $s_charsearch .= '<td><a href="?';
 
 // Combined search: results per page
-$s_charsearch .= $g_pageresults.'&';
+$s_charsearch .= $g_pageresults;
 // Combined search: search by status
 if($s > 0) {$s_charsearch .= '&s='.$s;} 
 
@@ -337,7 +338,7 @@ else { $s_charsearch .= '0-9</div></a></td>'; }
 $s_charsearch .= '<td><a href="?';
 
 // Combined search: results per page
-$s_charsearch .= $g_pageresults.'&';
+$s_charsearch .= $g_pageresults;
 // Combined search: search by status
 if($s > 0) {$s_charsearch .= '&s='.$s;} 
 
@@ -358,7 +359,7 @@ $s_tableheaders .= "<th><a href ='?";
 // Order support: Sort by status
 if($s > 0) { $s_tableheaders .= 's='.$s.'&';} 
 // Order support: Results per page
-$s_tableheaders .= $g_pageresults.'&';
+$s_tableheaders .= $g_pageresults;
 // Order support: Search by character
 if($c != "") {$s_tableheaders .= 'c='.$c.'&';} 
 // Order support: Searchbox
@@ -377,7 +378,7 @@ $s_tableheaders .= "<th><a href ='?";
 // Order support: Sort by status
 if($s > 0) { $s_tableheaders .= 's='.$s.'&';} 
 // Order support: Results per page
-$s_tableheaders .= $g_pageresults.'&';
+$s_tableheaders .= $g_pageresults;
 // Order support: Search by character
 if($c != "") {$s_tableheaders .= 'c='.$c.'&';} 
 // Order support: Searchbox
@@ -400,7 +401,7 @@ $s_tableheaders .= "<th><a href ='?";
 // Order support: Sort by status
 if($s > 0) { $s_tableheaders .= 's='.$s.'&';} 
 // Order support: Results per page
-$s_tableheaders .= $g_pageresults.'&';
+$s_tableheaders .= $g_pageresults;
 // Order support: Search by character
 if($c != "") {$s_tableheaders .= 'c='.$c.'&';} 
 // Order support: Searchbox
@@ -419,7 +420,7 @@ $s_tableheaders .= "<th><a href ='?";
 // Order support: Sort by status
 if($s > 0) { $s_tableheaders .= 's='.$s.'&';} 
 // Order support: Results per page
-$s_tableheaders .= $g_pageresults.'&';
+$s_tableheaders .= $g_pageresults;
 // Order support: Search by character
 if($c != "") {$s_tableheaders .= 'c='.$c.'&';} 
 // Order support: Searchbox
@@ -434,7 +435,6 @@ else { $s_tableheaders .= "o=4a'>Last Updated</a></th>"; }
 /**
 Table Content
 **/
-
 if ($sqlQry) {
 	if (mysqli_num_rows($sqlQry) > 0) {
 		while($row = mysqli_fetch_object($sqlQry)) {
@@ -458,7 +458,11 @@ Pages Counter
 
 // If no results are found then the amount of pages is 0. 
 // Shows no results found message.
-if ($pages == 0) { $s_pagescounter .= 'No results found using the selected criteria'; } 
+if ($pages == 0) { 
+if ($sf != "") { $s_pagescounter .= "Results for '$sf' Game ID or Game Title not found."; }
+else { $s_pagescounter .= 'No results found using the selected search criteria.'; }
+} 
+
 // Else it shows current page and total pages
 else { $s_pagescounter .= 'Page '.$currentPage.' of '.$pages.' - '; }
 		
@@ -469,7 +473,7 @@ for ($i=1; $i<=$pages; $i++) {
 	// Page support: Sort by status
 	if($s > 0) {$s_pagescounter .= 's='.$s.'&';} 
 	// Page support: Results per page
-	$s_pagescounter .= $g_pageresults.'&';
+	$s_pagescounter .= $g_pageresults;
 	// Page support: Search by character
 	if($c != "") {$s_pagescounter .= 'c='.$c.'&';} 
 	// Page support: Order by
