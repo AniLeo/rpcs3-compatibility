@@ -88,7 +88,8 @@ $a_media = array(
 
 // CSS elements
 $a_css = array(
-"MEDIA_ICON" => "div-compat-fmat"
+"MEDIA_ICON" => "div-compat-fmat",
+"CHARACTER_SEARCH" => "compat-inr-search"
 );
 
 ?>

@@ -89,8 +89,7 @@ function getCommit($cid) {
 
 // Get the status color and return it as font color wrapped around the status name
 function getColoredStatus($sn) {
-	global $a_title;
-	global $a_color;
+	global $a_title, $a_color;
 	
 	// This should be unreachable unless someone wrongly inputs status in the database
 	if ($sn == "") { return "<i>Invalid</i>"; }
@@ -100,9 +99,20 @@ function getColoredStatus($sn) {
 	}
 }
 
+// Check if provided order is valid
+function isValidOrder($o) {
+	if ($o == "1a" || $o == "1d" || $o == "2a" || $o == "2d" || $o == "3a" || $o == "3d" || $o == "4a" || $o == "4d") 
+		{ return true; }
+	return false;
+}
+
 // Validate searchbox user input
 function isValid($str) {
     return !preg_match("/[^A-Za-z0-9.#&~ \/\'-]/", $str);
+}
+
+function highlightBold($str) {
+	return "<b>$str</b>";
 }
 
 ?>
