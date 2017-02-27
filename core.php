@@ -163,7 +163,8 @@ $pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
 $scquery = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
 	if ($sf != '') {
-		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%".$sf."%' OR game_id LIKE '%".$sf."%') AND status = ".$sc;
+		$ssf = mysqli_real_escape_string($db, $sf);
+		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%".$ssf."%' OR game_id LIKE '%".$ssf."%') AND status = ".$sc;
 	} else {
 		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE status = ".$sc;
 	}
