@@ -441,7 +441,7 @@ function getTableContent() {
  * Pages Counter *
  *****************/
 function getPagesCounter() {
-	global $pages, $sf, $currentPage, $s, $c, $o;
+	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults;
 	
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
