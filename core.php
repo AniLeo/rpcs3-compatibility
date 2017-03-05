@@ -46,6 +46,8 @@ $c = "";
 $o = "";
 // Search box content [Default: none]
 $sf = "";
+// Search by region [Default: none]
+$f = "";
 
 $scount = array();
 
@@ -71,7 +73,7 @@ if (isset($_GET['s'])) {
 
 // Order by
 if (isset($_GET['o']) && isValidOrder($_GET['o'])) {
-	$o = $_GET['o'];
+	$o = strtolower($_GET['o']);
 }
 
 // Search by character: Get character
@@ -90,6 +92,12 @@ if (isset($_GET['sf']) && !empty($_GET['sf']) && isValid($_GET['sf'])) {
 	$sf = $_GET['sf'];
 }
 
+// Search by region
+if (isset($_GET['f'])) {
+	if ($_GET['f'] == "a" || $_GET['f'] == "h" || $_GET['f'] == "e" || $_GET['f'] == "u" || $_GET['f'] == "j") { $f = strtolower($_GET['f']); }
+}
+
+
 /***
  Database Queries
 ***/
@@ -101,7 +109,7 @@ $genquery = " WHERE ";
 if ($s > min(array_keys($a_title))) { $genquery .= " status = $s "; } 
 
 // QUERYGEN: Character
-if ($c != '') {
+if ($c != "") {
 	if ($c == '09') {
 		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
 		$genquery = $genquery . " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
@@ -118,9 +126,17 @@ if ($c != '') {
 
 // QUERYGEN: Searchbox
 if ($sf != "") {
+	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
 	if ($c != "") { $genquery .= " AND "; }
 	$ssf = mysqli_real_escape_string($db, $sf);
 	$genquery .= " (game_title LIKE '%".$ssf."%' OR game_id LIKE '%".$ssf."%') ";
+}
+
+// QUERYGEN: Search by region
+if ($f != "") {
+	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
+	if ($c != "" || $sf != "") { $genquery .= " AND "; }
+	$genquery .= " SUBSTR(game_id, 3, 1) = '".$f."' ";
 }
 
 // QUERYGEN: Order
@@ -230,7 +246,7 @@ function getSortBy() {
 		// Combined search: search by character
 		if ($c != "") {$s_sortby .= "c=$c&";}
 		// Combined search: searchbox
-		if ($sf != "" && $scount[0] > 0)	{$s_sortby .= "sf='".urlencode($sf)."'&";} 
+		if ($sf != "" && $scount[0] > 0)	{$s_sortby .= "sf=".urlencode($sf)."&";} 
 		
 		$s_sortby .= "s=$i\">"; 
 		
@@ -431,6 +447,7 @@ function getTableContent() {
 			}	
 		} // No results is handled on pagesCounter
 	} else {
+		// Query generator fail error
 		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 	}
 	return $s_tablecontent;
@@ -441,7 +458,7 @@ function getTableContent() {
  * Pages Counter *
  *****************/
 function getPagesCounter() {
-	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults;
+	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults, $f;
 	
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
@@ -462,6 +479,8 @@ function getPagesCounter() {
 		$s_pagescounter .= $g_pageresults;
 		// Page support: Search by character
 		if ($c != "") {$s_pagescounter .= "c=$c&";} 
+		// Page support: Search by region
+		if ($f != "") {$s_pagescounter .= "f=$f&";} 
 		// Page support: Order by
 		if ($o != "") {$s_pagescounter .= "o=$o&";} 
 		

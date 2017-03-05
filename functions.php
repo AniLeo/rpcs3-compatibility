@@ -37,12 +37,12 @@ function getGameRegion($gid) {
 	global $a_flags;
 	
 	// Icons from: https://www.iconfinder.com/iconsets/famfamfam_flag_icons
-	if     (substr($gid, 2, 1) == "A")  { return $a_flags["CN"]; }   // Asia 
-	elseif (substr($gid, 2, 1) == "E")  { return $a_flags["EU"]; }   // Europe
-	elseif (substr($gid, 2, 1) == "H")  { return $a_flags["CN"]; }   // Southern Asia
-	elseif (substr($gid, 2, 1) == "K")  { return $a_flags["HK"]; }   // Hong Kong
-	elseif (substr($gid, 2, 1) == "J")  { return $a_flags["JP"]; }   // Japan
-	elseif (substr($gid, 2, 1) == "U")  { return $a_flags["US"]; }   // USA
+	if     (substr($gid, 2, 1) == "A")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["CN"]}</a>"; }   // Asia 
+	elseif (substr($gid, 2, 1) == "E")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["EU"]}</a>"; }   // Europe
+	elseif (substr($gid, 2, 1) == "H")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["CN"]}</a>"; }   // Southern Asia
+	elseif (substr($gid, 2, 1) == "K")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["HK"]}</a>"; }   // Hong Kong
+	elseif (substr($gid, 2, 1) == "J")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["JP"]}</a>"; }   // Japan
+	elseif (substr($gid, 2, 1) == "U")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["US"]}</a>"; }   // USA
 	// We don't care about those two as they won't be listed
 	elseif (substr($gid, 2, 1) == "I")  { return ""; }               // Internal (Sony)
 	elseif (substr($gid, 2, 1) == "X")  { return ""; }               // Firmware/SDK Sample
@@ -65,7 +65,7 @@ function getGameType($gid) {
 		if     (substr($gid, 3, 1) == "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
 		elseif (substr($gid, 3, 1) == "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
 		elseif (substr($gid, 3, 1) == "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
-		elseif (substr($gid, 3, 1) == "D")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
+		elseif (substr($gid, 3, 1) == "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
 		// We don't care about the other types as they won't be listed
 		else                                { return ""; }
 	}
