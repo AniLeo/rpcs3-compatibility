@@ -38,6 +38,7 @@ $start = $time;
 // Initialize variables with the default values
 // Results per page [Default: 50 (from config)]
 $r = $a_pageresults[$c_pageresults];
+$rid = $c_pageresults;
 // Display status (0-All; 1-Playable; 2-Ingame; 3-Intro; 4-Loadable; 5-Nothing) [Default: 0]
 $s = 0;
 // Character searched by [Default: none]
@@ -49,30 +50,37 @@ $sf = "";
 // Search by region [Default: none]
 $f = "";
 
-$scount = array();
+// Order queries
+$a_order = array(
+'1a' => 'ORDER BY game_id ASC',
+'1d' => 'ORDER BY game_id DESC',
+'2a' => 'ORDER BY game_title ASC',
+'2d' => 'ORDER BY game_title DESC',
+'3a' => 'ORDER BY status ASC',
+'3d' => 'ORDER BY status DESC',
+'4a' => 'ORDER BY last_edit ASC',
+'4d' => 'ORDER BY last_edit DESC'
+);
 
-/***
- Obtain values from GET
-***/
+/**************************
+ * Obtain values from GET *
+ **************************/
 
 // Get requested 'r' parameter and convert it to the amount results per page to display
-if (isset($_GET['r'])) {
-	foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $rid) { 
-		if ($_GET['r'] == $rid) { $r = $a_pageresults[$rid]; }
-	}
+if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
+	$r = $a_pageresults[$_GET['r']];
+	$rid = $_GET['r'];
 	// If 'r' isn't any of the above values or not provided it will remain as default [50]
 }
 
 // Get requested 's' parameter and convert it to the status ID
-if (isset($_GET['s'])) {
-	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $sid) {
-		if ($_GET['s'] == $sid) { $s = $sid; }
-	}
+if (isset($_GET['s']) && array_key_exists($_GET['s'], $a_title)) {
+	$s = $_GET['s'];
 	// If 's' isn't any of the above values or not provided it will remain as default [0]
 }
 
 // Order by
-if (isset($_GET['o']) && isValidOrder($_GET['o'])) {
+if (isset($_GET['o']) && array_key_exists($_GET['o'], $a_order)) {
 	$o = strtolower($_GET['o']);
 }
 
@@ -83,7 +91,7 @@ if (isset($_GET['c'])) {
 		// strToLower is there in case someone decides to manually write the URL and use UpperCase chars
 		if ($_GET['c'] == strtolower($char)) { $c = strtolower($char); }
 	}
-	if ($_GET['c'] == "09")  { $c = "09"; }   // Numbers
+	if ($_GET['c'] == "09")  { $c = "09";  } // Numbers
 	if ($_GET['c'] == "sym") { $c = "sym"; } // Symbols
 }
 
@@ -140,19 +148,11 @@ if ($f != "") {
 }
 
 // QUERYGEN: Order
+if ($genquery == " WHERE ") { $genquery = " "; }
 if ($o == "") {
-	if ($genquery == " WHERE ") { $genquery = " "; }
 	$genquery .= " ORDER BY status ASC, game_title ASC ";
 } else {
-	if ($genquery == " WHERE ") { $genquery = " "; }
-	if ($o == "1a") { $genquery .= " ORDER BY game_id ASC "; }
-	if ($o == "1d") { $genquery .= " ORDER BY game_id DESC "; }
-	if ($o == "2a") { $genquery .= " ORDER BY game_title ASC "; }
-	if ($o == "2d") { $genquery .= " ORDER BY game_title DESC "; }
-	if ($o == "3a") { $genquery .= " ORDER BY status ASC "; }
-	if ($o == "3d") { $genquery .= " ORDER BY status DESC "; }
-	if ($o == "4a") { $genquery .= " ORDER BY last_edit ASC "; }
-	if ($o == "4d") { $genquery .= " ORDER BY last_edit DESC "; }
+	$genquery .= $a_order[$o];
 }
 
 if ($genquery == " WHERE ") { $genquery = " "; }
@@ -176,6 +176,7 @@ foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc)
 	}
 }
 
+$scount = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
 	if ($c != "" && $c != "09" && $c != "sym") {
 		$scquery[$sc] .= " AND game_title LIKE '$c%'";
@@ -224,11 +225,10 @@ mysqli_close($db);
  * General: Combined Search    *
  *   Results per Page          *
  *******************************/
-foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $rid) { 
-	// If the value for results per page is valid and other than the default one
-	if ($r == $a_pageresults[$rid] && $r != $a_pageresults[$c_pageresults]) { $g_pageresults = "r=$rid&"; } 
+if (in_array($r, $a_pageresults)) {
+	if ($r == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
+	else { $g_pageresults = "r=$rid&"; }
 }
-if (!isset($g_pageresults)) { $g_pageresults = ""; }
 
 
 /***********
@@ -315,14 +315,17 @@ function getStatusDescriptions() {
 function getCharSearch() {
 	global $g_pageresults, $s, $c, $a_css, $a_title;
 	
-	/* ALL */
-	$s_charsearch .= "<td><a href=\"?";
+	/* Commonly used code: so we don't have to waste lines repeating this */
+	$common .= "<td><a href=\"?";
 
 	// Combined search: results per page
-	$s_charsearch .= $g_pageresults;
+	$common .= $g_pageresults;
 	// Combined search: search by status
-	if ($s > min(array_keys($a_title))) {$s_charsearch .= "s=$s&";} 
-
+	if ($s > min(array_keys($a_title))) {$common .= "s=$s&";} 
+	
+	
+	/* ALL */
+	$s_charsearch .= $common;
 	$s_charsearch .= "c=\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
 	if ($c == "") { $s_charsearch .= highlightBold("All"); }
 	else { $s_charsearch .= "All"; }
@@ -330,13 +333,7 @@ function getCharSearch() {
 
 	/* A-Z */
 	foreach (range('a', 'z') as $i) { 
-		$s_charsearch .= "<td><a href=\"?"; 
-		
-		// Combined search: results per page
-		$s_charsearch .= $g_pageresults;
-		// Combined search: search by status
-		if ($s > min(array_keys($a_title))) {$s_charsearch .= "s=$s&";} 
-		
+		$s_charsearch .= $common;
 		$s_charsearch .= "c=$i\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">";
 		if ($c == $i) { $s_charsearch .= highlightBold(strToUpper($i)); }
 		else { $s_charsearch .= strToUpper($i); }
@@ -344,13 +341,7 @@ function getCharSearch() {
 	} 
 
 	/* Numbers */
-	$s_charsearch .= "<td><a href=\"?";
-
-	// Combined search: results per page
-	$s_charsearch .= $g_pageresults;
-	// Combined search: search by status
-	if ($s > min(array_keys($a_title))) {$s_charsearch .= "s=$s&";} 
-
+	$s_charsearch .= $common;
 	$s_charsearch .= "c=09\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
 	if ($c == "09") { $s_charsearch .= highlightBold("0-9"); }
 	else { $s_charsearch .= "0-9"; }
@@ -358,13 +349,7 @@ function getCharSearch() {
 	
 	
 	/* Symbols */
-	$s_charsearch .= "<td><a href=\"?";
-
-	// Combined search: results per page
-	$s_charsearch .= $g_pageresults;
-	// Combined search: search by status
-	if ($s > min(array_keys($a_title))) {$s_charsearch .= "s=$s&";} 
-
+	$s_charsearch .= $common;
 	$s_charsearch .= "c=sym\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
 	if ($c == "sym") { $s_charsearch .= highlightBold("#"); }
 	else { $s_charsearch .= "#"; }

@@ -99,13 +99,6 @@ function getColoredStatus($sn) {
 	}
 }
 
-// Check if provided order is valid
-function isValidOrder($o) {
-	if ($o == "1a" || $o == "1d" || $o == "2a" || $o == "2d" || $o == "3a" || $o == "3d" || $o == "4a" || $o == "4d") 
-		{ return true; }
-	return false;
-}
-
 // Validate searchbox user input
 function isValid($str) {
     return !preg_match("/[^A-Za-z0-9.#&~ \/\'-]/", $str);
