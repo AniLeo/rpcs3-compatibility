@@ -49,6 +49,8 @@ $o = "";
 $sf = "";
 // Search by region [Default: none]
 $f = "";
+// Search by date [Default: none]
+$d = "";
 
 // Order queries
 $a_order = array(
@@ -105,6 +107,10 @@ if (isset($_GET['f'])) {
 	if ($_GET['f'] == "a" || $_GET['f'] == "h" || $_GET['f'] == "e" || $_GET['f'] == "u" || $_GET['f'] == "j") { $f = strtolower($_GET['f']); }
 }
 
+// Search by date, simple checks for valid values
+if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
+	$d = $_GET['d'];
+}
 
 /***
  Database Queries
@@ -147,12 +153,20 @@ if ($f != "") {
 	$genquery .= " SUBSTR(game_id, 3, 1) = '".$f."' ";
 }
 
+// QUERYGEN: Search by date
+if ($d != "") {
+	if ($s > min(array_keys($a_title)) && $c == "" && $f != "") { $genquery .= " AND "; }
+	if ($c != "" || $sf != "" || $f != "") { $genquery .= " AND "; }
+	$sd = mysqli_real_escape_string($db, $d);
+	$genquery .= " last_edit = '$sd' "; 
+}
+
 // QUERYGEN: Order
 if ($genquery == " WHERE ") { $genquery = " "; }
 if ($o == "") {
 	$genquery .= " ORDER BY status ASC, game_title ASC ";
 } else {
-	$genquery .= $a_order[$o];
+	$genquery .= " ".$a_order[$o]." ";
 }
 
 if ($genquery == " WHERE ") { $genquery = " "; }
@@ -422,13 +436,13 @@ function getTableContent() {
 	if ($sqlQry) {
 		if (mysqli_num_rows($sqlQry) > 0) {
 			while($row = mysqli_fetch_object($sqlQry)) {
-				$s_tablecontent .= '<tr>
-				<td>'.getGameRegion($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_id, $row->thread_id).'</td>
-				<td>'.getGameMedia($row->game_id).'&nbsp;&nbsp;'.getThread($row->game_title, $row->thread_id).'</td>
-				<td>'.getCommit($row->build_commit).'</td>
-				<td>'.getColoredStatus($row->status).'</td>
-				<td>'.$row->last_edit.'</td>
-				</tr>';
+				$s_tablecontent .= "<tr>
+				<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
+				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
+				<td>".getCommit($row->build_commit)."</td>
+				<td>".getColoredStatus($row->status)."</td>
+				<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a></td>
+				</tr>";
 			}	
 		} // No results is handled on pagesCounter
 	} else {
