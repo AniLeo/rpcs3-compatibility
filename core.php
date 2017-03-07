@@ -266,7 +266,7 @@ function getSortBy() {
  * Results per page *
  ********************/
 function getResultsPerPage() {
-	global $a_pageresults, $s, $c, $sf, $s_pageresults, $scount, $r;
+	global $a_pageresults, $s, $c, $sf, $s_pageresults, $scount, $r, $a_title;
 	
 	foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
@@ -323,7 +323,7 @@ function getCharSearch() {
 	// Combined search: search by status
 	if ($s > min(array_keys($a_title))) {$s_charsearch .= "s=$s&";} 
 
-	$s_charsearch .= "\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
+	$s_charsearch .= "c=\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
 	if ($c == "") { $s_charsearch .= highlightBold("All"); }
 	else { $s_charsearch .= "All"; }
 	$s_charsearch .= "</div></a></td>"; 
@@ -378,7 +378,7 @@ function getCharSearch() {
  * Table Headers *
  *****************/
 function getTableHeaders() {
-	global $s, $c, $g_pageresults, $sf, $scount, $o;
+	global $s, $c, $g_pageresults, $sf, $scount, $o, $a_title;
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<th><a href =\"?";
@@ -458,7 +458,7 @@ function getTableContent() {
  * Pages Counter *
  *****************/
 function getPagesCounter() {
-	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults, $f;
+	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults, $f, $a_title;
 	
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
@@ -486,8 +486,8 @@ function getPagesCounter() {
 		
 		// Display number of the page
 		$s_pagescounter .= "p=$i\">";
-		if ($i == $currentPage) { $s_pagescounter .= highlightBold($i); }
-		else {$s_pagescounter .= $i; }
+		if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
+		else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
 		
 		$s_pagescounter .= "</a>&nbsp;&#32;"; 
 	}
