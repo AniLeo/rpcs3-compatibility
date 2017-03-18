@@ -33,13 +33,14 @@ mysqli_set_charset($db, 'utf8');
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
-$c_pageresults = 2; // Default results per page (50)
+$c_pageresults = 3; // Default results per page (50)
 
 // Results per page
 $a_pageresults = array(
-1 => 25,
-2 => 50,
-3 => 100
+1 => 15,
+2 => 25,
+3 => 50,
+4 => 100
 );
 
 // Status titles 

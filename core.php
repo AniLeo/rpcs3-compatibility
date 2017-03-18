@@ -112,6 +112,11 @@ if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && st
 	$d = $_GET['d'];
 }
 
+// Compatibility History
+if (isset($_GET['h'])) {
+	$h1 = "rpcs3"; $h2 = "2017_03";	       // current
+} else { $h1 = "rpcs3"; $h2 = "2017_03"; } // current
+
 /***
  Database Queries
 ***/
@@ -227,10 +232,9 @@ $sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edi
 			.$genquery.
 			"LIMIT ".($r*$currentPage-$r).", $r;";
 			$sqlQry = mysqli_query($db, $sqlCmd);
-			
+
 // End MySQL connection as it won't be required from here on
 mysqli_close($db);
-
 
 /*****************************************************************************************************************************/
 
@@ -290,7 +294,7 @@ function getResultsPerPage() {
 		// Combined search: search by character
 		if ($c != "") {$s_pageresults .= "c=$c&";} 
 		// Combined search: searchbox
-		if ($sf != "" && $scount[0] > 0) {$s_pageresults .= "sf='".urlencode($sf)."'&";} 
+		if ($sf != "" && $scount[0] > 0) {$s_pageresults .= "sf=".urlencode($sf)."&";} 
 		
 		$s_pageresults .= "r=$i\">"; 
 		
@@ -389,7 +393,7 @@ function getTableHeaders() {
 	// Order support: Search by character
 	if ($c != "") {$common .= "c=$c&";} 
 	// Order support: Searchbox
-	if ($sf != "" && $scount[0] > 0) {$common .= "sf='".urlencode($sf)."'&";} 
+	if ($sf != "" && $scount[0] > 0) {$common .= "sf=".urlencode($sf)."&";} 
 	
 	
 	/* Game ID */
@@ -494,9 +498,55 @@ function getPagesCounter() {
 	return $s_pagescounter;
 }
 
+// Compatibility History: Pulls information from backup and compares with current database
+function getHistory(){
+	global $h1, $h2; 
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$theQuery = mysqli_query($db, 
+	"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
+	FROM {$h1} AS t1
+	LEFT JOIN {$h2} AS t2
+	ON t1.game_id=t2.game_id
+	ORDER BY new_status ASC, -old_status DESC, title ASC; ");
+	
+	if (!$theQuery || mysqli_num_rows($theQuery) == 0) { 
+		echo "An error has occoured."; 
+	} else {
+		echo "<tr>
+		<th>Game ID</th>
+		<th>Game Title</th>
+		<th>New Status</th>
+		<th>New Date</th>
+		<th>Old Status</th>
+		<th>Old Date</th>
+		</tr>";
+		
+		while($row = mysqli_fetch_object($theQuery)) {
+			
+			if ($row->old_status != $row->new_status) {
+				echo "<tr>
+				<td>".getGameRegion($row->gid)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
+				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
+				<td>".getColoredStatus($row->new_status)."</td>
+				<td>{$row->new_date}</td>";
+				
+				if ($row->old_status !== NULL) {
+					echo "<td>".getColoredStatus($row->old_status)."</td>
+					<td>{$row->old_date}</td>";
+				} else {
+					echo "<td><i>None</i></td>
+					<td><i>None</i></td>";
+				}
+				echo "</tr>";	
+			}
+		}
+	}
+}
 
 /*****************************************************************************************************************************/
-
 
 // End of time calculations
 $time = microtime();
