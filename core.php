@@ -35,6 +35,8 @@ $time = explode(' ', $time);
 $time = $time[1] + $time[0];
 $start = $time;
 
+// TODO: Some new additions need refactoring
+
 // Initialize variables with the default values
 // Results per page [Default: 50 (from config)]
 $r = $a_pageresults[$c_pageresults];
@@ -112,9 +114,9 @@ if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && st
 	$d = $_GET['d'];
 }
 
-// Compatibility History
+// History
 if (isset($_GET['h'])) {
-	$h1 = "rpcs3"; $h2 = "2017_03";	       // current
+	$h1 = "rpcs3"; $h2 = "2017_03";  // current
 } else { $h1 = "rpcs3"; $h2 = "2017_03"; } // current
 
 /***
@@ -178,12 +180,6 @@ if ($genquery == " WHERE ") { $genquery = " "; }
 // Query generation, end.
 
 
-// Page calculation according to the user's search
-$pagesCmd = "SELECT count(*) AS c FROM ".db_table." $genquery ;";
-$pagesQry = mysqli_query($db, $pagesCmd);
-$pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
-
-
 // Select the count of games in each status
 $scquery = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
@@ -219,6 +215,13 @@ foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc)
 	$scount[0] += $scount[$sc];
 }
 
+
+// Page calculation according to the user's search
+$pagesCmd = "SELECT count(*) AS c FROM ".db_table." $genquery ;";
+$pagesQry = mysqli_query($db, $pagesCmd);
+$pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
+
+
 // Get current page user is on
 // And calculate the number of pages according selected status and results per page
 if (isset($_GET['p'])) {
@@ -226,14 +229,52 @@ if (isset($_GET['p'])) {
 	if ($currentPage > $pages) { $currentPage = 1; }		
 } else { $currentPage = 1; }
 
+
 // Run the main query 
 $sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
 			FROM ".db_table." "
 			.$genquery.
 			"LIMIT ".($r*$currentPage-$r).", $r;";
-			$sqlQry = mysqli_query($db, $sqlCmd);
+$sqlQry = mysqli_query($db, $sqlCmd);
 
-// End MySQL connection as it won't be required from here on
+
+// If results not found then apply levenshtein to get the closest result
+$l_title = "";
+$l_dist = -1;
+$sfo = "";
+if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
+	$sqlCmd2 = "SELECT * FROM ".db_table."; ";
+	$sqlQry2 = mysqli_query($db, $sqlCmd2);
+	
+	while($row = mysqli_fetch_object($sqlQry2)) {
+		$lev = levenshtein($sf, $row->game_title);
+		
+		if ($lev <= $l_dist || $l_dist < 0) {
+			$l_title = $row->game_title;
+			$l_dist = $lev;
+		}
+	}
+	
+	if ($l_title != "") {
+		$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
+				FROM ".db_table." WHERE game_title LIKE '%{$l_title}%' 
+				LIMIT ".($r*$currentPage-$r).", $r;";
+		$sqlQry = mysqli_query($db, $sqlCmd);
+		
+		// Recalculate pages
+		$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE game_title LIKE '%{$l_title}%' ;");
+		$pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
+		if (isset($_GET['p'])) {
+			$currentPage = intval($_GET['p']);
+			if ($currentPage > $pages) { $currentPage = 1; }		
+		} else { $currentPage = 1; }
+		
+		$sfo = $sf;
+		$sf = $l_title;
+	}
+}
+
+// Close MySQL connection. If user is search
 mysqli_close($db);
 
 /*****************************************************************************************************************************/
@@ -435,10 +476,13 @@ function getTableHeaders() {
  * Table Content *
  *****************/
 function getTableContent() {
-	global $sqlQry;
+	global $sqlQry, $l_title, $sfo;
 	
 	if ($sqlQry) {
 		if (mysqli_num_rows($sqlQry) > 0) {
+			if ($l_title != "") {
+				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$sfo}</i>. </br> Displaying results for <b><a style=\"color:#06c;\" href=\"?sf=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
+			}
 			while($row = mysqli_fetch_object($sqlQry)) {
 				$s_tablecontent .= "<tr>
 				<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
@@ -448,7 +492,7 @@ function getTableContent() {
 				<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a></td>
 				</tr>";
 			}	
-		} // No results is handled on pagesCounter
+		} 
 	} else {
 		// Query generator fail error
 		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
@@ -466,7 +510,9 @@ function getPagesCounter() {
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
 	if ($pages == 0) { 
-		if ($sf != "") { $s_pagescounter .= "Results for '$sf' Game ID or Game Title not found."; }
+		if ($sf != "") { 
+		// $s_pagescounter .= "Results for '$sf' Game ID or Game Title not found."; 
+		}
 		else { $s_pagescounter .= 'No results found using the selected search criteria.'; }
 	} 
 	// ELSE it shows current page and total pages
@@ -502,6 +548,7 @@ function getPagesCounter() {
 function getHistory(){
 	global $h1, $h2; 
 	
+	// Establish MySQL connection to be used for history
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 
@@ -544,6 +591,9 @@ function getHistory(){
 			}
 		}
 	}
+	
+	// Close MySQL connection again since it won't be required
+	mysql_close($db);
 }
 
 /*****************************************************************************************************************************/
