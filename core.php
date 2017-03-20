@@ -53,6 +53,8 @@ $sf = "";
 $f = "";
 // Search by date [Default: none]
 $d = "";
+// History mode [Default: all (none)]
+$m = "";
 
 // Order queries
 $a_order = array(
@@ -118,6 +120,11 @@ if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && st
 if (isset($_GET['h'])) {
 	$h1 = "rpcs3"; $h2 = "2017_03";  // current
 } else { $h1 = "rpcs3"; $h2 = "2017_03"; } // current
+
+// History mode
+if (isset($_GET['m'])) {
+	if ($_GET['m'] == "c" || $_GET['m'] == "n" ) { $m = strtolower($_GET['m']); }
+}
 
 /***
  Database Queries
@@ -257,12 +264,12 @@ if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
 	
 	if ($l_title != "") {
 		$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
-				FROM ".db_table." WHERE game_title LIKE '%{$l_title}%' 
+				FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $l_title)."%' 
 				LIMIT ".($r*$currentPage-$r).", $r;";
 		$sqlQry = mysqli_query($db, $sqlCmd);
 		
 		// Recalculate pages
-		$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE game_title LIKE '%{$l_title}%' ;");
+		$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $l_title)."%' ;");
 		$pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
 		if (isset($_GET['p'])) {
 			$currentPage = intval($_GET['p']);
@@ -546,49 +553,78 @@ function getPagesCounter() {
 
 // Compatibility History: Pulls information from backup and compares with current database
 function getHistory(){
-	global $h1, $h2; 
+	global $h1, $h2, $m; 
 	
 	// Establish MySQL connection to be used for history
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
-
-	$theQuery = mysqli_query($db, 
+	
+	$cQuery = mysqli_query($db, 
 	"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
 	FROM {$h1} AS t1
 	LEFT JOIN {$h2} AS t2
 	ON t1.game_id=t2.game_id
+	WHERE t1.status != t2.status 
 	ORDER BY new_status ASC, -old_status DESC, title ASC; ");
 	
-	if (!$theQuery || mysqli_num_rows($theQuery) == 0) { 
-		echo "An error has occoured."; 
-	} else {
-		echo "<tr>
-		<th>Game ID</th>
-		<th>Game Title</th>
-		<th>New Status</th>
-		<th>New Date</th>
-		<th>Old Status</th>
-		<th>Old Date</th>
-		</tr>";
-		
-		while($row = mysqli_fetch_object($theQuery)) {
+	if ($m == "c" || $m == "") {
+		if (!$cQuery || mysqli_num_rows($cQuery) == 0) { 
+			echo "An error has occoured."; 
+		} else {
+			echo "
+			<table class='compat-con-container'><tr>
+			<th>Game ID</th>
+			<th>Game Title</th>
+			<th>New Status</th>
+			<th>New Date</th>
+			<th>Old Status</th>
+			<th>Old Date</th>
+			</tr>";
 			
-			if ($row->old_status != $row->new_status) {
+			while($row = mysqli_fetch_object($cQuery)) {
 				echo "<tr>
 				<td>".getGameRegion($row->gid)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
 				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
-				<td>{$row->new_date}</td>";
-				
-				if ($row->old_status !== NULL) {
-					echo "<td>".getColoredStatus($row->old_status)."</td>
-					<td>{$row->old_date}</td>";
-				} else {
-					echo "<td><i>None</i></td>
-					<td><i>None</i></td>";
-				}
-				echo "</tr>";	
+				<td>{$row->new_date}</td>
+				<td>".getColoredStatus($row->old_status)."</td>
+				<td>{$row->old_date}</td>
+				</tr>";	
 			}
+			echo "</table></br>";
+		}
+	}
+	
+	if ($m == "n" || $m == "") {
+		$nQuery = mysqli_query($db, 
+		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
+		FROM {$h1} AS t1
+		LEFT JOIN {$h2} AS t2
+		ON t1.game_id=t2.game_id
+		WHERE t2.status IS NULL
+		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
+		
+		if (!$nQuery || mysqli_num_rows($nQuery) == 0) { 
+			echo "An error has occoured."; 
+		} else {
+			echo "</br>
+			<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>
+			<table class='compat-con-container'><tr>
+			<th>Game ID</th>
+			<th>Game Title</th>
+			<th>Status</th>
+			<th>Date</th>
+			</tr>";
+			
+			while($row = mysqli_fetch_object($nQuery)) {
+				echo "<tr>
+				<td>".getGameRegion($row->gid)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
+				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
+				<td>".getColoredStatus($row->new_status)."</td>
+				<td>{$row->new_date}</td>
+				</tr>";	
+			}
+			echo "</table></br>";
 		}
 	}
 	
