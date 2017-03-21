@@ -27,9 +27,6 @@ define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
 define('db_table' , 'TABLE_NAME');
 
-$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-mysqli_set_charset($db, 'utf8');
-
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
@@ -83,14 +80,14 @@ $a_flags = array(
 
 // Game media icons
 $a_media = array(
-"PSN" => "/img/icons/list/psn.png",
-"BLR" => "/img/icons/list/rom.png"
+"PSN" => '/img/icons/list/psn.png',
+"BLR" => '/img/icons/list/rom.png'
 );
 
 // CSS elements
 $a_css = array(
-"MEDIA_ICON" => "div-compat-fmat",
-"CHARACTER_SEARCH" => "compat-inr-search"
+"MEDIA_ICON" => 'div-compat-fmat',
+"CHARACTER_SEARCH" => 'compat-inr-search'
 );
 
 ?>

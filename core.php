@@ -130,6 +130,9 @@ if (isset($_GET['m'])) {
  Database Queries
 ***/
 
+$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+mysqli_set_charset($db, 'utf8');
+
 // Query generation, activate!
 $genquery = " WHERE ";
 
@@ -221,6 +224,7 @@ $games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_t
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) {
 	$scount[0] += $scount[$sc];
 }
+
 
 
 // Page calculation according to the user's search
@@ -551,6 +555,37 @@ function getPagesCounter() {
 	return $s_pagescounter;
 }
 
+function getHistoryOptions() {
+	global $h1, $m;
+	
+	$o1 = "<a href=\"?h\">Show all entries</a>";
+	$o2 = "<a href=\"?h&m=c\">Show only previously existent entries</a>";
+	$o3 = "<a href=\"?h&m=n\">Show only new entries</a>";
+		
+	if ($h1 != "") { 
+		echo highlightBold($o1);
+	} else {
+		echo $o1;
+	}
+	echo " <a href=\"?h&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
+			
+	if ($h1 != "" && $m == "c") { 
+		echo highlightBold($o2);
+	} else {
+		echo $o2;
+	}
+	echo " <a href=\"?h&m=c&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
+	
+	if ($h1 != "" && $m == "n") { 
+		echo highlightBold($o3);
+	} else {
+		echo $o3;
+	}
+	echo " <a href=\"?h&m=n&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
+		
+	echo "<a href=\"?\">Back to Compatibility List</a>";
+}
+
 // Compatibility History: Pulls information from backup and compares with current database
 function getHistory(){
 	global $h1, $h2, $m; 
@@ -630,6 +665,66 @@ function getHistory(){
 	
 	// Close MySQL connection again since it won't be required
 	mysql_close($db);
+}
+
+
+function getHistoryRSS(){
+	global $c_forum, $m;
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$rssCmd = "
+	SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
+	FROM ".db_table." AS t1
+	LEFT JOIN 2017_03 AS t2
+	ON t1.game_id=t2.game_id ";
+	if ($m == "c") {
+		$rssCmd .= " WHERE t1.status != t2.status ";
+	} elseif ($m == "n") {
+		$rssCmd .= " WHERE t2.status IS NULL ";
+	} else {
+		$rssCmd .= " WHERE t1.status != t2.status OR t2.status IS NULL ";
+	}
+	$rssCmd .= "ORDER BY new_date DESC, new_status ASC, -old_status DESC, title ASC; ";
+	
+	$rssQuery = mysqli_query($db, $rssCmd);
+	
+	if (!$rssQuery) {
+		return "An error occoured. Please try again. If the issue persists contact RPCS3 team.";
+	}
+
+    $rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+				<rss version=\"2.0\">
+				<channel>
+				<title>RPCS3 Compatibility List History's RSS feed</title>
+				<link>https://rpcs3.net/compatibility?h</link>
+				<description>For more information about RPCS3 visit https://rpcs3.net</description>
+				<language>en-uk</language>";
+ 
+    while($row = mysqli_fetch_object($rssQuery)) {
+ 
+        $rssfeed .= "<item>
+					<title>{$row->gid} - {$row->title}</title>
+					<link>{$c_forum}{$row->tid}</link>";
+		
+		if ($row->old_status !== NULL) {
+			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";
+		} else {
+			$rssfeed .= "<description>New entry for {$row->new_status} ({$row->new_date})</description>";
+		}
+        
+		$rssfeed .= "<pubDate>{$row->new_date}</pubDate>
+					</item>";
+    }
+ 
+    $rssfeed .= "</channel>
+				</rss>";
+				
+	// Close MySQL connection again since it won't be required
+	mysql_close($db);
+	
+    return $rssfeed;
 }
 
 /*****************************************************************************************************************************/
