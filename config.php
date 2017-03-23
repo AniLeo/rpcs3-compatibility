@@ -32,6 +32,9 @@ $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
 $c_pageresults = 3; // Default results per page (50)
 
+// Background color for unknown commit div
+$c_unkcommit = 'ffd700';
+
 // Results per page
 $a_pageresults = array(
 1 => 15,
@@ -71,11 +74,12 @@ $a_color = array(
 
 // Region flags
 $a_flags = array(
-"CN" => "<img src='/img/icons/flags/CN.png'>",
-"EU" => "<img src='/img/icons/flags/EU.png'>",
-"HK" => "<img src='/img/icons/flags/HK.png'>",
-"JP" => "<img src='/img/icons/flags/JP.png'>",
-"US" => "<img src='/img/icons/flags/US.png'>"
+"A" => "img/icons/flags/CN.png", // Asia
+"E" => "img/icons/flags/EU.png", // Europe
+"H" => "img/icons/flags/CN.png", // Southern Asia
+"K" => "img/icons/flags/HK.png", // Hong Kong
+"J" => "img/icons/flags/JP.png", // Japan
+"U" => "img/icons/flags/US.png"  // USA
 );
 
 // Game media icons
@@ -87,7 +91,10 @@ $a_media = array(
 // CSS elements
 $a_css = array(
 "MEDIA_ICON" => 'div-compat-fmat',
-"CHARACTER_SEARCH" => 'compat-inr-search'
+"CHARACTER_SEARCH" => 'compat-inr-search',
+"STATUS" => 'txt-compat-status',
+"BUILD" => 'txt-compat-build',
+"NOBUILD" => 'txt-compat-nobuild'
 );
 
 ?>

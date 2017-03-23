@@ -21,10 +21,20 @@
 
 // Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
 
-// Check the first character of the Game ID to obtain media
+
+/**
+  * getGameMedia
+  *
+  * Obtains Game Media by checking Game ID's first character. 
+  * Returns Game Media as an image with MEDIA_ICON CSS class,
+  *  empty string if Game Media is invalid.
+  *
+  * @param string $gid GameID: 9 character ID that identifies a game
+  *
+  * @return string
+  */
 function getGameMedia($gid) {
-	global $a_media;
-	global $a_css;
+	global $a_media, $a_css;
 	
 	if     (substr($gid, 0, 1) == "N")  { return "<img alt=\"Digital\" src=\"{$a_media["PSN"]}\" class=\"{$a_css["MEDIA_ICON"]}\">"; }  // PSN Retail
 	elseif (substr($gid, 0, 1) == "B")  { return "<img alt=\"Blu-Ray\" src=\"{$a_media["BLR"]}\" class=\"{$a_css["MEDIA_ICON"]}\">"; }  // PS3 Blu-Ray
@@ -32,25 +42,50 @@ function getGameMedia($gid) {
 	else                                { return ""; }
 }
 
-// Check the third character of the Game ID to obtain region
-function getGameRegion($gid) {
+
+/**
+  * getGameRegion
+  *
+  * Obtains Game Region by checking Game ID's third character. 
+  * Returns Game Region as a clickable or non-clickable flag image,
+  *  empty string if Game Region is invalid/unknown.
+  * Icon flags from https://www.iconfinder.com/iconsets/famfamfam_flag_icons
+  *
+  * @param string $gid GameID: 9 character ID that identifies a game
+  * @param bool   $url Whether to return Game Region as a clickable(1) or non-clickable(0) flag
+  *
+  * @return string
+  */
+function getGameRegion($gid, $url) {
 	global $a_flags;
 	
-	// Icons from: https://www.iconfinder.com/iconsets/famfamfam_flag_icons
-	if     (substr($gid, 2, 1) == "A")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["CN"]}</a>"; }   // Asia 
-	elseif (substr($gid, 2, 1) == "E")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["EU"]}</a>"; }   // Europe
-	elseif (substr($gid, 2, 1) == "H")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["CN"]}</a>"; }   // Southern Asia
-	elseif (substr($gid, 2, 1) == "K")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["HK"]}</a>"; }   // Hong Kong
-	elseif (substr($gid, 2, 1) == "J")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["JP"]}</a>"; }   // Japan
-	elseif (substr($gid, 2, 1) == "U")  { return "<a href=\"?f=".strtolower(substr($gid, 2, 1))."\">{$a_flags["US"]}</a>"; }   // USA
-	// We don't care about those two as they won't be listed
-	elseif (substr($gid, 2, 1) == "I")  { return ""; }               // Internal (Sony)
-	elseif (substr($gid, 2, 1) == "X")  { return ""; }               // Firmware/SDK Sample
-	// One shouldn't be able to reach here, unless there are missing regions
-	else                                { return ""; }
+	$l = substr($gid, 2, 1);
+	
+	// If it's not a valid / known region then we return an empty string
+	if (!array_key_exists($l, $a_flags)) {
+		return "";
+	}
+	
+	if ($url) {
+		// Returns clickable flag for region (flag) search
+		return "<a href=\"?f=".strtolower($l)."\"><img src=\"{$a_flags[$l]}\"></a>";
+	} else {
+		// Returns unclickable flag
+		return "<img src=\"$a_flags[$l]\">";
+	}
 }
 
-// Check the fourth character of the Game ID to obtain type
+
+/**
+  * getGameType
+  *
+  * Obtains Game Type by checking Game ID's fourth character. 
+  * Returns Game Type as a string, empty if Game Type is invalid/unknown.
+  *
+  * @param string $gid GameID: 9 character ID that identifies a game
+  *
+  * @return string
+  */
 function getGameType($gid) {
 	// Physical
 	if (substr($gid, 0, 1) == "B" || substr($gid, 0, 1) == "X") {
@@ -71,39 +106,95 @@ function getGameType($gid) {
 	}
 }
 
-// Get the thread link and return it as a hyperlink wrapped around the provided text
+
+/**
+  * getThread
+  *
+  * Obtains thread URL for a game by adding thread ID to the forum showthread URL prefix
+  * Returns provided text wrapped around a hyperlink for the thread
+  *
+  * @param string $text
+  * @param string $tid ThreadID
+  *
+  * @return string
+  */
 function getThread($text, $tid) {
 	global $c_forum;
 	
-	if ($tid != "None") { return "<a href=\"{$c_forum}{$tid}\">{$text}</a>"; } 
-	else                { return $text; }
+	// The thread should never be 0. All games MUST have a thread.
+	if ($tid != "0") { return "<a href=\"{$c_forum}{$tid}\">{$text}</a>"; } 
+	else             { return $text; }
 }
 
-// Get the GitHub commit link and return it as a hyperlink
+
+/**
+  * getCommit
+  *
+  * Obtains commit URL for a commit by adding commit ID to the github commit URL prefix
+  * Returns commit ID wrapped around a hyperlink with BUILD CSS class
+  * for the commit or "Unknown" with NOBUILD CSS class if the commit ID is 0 (Unknown)
+  *
+  * @param string $cid CommitID
+  *
+  * @return string
+  */
 function getCommit($cid) {
-	global $c_github;
+	global $c_github, $a_css, $c_unkcommit;
 	
-	if ($cid != "0")    { return "<a class='txt-compat-build' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>"; } 
-	else                { return "<div class='txt-compat-nobuild' style='background: #ffd700;'>Unknown</div>"; }
+	// If the commit is unknown we input 0.
+	if ($cid != "0") { return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>"; } 
+	else             { return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'>Unknown</div>"; }
 }
 
-// Get the status color and return it as font color wrapped around the status name
+
+/**
+  * getColoredStatus
+  *
+  * Obtains colored status using the color from configuration a_colors array
+  * Returns status wrapped around a background colored div with STATUS CSS class 
+  * or italic "Invalid" if someone messes up inputting statuses.
+  *
+  * @param string $sn StatusName
+  *
+  * @return string
+  */
 function getColoredStatus($sn) {
-	global $a_title, $a_color;
-	
-	// This should be unreachable unless someone wrongly inputs status in the database
-	if ($sn == "") { return "<i>Invalid</i>"; }
+	global $a_title, $a_color, $a_css;
 	
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $i) { 
-		if ($sn == $a_title[$i]) { return "<div class='txt-compat-status' style='background: #$a_color[$i];'>$a_title[$i]</div>"; }
+		if ($sn == $a_title[$i]) { return "<div class='{$a_css["STATUS"]}' style='background: #{$a_color[$i]};'>{$a_title[$i]}</div>"; }
 	}
+	
+	// This should be unreachable unless someone wrongly inputs status in the database
+	return "<i>Invalid</i>";
 }
 
-// Validate searchbox user input
+
+/**
+  * isValid
+  *
+  * Checks if string only has allowed characters.
+  * Returns true if valid or false if invalid. 
+  * Used for the searchbox.
+  *
+  * @param string $str Some text
+  *
+  * @return bool
+  */
 function isValid($str) {
     return !preg_match("/[^A-Za-z0-9.#&~ \/\'-]/", $str);
 }
 
+
+/**
+  * highlightBold
+  *
+  * Returns provided string wrapped in bold html tags
+  *
+  * @param string $str Some text
+  *
+  * @return string
+  */
 function highlightBold($str) {
 	return "<b>$str</b>";
 }

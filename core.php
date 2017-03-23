@@ -137,21 +137,21 @@ mysqli_set_charset($db, 'utf8');
 $genquery = " WHERE ";
 
 // QUERYGEN: Status
-if ($s > min(array_keys($a_title))) { $genquery .= " status = $s "; } 
+if ($s > min(array_keys($a_title))) { $genquery .= " status = {$s} "; } 
 
 // QUERYGEN: Character
 if ($c != "") {
 	if ($c == '09') {
 		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery = $genquery . " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
+		$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
 		OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
 		OR game_title LIKE '8%' OR game_title LIKE '9%') ";
 	} elseif ($c == 'sym') {
 		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery = $genquery . " (game_title LIKE '.%' OR game_title LIKE '&%') "; // TODO: Add more symbols when they show up
+		$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') "; // TODO: Add more symbols when they show up
 	} else {
 		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery = $genquery . " game_title LIKE '".$c."%' ";
+		$genquery .= " game_title LIKE '{$c}%' ";
 	}
 }
 
@@ -160,14 +160,14 @@ if ($sf != "") {
 	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
 	if ($c != "") { $genquery .= " AND "; }
 	$ssf = mysqli_real_escape_string($db, $sf);
-	$genquery .= " (game_title LIKE '%".$ssf."%' OR game_id LIKE '%".$ssf."%') ";
+	$genquery .= " (game_title LIKE '%{$ssf}%' OR game_id LIKE '%{$ssf}%') ";
 }
 
 // QUERYGEN: Search by region
 if ($f != "") {
 	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
 	if ($c != "" || $sf != "") { $genquery .= " AND "; }
-	$genquery .= " SUBSTR(game_id, 3, 1) = '".$f."' ";
+	$genquery .= " SUBSTR(game_id, 3, 1) = '{$f}' ";
 }
 
 // QUERYGEN: Search by date
@@ -175,7 +175,7 @@ if ($d != "") {
 	if ($s > min(array_keys($a_title)) && $c == "" && $f != "") { $genquery .= " AND "; }
 	if ($c != "" || $sf != "" || $f != "") { $genquery .= " AND "; }
 	$sd = mysqli_real_escape_string($db, $d);
-	$genquery .= " last_edit = '$sd' "; 
+	$genquery .= " last_edit = '{$sd}' "; 
 }
 
 // QUERYGEN: Order
@@ -183,7 +183,7 @@ if ($genquery == " WHERE ") { $genquery = " "; }
 if ($o == "") {
 	$genquery .= " ORDER BY status ASC, game_title ASC ";
 } else {
-	$genquery .= " ".$a_order[$o]." ";
+	$genquery .= " {$a_order[$o]} ";
 }
 
 if ($genquery == " WHERE ") { $genquery = " "; }
@@ -195,16 +195,16 @@ $scquery = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
 	if ($sf != "") {
 		$ssf = mysqli_real_escape_string($db, $sf);
-		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%$ssf%' OR game_id LIKE '%$ssf%') AND status = $sc";
+		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%$ssf%' OR game_id LIKE '%{$ssf}%') AND status = {$sc}";
 	} else {
-		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE status = $sc";
+		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$sc}";
 	}
 }
 
 $scount = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
 	if ($c != "" && $c != "09" && $c != "sym") {
-		$scquery[$sc] .= " AND game_title LIKE '$c%'";
+		$scquery[$sc] .= " AND game_title LIKE '{$c}%'";
 	}
 	if ($c == "09") {
 		$scquery[$sc] .= " AND (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
@@ -370,10 +370,10 @@ function getStatusDescriptions() {
 	global $a_desc, $a_color, $a_title;
 	
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
-		$s_descontainer .= '<div id="compat-con-status">
-								<div id="compat-ico-status" style="background:#'.$a_color[$i].'"></div>
-								<div id="compat-tx1-status"><strong>'.$a_title[$i].':</strong> '.$a_desc[$i].'</div>
-							</div>';
+		$s_descontainer .= "<div id=\"compat-con-status\">
+								<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
+								<div id=\"compat-tx1-status\"><strong>{$a_title[$i]}:</strong> {$a_desc[$i]}</div>
+							</div>";
 	}	
 	return $s_descontainer;
 }
@@ -496,7 +496,7 @@ function getTableContent() {
 			}
 			while($row = mysqli_fetch_object($sqlQry)) {
 				$s_tablecontent .= "<tr>
-				<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
+				<td>".getGameRegion($row->game_id, true)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
 				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
 				<td>".getCommit($row->build_commit)."</td>
 				<td>".getColoredStatus($row->status)."</td>
@@ -594,15 +594,15 @@ function getHistory(){
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$cQuery = mysqli_query($db, 
-	"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-	FROM {$h1} AS t1
-	LEFT JOIN {$h2} AS t2
-	ON t1.game_id=t2.game_id
-	WHERE t1.status != t2.status 
-	ORDER BY new_status ASC, -old_status DESC, title ASC; ");
-	
 	if ($m == "c" || $m == "") {
+		$cQuery = mysqli_query($db, 
+		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
+		FROM {$h1} AS t1
+		LEFT JOIN {$h2} AS t2
+		ON t1.game_id=t2.game_id
+		WHERE t1.status != t2.status 
+		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
+	
 		if (!$cQuery || mysqli_num_rows($cQuery) == 0) { 
 			echo "An error has occoured."; 
 		} else {
@@ -618,7 +618,7 @@ function getHistory(){
 			
 			while($row = mysqli_fetch_object($cQuery)) {
 				echo "<tr>
-				<td>".getGameRegion($row->gid)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
+				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
 				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
 				<td>{$row->new_date}</td>
@@ -653,7 +653,7 @@ function getHistory(){
 			
 			while($row = mysqli_fetch_object($nQuery)) {
 				echo "<tr>
-				<td>".getGameRegion($row->gid)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
+				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
 				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
 				<td>{$row->new_date}</td>
