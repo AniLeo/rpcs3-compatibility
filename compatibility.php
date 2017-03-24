@@ -32,8 +32,8 @@
 			<div id='compat-con-searchbox'>
 				<form action="" method="get" id="searchbox-field">
 					<div id='searchbox'>
-						<?php echo '<input id="searchbox-field" name="sf" type="" value="';  if($sf != "" && $scount[0] >
-						 0) {echo $sf;} echo '" placeholder="Game Title / Game ID" />'; ?>
+						<?php echo '<input id="searchbox-field" name="g" type="" value="';  if($get['g'] != "" && $scount[0] >
+						 0) {echo $get['g'];} echo '" placeholder="Game Title / Game ID" />'; ?>
 					</div>
 					<div id='submit'>
 						<button class='div-button' type="submit">

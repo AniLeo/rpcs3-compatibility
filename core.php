@@ -36,25 +36,7 @@ $time = $time[1] + $time[0];
 $start = $time;
 
 // TODO: Some new additions need refactoring
-
-// Initialize variables with the default values
-// Results per page [Default: 50 (from config)]
-$r = $a_pageresults[$c_pageresults];
-$rid = $c_pageresults;
-// Display status (0-All; 1-Playable; 2-Ingame; 3-Intro; 4-Loadable; 5-Nothing) [Default: 0]
-$s = 0;
-// Character searched by [Default: none]
-$c = "";
-// Order by [Default: none]
-$o = "";
-// Search box content [Default: none]
-$sf = "";
-// Search by region [Default: none]
-$f = "";
-// Search by date [Default: none]
-$d = "";
-// History mode [Default: all (none)]
-$m = "";
+// TODO: Multiple search for date, region
 
 // Order queries
 $a_order = array(
@@ -72,59 +54,7 @@ $a_order = array(
  * Obtain values from GET *
  **************************/
 
-// Get requested 'r' parameter and convert it to the amount results per page to display
-if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
-	$r = $a_pageresults[$_GET['r']];
-	$rid = $_GET['r'];
-	// If 'r' isn't any of the above values or not provided it will remain as default [50]
-}
-
-// Get requested 's' parameter and convert it to the status ID
-if (isset($_GET['s']) && array_key_exists($_GET['s'], $a_title)) {
-	$s = $_GET['s'];
-	// If 's' isn't any of the above values or not provided it will remain as default [0]
-}
-
-// Order by
-if (isset($_GET['o']) && array_key_exists($_GET['o'], $a_order)) {
-	$o = strtolower($_GET['o']);
-}
-
-// Search by character: Get character
-if (isset($_GET['c'])) {
-	// For each letter between a to z: Check if one is selected
-	foreach (range('a', 'z') as $char) {
-		// strToLower is there in case someone decides to manually write the URL and use UpperCase chars
-		if ($_GET['c'] == strtolower($char)) { $c = strtolower($char); }
-	}
-	if ($_GET['c'] == "09")  { $c = "09";  } // Numbers
-	if ($_GET['c'] == "sym") { $c = "sym"; } // Symbols
-}
-
-// Search box: Get provided input
-if (isset($_GET['sf']) && !empty($_GET['sf']) && isValid($_GET['sf'])) {
-	$sf = $_GET['sf'];
-}
-
-// Search by region
-if (isset($_GET['f'])) {
-	if ($_GET['f'] == "a" || $_GET['f'] == "h" || $_GET['f'] == "e" || $_GET['f'] == "u" || $_GET['f'] == "j") { $f = strtolower($_GET['f']); }
-}
-
-// Search by date, simple checks for valid values
-if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
-	$d = $_GET['d'];
-}
-
-// History
-if (isset($_GET['h'])) {
-	$h1 = "rpcs3"; $h2 = "2017_03";  // current
-} else { $h1 = "rpcs3"; $h2 = "2017_03"; } // current
-
-// History mode
-if (isset($_GET['m'])) {
-	if ($_GET['m'] == "c" || $_GET['m'] == "n" ) { $m = strtolower($_GET['m']); }
-}
+$get = obtainGet();
 
 /***
  Database Queries
@@ -133,68 +63,15 @@ if (isset($_GET['m'])) {
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
-// Query generation, activate!
-$genquery = " WHERE ";
-
-// QUERYGEN: Status
-if ($s > min(array_keys($a_title))) { $genquery .= " status = {$s} "; } 
-
-// QUERYGEN: Character
-if ($c != "") {
-	if ($c == '09') {
-		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
-		OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
-		OR game_title LIKE '8%' OR game_title LIKE '9%') ";
-	} elseif ($c == 'sym') {
-		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') "; // TODO: Add more symbols when they show up
-	} else {
-		if ($s > min(array_keys($a_title))) { $genquery .= " AND "; }
-		$genquery .= " game_title LIKE '{$c}%' ";
-	}
-}
-
-// QUERYGEN: Searchbox
-if ($sf != "") {
-	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
-	if ($c != "") { $genquery .= " AND "; }
-	$ssf = mysqli_real_escape_string($db, $sf);
-	$genquery .= " (game_title LIKE '%{$ssf}%' OR game_id LIKE '%{$ssf}%') ";
-}
-
-// QUERYGEN: Search by region
-if ($f != "") {
-	if ($s > min(array_keys($a_title)) && $c == "") { $genquery .= " AND "; }
-	if ($c != "" || $sf != "") { $genquery .= " AND "; }
-	$genquery .= " SUBSTR(game_id, 3, 1) = '{$f}' ";
-}
-
-// QUERYGEN: Search by date
-if ($d != "") {
-	if ($s > min(array_keys($a_title)) && $c == "" && $f != "") { $genquery .= " AND "; }
-	if ($c != "" || $sf != "" || $f != "") { $genquery .= " AND "; }
-	$sd = mysqli_real_escape_string($db, $d);
-	$genquery .= " last_edit = '{$sd}' "; 
-}
-
-// QUERYGEN: Order
-if ($genquery == " WHERE ") { $genquery = " "; }
-if ($o == "") {
-	$genquery .= " ORDER BY status ASC, game_title ASC ";
-} else {
-	$genquery .= " {$a_order[$o]} ";
-}
-
-if ($genquery == " WHERE ") { $genquery = " "; }
-// Query generation, end.
+// Generate query
+$genquery = generateQuery($db, $get);
 
 
 // Select the count of games in each status
 $scquery = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
-	if ($sf != "") {
-		$ssf = mysqli_real_escape_string($db, $sf);
+	if ($get['g'] != "") {
+		$ssf = mysqli_real_escape_string($db, $get['g']);
 		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE (game_title LIKE '%$ssf%' OR game_id LIKE '%{$ssf}%') AND status = {$sc}";
 	} else {
 		$scquery[$sc] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$sc}";
@@ -203,15 +80,15 @@ foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc)
 
 $scount = array();
 foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc) { 
-	if ($c != "" && $c != "09" && $c != "sym") {
-		$scquery[$sc] .= " AND game_title LIKE '{$c}%'";
+	if ($get['c'] != "" && $get['c'] != "09" && $get['c'] != "sym") {
+		$scquery[$sc] .= " AND game_title LIKE '{$get['c']}%'";
 	}
-	if ($c == "09") {
+	if ($get['c'] == "09") {
 		$scquery[$sc] .= " AND (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
 		OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
 		OR game_title LIKE '8%' OR game_title LIKE '9%') ";
 	}
-	if ($c == "sym") {
+	if ($get['c'] == "sym") {
 		$scquery[$sc] .= " AND (game_title LIKE '.%' OR game_title LIKE '&%') ";
 	}
 	$scount[$sc] = mysqli_fetch_object(mysqli_query($db, $scquery[$sc]))->c;
@@ -230,7 +107,7 @@ foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $sc)
 // Page calculation according to the user's search
 $pagesCmd = "SELECT count(*) AS c FROM ".db_table." $genquery ;";
 $pagesQry = mysqli_query($db, $pagesCmd);
-$pages = ceil(mysqli_fetch_object($pagesQry)->c / $r);
+$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
 
 
 // Get current page user is on
@@ -245,9 +122,8 @@ if (isset($_GET['p'])) {
 $sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
 			FROM ".db_table." "
 			.$genquery.
-			"LIMIT ".($r*$currentPage-$r).", $r;";
+			"LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 $sqlQry = mysqli_query($db, $sqlCmd);
-
 
 // If results not found then apply levenshtein to get the closest result
 $l_title = "";
@@ -258,7 +134,7 @@ if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
 	$sqlQry2 = mysqli_query($db, $sqlCmd2);
 	
 	while($row = mysqli_fetch_object($sqlQry2)) {
-		$lev = levenshtein($sf, $row->game_title);
+		$lev = levenshtein($get['g'], $row->game_title);
 		
 		if ($lev <= $l_dist || $l_dist < 0) {
 			$l_title = $row->game_title;
@@ -269,7 +145,7 @@ if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
 	if ($l_title != "") {
 		$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
 				FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $l_title)."%' 
-				LIMIT ".($r*$currentPage-$r).", $r;";
+				LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 		$sqlQry = mysqli_query($db, $sqlCmd);
 		
 		// Recalculate pages
@@ -280,8 +156,8 @@ if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
 			if ($currentPage > $pages) { $currentPage = 1; }		
 		} else { $currentPage = 1; }
 		
-		$sfo = $sf;
-		$sf = $l_title;
+		$sfo = $get['g'];
+		$get['g'] = $l_title;
 	}
 }
 
@@ -295,9 +171,9 @@ mysqli_close($db);
  * General: Combined Search    *
  *   Results per Page          *
  *******************************/
-if (in_array($r, $a_pageresults)) {
-	if ($r == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
-	else { $g_pageresults = "r=$rid&"; }
+if (in_array($get['r'], $a_pageresults)) {
+	if ($get['r'] == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
+	else { $g_pageresults = "r={$get['rID']}&"; }
 }
 
 
@@ -305,7 +181,7 @@ if (in_array($r, $a_pageresults)) {
  * Sort By *
  ***********/
 function getSortBy() {
-	global $a_title, $a_desc, $g_pageresults, $scount, $c, $s, $sf;
+	global $a_title, $a_desc, $g_pageresults, $scount, $get;
 
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
@@ -314,16 +190,16 @@ function getSortBy() {
 		// Combined search: results per page
 		$s_sortby .= $g_pageresults;
 		// Combined search: search by character
-		if ($c != "") {$s_sortby .= "c=$c&";}
+		if ($get['c'] != "") {$s_sortby .= "c={$get['c']}&";}
 		// Combined search: searchbox
-		if ($sf != "" && $scount[0] > 0)	{$s_sortby .= "sf=".urlencode($sf)."&";} 
+		if ($get['g'] != "" && $scount[0] > 0)	{$s_sortby .= "g=".urlencode($get['g'])."&";} 
 		
 		$s_sortby .= "s=$i\">"; 
 		
 		$temp = "$a_title[$i]&nbsp;($scount[$i])";
 		
 		// If the current selected status, highlight with bold
-		if ($s == $i) { $s_sortby .= highlightBold($temp); }
+		if ($get['s'] == $i) { $s_sortby .= highlightBold($temp); }
 		else { $s_sortby .= $temp; }
 
 		$s_sortby .= "</a>"; 
@@ -336,22 +212,22 @@ function getSortBy() {
  * Results per page *
  ********************/
 function getResultsPerPage() {
-	global $a_pageresults, $s, $c, $sf, $s_pageresults, $scount, $r, $a_title;
+	global $a_pageresults, $s_pageresults, $scount, $a_title, $get;
 	
 	foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
 		
 		// Combined search: sort by status
-		if ($s > min(array_keys($a_title))) {$s_pageresults .= "s=$s&";} 
+		if ($get['s'] > min(array_keys($a_title))) {$s_pageresults .= "s={$get['s']}&";} 
 		// Combined search: search by character
-		if ($c != "") {$s_pageresults .= "c=$c&";} 
+		if ($get['c'] != "") {$s_pageresults .= "c={$get['c']}&";} 
 		// Combined search: searchbox
-		if ($sf != "" && $scount[0] > 0) {$s_pageresults .= "sf=".urlencode($sf)."&";} 
+		if ($get['g'] != "" && $scount[0] > 0) {$s_pageresults .= "g=".urlencode($get['g'])."&";} 
 		
 		$s_pageresults .= "r=$i\">"; 
 		
 		// If the current selected status, highlight with bold
-		if ($r == $a_pageresults[$i]) { $s_pageresults .= highlightBold($a_pageresults[$i]);} 
+		if ($get['r'] == $a_pageresults[$i]) { $s_pageresults .= highlightBold($a_pageresults[$i]);} 
 		else { $s_pageresults .= $a_pageresults[$i]; }
 
 		$s_pageresults .= "</a>";
@@ -383,7 +259,7 @@ function getStatusDescriptions() {
  * Clickable URL: Character search *
  **********************************/
 function getCharSearch() {
-	global $g_pageresults, $s, $c, $a_css, $a_title;
+	global $g_pageresults, $a_css, $a_title, $get;
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
@@ -391,13 +267,13 @@ function getCharSearch() {
 	// Combined search: results per page
 	$common .= $g_pageresults;
 	// Combined search: search by status
-	if ($s > min(array_keys($a_title))) {$common .= "s=$s&";} 
+	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
 	
 	
 	/* ALL */
 	$s_charsearch .= $common;
 	$s_charsearch .= "c=\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($c == "") { $s_charsearch .= highlightBold("All"); }
+	if ($get['c'] == "") { $s_charsearch .= highlightBold("All"); }
 	else { $s_charsearch .= "All"; }
 	$s_charsearch .= "</div></a></td>"; 
 
@@ -405,7 +281,7 @@ function getCharSearch() {
 	foreach (range('a', 'z') as $i) { 
 		$s_charsearch .= $common;
 		$s_charsearch .= "c=$i\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">";
-		if ($c == $i) { $s_charsearch .= highlightBold(strToUpper($i)); }
+		if ($get['c'] == $i) { $s_charsearch .= highlightBold(strToUpper($i)); }
 		else { $s_charsearch .= strToUpper($i); }
 		$s_charsearch .= "</div></a></td>"; 
 	} 
@@ -413,7 +289,7 @@ function getCharSearch() {
 	/* Numbers */
 	$s_charsearch .= $common;
 	$s_charsearch .= "c=09\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($c == "09") { $s_charsearch .= highlightBold("0-9"); }
+	if ($get['c'] == "09") { $s_charsearch .= highlightBold("0-9"); }
 	else { $s_charsearch .= "0-9"; }
 	$s_charsearch .= "</div></a></td>"; 
 	
@@ -421,7 +297,7 @@ function getCharSearch() {
 	/* Symbols */
 	$s_charsearch .= $common;
 	$s_charsearch .= "c=sym\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($c == "sym") { $s_charsearch .= highlightBold("#"); }
+	if ($get['c'] == "sym") { $s_charsearch .= highlightBold("#"); }
 	else { $s_charsearch .= "#"; }
 	$s_charsearch .= "</div></a></td>";
 	
@@ -433,33 +309,33 @@ function getCharSearch() {
  * Table Headers *
  *****************/
 function getTableHeaders() {
-	global $s, $c, $g_pageresults, $sf, $scount, $o, $a_title;
+	global $g_pageresults, $scount, $a_title, $get;
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<th><a href =\"?";
 
 	// Order support: Sort by status
-	if ($s > min(array_keys($a_title))) {$common .= "s=$s&";} 
+	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
 	// Order support: Results per page
 	$common .= $g_pageresults;
 	// Order support: Search by character
-	if ($c != "") {$common .= "c=$c&";} 
+	if ($get['c'] != "") {$common .= "c={$get['c']}&";} 
 	// Order support: Searchbox
-	if ($sf != "" && $scount[0] > 0) {$common .= "sf=".urlencode($sf)."&";} 
+	if ($get['g'] != "" && $scount[0] > 0) {$common .= "g=".urlencode($get['g'])."&";} 
 	
 	
 	/* Game ID */
 	$s_tableheaders .= $common;
 	// Order by: Game ID (ASC, DESC)
-	if ($o == "1a") { $s_tableheaders .= "o=1d\">Game ID &nbsp; &#8593;</a></th>"; }
-	elseif ($o == "1d") { $s_tableheaders .= "\">Game ID &nbsp; &#8595;</a></th>"; }
+	if ($get['o'] == "1a") { $s_tableheaders .= "o=1d\">Game ID &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "1d") { $s_tableheaders .= "\">Game ID &nbsp; &#8595;</a></th>"; }
 	else { $s_tableheaders .= "o=1a\">Game ID</a></th>"; } 
 
 	/* Game Title */
 	$s_tableheaders .= $common;
 	// Order by: Game Title (ASC, DESC)
-	if ($o == "2a") { $s_tableheaders .= "o=2d\">Game Title &nbsp; &#8593;</a></th>"; }
-	elseif ($o == "2d") { $s_tableheaders .= "\">Game Title &nbsp; &#8595;</a></th>"; }
+	if ($get['o'] == "2a") { $s_tableheaders .= "o=2d\">Game Title &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "2d") { $s_tableheaders .= "\">Game Title &nbsp; &#8595;</a></th>"; }
 	else { $s_tableheaders .= "o=2a\">Game Title</a></th>"; }
 
 	/* Build Used */
@@ -468,15 +344,15 @@ function getTableHeaders() {
 	/* Status */
 	$s_tableheaders .= $common;
 	// Order by: Status (ASC, DESC)
-	if ($o == "3a") { $s_tableheaders .= "o=3d\">Status &nbsp; &#8593;</a></th>"; }
-	elseif ($o == "3d") { $s_tableheaders .= "\">Status &nbsp; &#8595;</a></th>"; }
+	if ($get['o'] == "3a") { $s_tableheaders .= "o=3d\">Status &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "3d") { $s_tableheaders .= "\">Status &nbsp; &#8595;</a></th>"; }
 	else { $s_tableheaders .= "o=3a\">Status</a></th>"; }
 
 	/* Last Updated */
 	$s_tableheaders .= $common;
 	// Order by: Last Updated (ASC, DESC)
-	if ($o == "4a") { $s_tableheaders .= "o=4d\">Last Updated &nbsp; &#8593;</a></th>"; }
-	elseif ($o == "4d") { $s_tableheaders .= "\">Last Updated &nbsp; &#8595;</a></th>"; }
+	if ($get['o'] == "4a") { $s_tableheaders .= "o=4d\">Last Updated &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "4d") { $s_tableheaders .= "\">Last Updated &nbsp; &#8595;</a></th>"; }
 	else { $s_tableheaders .= "o=4a\">Last Updated</a></th>"; }
 	
 	return $s_tableheaders;
@@ -492,7 +368,7 @@ function getTableContent() {
 	if ($sqlQry) {
 		if (mysqli_num_rows($sqlQry) > 0) {
 			if ($l_title != "") {
-				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$sfo}</i>. </br> Displaying results for <b><a style=\"color:#06c;\" href=\"?sf=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
+				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$sfo}</i>. </br> Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			}
 			while($row = mysqli_fetch_object($sqlQry)) {
 				$s_tablecontent .= "<tr>
@@ -516,13 +392,13 @@ function getTableContent() {
  * Pages Counter *
  *****************/
 function getPagesCounter() {
-	global $pages, $sf, $currentPage, $s, $c, $o, $g_pageresults, $f, $a_title;
+	global $pages, $currentPage, $g_pageresults, $a_title, $get;
 	
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
 	if ($pages == 0) { 
-		if ($sf != "") { 
-		// $s_pagescounter .= "Results for '$sf' Game ID or Game Title not found."; 
+		if ($get['g'] != "") { 
+		// $s_pagescounter .= "Results for '$get['g']' Game ID or Game Title not found."; 
 		}
 		else { $s_pagescounter .= 'No results found using the selected search criteria.'; }
 	} 
@@ -534,15 +410,17 @@ function getPagesCounter() {
 		$s_pagescounter .= "<a href=\"?";
 		
 		// Page support: Sort by status
-		if ($s > min(array_keys($a_title))) {$s_pagescounter .= "s=$s&";} 
+		if ($get['s'] > min(array_keys($a_title))) {$s_pagescounter .= "s={$get['s']}&";} 
 		// Page support: Results per page
 		$s_pagescounter .= $g_pageresults;
 		// Page support: Search by character
-		if ($c != "") {$s_pagescounter .= "c=$c&";} 
+		if ($get['c'] != "") {$s_pagescounter .= "c={$get['c']}&";} 
 		// Page support: Search by region
-		if ($f != "") {$s_pagescounter .= "f=$f&";} 
+		if ($get['f'] != "") {$s_pagescounter .= "f={$get['f']}&";} 
+		// Page support: Date search
+		if ($get['f'] != "") {$s_pagescounter .= "d={$get['d']}&";} 
 		// Page support: Order by
-		if ($o != "") {$s_pagescounter .= "o=$o&";} 
+		if ($get['o'] != "") {$s_pagescounter .= "o={$get['o']}&";} 
 		
 		// Display number of the page
 		$s_pagescounter .= "p=$i\">";
@@ -556,27 +434,27 @@ function getPagesCounter() {
 }
 
 function getHistoryOptions() {
-	global $h1, $m;
+	global $get;
 	
 	$o1 = "<a href=\"?h\">Show all entries</a>";
 	$o2 = "<a href=\"?h&m=c\">Show only previously existent entries</a>";
 	$o3 = "<a href=\"?h&m=n\">Show only new entries</a>";
 		
-	if ($h1 != "") { 
+	if ($get['h1'] != "") { 
 		echo highlightBold($o1);
 	} else {
 		echo $o1;
 	}
 	echo " <a href=\"?h&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
 			
-	if ($h1 != "" && $m == "c") { 
+	if ($get['h1'] != "" && $get['m'] == "c") { 
 		echo highlightBold($o2);
 	} else {
 		echo $o2;
 	}
 	echo " <a href=\"?h&m=c&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
 	
-	if ($h1 != "" && $m == "n") { 
+	if ($get['h1'] != "" && $get['m'] == "n") { 
 		echo highlightBold($o3);
 	} else {
 		echo $o3;
@@ -588,17 +466,17 @@ function getHistoryOptions() {
 
 // Compatibility History: Pulls information from backup and compares with current database
 function getHistory(){
-	global $h1, $h2, $m; 
+	global $get; 
 	
 	// Establish MySQL connection to be used for history
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	if ($m == "c" || $m == "") {
+	if ($get['m'] == "c" || $get['m'] == "") {
 		$cQuery = mysqli_query($db, 
 		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$h1} AS t1
-		LEFT JOIN {$h2} AS t2
+		FROM {$get['h1']} AS t1
+		LEFT JOIN {$get['h2']} AS t2
 		ON t1.game_id=t2.game_id
 		WHERE t1.status != t2.status 
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
@@ -630,11 +508,11 @@ function getHistory(){
 		}
 	}
 	
-	if ($m == "n" || $m == "") {
+	if ($get['m'] == "n" || $get['m'] == "") {
 		$nQuery = mysqli_query($db, 
 		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$h1} AS t1
-		LEFT JOIN {$h2} AS t2
+		FROM {$get['h1']} AS t1
+		LEFT JOIN {$get['h2']} AS t2
 		ON t1.game_id=t2.game_id
 		WHERE t2.status IS NULL
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
@@ -664,12 +542,12 @@ function getHistory(){
 	}
 	
 	// Close MySQL connection again since it won't be required
-	mysql_close($db);
+	mysqli_close($db);
 }
 
 
 function getHistoryRSS(){
-	global $c_forum, $m;
+	global $c_forum, $get;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -679,9 +557,9 @@ function getHistoryRSS(){
 	FROM ".db_table." AS t1
 	LEFT JOIN 2017_03 AS t2
 	ON t1.game_id=t2.game_id ";
-	if ($m == "c") {
+	if ($get['m'] == "c") {
 		$rssCmd .= " WHERE t1.status != t2.status ";
-	} elseif ($m == "n") {
+	} elseif ($get['m'] == "n") {
 		$rssCmd .= " WHERE t2.status IS NULL ";
 	} else {
 		$rssCmd .= " WHERE t1.status != t2.status OR t2.status IS NULL ";
@@ -722,7 +600,7 @@ function getHistoryRSS(){
 				</rss>";
 				
 	// Close MySQL connection again since it won't be required
-	mysql_close($db);
+	mysqli_close($db);
 	
     return $rssfeed;
 }

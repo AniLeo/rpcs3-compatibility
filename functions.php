@@ -199,4 +199,142 @@ function highlightBold($str) {
 	return "<b>$str</b>";
 }
 
+
+function obtainGet() {
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags;
+	
+	// Start new $get array
+	$get = array();
+	
+	// Set default values
+	$get['r'] = $a_pageresults[$c_pageresults];
+	$get['rID'] = $c_pageresults;
+	$get['s'] = 0; // All
+	$get['o'] = '';
+	$get['c'] = '';
+	$get['g'] = "";
+	$get['d'] = '';
+	$get['f'] = '';
+	$get['h'] = '';
+	$get['h1'] = db_table;
+	$get['h2'] = '2017_03';
+	$get['m'] = '';
+	
+	// Results per page
+	if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
+		$get['r'] = $a_pageresults[$_GET['r']];
+		$get['rID'] = $_GET['r'];
+	}
+	
+	// Status
+	if (isset($_GET['s']) && array_key_exists($_GET['s'], $a_title)) {
+		$get['s'] = $_GET['s'];
+	}
+	
+	// Order by
+	if (isset($_GET['o']) && array_key_exists($_GET['o'], $a_order)) {
+		$get['o'] = strtolower($_GET['o']);
+	}
+	
+	// Character
+	if (isset($_GET['c'])) {
+		// If it is a single alphabetic character 
+		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1)) {
+			$get['c'] = strtolower($_GET['c']);
+		}
+		if ($_GET['c'] == "09")  { $get['c'] = "09";  } // Numbers
+		if ($_GET['c'] == "sym") { $get['c'] = "sym"; } // Symbols
+	}
+	
+	// Searchbox (sf deprecated, use g instead)
+	if (isset($_GET['g']) && !empty($_GET['g']) && isValid($_GET['g'])) {
+		$get['g'] = $_GET['g'];
+	} elseif (isset($_GET['sf']) && !empty($_GET['sf']) && isValid($_GET['sf'])) {
+		$get['g'] = $_GET['sf'];
+	}
+	
+	// Date
+	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
+		$get['d'] = $_GET['d'];
+	}
+	
+	// Region
+	if (isset($_GET['f']) && array_key_exists($_GET['f'], $a_flags)) {
+		$get['f'] = strtolower($_GET['f']); 
+	}
+	
+	// History
+	if (isset($_GET['h'])) {
+		// To use for month-to-month searches with h1 and h2 values
+	}
+	
+	// History mode
+	if (isset($_GET['m']) && ($_GET['m'] == "c" || $_GET['m'] == "n")) {
+		$get['m'] = strtolower($_GET['m']);
+	}
+	
+	return $get;
+}
+
+
+function generateQuery($db, $get) {
+	global $a_title, $a_order;
+	
+	$genquery = " WHERE ";
+
+	// QUERYGEN: Status
+	if ($get['s'] > min(array_keys($a_title))) { $genquery .= " status = {$get['s']} "; } 
+
+	// QUERYGEN: Character
+	if ($get['c'] != "") {
+		if ($get['c'] == '09') {
+			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
+			$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
+			OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
+			OR game_title LIKE '8%' OR game_title LIKE '9%') ";
+		} elseif ($get['c'] == 'sym') {
+			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
+			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') "; // TODO: Add more symbols when they show up
+		} else {
+			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
+			$genquery .= " game_title LIKE '{$get['c']}%' ";
+		}
+	}
+
+	// QUERYGEN: Searchbox
+	if ($get['g'] != "") {
+		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "") { $genquery .= " AND "; }
+		if ($get['c'] != "") { $genquery .= " AND "; }
+		$ssf = mysqli_real_escape_string($db, $get['g']);
+		$genquery .= " (game_title LIKE '%{$ssf}%' OR game_id LIKE '%{$ssf}%') ";
+	}
+
+	// QUERYGEN: Search by region
+	if ($get['f'] != "") {
+		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "") { $genquery .= " AND "; }
+		if ($get['c'] != "" || $get['g'] != "") { $genquery .= " AND "; }
+		$genquery .= " SUBSTR(game_id, 3, 1) = '{$get['f']}' ";
+	}
+
+	// QUERYGEN: Search by date
+	if ($get['d'] != "") {
+		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "") { $genquery .= " AND "; }
+		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "") { $genquery .= " AND "; }
+		$sd = mysqli_real_escape_string($db, $get['d']);
+		$genquery .= " last_edit = '{$sd}' "; 
+	}
+
+	// QUERYGEN: Order
+	if ($genquery == " WHERE ") { $genquery = " "; }
+	if ($get['o'] == "") {
+		$genquery .= " ORDER BY status ASC, game_title ASC ";
+	} else {
+		$genquery .= " {$a_order[$get['o']]} ";
+	}
+
+	if ($genquery == " WHERE ") { $genquery = " "; }
+	
+	return $genquery;
+}
+
 ?>
