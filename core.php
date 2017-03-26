@@ -125,6 +125,7 @@ $sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edi
 			"LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 $sqlQry = mysqli_query($db, $sqlCmd);
 
+
 // If results not found then apply levenshtein to get the closest result
 $l_title = "";
 $l_dist = -1;
@@ -403,31 +404,50 @@ function getPagesCounter() {
 		else { $s_pagescounter .= 'No results found using the selected search criteria.'; }
 	} 
 	// ELSE it shows current page and total pages
-	else { $s_pagescounter .= 'Page '.$currentPage.' of '.$pages.' - '; }
-			
+	else { $s_pagescounter .= "Page {$currentPage} of {$pages} - "; }
+	
+	// Commonly used code
+	$common = "<a href=\"?";
+	
+	// Page support: Sort by status
+	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
+	// Page support: Results per page
+	$common .= $g_pageresults;
+	// Page support: Search by character
+	if ($get['c'] != "") {$common .= "c={$get['c']}&";} 
+	// Page support: Search by region
+	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	// Page support: Date search
+	if ($get['f'] != "") {$common .= "d={$get['d']}&";} 
+	// Page support: Order by
+	if ($get['o'] != "") {$common .= "o={$get['o']}&";} 
+	
+	
 	// Loop for each page link and make it properly clickable until there are no more pages left
 	for ($i=1; $i<=$pages; $i++) { 
-		$s_pagescounter .= "<a href=\"?";
+	
+		if ( ($i >= $currentPage-7 && $i <= $currentPage) || ($i+7 >= $currentPage && $i <= $currentPage+7) ) {
+			
+			$s_pagescounter .= $common;
+			
+			// Display number of the page and highlight if current page
+			$s_pagescounter .= "p=$i\">";
+			if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
+			else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
+			
+			$s_pagescounter .= "</a>&nbsp;&#32;"; 
 		
-		// Page support: Sort by status
-		if ($get['s'] > min(array_keys($a_title))) {$s_pagescounter .= "s={$get['s']}&";} 
-		// Page support: Results per page
-		$s_pagescounter .= $g_pageresults;
-		// Page support: Search by character
-		if ($get['c'] != "") {$s_pagescounter .= "c={$get['c']}&";} 
-		// Page support: Search by region
-		if ($get['f'] != "") {$s_pagescounter .= "f={$get['f']}&";} 
-		// Page support: Date search
-		if ($get['f'] != "") {$s_pagescounter .= "d={$get['d']}&";} 
-		// Page support: Order by
-		if ($get['o'] != "") {$s_pagescounter .= "o={$get['o']}&";} 
+		} elseif ($i == 1) {
+			// First page
+			$s_pagescounter .= $common;
+			$s_pagescounter .= "p=$i-1\">01</a>&nbsp;&#32;...&nbsp;&#32;"; 
+		} elseif ($pages == $i) {
+			// Last page
+			$s_pagescounter .= "...&nbsp;&#32;";
+			$s_pagescounter .= $common;
+			$s_pagescounter .= "p=$pages\">$pages</a>&nbsp;&#32;"; 
+		}
 		
-		// Display number of the page
-		$s_pagescounter .= "p=$i\">";
-		if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
-		else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
-		
-		$s_pagescounter .= "</a>&nbsp;&#32;"; 
 	}
 	
 	return $s_pagescounter;
