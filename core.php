@@ -603,7 +603,7 @@ function getHistoryRSS(){
     while($row = mysqli_fetch_object($rssQuery)) {
  
         $rssfeed .= "<item>
-					<title>{$row->gid} - {$row->title}</title>
+					<title><![CDATA[{$row->gid} - {$row->title}]]></title>
 					<link>{$c_forum}{$row->tid}</link>";
 		
 		if ($row->old_status !== NULL) {
