@@ -277,14 +277,19 @@ function obtainGet() {
 }
 
 
-function generateQuery($db, $get) {
+function generateQuery($db, $get, $status) {
 	global $a_title, $a_order;
-	
-	$genquery = " WHERE ";
 
+	$genquery = "";
+	
+	// Force status to be All
+	if (!$status) {
+		$get['s'] = 0;
+	}
+	
 	// QUERYGEN: Status
 	if ($get['s'] > min(array_keys($a_title))) { $genquery .= " status = {$get['s']} "; } 
-
+	
 	// QUERYGEN: Character
 	if ($get['c'] != "") {
 		if ($get['c'] == '09') {
@@ -323,16 +328,6 @@ function generateQuery($db, $get) {
 		$sd = mysqli_real_escape_string($db, $get['d']);
 		$genquery .= " last_edit = '{$sd}' "; 
 	}
-
-	// QUERYGEN: Order
-	if ($genquery == " WHERE ") { $genquery = " "; }
-	if ($get['o'] == "") {
-		$genquery .= " ORDER BY status ASC, game_title ASC ";
-	} else {
-		$genquery .= " {$a_order[$get['o']]} ";
-	}
-
-	if ($genquery == " WHERE ") { $genquery = " "; }
 	
 	return $genquery;
 }

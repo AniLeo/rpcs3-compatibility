@@ -52,9 +52,7 @@
 			<!--End -->
 		</div>
 		<table class='compat-con-container'>
-		<tr>
-			<?php echo getTableHeaders(); ?>
-		</tr>
+		<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } ?>
 		<?php echo getTableContent(); ?>
 		</table>
 		<!--End -->
@@ -66,7 +64,7 @@
 		<div id="compat-con-author">
 			<div id="compat-tx1-author">
 				<p>
-					 Compatibility list coded by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>&nbsp; - &nbsp;<?php echo 'Page generated in '.$total_time.' seconds'; ?>
+					 Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>&nbsp; - &nbsp;<?php echo 'Page generated in '.$total_time.' seconds'; ?>
 				</p>
 			</div>
 		</div>
