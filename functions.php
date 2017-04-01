@@ -201,7 +201,7 @@ function highlightBold($str) {
 
 
 function obtainGet() {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags;
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $currenthist;
 	
 	// Start new $get array
 	$get = array();
@@ -264,8 +264,14 @@ function obtainGet() {
 	}
 	
 	// History
-	if (isset($_GET['h'])) {
-		// To use for month-to-month searches with h1 and h2 values
+	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
+		$keys = array_keys($a_histdates);
+		$index = array_search($_GET['h'], $keys);
+		
+		if ($index >= 0 && $currenthist != $_GET['h']) { 
+			$get['h1'] = $_GET['h'];
+			$get['h2'] = $keys[$index-1]; 
+		}
 	}
 	
 	// History mode

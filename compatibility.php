@@ -64,7 +64,9 @@
 		<div id="compat-con-author">
 			<div id="compat-tx1-author">
 				<p>
-					 Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>&nbsp; - &nbsp;<?php echo 'Page generated in '.$total_time.' seconds'; ?>
+					Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>
+					&nbsp; - &nbsp;
+					<?php echo 'Page generated in '.$total_time.' seconds'; ?>
 				</p>
 			</div>
 		</div>

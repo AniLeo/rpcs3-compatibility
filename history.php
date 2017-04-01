@@ -14,14 +14,7 @@
 					</p>
 				</div> -->
 				<div id='featured-tx2-block' class="compat-desc">
-					<p>
-						You're now watching the updates that altered a game's status for RPCS3's Compatibility List since March 1st, 2017.
-					</p>
-					</br>
-					<p style="font-size:13px">
-						<?php getHistoryOptions();	?>	
-					</p>
-					
+					<?php echo getHistoryOptions();	?>	
 				</div>
 			</div> <!-- featured-wrp-block -->
 			
@@ -35,7 +28,9 @@
 		<div id="compat-con-author">
 			<div id="compat-tx1-author">
 				<p>
-					 Compatibility list coded by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>&nbsp; - &nbsp;<?php echo 'Page generated in '.$total_time.' seconds'; ?>
+					Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>
+					&nbsp; - &nbsp;
+					<?php echo 'Page generated in '.$total_time.' seconds'; ?>
 				</p>
 			</div>
 		</div>

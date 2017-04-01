@@ -51,6 +51,13 @@ $a_order = array(
 '4d' => 'ORDER BY last_edit DESC'
 );
 
+$a_histdates = array(
+'2017_02' => 'March 1st, 2017',
+'2017_03' => 'March 30th, 2017'
+);
+
+$currenthist = '2017_04';
+
 /**************************
  * Obtain values from GET *
  **************************/
@@ -529,34 +536,62 @@ function getPagesCounter() {
 }
 
 function getHistoryOptions() {
-	global $get;
+	global $get, $a_histdates;
+	
+	$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since {$a_histdates[$get['h2']]}.</p>";
+
+	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
+	$m2 = "<a href=\"?h\">April 2017</a>";
+	
+	$s_historyoptions .= "</br><p style=\"font-size:13px\">
+	<strong>Month:&nbsp;</strong>";
+	
+	if ($get['h2'] == "2017_02") { 
+		$s_historyoptions .= highlightBold($m1);
+	} else {
+		$s_historyoptions .= $m1;
+	}
+	
+	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
+	
+	if ($get['h1'] == db_table) { 
+		$s_historyoptions .= highlightBold($m2);
+	} else {
+		$s_historyoptions .= $m2;
+	}
+	
+	$s_historyoptions .= "</br>";
 	
 	$o1 = "<a href=\"?h\">Show all entries</a>";
 	$o2 = "<a href=\"?h&m=c\">Show only previously existent entries</a>";
 	$o3 = "<a href=\"?h&m=n\">Show only new entries</a>";
-		
+	
 	if ($get['h1'] != "") { 
-		echo highlightBold($o1);
+		$s_historyoptions .= highlightBold($o1);
 	} else {
-		echo $o1;
+		$s_historyoptions .= $o1;
 	}
-	echo " <a href=\"?h&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
-			
+	$s_historyoptions .= " <a href=\"?h&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
+	
 	if ($get['h1'] != "" && $get['m'] == "c") { 
-		echo highlightBold($o2);
+		$s_historyoptions .= highlightBold($o2);
 	} else {
-		echo $o2;
+		$s_historyoptions .= $o2;
 	}
-	echo " <a href=\"?h&m=c&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
+	$s_historyoptions .= " <a href=\"?h&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
 	if ($get['h1'] != "" && $get['m'] == "n") { 
-		echo highlightBold($o3);
+		$s_historyoptions .= highlightBold($o3);
 	} else {
-		echo $o3;
+		$s_historyoptions .= $o3;
 	}
-	echo " <a href=\"?h&m=n&rss\">(RSS)</a> &nbsp; &#8226; &nbsp;";
-		
-	echo "<a href=\"?\">Back to Compatibility List</a>";
+	$s_historyoptions .= " <a href=\"?h&m=n&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
+	
+	$s_historyoptions .= "<a href=\"?\">Back to Compatibility List</a>";
+	
+	$s_historyoptions .= "</p>";
+	
+	return $s_historyoptions;
 }
 
 // Compatibility History: Pulls information from backup and compares with current database
@@ -576,8 +611,10 @@ function getHistory(){
 		WHERE t1.status != t2.status 
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
 	
-		if (!$cQuery || mysqli_num_rows($cQuery) == 0) { 
-			echo "An error has occoured."; 
+		if (!$cQuery) { 
+			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+		} elseif (mysqli_num_rows($cQuery) == 0) {
+			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
 			echo "
 			<table class='compat-con-container'><tr>
@@ -612,8 +649,10 @@ function getHistory(){
 		WHERE t2.status IS NULL
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
 		
-		if (!$nQuery || mysqli_num_rows($nQuery) == 0) { 
-			echo "An error has occoured."; 
+		if (!$nQuery) { 
+			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+		} elseif (mysqli_num_rows($nQuery) == 0) {
+			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
 			echo "</br>
 			<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>
@@ -649,8 +688,8 @@ function getHistoryRSS(){
 	
 	$rssCmd = "
 	SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-	FROM ".db_table." AS t1
-	LEFT JOIN 2017_03 AS t2
+	FROM {$get['h1']} AS t1
+	LEFT JOIN {$get['h2']} AS t2
 	ON t1.game_id=t2.game_id ";
 	if ($get['m'] == "c") {
 		$rssCmd .= " WHERE t1.status != t2.status ";
