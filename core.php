@@ -75,17 +75,16 @@ mysqli_set_charset($db, 'utf8');
 $genquery = generateQuery($db, $get, true);
 
 // Select the count of games in each status
-function countGames() {
+function countGames($query) {
 	global $a_title, $db, $get;
 	
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
-		
-		if (generateQuery($db, $get, false) == "") {
+		if ($query == "") {
 			// Empty query or general query with order only, all games returned
 			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$s}";
 		} else {
 			// Query defined, return count of games with searched parameters
-			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE (".generateQuery($db, $get, false).") AND status = {$s}";
+			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE ({$query}) AND status = {$s}";
 		}
 		
 		$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
@@ -97,7 +96,7 @@ function countGames() {
 	return $scount;
 }
 
-$scount = countGames();
+$scount = countGames(generateQuery($db, $get, false));
 
 // Get the total count of entries present in the database (not subjective to search params)
 $games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
@@ -145,6 +144,7 @@ if ($get['g'] != "") {
 		
 		// Recalculate pages if abbreviation searched is smaller than 3 characters because other results aren't being displayed
 		if (strlen($get['g'] < 3)) {
+			
 			// Recalculate pages
 			$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE {$partTwo}; ");
 			$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
@@ -154,16 +154,7 @@ if ($get['g'] != "") {
 				if ($currentPage > $pages) { $currentPage = 1; }		
 			} else { $currentPage = 1; }
 			
-			// Recount games
-			foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
-				// Query defined, return count of games with searched parameters
-				$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE ({$partTwo}) AND status = {$s}";
-				
-				$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
-				
-				// Instead of querying the database once more add all the previous counts to get the total count (subjective to search params)
-				$scount[0] += $scount[$s];
-			}
+			$scount = countGames($partTwo);
 		}
 		
 		$sqlQry2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
@@ -196,9 +187,12 @@ if ($get['g'] != "") {
 						LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 				$sqlQry = mysqli_query($db, $sqlCmd);
 				
+				$q = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
+				
 				// Recalculate pages
-				$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' ;");
+				$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE {$q} ;");
 				$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
+				
 				if (isset($_GET['p'])) {
 					$currentPage = intval($_GET['p']);
 					if ($currentPage > $pages) { $currentPage = 1; }		
@@ -206,17 +200,8 @@ if ($get['g'] != "") {
 				
 				$sfo = $get['g'];
 				$get['g'] = $l_title;
-				
-				// Recount games
-				foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
-					// Query defined, return count of games with searched parameters
-					$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' AND status = {$s}";
-					
-					$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
-					
-					// Instead of querying the database once more add all the previous counts to get the total count (subjective to search params)
-					$scount[0] += $scount[$s];
-				}
+						
+				$scount = countGames($q);
 			}
 		}
 	}
@@ -538,7 +523,11 @@ function getPagesCounter() {
 function getHistoryOptions() {
 	global $get, $a_histdates;
 	
-	$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since {$a_histdates[$get['h2']]}.</p>";
+	if ($get['h1'] == db_table) {
+		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since <b>{$a_histdates[$get['h2']]}</b>.</p>";
+	} else {
+		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List from <b>{$a_histdates[$get['h2']]}</b> to <b>{$a_histdates[$get['h1']]}</b>.</p>";
+	}
 
 	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
 	$m2 = "<a href=\"?h\">April 2017</a>";
@@ -566,21 +555,21 @@ function getHistoryOptions() {
 	$o2 = "<a href=\"?h&m=c\">Show only previously existent entries</a>";
 	$o3 = "<a href=\"?h&m=n\">Show only new entries</a>";
 	
-	if ($get['h1'] != "") { 
+	if ($get['m'] == "") { 
 		$s_historyoptions .= highlightBold($o1);
 	} else {
 		$s_historyoptions .= $o1;
 	}
 	$s_historyoptions .= " <a href=\"?h&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
-	if ($get['h1'] != "" && $get['m'] == "c") { 
+	if ($get['m'] == "c") { 
 		$s_historyoptions .= highlightBold($o2);
 	} else {
 		$s_historyoptions .= $o2;
 	}
 	$s_historyoptions .= " <a href=\"?h&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
-	if ($get['h1'] != "" && $get['m'] == "n") { 
+	if ($get['m'] == "n") { 
 		$s_historyoptions .= highlightBold($o3);
 	} else {
 		$s_historyoptions .= $o3;
