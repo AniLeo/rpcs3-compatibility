@@ -28,7 +28,7 @@
 			<div id="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>
 			</div>
-			<div style="background: url(https://rpcs3.net/compatbar); background-size: 1090px 30px; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
+			<div style="background: url(https://rpcs3.net/compatbar); background-size: contain; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
 			</div>
 			<!--End -->
 			<div id='compat-con-searchbox'>

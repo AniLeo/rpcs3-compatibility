@@ -555,30 +555,36 @@ function getHistoryOptions() {
 	
 	$s_historyoptions .= "</br>";
 	
-	$o1 = "<a href=\"?h\">Show all entries</a>";
-	$o2 = "<a href=\"?h&m=c\">Show only previously existent entries</a>";
-	$o3 = "<a href=\"?h&m=n\">Show only new entries</a>";
+	if ($get['h1'] != "") {
+		$h = "={$get['h1']}";
+	} else {
+		$h = "";
+	}
+	
+	$o1 = "<a href=\"?h{$h}\">Show all entries</a>";
+	$o2 = "<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>";
+	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
 	
 	if ($get['m'] == "") { 
 		$s_historyoptions .= highlightBold($o1);
 	} else {
 		$s_historyoptions .= $o1;
 	}
-	$s_historyoptions .= " <a href=\"?h&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
+	$s_historyoptions .= " <a href=\"?h{$h}&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
 	if ($get['m'] == "c") { 
 		$s_historyoptions .= highlightBold($o2);
 	} else {
 		$s_historyoptions .= $o2;
 	}
-	$s_historyoptions .= " <a href=\"?h&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
+	$s_historyoptions .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
 	if ($get['m'] == "n") { 
 		$s_historyoptions .= highlightBold($o3);
 	} else {
 		$s_historyoptions .= $o3;
 	}
-	$s_historyoptions .= " <a href=\"?h&m=n&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
+	$s_historyoptions .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
 	$s_historyoptions .= "<a href=\"?\">Back to Compatibility List</a>";
 	

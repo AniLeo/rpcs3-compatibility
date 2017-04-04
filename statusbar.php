@@ -17,7 +17,7 @@ function imagestringstroketext(&$image, $size, $x, $y, &$textcolor, &$strokecolo
 require "lib/compat/config.php";
 
 // Get width and height args
-if ( !isset($_GET['width']) ) { $width = 1090; } else { $width = $_GET['width']; }
+if ( !isset($_GET['width']) ) { $width = 1100; } else { $width = $_GET['width']; }
 if ( !isset($_GET['height']) || $_GET['height'] < 30 ) { $height = 30; } else { $height = $_GET['height']; }
 
 // Connect to database
