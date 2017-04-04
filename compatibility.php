@@ -16,24 +16,28 @@
 			<!--End -->
 			<div id="compat-hdr-right">
 				<p>
-					 Sort By - <?php echo getSortBy(); ?>
+					Sort By - <?php echo getSortBy(); ?>
 				</p>
 			</div>
 			<div id="compat-hdr-left">
 				<p>
-					 Results per page - <?php echo getResultsPerPage(); ?>
+					Results per page - <?php echo getResultsPerPage(); ?>
 				</p>
 			</div>
 			<!--End -->
 			<div id="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>
 			</div>
+			<div style="background: url(https://rpcs3.net/compatbar); background-size: 1090px 30px; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
+			</div>
 			<!--End -->
 			<div id='compat-con-searchbox'>
 				<form action="" method="get" id="searchbox-field">
 					<div id='searchbox'>
-						<?php echo '<input id="searchbox-field" name="g" type="" value="';  if($get['g'] != "" && $scount[0] >
-						 0) {echo $get['g'];} echo '" placeholder="Game Title / Game ID" />'; ?>
+						<?php echo '<input id="searchbox-field" name="g" type="" value="';
+							if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	} 
+							echo '" placeholder="Game Title / Game ID" />'; 
+						?>
 					</div>
 					<div id='submit'>
 						<button class='div-button' type="submit">
@@ -45,15 +49,12 @@
 			</div>
 			<!--End -->
 			<table id="compat-con-search">
-			<tr>
 				<?php echo getCharSearch(); ?>
-			</tr>
 			</table>
 			<!--End -->
 		</div>
 		<table class='compat-con-container'>
-		<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } ?>
-		<?php echo getTableContent(); ?>
+			<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } echo getTableContent(); ?>
 		</table>
 		<!--End -->
 		<div id="compat-con-pages">

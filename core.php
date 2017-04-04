@@ -307,6 +307,8 @@ function getStatusDescriptions() {
 function getCharSearch() {
 	global $g_pageresults, $a_css, $a_title, $get;
 	
+	$s_charsearch .= "<tr>";
+	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
 
@@ -346,6 +348,8 @@ function getCharSearch() {
 	if ($get['c'] == "sym") { $s_charsearch .= highlightBold("#"); }
 	else { $s_charsearch .= "#"; }
 	$s_charsearch .= "</div></a></td>";
+	
+	$s_charsearch .= "</tr>";
 	
 	return $s_charsearch;
 }
