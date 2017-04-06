@@ -283,6 +283,7 @@ function obtainGet() {
 }
 
 
+// Generates query from given GET parameters
 function generateQuery($db, $get, $status) {
 	global $a_title, $a_order;
 
@@ -336,6 +337,68 @@ function generateQuery($db, $get, $status) {
 	}
 	
 	return $genquery;
+}
+
+
+// Select the count of games in each status, subjective to query restrictions
+function countGames($query) {
+	global $a_title, $get;
+	
+	// Connect to database
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
+	
+		if ($query == "") {
+			// Empty query or general query with order only, all games returned
+			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$s}";
+		} else {
+			// Query defined, return count of games with searched parameters
+			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE ({$query}) AND status = {$s}";
+		}
+		
+		$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
+		
+		// Instead of querying the database once more add all the previous counts to get the total count
+		$scount[0] += $scount[$s];
+	}
+	
+	// Close database connection
+	mysqli_close($db);
+	
+	return $scount;
+}
+
+
+// Converts HEX colors to RGB
+// Returns array with 0 = Red, 1 = Green, 2 = Blue
+function colorHEXtoRGB($color) {
+	
+	if (strlen($color) == 7) {
+		// If it starts by # we remove it and convert anyways
+		$color = substr($color, 1);
+	} elseif (strlen($color) != 6) {
+		// If it's not 7 or 6 characters then it's an invalid color
+		return array(0,0,0);
+	}
+	
+	$rgb = array(
+		$color[0].$color[1], // Red
+		$color[2].$color[3], // Green
+		$color[4].$color[5]  // Blue
+	);
+	
+	return array_map('hexdec', $rgb);
+}
+
+
+// Adapted from: http://www.johnciacia.com/2010/01/04/using-php-and-gd-to-add-border-to-text/ to imagestring by me
+function imagestringstroketext(&$image, $size, $x, $y, &$textcolor, &$strokecolor, $text, $px) {
+    for($c1 = ($x-abs($px)); $c1 <= ($x+abs($px)); $c1++)
+        for($c2 = ($y-abs($px)); $c2 <= ($y+abs($px)); $c2++)
+            $bg = imagestring($image, $size, $c1, $c2, $text, $strokecolor);
+   return imagestring($image, $size, $x, $y, $text, $textcolor);
 }
 
 ?>

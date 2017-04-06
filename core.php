@@ -51,22 +51,9 @@ $a_order = array(
 '4d' => 'ORDER BY last_edit DESC'
 );
 
-$a_histdates = array(
-'2017_02' => 'March 1st, 2017',
-'2017_03' => 'March 30th, 2017'
-);
 
-$currenthist = '2017_04';
-
-/**************************
- * Obtain values from GET *
- **************************/
-
+// Obtain values from get
 $get = obtainGet();
-
-/***
- Database Queries
-***/
 
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
@@ -74,29 +61,9 @@ mysqli_set_charset($db, 'utf8');
 // Generate query
 $genquery = generateQuery($db, $get, true);
 
-// Select the count of games in each status
-function countGames($query) {
-	global $a_title, $db, $get;
-	
-	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
-		if ($query == "") {
-			// Empty query or general query with order only, all games returned
-			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$s}";
-		} else {
-			// Query defined, return count of games with searched parameters
-			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE ({$query}) AND status = {$s}";
-		}
-		
-		$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
-		
-		// Instead of querying the database once more add all the previous counts to get the total count (subjective to search params)
-		$scount[0] += $scount[$s];
-	}
-	
-	return $scount;
-}
-
+// Get game count per status
 $scount = countGames(generateQuery($db, $get, false));
+
 
 // Get the total count of entries present in the database (not subjective to search params)
 $games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
@@ -555,7 +522,7 @@ function getHistoryOptions() {
 	
 	$s_historyoptions .= "</br>";
 	
-	if ($get['h1'] != "") {
+	if ($get['h1'] != "" && $get['h1'] != db_table) {
 		$h = "={$get['h1']}";
 	} else {
 		$h = "";
@@ -653,7 +620,7 @@ function getHistory(){
 		} elseif (mysqli_num_rows($nQuery) == 0) {
 			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
-			echo "</br>
+			echo "
 			<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>
 			<table class='compat-con-container'><tr>
 			<th>Game ID</th>

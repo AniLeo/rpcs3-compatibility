@@ -97,4 +97,13 @@ $a_css = array(
 "NOBUILD" => 'txt-compat-nobuild'
 );
 
+// Dates for history backups
+$a_histdates = array(
+'2017_02' => 'March 1st, 2017',
+'2017_03' => 'March 30th, 2017'
+);
+
+// Current month
+$currenthist = '2017_04';
+
 ?>
