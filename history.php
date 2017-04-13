@@ -47,9 +47,14 @@
 		<div id="compat-con-author">
 			<div id="compat-tx1-author">
 				<p>
+					<?php
+					// Finish: Microtime after the page loaded
+					$finish = getTime();
+					$total_time = round(($finish - $start), 4);
+					?>
 					Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>
 					&nbsp; - &nbsp;
-					<?php echo "Page generated in {$total_time} seconds"; ?>
+					<?php echo "Page loaded in {$total_time} seconds"; ?>
 				</p>
 			</div>
 		</div>

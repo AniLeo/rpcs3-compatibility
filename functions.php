@@ -141,9 +141,27 @@ function getThread($text, $tid) {
 function getCommit($cid) {
 	global $c_github, $a_css, $c_unkcommit;
 	
-	// If the commit is unknown we input 0.
-	if ($cid != "0") { return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>"; } 
-	else             { return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'>Unknown</div>"; }
+	if ($cid == "0") { return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'>Unknown</div>"; }
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
+	if (mysqli_num_rows($commitQuery) == 0) {
+		// Commit not in cache! Run recacher.
+		cacheCommits(false);
+	}
+	
+	$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
+	$row = mysqli_fetch_object($commitQuery);	
+	
+	mysqli_close($db);
+	
+	if ($row->valid == "1") {
+		return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
+	} else {
+		return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'><i>{$cid}</i></div>";
+	}
 }
 
 
@@ -187,6 +205,71 @@ function isValid($str) {
 
 
 /**
+  * isValidCommit
+  *
+  * Checks if commit exists in master branch by checking HTTP Headers.
+  * Returns 1 if valid, 0 if invalid or 2 for internal error.
+  *
+  * @param string $commit Commit ID
+  *
+  * @return int (0,1,2)
+  */
+function isValidCommit($commit) {
+	global $c_github;
+	
+	@file_get_contents($c_github.$commit);
+
+	// HTTP/1.1 404 Not Found - Invalid commit
+	if (strpos($http_response_header[0], '404') !== false)     { return 0; } 
+	// HTTP/1.1 200 OK - Commit found
+	elseif (strpos($http_response_header[0], '200') !== false) { return 1; } 
+	
+	return 2; // Fallback for other error codes
+}
+
+
+/**
+  * cacheCommits
+  *
+  * Caches the validity of commits obtained by isValidCommit.
+  * This is required because validating takes too much time and kills page load times.
+  *
+  * @param bool $mode Recache mode (true = full / false = partial)
+  *
+  */
+function cacheCommits($mode) {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$commitQuery = mysqli_query($db, "SELECT t1.build_commit, t2.commit_id, t2.valid 
+	FROM ".db_table." AS t1 LEFT JOIN commit_cache AS t2 on t1.build_commit != t2.commit_id 
+	WHERE build_commit != '0' GROUP BY build_commit; ");
+
+	while($row = mysqli_fetch_object($commitQuery)) {
+		
+		$checkQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $row->build_commit)."' LIMIT 1; ");
+		$row2 = mysqli_fetch_object($checkQuery);
+		
+		// Partial recache: If value isn't cached, then cache it 
+		if (mysqli_num_rows($checkQuery) === 0) {
+			if (isValidCommit($row->build_commit)) { $valid = 1; } else { $valid = 0; }
+			mysqli_query($db, "INSERT INTO commit_cache (commit_id, valid) VALUES ('".mysqli_real_escape_string($db, $row->build_commit)."', '{$valid}'); ");
+		} 
+		
+		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
+		elseif ($mode) {
+			if (isValidCommit($row->build_commit)) { $valid = 1; } else { $valid = 0; }
+			// If value is cached but differs on validation, update it	
+			if ($row2->valid != $valid) {
+				mysqli_query($db, "UPDATE commit_cache SET valid = '{$valid}' WHERE commit_id = '".mysqli_real_escape_string($db, $row->build_commit)."' LIMIT 1; ");
+			}
+		}
+	}
+	mysqli_close($db);
+}
+
+
+/**
   * highlightBold
   *
   * Returns provided string wrapped in bold html tags
@@ -201,7 +284,7 @@ function highlightBold($str) {
 
 
 function obtainGet() {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $currenthist;
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $currenthist, $a_admin;
 	
 	// Start new $get array
 	$get = array();
@@ -217,8 +300,9 @@ function obtainGet() {
 	$get['f'] = '';
 	$get['h'] = '';
 	$get['h1'] = db_table;
-	$get['h2'] = '2017_03';
-	$get['m'] = '';
+	$get['h2'] = '2017_03'; 
+	$get['m'] = ''; 
+	$get['a'] = ''; // Admin debug Mode
 	
 	// Results per page
 	if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
@@ -279,14 +363,22 @@ function obtainGet() {
 		$get['m'] = strtolower($_GET['m']);
 	}
 	
+	// Admin debug mode
+	if (isset($_GET['a']) && in_array($_SERVER["REMOTE_ADDR"], $a_admin)) {
+		$get['a'] = $_GET['a'];
+	}
+	
 	return $get;
 }
 
 
 // Generates query from given GET parameters
-function generateQuery($db, $get, $status) {
+function generateQuery($get, $status) {
 	global $a_title, $a_order;
 
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
 	$genquery = "";
 	
 	// Force status to be All
@@ -335,6 +427,8 @@ function generateQuery($db, $get, $status) {
 		$sd = mysqli_real_escape_string($db, $get['d']);
 		$genquery .= " last_edit = '{$sd}' "; 
 	}
+	
+	mysqli_close($db);
 	
 	return $genquery;
 }
@@ -399,6 +493,12 @@ function imagestringstroketext(&$image, $size, $x, $y, &$textcolor, &$strokecolo
         for($c2 = ($y-abs($px)); $c2 <= ($y+abs($px)); $c2++)
             $bg = imagestring($image, $size, $c1, $c2, $text, $strokecolor);
    return imagestring($image, $size, $x, $y, $text, $textcolor);
+}
+
+
+function getTime() {
+	$t = explode(' ', microtime());
+	return $t[1] + $t[0];
 }
 
 ?>

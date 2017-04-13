@@ -27,6 +27,11 @@ define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
 define('db_table' , 'TABLE_NAME');
 
+// Whitelist: Admin IPs for Debug stuff
+$a_admin = array(
+'ADMIN_IP'
+);
+
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';

@@ -29,11 +29,8 @@ ini_set('display_errors', 0);
 ini_set('display_startup_errors', 0);
 error_reporting(0);
 
-// Start of time calculations
-$time = microtime();
-$time = explode(' ', $time);
-$time = $time[1] + $time[0];
-$start = $time;
+// Start: Microtime when page started loading
+$start = getTime();
 
 // TODO: Some new additions need refactoring
 // TODO: Multiple search for date, region
@@ -55,19 +52,18 @@ $a_order = array(
 // Obtain values from get
 $get = obtainGet();
 
+// Generate query
+$genquery = generateQuery($get, true);
+
+// Get game count per status
+$scount = countGames(generateQuery($get, false));
+
+// Connect to database
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
-// Generate query
-$genquery = generateQuery($db, $get, true);
-
-// Get game count per status
-$scount = countGames(generateQuery($db, $get, false));
-
-
 // Get the total count of entries present in the database (not subjective to search params)
 $games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
-
 
 // Page calculation according to the user's search
 $pagesCmd = "SELECT count(*) AS c FROM ".db_table;
@@ -434,6 +430,8 @@ function getTableContentRow($row) {
 function getPagesCounter() {
 	global $pages, $currentPage, $g_pageresults, $a_title, $get;
 	
+	$lim = 7; // Limit for amount of pages to be shown on pages counter (for each side of current page)
+	
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
 	if ($pages == 0) { 
@@ -460,11 +458,22 @@ function getPagesCounter() {
 	// Page support: Order by
 	if ($get['o'] != "") {$common .= "o={$get['o']}&";} 
 	
+	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
+	if ($lim > $currentPage) {
+		$a = $lim - $currentPage;
+		$lim = $lim + $a + 1;
+	}
+	
+	// If there's less pages to the right than current limit it loads the excess amount to the left for balance
+	if ($lim > $pages - $currentPage) {
+		$a = $lim - ($pages - $currentPage);
+		$lim = $lim + $a + 1;
+	}
 	
 	// Loop for each page link and make it properly clickable until there are no more pages left
 	for ($i=1; $i<=$pages; $i++) { 
 	
-		if ( ($i >= $currentPage-7 && $i <= $currentPage) || ($i+7 >= $currentPage && $i <= $currentPage+7) ) {
+		if ( ($i >= $currentPage-$lim && $i <= $currentPage) || ($i+$lim >= $currentPage && $i <= $currentPage+$lim) ) {
 			
 			$s_pagescounter .= $common;
 			
@@ -478,7 +487,8 @@ function getPagesCounter() {
 		} elseif ($i == 1) {
 			// First page
 			$s_pagescounter .= $common;
-			$s_pagescounter .= "p=$i-1\">01</a>&nbsp;&#32;...&nbsp;&#32;"; 
+			$s_pagescounter .= "p=$i\">01</a>&nbsp;&#32;"; 
+			if ($currentPage != $lim+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
 		} elseif ($pages == $i) {
 			// Last page
 			$s_pagescounter .= "...&nbsp;&#32;";
@@ -704,14 +714,5 @@ function getHistoryRSS(){
 	
     return $rssfeed;
 }
-
-/*****************************************************************************************************************************/
-
-// End of time calculations
-$time = microtime();
-$time = explode(' ', $time);
-$time = $time[1] + $time[0];
-$finish = $time;
-$total_time = round(($finish - $start), 4);
 
 ?>

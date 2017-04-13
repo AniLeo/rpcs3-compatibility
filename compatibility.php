@@ -17,6 +17,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
+
 <div id="page-con-container">
 	<div id="page-in-container">
 		<!--End -->
@@ -72,6 +73,20 @@
 			</table>
 			<!--End -->
 		</div>
+		
+		<?php
+		// Admin mode functionalities
+		if ($get['a'] != '') {
+			if ($get['a'] == 'updateCommitCache') {
+				$startA = getTime();
+				cacheCommits(false);
+				$finishA = getTime();
+				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
+			}
+			// if ($get['a'] == 'recacheInitials') { /*TODO*/ }
+		}
+		?>
+		
 		<table class='compat-con-container'>
 			<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } echo getTableContent(); ?>
 		</table>
@@ -84,9 +99,14 @@
 		<div id="compat-con-author">
 			<div id="compat-tx1-author">
 				<p>
+					<?php
+					// Finish: Microtime after the page loaded
+					$finish = getTime();
+					$total_time = round(($finish - $start), 4);
+					?>
 					Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target="_blank">AniLeo</a>
-					&nbsp; - &nbsp;
-					<?php echo "Page generated in {$total_time} seconds"; ?>
+					&nbsp;-&nbsp;
+					<?php echo "Page loaded in {$total_time} seconds"; ?>
 				</p>
 			</div>
 		</div>

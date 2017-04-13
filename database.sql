@@ -11,3 +11,13 @@ CREATE TABLE `rpcs3` (
   `last_edit` date NOT NULL DEFAULT '0000-00-00',
   PRIMARY KEY (`game_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for commit_cache
+-- ----------------------------
+DROP TABLE IF EXISTS `commit_cache`;
+CREATE TABLE `commit_cache` (
+  `commit_id` varchar(255) NOT NULL,
+  `valid` int(11) NOT NULL,
+  PRIMARY KEY (`commit_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
