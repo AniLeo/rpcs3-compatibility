@@ -147,7 +147,7 @@ function getCommit($cid) {
 	mysqli_set_charset($db, 'utf8');
 	
 	$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-	if (mysqli_num_rows($commitQuery) == 0) {
+	if (mysqli_num_rows($commitQuery) === 0) {
 		// Commit not in cache! Run recacher.
 		cacheCommits(false);
 	}
@@ -265,6 +265,86 @@ function cacheCommits($mode) {
 			}
 		}
 	}
+	mysqli_close($db);
+}
+
+
+function cacheWindowsBuilds(){
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
+	$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+	$row = mysqli_fetch_object($mergeDateQuery);
+	
+	$merge_datetime = date_create($row->merge_datetime);
+	date_sub($merge_datetime, date_interval_create_from_date_string('1 day'));
+	$date = date_format($merge_datetime, 'Y-m-d');
+
+	// This takes a while to do...
+	set_time_limit(60*60);
+	
+	/*
+	Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
+	$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Acreated-asc%20merged%3A%3E{$date}");
+	$step_1 = explode("<span class=\"gap\">&hellip;</span>", $content);
+	$step_2 = explode("<a class=\"next_page\" rel=\"next\"" , $step_1[1]);
+	$step_3 = explode(">" , $step_2[0]);
+	$step_4 = explode("</a" , $step_3[3]);
+	$last_page = $step_4[0];
+	*/
+
+	$last_page = 1;
+	$a_PR = array();
+
+	// Loop through all pages and get PR information
+	for ($i=1; $i<=$last_page; $i++) {
+		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Acreated-asc+created%3A%3E{$date}&utf8=%E2%9C%93");
+		
+		$step_1 = explode("\" class=\"link-gray-dark no-underline h4 js-navigation-open\">", $content);
+		
+		$a = 0; // Current PR (page relative)
+		$b = 0; // Current exploded iteration
+		
+		while ($a<25) {
+			$pr = substr($step_1[$a], -4); // Future proof: Remember that this needs to be changed to -5 after PR #9999
+			
+			// At the end it prints something like l>. We know when it's not a number that it reached the end.
+			if (!ctype_digit($pr)) {
+				break 2;
+			}
+			
+			// If PR isn't already in then add it, else ignore
+			if (!in_array($pr, $a_PR)) {
+				
+				// No need to escape here, we break before if it's not numeric only
+				$PRQuery = mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ");
+				array_push($a_PR, $pr);
+				
+				// If PR isn't cached, then just DO IT!
+				if (mysqli_num_rows($PRQuery) === 0) {
+				
+					$content2 = file_get_contents("https://github.com/RPCS3/rpcs3/pull/{$pr}");
+					
+					$e_author = explode(" class=\"author\">", $content2);
+					$author = explode("</a>", $e_author[1])[0];
+					
+					$e_datetime = explode("<relative-time datetime=\"", $content2);
+					$merge_datetime = explode("\"", $e_datetime[1])[0];
+					$start_datetime = explode("\"", $e_datetime[2])[0];
+					
+					$e_appveyor = explode("<a class=\"status-actions\" href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/", $content2);
+					$build = explode("\"", $e_appveyor[1])[0];
+				
+					$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
+					VALUES ('{$pr}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+				}
+				$a++;
+			}
+			$b++;
+		}
+	}
+		
 	mysqli_close($db);
 }
 
@@ -499,6 +579,190 @@ function imagestringstroketext(&$image, $size, $x, $y, &$textcolor, &$strokecolo
 function getTime() {
 	$t = explode(' ', microtime());
 	return $t[1] + $t[0];
+}
+
+
+/********************************************************************************************************************/
+
+
+function builds_getTableHeaders() {
+	global $get;
+	
+	$s_tableheaders .= "<tr>";
+	
+	/* Commonly used code: so we don't have to waste lines repeating this */
+	$common .= "<th><a href =\"?b&";
+	
+	
+	/* Pull Request */
+	$s_tableheaders .= $common;
+	// Order by: Pull Request (ASC, DESC)
+	if ($get['o'] == "1a") { $s_tableheaders .= "o=1d\">Pull Request &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "1d") { $s_tableheaders .= "\">Pull Request &nbsp; &#8595;</a></th>"; }
+	else { $s_tableheaders .= "o=1a\">Pull Request</a></th>"; } 
+
+	/* Author */
+	$s_tableheaders .= $common;
+	// Order by: Author (ASC, DESC)
+	if ($get['o'] == "2a") { $s_tableheaders .= "o=2d\">Author &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "2d") { $s_tableheaders .= "\">Author &nbsp; &#8595;</a></th>"; }
+	else { $s_tableheaders .= "o=2a\">Author</a></th>"; }
+
+	/* Build Date  */
+	$s_tableheaders .= $common;
+	// Order by: Build Date (ASC, DESC)
+	if ($get['o'] == "4a") { $s_tableheaders .= "o=4d\">Build Date &nbsp; &#8593;</a></th>"; }
+	elseif ($get['o'] == "4d") { $s_tableheaders .= "\">Build Date &nbsp; &#8595;</a></th>"; }
+	else { $s_tableheaders .= "o=4a\">Build Date </a></th>"; }
+	
+	/* AppVeyor Download */
+	$s_tableheaders .= "<th>Download</th>";
+	
+	$s_tableheaders .= "</tr>";
+	
+	return $s_tableheaders;
+}
+
+
+function builds_getTableContent() {
+	global $get, $c_appveyor;
+
+	// Order queries
+	$a_order = array(
+	'' => 'ORDER BY merge_datetime DESC',
+	'1a' => 'ORDER BY pr ASC',
+	'1d' => 'ORDER BY pr DESC',
+	'2a' => 'ORDER BY author ASC',
+	'2d' => 'ORDER BY author DESC',
+	'3a' => 'ORDER BY merge_datetime ASC',
+	'3d' => 'ORDER BY merge_datetime DESC',
+	'4a' => 'ORDER BY merge_datetime DESC',
+	'4d' => 'ORDER BY merge_datetime DESC'
+	);
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$pagesQuery = mysqli_query($db, "SELECT count(*) AS c FROM builds_windows");
+	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / 25);
+	
+	if (isset($_GET['p'])) {
+		$currentPage = intval($_GET['p']);
+		if ($currentPage > $pages) { $currentPage = 1; }		
+	} else { $currentPage = 1; }
+	
+	// TODO: Costum results per page
+	$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
+	
+	$buildsQuery = mysqli_query($db, $buildsCommand);
+	
+	if ($buildsQuery && mysqli_num_rows($buildsQuery) > 0) {
+		while ($row = mysqli_fetch_object($buildsQuery)) { 
+		
+			$days = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );			
+			if ($days == 0) {
+				$hours = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );
+				$diffdate = $hours . " hours ago";
+			} elseif ($days == 1) { $diffdate = $days . " day ago"; } 
+			else {  $diffdate = $days . " days ago"; }
+			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
+	
+			$s_tablecontent .= "<tr>
+			<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15px' height='15px' src=\"/img/icons/menu/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
+			<td><a href=\"https://github.com/{$row->author}\">{$row->author}</a></td>
+			<td>{$diffdate} ({$fulldate})</td>";
+			if ($row->appveyor != "0") { 
+				$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15px' height='15px' src=\"/img/icons/menu/download.png\">&nbsp;&nbsp;{$row->appveyor}</a></td>";
+			} else {
+				$s_tablecontent .= "<td><i>None</i></td>";
+			}
+			$s_tablecontent .= "</tr>";
+		}
+	} else {
+		// Query generator fail error
+		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+	}
+
+	mysqli_close($db);
+	
+	return $s_tablecontent;
+}
+
+
+function builds_getPagesCounter() {
+	global $get;
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$pagesQuery = mysqli_query($db, "SELECT count(*) AS c FROM builds_windows");
+	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / 25);
+	
+	if (isset($_GET['p'])) {
+		$currentPage = intval($_GET['p']);
+		if ($currentPage > $pages) { $currentPage = 1; }		
+	} else { $currentPage = 1; }
+
+	mysqli_close($db);
+	
+	$lim = 7; // Limit for amount of pages to be shown on pages counter (for each side of current page)
+	
+	// IF no results are found then something went wrong
+	if ($pages == 0) { 
+		$s_pagescounter .= 'An error has occoured.';
+	} 
+	// Shows current page and total pages
+	else { 
+		$s_pagescounter .= "Page {$currentPage} of {$pages} - "; 
+	}
+	
+	// Commonly used code
+	$common = "<a href=\"?b&";
+	
+	// Page support: Order by
+	if ($get['o'] != "") {$common .= "o={$get['o']}&";} 
+	
+	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
+	if ($lim > $currentPage) {
+		$a = $lim - $currentPage;
+		$lim = $lim + $a + 1;
+	}
+	
+	// If there's less pages to the right than current limit it loads the excess amount to the left for balance
+	if ($lim > $pages - $currentPage) {
+		$a = $lim - ($pages - $currentPage);
+		$lim = $lim + $a + 1;
+	}
+	
+	// Loop for each page link and make it properly clickable until there are no more pages left
+	for ($i=1; $i<=$pages; $i++) { 
+	
+		if ( ($i >= $currentPage-$lim && $i <= $currentPage) || ($i+$lim >= $currentPage && $i <= $currentPage+$lim) ) {
+			
+			$s_pagescounter .= $common;
+			
+			// Display number of the page and highlight if current page
+			$s_pagescounter .= "p=$i\">";
+			if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
+			else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
+			
+			$s_pagescounter .= "</a>&nbsp;&#32;"; 
+		
+		} elseif ($i == 1) {
+			// First page
+			$s_pagescounter .= $common;
+			$s_pagescounter .= "p=$i\">01</a>&nbsp;&#32;"; 
+			if ($currentPage != $lim+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
+		} elseif ($pages == $i) {
+			// Last page
+			$s_pagescounter .= "...&nbsp;&#32;";
+			$s_pagescounter .= $common;
+			$s_pagescounter .= "p=$pages\">$pages</a>&nbsp;&#32;"; 
+		}
+		
+	}
+
+	return $s_pagescounter;
 }
 
 ?>

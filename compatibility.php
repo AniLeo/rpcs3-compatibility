@@ -28,8 +28,8 @@
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
-						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions.
-						<a href="?h"><b>See compatibility history</b></a>
+						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions. </br>
+						<a href="?h"><b>See compatibility history</b></a> • <a href="?b"><b>See RPCS3 builds history</b></a>
 					</p>
 				</div>
 			</div>
@@ -82,6 +82,12 @@
 				cacheCommits(false);
 				$finishA = getTime();
 				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
+			}
+			if ($get['a'] == 'updateBuildCache') {
+				$startA = getTime();
+				cacheWindowsBuilds();
+				$finishA = getTime();
+				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
 			}
 			// if ($get['a'] == 'recacheInitials') { /*TODO*/ }
 		}

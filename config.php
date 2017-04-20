@@ -35,6 +35,7 @@ $a_admin = array(
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
+$c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pageresults = 3; // Default results per page (50)
 
 // Background color for unknown commit div

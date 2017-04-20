@@ -21,3 +21,16 @@ CREATE TABLE `commit_cache` (
   `valid` int(11) NOT NULL,
   PRIMARY KEY (`commit_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for builds_windows
+-- ----------------------------
+DROP TABLE IF EXISTS `builds_windows`;
+CREATE TABLE `builds_windows` (
+  `pr` int(11) NOT NULL,
+  `author` varchar(255) NOT NULL,
+  `start_datetime` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `merge_datetime` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `appveyor` varchar(255) NOT NULL,
+  PRIMARY KEY (`pr`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

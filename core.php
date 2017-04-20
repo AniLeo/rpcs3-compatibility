@@ -354,7 +354,7 @@ function getTableHeaders() {
 	else { $s_tableheaders .= "o=2a\">Game Title</a></th>"; }
 
 	/* Build Used */
-	$s_tableheaders .= "<th>Build Used</th>";
+	$s_tableheaders .= "<th>Last tested on</th>";
 
 	/* Status */
 	$s_tableheaders .= $common;
