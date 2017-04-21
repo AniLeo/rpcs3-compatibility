@@ -34,3 +34,13 @@ CREATE TABLE `builds_windows` (
   `appveyor` varchar(255) NOT NULL,
   PRIMARY KEY (`pr`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for initials_cache
+-- ----------------------------
+DROP TABLE IF EXISTS `initials_cache`;
+CREATE TABLE `initials_cache` (
+  `game_title` varchar(255) NOT NULL,
+  `initials` varchar(255) NOT NULL,
+  PRIMARY KEY (`game_title`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

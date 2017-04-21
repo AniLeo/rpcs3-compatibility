@@ -679,4 +679,93 @@ function countPages($get, $genquery) {
 	return $pages;
 }
 
+
+function cacheInitials() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$theQuery = mysqli_query($db, "SELECT game_title FROM ".db_table.";");
+
+	while($row = mysqli_fetch_object($theQuery)) {
+		
+		// Divide game title by spaces between words
+		$w = explode(" ", $row->game_title);
+		$initials = "";
+		
+		foreach($w as $w) {
+			
+			// We don't care about the following in initials
+			// demo: several Demo games
+			// pack and vol.: Idolmaster games
+			// goty: Batman
+			if (strtolower($w) == "demo" || strtolower($w) == "pack" || strtolower($w) == "vol." || strtolower($w) == "goty") { continue; } 
+			
+			// For Steins;Gate/Chaos;Head/Robotics;Notes...
+			if (strpos($w, ";") !== false) {
+				$sg = explode(";", $w);
+				foreach($sg as $sg) {
+					$initials .= substr($sg, 0, 1);
+				}
+				continue;
+			}
+			
+			// For .hack//Versus...
+			if (strpos($w, ".") === 0) {
+				// explode() expects parameter 2 to be string, array given
+				$hv = explode("//", explode(".", $w));
+				foreach($hv as $hv) {
+					$initials .= substr($hv, 0, 1);
+				}
+				continue;
+			}
+			
+			// If word is alphanumeric then add first character to the initials, else ignore
+			if (ctype_alnum(substr($w, 0, 1))) {
+				$initials .= substr($w, 0, 1);
+				
+				// If the next character is a number then keep adding until it's not alphanumeric
+				// Workaround for games like Disgaea D2 / Idolmaster G4U!
+				if (ctype_digit(substr($w, 1, 1))) { 
+					$i = strlen($w) - 1;
+					
+					foreach(range(1, $i) as $n) {
+						if (ctype_alnum($w[$n])) { $initials .= $w[$n]; }
+					}
+				}
+			} elseif (!preg_match("/[a-z]/i", $w)) {
+				// Workaround for games with numbers like 15 or 1942
+				// Any word that doesn't have a-z A-Z
+				$i = strlen($w) - 1;
+				foreach(range(0, $i) as $n) {
+					// If character is a number then add it to initials
+					if (ctype_digit($w[$n])) { $initials .= $w[$n]; }
+				}
+			} 
+
+		}
+		
+		// We don't care about games with less than 2 initials
+		if (strlen($initials) > 1) {
+		
+			// Check if value is already cached (two games can have the same initials so we use game_title)
+			$checkQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE game_title = '".mysqli_real_escape_string($db, $row->game_title)."' LIMIT 1; ");
+			
+			// If value isn't cached, then cache it
+			if(mysqli_num_rows($checkQuery) === 0) {
+				mysqli_query($db, "INSERT INTO initials_cache (game_title, initials) 
+				VALUES ('".mysqli_real_escape_string($db, $row->game_title)."', 
+				'".mysqli_real_escape_string($db, $initials)."'); ");
+			} else {
+				$row2 = mysqli_fetch_object($checkQuery);
+				// If value is cached but differs from newly calculated initials, update it
+				if ($row2->initials != $initials) {
+					mysqli_query($db, "UPDATE initials_cache SET initials = '".mysqli_real_escape_string($db, $initials)."' 
+					WHERE game_title = '".mysqli_real_escape_string($db, $row->game_title)."' LIMIT 1;");
+				}
+			}
+		
+		}
+	}	
+}
+
 ?>

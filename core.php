@@ -100,45 +100,45 @@ if ($get['g'] != "") {
 
 		// If results not found then apply levenshtein to get the closest result
 		$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
-
-		if ($levCheck && mysqli_num_rows($levCheck) === 0) {
-			$l_title = "";
-			$l_dist = -1;
-			$l_orig = "";
+	}
+	
+	if ($levCheck && mysqli_num_rows($levCheck) === 0 && $abbreviationQuery && mysqli_num_rows($abbreviationQuery) === 0) {
+		$l_title = "";
+		$l_dist = -1;
+		$l_orig = "";
+		
+		if ($mainQuery1 && mysqli_num_rows($mainQuery1) === 0) {
 			
-			if ($mainQuery1 && mysqli_num_rows($mainQuery1) === 0) {
+			// Select all database entries
+			$sqlCmd2 = "SELECT * FROM ".db_table."; ";
+			$mainQuery2 = mysqli_query($db, $sqlCmd2);
+			
+			// Calculate proximity for each database entry
+			while($row = mysqli_fetch_object($mainQuery2)) {
+				$lev = levenshtein($get['g'], $row->game_title);
 				
-				// Select all database entries
-				$sqlCmd2 = "SELECT * FROM ".db_table."; ";
-				$mainQuery2 = mysqli_query($db, $sqlCmd2);
-				
-				// Calculate proximity for each database entry
-				while($row = mysqli_fetch_object($mainQuery2)) {
-					$lev = levenshtein($get['g'], $row->game_title);
-					
-					if ($lev <= $l_dist || $l_dist < 0) {
-						$l_title = $row->game_title;
-						$l_dist = $lev;
-					}
+				if ($lev <= $l_dist || $l_dist < 0) {
+					$l_title = $row->game_title;
+					$l_dist = $lev;
 				}
-				
-				// Re-run the main query
-				$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
-						FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' 
-						LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-				$mainQuery1 = mysqli_query($db, $sqlCmd);
-				
-				$genquery = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
-				
-				// Recalculate Pages / CurrentPage
-				$pages = countPages($get, $genquery);
-				$currentPage = getCurrentPage($pages);
-				$scount = countGames($genquery);
-				
-				// Replace faulty search with returned game but keep the original search for display
-				$l_orig = $get['g'];
-				$get['g'] = $l_title;
 			}
+			
+			// Re-run the main query
+			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
+					FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' 
+					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+			$mainQuery1 = mysqli_query($db, $sqlCmd);
+			
+			$genquery = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
+			
+			// Recalculate Pages / CurrentPage
+			$pages = countPages($get, $genquery);
+			$currentPage = getCurrentPage($pages);
+			$scount = countGames($genquery);
+			
+			// Replace faulty search with returned game but keep the original search for display
+			$l_orig = $get['g'];
+			$get['g'] = $l_title;
 		}
 	}
 }

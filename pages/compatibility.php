@@ -89,7 +89,12 @@
 				$finishA = getTime();
 				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
 			}
-			// if ($get['a'] == 'recacheInitials') { /*TODO*/ }
+			if ($get['a'] == 'updateInitialsCache') { 
+				$startA = getTime();
+				cacheInitials();
+				$finishA = getTime();
+				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on initials cache (".round(($finishA - $startA), 4)."s).</p>";
+			}
 		}
 		?>
 		
