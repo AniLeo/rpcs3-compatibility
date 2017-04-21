@@ -581,135 +581,14 @@ function getTime() {
 	return $t[1] + $t[0];
 }
 
-
-/********************************************************************************************************************/
-
-
-function builds_getTableHeaders() {
-	global $get;
-	
-	$s_tableheaders .= "<tr>";
-	
-	/* Commonly used code: so we don't have to waste lines repeating this */
-	$common .= "<th><a href =\"?b&";
-	
-	
-	/* Pull Request */
-	$s_tableheaders .= $common;
-	// Order by: Pull Request (ASC, DESC)
-	if ($get['o'] == "1a") { $s_tableheaders .= "o=1d\">Pull Request &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "1d") { $s_tableheaders .= "\">Pull Request &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=1a\">Pull Request</a></th>"; } 
-
-	/* Author */
-	$s_tableheaders .= $common;
-	// Order by: Author (ASC, DESC)
-	if ($get['o'] == "2a") { $s_tableheaders .= "o=2d\">Author &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "2d") { $s_tableheaders .= "\">Author &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=2a\">Author</a></th>"; }
-
-	/* Build Date  */
-	$s_tableheaders .= $common;
-	// Order by: Build Date (ASC, DESC)
-	if ($get['o'] == "4a") { $s_tableheaders .= "o=4d\">Build Date &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "4d") { $s_tableheaders .= "\">Build Date &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=4a\">Build Date </a></th>"; }
-	
-	/* AppVeyor Download */
-	$s_tableheaders .= "<th>Download</th>";
-	
-	$s_tableheaders .= "</tr>";
-	
-	return $s_tableheaders;
-}
-
-
-function builds_getTableContent() {
-	global $get, $c_appveyor;
-
-	// Order queries
-	$a_order = array(
-	'' => 'ORDER BY merge_datetime DESC',
-	'1a' => 'ORDER BY pr ASC',
-	'1d' => 'ORDER BY pr DESC',
-	'2a' => 'ORDER BY author ASC',
-	'2d' => 'ORDER BY author DESC',
-	'3a' => 'ORDER BY merge_datetime ASC',
-	'3d' => 'ORDER BY merge_datetime DESC',
-	'4a' => 'ORDER BY merge_datetime DESC',
-	'4d' => 'ORDER BY merge_datetime DESC'
-	);
-	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-
-	$pagesQuery = mysqli_query($db, "SELECT count(*) AS c FROM builds_windows");
-	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / 25);
-	
-	if (isset($_GET['p'])) {
-		$currentPage = intval($_GET['p']);
-		if ($currentPage > $pages) { $currentPage = 1; }		
-	} else { $currentPage = 1; }
-	
-	// TODO: Costum results per page
-	$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
-	
-	$buildsQuery = mysqli_query($db, $buildsCommand);
-	
-	if ($buildsQuery && mysqli_num_rows($buildsQuery) > 0) {
-		while ($row = mysqli_fetch_object($buildsQuery)) { 
-		
-			$days = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );			
-			if ($days == 0) {
-				$hours = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );
-				$diffdate = $hours . " hours ago";
-			} elseif ($days == 1) { $diffdate = $days . " day ago"; } 
-			else {  $diffdate = $days . " days ago"; }
-			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
-	
-			$s_tablecontent .= "<tr>
-			<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15px' height='15px' src=\"/img/icons/menu/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
-			<td><a href=\"https://github.com/{$row->author}\">{$row->author}</a></td>
-			<td>{$diffdate} ({$fulldate})</td>";
-			if ($row->appveyor != "0") { 
-				$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15px' height='15px' src=\"/img/icons/menu/download.png\">&nbsp;&nbsp;{$row->appveyor}</a></td>";
-			} else {
-				$s_tablecontent .= "<td><i>None</i></td>";
-			}
-			$s_tablecontent .= "</tr>";
-		}
-	} else {
-		// Query generator fail error
-		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-	}
-
-	mysqli_close($db);
-	
-	return $s_tablecontent;
-}
-
-
-function builds_getPagesCounter() {
-	global $get;
-	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-
-	$pagesQuery = mysqli_query($db, "SELECT count(*) AS c FROM builds_windows");
-	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / 25);
-	
-	if (isset($_GET['p'])) {
-		$currentPage = intval($_GET['p']);
-		if ($currentPage > $pages) { $currentPage = 1; }		
-	} else { $currentPage = 1; }
-
-	mysqli_close($db);
+function getPagesCounter($pages, $currentPage, $extra) {
 	
 	$lim = 7; // Limit for amount of pages to be shown on pages counter (for each side of current page)
 	
-	// IF no results are found then something went wrong
+	// IF no results are found then the amount of pages is 0
+	// Shows no results found message
 	if ($pages == 0) { 
-		$s_pagescounter .= 'An error has occoured.';
+		return 'No results found using the selected search criteria.';
 	} 
 	// Shows current page and total pages
 	else { 
@@ -717,10 +596,7 @@ function builds_getPagesCounter() {
 	}
 	
 	// Commonly used code
-	$common = "<a href=\"?b&";
-	
-	// Page support: Order by
-	if ($get['o'] != "") {$common .= "o={$get['o']}&";} 
+	$common = "<a href=\"?{$extra}";
 	
 	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
 	if ($lim > $currentPage) {
@@ -739,30 +615,68 @@ function builds_getPagesCounter() {
 	
 		if ( ($i >= $currentPage-$lim && $i <= $currentPage) || ($i+$lim >= $currentPage && $i <= $currentPage+$lim) ) {
 			
-			$s_pagescounter .= $common;
-			
 			// Display number of the page and highlight if current page
-			$s_pagescounter .= "p=$i\">";
+			$s_pagescounter .= "{$common}p=$i\">";
+			
 			if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
 			else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
 			
 			$s_pagescounter .= "</a>&nbsp;&#32;"; 
 		
-		} elseif ($i == 1) {
-			// First page
-			$s_pagescounter .= $common;
-			$s_pagescounter .= "p=$i\">01</a>&nbsp;&#32;"; 
+		} 
+		// First page
+		elseif ($i == 1) {
+			$s_pagescounter .= "{$common}p=$i\">01</a>&nbsp;&#32;"; 
 			if ($currentPage != $lim+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
-		} elseif ($pages == $i) {
-			// Last page
-			$s_pagescounter .= "...&nbsp;&#32;";
-			$s_pagescounter .= $common;
-			$s_pagescounter .= "p=$pages\">$pages</a>&nbsp;&#32;"; 
 		}
+		// Last page
+		elseif ($pages == $i) { $s_pagescounter .= "...&nbsp;&#32;{$common}p=$pages\">$pages</a>&nbsp;&#32;"; }
 		
 	}
-
+	
 	return $s_pagescounter;
+	
+}
+
+
+function getFooter($start) {
+	// Finish: Microtime after the page loaded
+	$finish = getTime();
+	$total_time = round(($finish - $start), 4);
+	
+	return "Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
+	&nbsp;-&nbsp;
+	Page loaded in {$total_time} seconds";
+}
+
+
+// Get current page user is on
+function getCurrentPage($pages) {
+	if (isset($_GET['p'])) {
+		$currentPage = intval($_GET['p']);
+		if ($currentPage > $pages) { $currentPage = 1; }		
+	} else { $currentPage = 1; }
+	
+	return $currentPage;
+}
+
+// Calculate the number of pages according selected status and results per page
+function countPages($get, $genquery) {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	// Page calculation according to the user's search
+	$pagesCmd = "SELECT count(*) AS c FROM ".db_table;
+	if ($genquery != "") {
+		$pagesCmd .= " WHERE {$genquery} ";
+	}
+
+	$pagesQuery = mysqli_query($db, $pagesCmd);
+	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / $get['r']);
+
+	mysqli_close($db);
+	
+	return $pages;
 }
 
 ?>

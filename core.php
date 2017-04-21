@@ -48,7 +48,6 @@ $a_order = array(
 '4d' => 'ORDER BY last_edit DESC'
 );
 
-
 // Obtain values from get
 $get = obtainGet();
 
@@ -65,22 +64,9 @@ mysqli_set_charset($db, 'utf8');
 // Get the total count of entries present in the database (not subjective to search params)
 $games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
 
-// Page calculation according to the user's search
-$pagesCmd = "SELECT count(*) AS c FROM ".db_table;
-if ($genquery != "") {
-	$pagesCmd .= " WHERE {$genquery} ";
-}
-$pagesQry = mysqli_query($db, $pagesCmd);
-$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
-
-
-// Get current page user is on
-// And calculate the number of pages according selected status and results per page
-if (isset($_GET['p'])) {
-	$currentPage = intval($_GET['p']);
-	if ($currentPage > $pages) { $currentPage = 1; }		
-} else { $currentPage = 1; }
-
+// Pages / CurrentPage
+$pages = countPages($get, $genquery);
+$currentPage = getCurrentPage($pages);
 
 // Run the main query 
 $sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit FROM ".db_table." ";
@@ -88,83 +74,70 @@ if ($genquery != "") {
 	$sqlCmd .= " WHERE {$genquery} ";
 }
 $sqlCmd .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-$sqlQry = mysqli_query($db, $sqlCmd);
+$mainQuery1 = mysqli_query($db, $sqlCmd);
 
 
-// Abbreviation search
+// Abbreviation search / Levenshtein search
 if ($get['g'] != "") {
 	$abbreviationQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
 	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0) {
 		$partOne = "SELECT * FROM ".db_table." WHERE ";
-		$i = 0;
 		
+		$i = 0;
 		while($row = mysqli_fetch_object($abbreviationQuery)) {
 			if ($i > 0) { $partTwo .= " OR "; }
 			$partTwo .= " game_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
 			$i++;
 		}
 		
-		// Recalculate pages if abbreviation searched is smaller than 3 characters because other results aren't being displayed
-		if (strlen($get['g'] < 3)) {
-			
-			// Recalculate pages
-			$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE {$partTwo}; ");
-			$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
-			// Get current page
-			if (isset($_GET['p'])) {
-				$currentPage = intval($_GET['p']);
-				if ($currentPage > $pages) { $currentPage = 1; }		
-			} else { $currentPage = 1; }
-			
-			$scount = countGames($partTwo);
-		}
+		// Recalculate Pages / CurrentPage
+		$pages = countPages($get, $partTwo);
+		$currentPage = getCurrentPage($pages);
+		$scount = countGames($partTwo);
 		
-		$sqlQry2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
-	}
+		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
 
-	// If results not found then apply levenshtein to get the closest result
-	// TODO: Refactor
-	$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
+		// If results not found then apply levenshtein to get the closest result
+		$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
-	if ($levCheck && mysqli_num_rows($levCheck) === 0 && $abbreviationQuery && mysqli_num_rows($abbreviationQuery) === 0) {
-		$l_title = "";
-		$l_dist = -1;
-		$sfo = "";
-		if ($sqlQry && mysqli_num_rows($sqlQry) == 0) {
-			$sqlCmd2 = "SELECT * FROM ".db_table."; ";
-			$sqlQry2 = mysqli_query($db, $sqlCmd2);
+		if ($levCheck && mysqli_num_rows($levCheck) === 0) {
+			$l_title = "";
+			$l_dist = -1;
+			$l_orig = "";
 			
-			while($row = mysqli_fetch_object($sqlQry2)) {
-				$lev = levenshtein($get['g'], $row->game_title);
+			if ($mainQuery1 && mysqli_num_rows($mainQuery1) === 0) {
 				
-				if ($lev <= $l_dist || $l_dist < 0) {
-					$l_title = $row->game_title;
-					$l_dist = $lev;
+				// Select all database entries
+				$sqlCmd2 = "SELECT * FROM ".db_table."; ";
+				$mainQuery2 = mysqli_query($db, $sqlCmd2);
+				
+				// Calculate proximity for each database entry
+				while($row = mysqli_fetch_object($mainQuery2)) {
+					$lev = levenshtein($get['g'], $row->game_title);
+					
+					if ($lev <= $l_dist || $l_dist < 0) {
+						$l_title = $row->game_title;
+						$l_dist = $lev;
+					}
 				}
-			}
-			
-			if ($l_title != "") {
+				
+				// Re-run the main query
 				$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
 						FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' 
 						LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-				$sqlQry = mysqli_query($db, $sqlCmd);
+				$mainQuery1 = mysqli_query($db, $sqlCmd);
 				
-				$q = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
+				$genquery = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
 				
-				// Recalculate pages
-				$pagesQry = mysqli_query($db, "SELECT count(*) AS c FROM ".db_table." WHERE {$q} ;");
-				$pages = ceil(mysqli_fetch_object($pagesQry)->c / $get['r']);
+				// Recalculate Pages / CurrentPage
+				$pages = countPages($get, $genquery);
+				$currentPage = getCurrentPage($pages);
+				$scount = countGames($genquery);
 				
-				if (isset($_GET['p'])) {
-					$currentPage = intval($_GET['p']);
-					if ($currentPage > $pages) { $currentPage = 1; }		
-				} else { $currentPage = 1; }
-				
-				$sfo = $get['g'];
+				// Replace faulty search with returned game but keep the original search for display
+				$l_orig = $get['g'];
 				$get['g'] = $l_title;
-						
-				$scount = countGames($q);
 			}
 		}
 	}
@@ -269,8 +242,13 @@ function getStatusDescriptions() {
  **********************************/
 function getCharSearch() {
 	global $g_pageresults, $a_css, $a_title, $get;
-	
-	$s_charsearch .= "<tr>";
+
+	$a_chars[""] = "All";
+	$a_chars["09"] = "0-9";
+	foreach (range('a', 'z') as $i) {
+		$a_chars[$i] = strtoUpper($i);
+	}
+	$a_chars["sym"] = "#";
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
@@ -280,41 +258,14 @@ function getCharSearch() {
 	// Combined search: search by status
 	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
 	
-	
-	/* ALL */
-	$s_charsearch .= $common;
-	$s_charsearch .= "c=\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($get['c'] == "") { $s_charsearch .= highlightBold("All"); }
-	else { $s_charsearch .= "All"; }
-	$s_charsearch .= "</div></a></td>"; 
-
-	/* A-Z */
-	foreach (range('a', 'z') as $i) { 
-		$s_charsearch .= $common;
-		$s_charsearch .= "c=$i\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">";
-		if ($get['c'] == $i) { $s_charsearch .= highlightBold(strToUpper($i)); }
-		else { $s_charsearch .= strToUpper($i); }
+	foreach ($a_chars as $key => $value) { 
+		$s_charsearch .= "{$common}c={$key}\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
+		if ($get['c'] == $key) { $s_charsearch .= highlightBold($value); }
+		else { $s_charsearch .= $value; }
 		$s_charsearch .= "</div></a></td>"; 
-	} 
-
-	/* Numbers */
-	$s_charsearch .= $common;
-	$s_charsearch .= "c=09\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($get['c'] == "09") { $s_charsearch .= highlightBold("0-9"); }
-	else { $s_charsearch .= "0-9"; }
-	$s_charsearch .= "</div></a></td>"; 
+	}
 	
-	
-	/* Symbols */
-	$s_charsearch .= $common;
-	$s_charsearch .= "c=sym\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
-	if ($get['c'] == "sym") { $s_charsearch .= highlightBold("#"); }
-	else { $s_charsearch .= "#"; }
-	$s_charsearch .= "</div></a></td>";
-	
-	$s_charsearch .= "</tr>";
-	
-	return $s_charsearch;
+	return "<tr>{$s_charsearch}</tr>";
 }
 
 
@@ -380,10 +331,10 @@ function getTableHeaders() {
  * Table Content *
  *****************/
 function getTableContent() {
-	global $sqlQry, $sqlQry2, $abbreviationQuery, $l_title, $sfo, $get;
+	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get;
 	
-	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $sqlQry2 && mysqli_num_rows($sqlQry2) > 0) {
-		while($row = mysqli_fetch_object($sqlQry2)) {
+	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $mainQuery2 && mysqli_num_rows($mainQuery2) > 0) {
+		while($row = mysqli_fetch_object($mainQuery2)) {
 			$s_tablecontent .= getTableContentRow($row);
 		}
 		// If used abbreviation is smaller than 3 characters then don't return normal results as they're probably a lot and unrelated
@@ -392,13 +343,13 @@ function getTableContent() {
 		}
 	}
 	
-	if ($sqlQry) {
-		if (mysqli_num_rows($sqlQry) > 0) {
+	if ($mainQuery1) {
+		if (mysqli_num_rows($mainQuery1) > 0) {
 			if ($l_title != "") {
-				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$sfo}</i>. </br> 
+				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			}
-			while($row = mysqli_fetch_object($sqlQry)) {
+			while($row = mysqli_fetch_object($mainQuery1)) {
 				$s_tablecontent .= getTableContentRow($row);
 			}
 		}
@@ -427,78 +378,24 @@ function getTableContentRow($row) {
 /*****************
  * Pages Counter *
  *****************/
-function getPagesCounter() {
+function compat_getPagesCounter() {
 	global $pages, $currentPage, $g_pageresults, $a_title, $get;
 	
-	$lim = 7; // Limit for amount of pages to be shown on pages counter (for each side of current page)
-	
-	// IF no results are found then the amount of pages is 0
-	// Shows no results found message
-	if ($pages == 0) { 
-		$s_pagescounter .= 'No results found using the selected search criteria.';
-	} 
-	// Shows current page and total pages
-	else { 
-		$s_pagescounter .= "Page {$currentPage} of {$pages} - "; 
-	}
-	
-	// Commonly used code
-	$common = "<a href=\"?";
-	
 	// Page support: Sort by status
-	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
+	if ($get['s'] > min(array_keys($a_title))) {$extra .= "s={$get['s']}&";} 
 	// Page support: Results per page
-	$common .= $g_pageresults;
+	$extra .= $g_pageresults;
 	// Page support: Search by character
-	if ($get['c'] != "") {$common .= "c={$get['c']}&";} 
+	if ($get['c'] != "") {$extra .= "c={$get['c']}&";} 
 	// Page support: Search by region
-	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
 	// Page support: Date search
-	if ($get['f'] != "") {$common .= "d={$get['d']}&";} 
+	if ($get['f'] != "") {$extra .= "d={$get['d']}&";} 
 	// Page support: Order by
-	if ($get['o'] != "") {$common .= "o={$get['o']}&";} 
+	if ($get['o'] != "") {$extra .= "o={$get['o']}&";} 
 	
-	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
-	if ($lim > $currentPage) {
-		$a = $lim - $currentPage;
-		$lim = $lim + $a + 1;
-	}
+	return getPagesCounter($pages, $currentPage, $extra);
 	
-	// If there's less pages to the right than current limit it loads the excess amount to the left for balance
-	if ($lim > $pages - $currentPage) {
-		$a = $lim - ($pages - $currentPage);
-		$lim = $lim + $a + 1;
-	}
-	
-	// Loop for each page link and make it properly clickable until there are no more pages left
-	for ($i=1; $i<=$pages; $i++) { 
-	
-		if ( ($i >= $currentPage-$lim && $i <= $currentPage) || ($i+$lim >= $currentPage && $i <= $currentPage+$lim) ) {
-			
-			$s_pagescounter .= $common;
-			
-			// Display number of the page and highlight if current page
-			$s_pagescounter .= "p=$i\">";
-			if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
-			else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
-			
-			$s_pagescounter .= "</a>&nbsp;&#32;"; 
-		
-		} elseif ($i == 1) {
-			// First page
-			$s_pagescounter .= $common;
-			$s_pagescounter .= "p=$i\">01</a>&nbsp;&#32;"; 
-			if ($currentPage != $lim+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
-		} elseif ($pages == $i) {
-			// Last page
-			$s_pagescounter .= "...&nbsp;&#32;";
-			$s_pagescounter .= $common;
-			$s_pagescounter .= "p=$pages\">$pages</a>&nbsp;&#32;"; 
-		}
-		
-	}
-	
-	return $s_pagescounter;
 }
 
 function getHistoryOptions() {
