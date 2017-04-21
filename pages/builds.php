@@ -96,7 +96,7 @@ function builds_getTableContent() {
 		
 			$days = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );			
 			if ($days == 0) {
-				$hours = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );
+				$hours = floor( (time() - strtotime($row->merge_datetime) ) / 3600 );
 				$diffdate = $hours . " hours ago";
 			} elseif ($days == 1) { $diffdate = $days . " day ago"; } 
 			else {  $diffdate = $days . " days ago"; }
