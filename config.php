@@ -37,6 +37,7 @@ $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
 $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
 $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pageresults = 3; // Default results per page (50)
+$c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 
 // Background color for unknown commit div
 $c_unkcommit = 'ffd700';
@@ -62,7 +63,7 @@ $a_title = array(
 // Status descriptions 
 $a_desc = array(
 'Show games from all statuses',
-'Games that can be played from start to finish',
+'Games that can be properly played from start to finish',
 'Games that go somewhere but not far enough to be considered playable',
 'Games that only display some screens',
 'Games that display a black screen with an active framerate',
@@ -80,12 +81,12 @@ $a_color = array(
 
 // Region flags
 $a_flags = array(
-"A" => "img/icons/flags/CN.png", // Asia
-"E" => "img/icons/flags/EU.png", // Europe
-"H" => "img/icons/flags/CN.png", // Southern Asia
-"K" => "img/icons/flags/HK.png", // Hong Kong
-"J" => "img/icons/flags/JP.png", // Japan
-"U" => "img/icons/flags/US.png"  // USA
+"A" => "/img/icons/flags/CN.png", // Asia
+"E" => "/img/icons/flags/EU.png", // Europe
+"H" => "/img/icons/flags/CN.png", // Southern Asia
+"K" => "/img/icons/flags/HK.png", // Hong Kong
+"J" => "/img/icons/flags/JP.png", // Japan
+"U" => "/img/icons/flags/US.png"  // USA
 );
 
 // Game media icons

@@ -17,6 +17,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
+<?php if(!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php"); ?>
 
 <div id="page-con-container">
 	<div id="page-in-container">
@@ -28,7 +29,7 @@
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
-						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions. </br>
+						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions. <br>
 						<a href="?h"><b>See compatibility history</b></a> • <a href="?b"><b>See RPCS3 builds history</b></a>
 					</p>
 				</div>
@@ -48,22 +49,19 @@
 			<div id="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>
 			</div>
-			<div style="background: url(compatbar.php); background-size: contain; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
+			<div style="background: url(https://rpcs3.net/compatbar); background-size: contain; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
 			</div>
 			<!--End -->
 			<div id='compat-con-searchbox'>
-				<form action="" method="get" id="searchbox-field">
+				<form method="get" id="searchbox-field">
 					<div id='searchbox'>
-						<?php echo '<input id="searchbox-field" name="g" type="" value="';
+						<?php echo '<input id="searchbox-field" name="g" type="text" value="';
 							if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	} 
 							echo '" placeholder="Game Title / Game ID" />'; 
 						?>
 					</div>
 					<div id='submit'>
-						<button class='div-button' type="submit">
-						<div id='submit'>
-						</div>
-						</button>
+						<button id='submit' class='div-button' type="submit"></button>
 					</div>
 				</form>
 			</div>

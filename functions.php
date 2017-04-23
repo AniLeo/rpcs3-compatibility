@@ -19,6 +19,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+if(!@include_once("config.php")) throw new Exception("Compat: config.php is missing. Failed to include config.php");
+
 // Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
 
 
@@ -68,7 +70,7 @@ function getGameRegion($gid, $url) {
 	
 	if ($url) {
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?f=".strtolower($l)."\"><img src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?f=".strtolower($l)."\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
 		return "<img src=\"$a_flags[$l]\">";
@@ -522,6 +524,10 @@ function countGames($query) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
+	if ($query == 'all') {
+		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
+	}
+	
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
 	
 		if ($query == "") {
@@ -581,10 +587,10 @@ function getTime() {
 	return $t[1] + $t[0];
 }
 
+
 function getPagesCounter($pages, $currentPage, $extra) {
-	
-	$lim = 7; // Limit for amount of pages to be shown on pages counter (for each side of current page)
-	
+	global $c_pagelimit;
+		
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
 	if ($pages == 0) { 
@@ -599,21 +605,21 @@ function getPagesCounter($pages, $currentPage, $extra) {
 	$common = "<a href=\"?{$extra}";
 	
 	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
-	if ($lim > $currentPage) {
-		$a = $lim - $currentPage;
-		$lim = $lim + $a + 1;
+	if ($c_pagelimit > $currentPage) {
+		$a = $c_pagelimit - $currentPage;
+		$c_pagelimit = $c_pagelimit + $a + 1;
 	}
 	
 	// If there's less pages to the right than current limit it loads the excess amount to the left for balance
-	if ($lim > $pages - $currentPage) {
-		$a = $lim - ($pages - $currentPage);
-		$lim = $lim + $a + 1;
+	if ($c_pagelimit > $pages - $currentPage) {
+		$a = $c_pagelimit - ($pages - $currentPage);
+		$c_pagelimit = $c_pagelimit + $a + 1;
 	}
 	
 	// Loop for each page link and make it properly clickable until there are no more pages left
 	for ($i=1; $i<=$pages; $i++) { 
 	
-		if ( ($i >= $currentPage-$lim && $i <= $currentPage) || ($i+$lim >= $currentPage && $i <= $currentPage+$lim) ) {
+		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) ) {
 			
 			// Display number of the page and highlight if current page
 			$s_pagescounter .= "{$common}p=$i\">";
@@ -627,7 +633,7 @@ function getPagesCounter($pages, $currentPage, $extra) {
 		// First page
 		elseif ($i == 1) {
 			$s_pagescounter .= "{$common}p=$i\">01</a>&nbsp;&#32;"; 
-			if ($currentPage != $lim+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
+			if ($currentPage != $c_pagelimit+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
 		}
 		// Last page
 		elseif ($pages == $i) { $s_pagescounter .= "...&nbsp;&#32;{$common}p=$pages\">$pages</a>&nbsp;&#32;"; }
@@ -766,6 +772,23 @@ function cacheInitials() {
 		
 		}
 	}	
+	mysqli_close($db);
+}
+
+
+/***********************
+ * Status descriptions *
+ ***********************/
+function getStatusDescriptions() {
+	global $a_desc, $a_color, $a_title;
+	
+	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
+		$s_descontainer .= "<div id=\"compat-con-status\">
+								<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
+								<div id=\"compat-tx1-status\"><strong>{$a_title[$i]}:</strong> {$a_desc[$i]}</div>
+							</div>";
+	}	
+	return $s_descontainer;
 }
 
 ?>

@@ -19,21 +19,11 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-// Calls for the file that contains the config variables
-if (!@include("lib/compat/config.php")) throw new Exception("Compat: config is missing. Failed to include config.php");
 // Calls for the file that contains the functions needed
-if (!@include("lib/compat/functions.php")) throw new Exception("Compat: functions is missing. Failed to include functions.php");
-
-// Turns off notice/error reporting for regular users
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(0);
+if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 // Start: Microtime when page started loading
 $start = getTime();
-
-// TODO: Some new additions need refactoring
-// TODO: Multiple search for date, region
 
 // Order queries
 $a_order = array(
@@ -62,7 +52,7 @@ $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
 // Get the total count of entries present in the database (not subjective to search params)
-$games = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
+$games = countGames('all');
 
 // Pages / CurrentPage
 $pages = countPages($get, $genquery);
@@ -97,10 +87,10 @@ if ($get['g'] != "") {
 		$scount = countGames($partTwo);
 		
 		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
-
-		// If results not found then apply levenshtein to get the closest result
-		$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 	}
+	
+	// If results not found then apply levenshtein to get the closest result
+	$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 	
 	if ($levCheck && mysqli_num_rows($levCheck) === 0 && $abbreviationQuery && mysqli_num_rows($abbreviationQuery) === 0) {
 		$l_title = "";
@@ -129,7 +119,7 @@ if ($get['g'] != "") {
 					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
 			
-			$genquery = "game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
+			$genquery = " game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
 			
 			// Recalculate Pages / CurrentPage
 			$pages = countPages($get, $genquery);
@@ -175,6 +165,10 @@ function getSortBy() {
 		if ($get['c'] != "") {$s_sortby .= "c={$get['c']}&";}
 		// Combined search: searchbox
 		if ($get['g'] != "" && $scount[0] > 0)	{$s_sortby .= "g=".urlencode($get['g'])."&";} 
+		// Combined search: Search by region
+		if ($get['f'] != "") {$s_sortby .= "f={$get['f']}&";} 
+		// Combined search: Date search
+		if ($get['d'] != "") {$s_sortby .= "d={$get['d']}&";} 
 		
 		$s_sortby .= "s=$i\">"; 
 		
@@ -205,6 +199,10 @@ function getResultsPerPage() {
 		if ($get['c'] != "") {$s_pageresults .= "c={$get['c']}&";} 
 		// Combined search: searchbox
 		if ($get['g'] != "" && $scount[0] > 0) {$s_pageresults .= "g=".urlencode($get['g'])."&";} 
+		// Combined search: Search by region
+		if ($get['f'] != "") {$s_pageresults .= "f={$get['f']}&";} 
+		// Combined search: Date search
+		if ($get['d'] != "") {$s_pageresults .= "d={$get['d']}&";} 
 		
 		$s_pageresults .= "r=$i\">"; 
 		
@@ -218,22 +216,6 @@ function getResultsPerPage() {
 		if ($i < max(array_keys($a_pageresults))) {$s_pageresults .= "&nbsp;•&nbsp;";} 
 	}
 	return $s_pageresults;
-}
-
-
-/***********************
- * Status descriptions *
- ***********************/
-function getStatusDescriptions() {
-	global $a_desc, $a_color, $a_title;
-	
-	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
-		$s_descontainer .= "<div id=\"compat-con-status\">
-								<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
-								<div id=\"compat-tx1-status\"><strong>{$a_title[$i]}:</strong> {$a_desc[$i]}</div>
-							</div>";
-	}	
-	return $s_descontainer;
 }
 
 
@@ -257,6 +239,10 @@ function getCharSearch() {
 	$common .= $g_pageresults;
 	// Combined search: search by status
 	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
+	// Combined search: Search by region
+	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	// Combined search: Date search
+	if ($get['d'] != "") {$common .= "d={$get['d']}&";} 
 	
 	foreach ($a_chars as $key => $value) { 
 		$s_charsearch .= "{$common}c={$key}\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
@@ -288,6 +274,10 @@ function getTableHeaders() {
 	if ($get['c'] != "") {$common .= "c={$get['c']}&";} 
 	// Order support: Searchbox
 	if ($get['g'] != "" && $scount[0] > 0) {$common .= "g=".urlencode($get['g'])."&";} 
+	// Order support: Search by region
+	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	// Order support: Date search
+	if ($get['d'] != "") {$common .= "d={$get['d']}&";} 
 	
 	
 	/* Game ID */
@@ -390,226 +380,12 @@ function compat_getPagesCounter() {
 	// Page support: Search by region
 	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
 	// Page support: Date search
-	if ($get['f'] != "") {$extra .= "d={$get['d']}&";} 
+	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
 	// Page support: Order by
 	if ($get['o'] != "") {$extra .= "o={$get['o']}&";} 
 	
 	return getPagesCounter($pages, $currentPage, $extra);
 	
-}
-
-function getHistoryOptions() {
-	global $get, $a_histdates;
-	
-	if ($get['h1'] == db_table) {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since <b>{$a_histdates[$get['h2']]}</b>.</p>";
-	} else {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List from <b>{$a_histdates[$get['h2']]}</b> to <b>{$a_histdates[$get['h1']]}</b>.</p>";
-	}
-
-	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
-	$m2 = "<a href=\"?h\">April 2017</a>";
-	
-	$s_historyoptions .= "</br><p style=\"font-size:13px\">
-	<strong>Month:&nbsp;</strong>";
-	
-	if ($get['h2'] == "2017_02") { 
-		$s_historyoptions .= highlightBold($m1);
-	} else {
-		$s_historyoptions .= $m1;
-	}
-	
-	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
-	
-	if ($get['h1'] == db_table) { 
-		$s_historyoptions .= highlightBold($m2);
-	} else {
-		$s_historyoptions .= $m2;
-	}
-	
-	$s_historyoptions .= "</br>";
-	
-	if ($get['h1'] != "" && $get['h1'] != db_table) {
-		$h = "={$get['h1']}";
-	} else {
-		$h = "";
-	}
-	
-	$o1 = "<a href=\"?h{$h}\">Show all entries</a>";
-	$o2 = "<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>";
-	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
-	
-	if ($get['m'] == "") { 
-		$s_historyoptions .= highlightBold($o1);
-	} else {
-		$s_historyoptions .= $o1;
-	}
-	$s_historyoptions .= " <a href=\"?h{$h}&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
-	
-	if ($get['m'] == "c") { 
-		$s_historyoptions .= highlightBold($o2);
-	} else {
-		$s_historyoptions .= $o2;
-	}
-	$s_historyoptions .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
-	
-	if ($get['m'] == "n") { 
-		$s_historyoptions .= highlightBold($o3);
-	} else {
-		$s_historyoptions .= $o3;
-	}
-	$s_historyoptions .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
-	
-	$s_historyoptions .= "<a href=\"?\">Back to Compatibility List</a>";
-	
-	$s_historyoptions .= "</p>";
-	
-	return $s_historyoptions;
-}
-
-// Compatibility History: Pulls information from backup and compares with current database
-function getHistory(){
-	global $get; 
-	
-	// Establish MySQL connection to be used for history
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	if ($get['m'] == "c" || $get['m'] == "") {
-		$cQuery = mysqli_query($db, 
-		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$get['h1']} AS t1
-		LEFT JOIN {$get['h2']} AS t2
-		ON t1.game_id=t2.game_id
-		WHERE t1.status != t2.status 
-		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
-	
-		if (!$cQuery) { 
-			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-		} elseif (mysqli_num_rows($cQuery) == 0) {
-			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
-		} else {
-			echo "
-			<table class='compat-con-container'><tr>
-			<th>Game ID</th>
-			<th>Game Title</th>
-			<th>New Status</th>
-			<th>New Date</th>
-			<th>Old Status</th>
-			<th>Old Date</th>
-			</tr>";
-			
-			while($row = mysqli_fetch_object($cQuery)) {
-				echo "<tr>
-				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
-				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
-				<td>".getColoredStatus($row->new_status)."</td>
-				<td>{$row->new_date}</td>
-				<td>".getColoredStatus($row->old_status)."</td>
-				<td>{$row->old_date}</td>
-				</tr>";	
-			}
-			echo "</table></br>";
-		}
-	}
-	
-	if ($get['m'] == "n" || $get['m'] == "") {
-		$nQuery = mysqli_query($db, 
-		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$get['h1']} AS t1
-		LEFT JOIN {$get['h2']} AS t2
-		ON t1.game_id=t2.game_id
-		WHERE t2.status IS NULL
-		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
-		
-		if (!$nQuery) { 
-			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-		} elseif (mysqli_num_rows($nQuery) == 0) {
-			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
-		} else {
-			echo "
-			<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>
-			<table class='compat-con-container'><tr>
-			<th>Game ID</th>
-			<th>Game Title</th>
-			<th>Status</th>
-			<th>Date</th>
-			</tr>";
-			
-			while($row = mysqli_fetch_object($nQuery)) {
-				echo "<tr>
-				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
-				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
-				<td>".getColoredStatus($row->new_status)."</td>
-				<td>{$row->new_date}</td>
-				</tr>";	
-			}
-			echo "</table></br>";
-		}
-	}
-	
-	// Close MySQL connection again since it won't be required
-	mysqli_close($db);
-}
-
-
-function getHistoryRSS(){
-	global $c_forum, $get;
-	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	$rssCmd = "
-	SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-	FROM {$get['h1']} AS t1
-	LEFT JOIN {$get['h2']} AS t2
-	ON t1.game_id=t2.game_id ";
-	if ($get['m'] == "c") {
-		$rssCmd .= " WHERE t1.status != t2.status ";
-	} elseif ($get['m'] == "n") {
-		$rssCmd .= " WHERE t2.status IS NULL ";
-	} else {
-		$rssCmd .= " WHERE t1.status != t2.status OR t2.status IS NULL ";
-	}
-	$rssCmd .= "ORDER BY new_date DESC, new_status ASC, -old_status DESC, title ASC; ";
-	
-	$rssQuery = mysqli_query($db, $rssCmd);
-	
-	if (!$rssQuery) {
-		return "An error occoured. Please try again. If the issue persists contact RPCS3 team.";
-	}
-
-    $rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>
-				<rss version=\"2.0\">
-				<channel>
-				<title>RPCS3 Compatibility List History's RSS feed</title>
-				<link>https://rpcs3.net/compatibility?h</link>
-				<description>For more information about RPCS3 visit https://rpcs3.net</description>
-				<language>en-uk</language>";
- 
-    while($row = mysqli_fetch_object($rssQuery)) {
- 
-        $rssfeed .= "<item>
-					<title><![CDATA[{$row->gid} - {$row->title}]]></title>
-					<link>{$c_forum}{$row->tid}</link>";
-		
-		if ($row->old_status !== NULL) {
-			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";
-		} else {
-			$rssfeed .= "<description>New entry for {$row->new_status} ({$row->new_date})</description>";
-		}
-        
-		$rssfeed .= "<pubDate>{$row->new_date}</pubDate>
-					</item>";
-    }
- 
-    $rssfeed .= "</channel>
-				</rss>";
-				
-	// Close MySQL connection again since it won't be required
-	mysqli_close($db);
-	
-    return $rssfeed;
 }
 
 ?>
