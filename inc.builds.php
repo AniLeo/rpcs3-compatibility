@@ -149,7 +149,7 @@ function builds_getPagesCounter() {
 
 	mysqli_close($db);
 	
-	return getPagesCounter($pages, $currentPage, "");
+	return getPagesCounter($pages, $currentPage, "b&");
 }
 
 ?>
