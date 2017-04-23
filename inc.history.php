@@ -210,20 +210,25 @@ function getHistoryRSS(){
 	if (!$rssQuery) {
 		return "An error occoured. Please try again. If the issue persists contact RPCS3 team.";
 	}
-
-    $rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>
-				<rss version=\"2.0\">
+	
+	$url = "https://{$_SERVER[HTTP_HOST]}{$_SERVER[REQUEST_URI]}";
+	$url = str_replace('&', '&amp;', $url);
+	
+    $rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+				<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
 				<channel>
 				<title>RPCS3 Compatibility List History's RSS feed</title>
 				<link>https://rpcs3.net/compatibility?h</link>
 				<description>For more information about RPCS3 visit https://rpcs3.net</description>
-				<language>en-uk</language>";
+				<language>en-uk</language>
+				<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
  
     while($row = mysqli_fetch_object($rssQuery)) {
  
         $rssfeed .= "<item>
 					<title><![CDATA[{$row->gid} - {$row->title}]]></title>
-					<link>{$c_forum}{$row->tid}</link>";
+					<link>{$c_forum}{$row->tid}</link>
+					<guid>{$c_forum}{$row->tid}</guid>";
 		
 		if ($row->old_status !== NULL) {
 			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";
@@ -231,7 +236,7 @@ function getHistoryRSS(){
 			$rssfeed .= "<description>New entry for {$row->new_status} ({$row->new_date})</description>";
 		}
         
-		$rssfeed .= "<pubDate>{$row->new_date}</pubDate>
+		$rssfeed .= "<pubDate>".date('r', strtotime($row->new_date))."</pubDate>
 					</item>";
     }
  
@@ -245,4 +250,3 @@ function getHistoryRSS(){
 }
 
 ?>
-
