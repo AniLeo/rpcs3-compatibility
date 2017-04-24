@@ -522,6 +522,12 @@ function countGames($query) {
 	
 	// Connect to database
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	
+	// Failed database connection, return 0 games
+	if (!$db) {
+		return 0;
+	}
+	
 	mysqli_set_charset($db, 'utf8');
 	
 	if ($query == 'all') {
