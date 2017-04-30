@@ -18,57 +18,48 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <?php 
-if(!@include_once(__DIR__.'/../inc.builds.php')) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php"); 
+if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw new Exception("Compat: inc.panel.php is missing. Failed to include inc.panel.php"); } 
 ?>
 <div id="page-con-container">
 	<div id="page-in-container">
-		<!--End -->
+		
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
+			
 				<div id='featured-tx1-block' class="compat-title">
-					<h2>RPCS3 Builds History</h2>
+					<h2>Debug mode</h2>
 				</div>
+			
 				<div id='featured-tx2-block' class="compat-desc">
-					<p>
-						This is the history of all RPCS3 builds made per pull request after AppVeyor artifacts were firstly added to the project.<br>
-						<a href="?"><b>Back to compatibility list</b></a>
+					<p style="font-size: 12px;">
+						<a href="?a=updateCommitCache">Update Commit Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateBuildCache">Update Build Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateInitialsCache">Update Initials Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?">Back to Compatibility</a>
 					</p>
+					<br>
+					<form action="?a=generatePassword" method="post">
+						<p style="font-size: 12px;">
+							<b>Generate secure password:</b>&nbsp;
+							<input style="background-color: #ecf0f1; color: #34495e; padding: 1px 2px 1px 2px; border-radius: 3px; font-size:12px;" type="password" name="pw" size="16" maxlength="32" />
+							<br>
+						</p>
+					</form>
 				</div>
+				
 			</div>
 			<!--
 			<div id="compat-hdr-right">
-				<p>
-					Right
-				</p>
 			</div>
 			<div id="compat-hdr-left">
-				<p>
-					Left
-				</p>
 			</div>
 			-->
 		</div>
 		
-		<table class='compat-con-container'>
-			<?php 
-				echo builds_getTableHeaders();
-				echo builds_getTableContent(); 
-			?>
-		</table>
+		<?php if (isset($message)) { echo $message; } ?>
 		
-		<div id="compat-con-pages">
-			<p class="div-pagecounter">
-				<?php echo builds_getPagesCounter(); ?>
-			</p>
-		</div>
-		
-		<div id="compat-con-author">
-			<div id="compat-tx1-author">
-				<p>
-					<?php echo getFooter($start); ?>
-				</p>
-			</div>
-		</div>
-		<!--End -->
 	</div>
 </div>

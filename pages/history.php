@@ -17,8 +17,9 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
-<?php if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php"); ?>
-
+<?php 
+if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php"); 
+?>
 <div id='page-con-container'>
 	<div id='page-in-container'>
 	<!-- featured-con-block -->
@@ -50,4 +51,3 @@
 		</div>
 	</div> <!-- featured-con-block -->
 </div>
-	

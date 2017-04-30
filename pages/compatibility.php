@@ -17,8 +17,9 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
-<?php if(!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php"); ?>
-
+<?php 
+if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php"); 
+?>
 <div id="page-con-container">
 	<div id="page-in-container">
 		<!--End -->
@@ -71,30 +72,6 @@
 			</table>
 			<!--End -->
 		</div>
-		
-		<?php
-		// Admin mode functionalities
-		if ($get['a'] != '') {
-			if ($get['a'] == 'updateCommitCache') {
-				$startA = getTime();
-				cacheCommits(false);
-				$finishA = getTime();
-				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
-			}
-			if ($get['a'] == 'updateBuildCache') {
-				$startA = getTime();
-				cacheWindowsBuilds();
-				$finishA = getTime();
-				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
-			}
-			if ($get['a'] == 'updateInitialsCache') { 
-				$startA = getTime();
-				cacheInitials();
-				$finishA = getTime();
-				echo "<p class=\"compat-tx1-criteria\"><b>Admin mode:</b> Forced update on initials cache (".round(($finishA - $startA), 4)."s).</p>";
-			}
-		}
-		?>
 		
 		<table class='compat-con-container'>
 			<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } echo getTableContent(); ?>
