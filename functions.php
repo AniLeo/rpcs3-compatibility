@@ -516,7 +516,7 @@ function generateQuery($get, $status) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($query) {
+function countGames($query, $count) {
 	global $a_title, $get;
 	
 	// Connect to database
@@ -526,7 +526,7 @@ function countGames($query) {
 	if (!$db) {
 		return 0;
 	}
-	
+
 	mysqli_set_charset($db, 'utf8');
 	
 	if ($query == 'all') {
@@ -544,6 +544,10 @@ function countGames($query) {
 		}
 		
 		$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
+		
+		if ($count[0] > 0) {
+			$scount[$s] += $count[$s];
+		}
 		
 		// Instead of querying the database once more add all the previous counts to get the total count
 		$scount[0] += $scount[$s];
@@ -672,7 +676,7 @@ function getCurrentPage($pages) {
 }
 
 // Calculate the number of pages according selected status and results per page
-function countPages($get, $genquery) {
+function countPages($get, $genquery, $count) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
@@ -683,7 +687,7 @@ function countPages($get, $genquery) {
 	}
 
 	$pagesQuery = mysqli_query($db, $pagesCmd);
-	$pages = ceil(mysqli_fetch_object($pagesQuery)->c / $get['r']);
+	$pages = ceil( (mysqli_fetch_object($pagesQuery)->c + $count) / $get['r'] );
 
 	mysqli_close($db);
 	

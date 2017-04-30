@@ -55,7 +55,7 @@ mysqli_set_charset($db, 'utf8');
 $games = countGames('all');
 
 // Pages / CurrentPage
-$pages = countPages($get, $genquery);
+$pages = countPages($get, $genquery, 0);
 $currentPage = getCurrentPage($pages);
 
 // Run the main query 
@@ -82,9 +82,13 @@ if ($get['g'] != "") {
 		}
 		
 		// Recalculate Pages / CurrentPage
-		$pages = countPages($get, $partTwo);
+		$pages = countPages($get, $partTwo, $scount[0]);
 		$currentPage = getCurrentPage($pages);
-		$scount = countGames($partTwo);
+		if (strlen($get['g']) <= 3) {
+			$scount = countGames($partTwo, 0);
+		} else {
+			$scount = countGames($partTwo, $scount);
+		}
 		
 		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
 	}
@@ -122,9 +126,9 @@ if ($get['g'] != "") {
 			$genquery = " game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
 			
 			// Recalculate Pages / CurrentPage
-			$pages = countPages($get, $genquery);
+			$pages = countPages($get, $genquery, 0);
 			$currentPage = getCurrentPage($pages);
-			$scount = countGames($genquery);
+			$scount = countGames($genquery, 0);
 			
 			// Replace faulty search with returned game but keep the original search for display
 			$l_orig = $get['g'];
@@ -328,7 +332,7 @@ function getTableContent() {
 			$s_tablecontent .= getTableContentRow($row);
 		}
 		// If used abbreviation is smaller than 3 characters then don't return normal results as they're probably a lot and unrelated
-		if (strlen($get['g']) < 3) {
+		if (strlen($get['g']) <= 3) {
 			return $s_tablecontent;
 		}
 	}
@@ -383,6 +387,8 @@ function compat_getPagesCounter() {
 	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
 	// Page support: Order by
 	if ($get['o'] != "") {$extra .= "o={$get['o']}&";} 
+	// Page support: Searchbox
+	if ($get['g'] != "") {$extra .= "g={$get['g']}&";}
 	
 	return getPagesCounter($pages, $currentPage, $extra);
 	
