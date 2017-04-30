@@ -384,7 +384,6 @@ function obtainGet() {
 	$get['h1'] = db_table;
 	$get['h2'] = '2017_03'; 
 	$get['m'] = ''; 
-	$get['a'] = ''; // Admin debug Mode
 	
 	// Results per page
 	if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
@@ -446,7 +445,7 @@ function obtainGet() {
 	}
 	
 	// Admin debug mode
-	if (isset($_GET['a']) && in_array($_SERVER["REMOTE_ADDR"], $a_admin)) {
+	if (isset($_GET['a']) && isWhitelisted()) {
 		$get['a'] = $_GET['a'];
 	}
 	
@@ -797,4 +796,23 @@ function getStatusDescriptions() {
 	return $s_descontainer;
 }
 
+
+// Checks if IP is on whitelist
+function isWhitelisted() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	// Page calculation according to the user's search
+	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $_SERVER['REMOTE_ADDR'])."'; ");
+
+	$valid = false;
+	
+	if (mysqli_num_rows($ipQuery) === 1) {
+		$valid = true;
+	}
+	
+	mysqli_close($db);
+	
+	return $valid;
+}
 ?>

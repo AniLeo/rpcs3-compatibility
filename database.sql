@@ -44,3 +44,12 @@ CREATE TABLE `initials_cache` (
   `initials` varchar(255) NOT NULL,
   PRIMARY KEY (`game_title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for ip_whitelist
+-- ----------------------------
+DROP TABLE IF EXISTS `ip_whitelist`;
+CREATE TABLE `ip_whitelist` (
+  `uid` int(11) NOT NULL,
+  `ip` varchar(255) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
