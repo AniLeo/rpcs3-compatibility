@@ -301,7 +301,7 @@ function cacheWindowsBuilds(){
 
 	// Loop through all pages and get PR information
 	for ($i=1; $i<=$last_page; $i++) {
-		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Acreated-asc+created%3A%3E{$date}&utf8=%E2%9C%93");
+		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Acreated-asc+merged%3A%3E{$date}&utf8=%E2%9C%93");
 		
 		$step_1 = explode("\" class=\"link-gray-dark no-underline h4 js-navigation-open\">", $content);
 		
