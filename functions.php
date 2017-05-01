@@ -366,7 +366,7 @@ function highlightBold($str) {
 
 
 function obtainGet() {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $currenthist, $a_admin;
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_admin;
 	
 	// Start new $get array
 	$get = array();
@@ -382,7 +382,7 @@ function obtainGet() {
 	$get['f'] = '';
 	$get['h'] = '';
 	$get['h1'] = db_table;
-	$get['h2'] = '2017_03'; 
+	$get['h2'] = '2017_04'; 
 	$get['m'] = ''; 
 	
 	// Results per page
@@ -433,7 +433,7 @@ function obtainGet() {
 		$keys = array_keys($a_histdates);
 		$index = array_search($_GET['h'], $keys);
 		
-		if ($index >= 0 && $currenthist != $_GET['h']) { 
+		if ($index >= 0 && $a_currenthist[0] != $_GET['h']) { 
 			$get['h1'] = $_GET['h'];
 			$get['h2'] = $keys[$index-1]; 
 		}

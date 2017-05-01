@@ -30,7 +30,7 @@ if ( !isset($_GET['width']) ) { $width = 1100; } else { $width = $_GET['width'];
 if ( !isset($_GET['height']) || $_GET['height'] < 30 ) { $height = 30; } else { $height = $_GET['height']; }
 
 // Get games count per status
-$count = countGames("");
+$count = countGames("", 0);
 
 // Prepare true color for given width, height
 $im = imagecreatetruecolor($width, $height);  

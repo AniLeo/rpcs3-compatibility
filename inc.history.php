@@ -30,16 +30,17 @@ $get = obtainGet();
 
 
 function getHistoryOptions() {
-	global $get, $a_histdates;
+	global $get, $a_histdates, $a_currenthist;
 	
 	if ($get['h1'] == db_table) {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since <b>{$a_histdates[$get['h2']]}</b>.</p>";
+		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since <b>{$a_currenthist[1]}</b>.</p>";
 	} else {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List from <b>{$a_histdates[$get['h2']]}</b> to <b>{$a_histdates[$get['h1']]}</b>.</p>";
+		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List from <b>{$a_histdates[$get['h1']][0]}</b> to <b>{$a_histdates[$get['h1']][1]}</b>.</p>";
 	}
 
 	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
-	$m2 = "<a href=\"?h\">April 2017</a>";
+	$m2 = "<a href=\"?h=2017_04\">April 2017</a>";
+	$m3 = "<a href=\"?h\">May 2017</a>";
 	
 	$s_historyoptions .= "<br><p style=\"font-size:13px\">
 	<strong>Month:&nbsp;</strong>";
@@ -52,10 +53,18 @@ function getHistoryOptions() {
 	
 	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
 	
-	if ($get['h1'] == db_table) { 
+	if ($get['h2'] == "2017_03") { 
 		$s_historyoptions .= highlightBold($m2);
 	} else {
 		$s_historyoptions .= $m2;
+	}
+	
+	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
+	
+	if ($get['h1'] == db_table) { 
+		$s_historyoptions .= highlightBold($m3);
+	} else {
+		$s_historyoptions .= $m3;
 	}
 	
 	$s_historyoptions .= "<br>";

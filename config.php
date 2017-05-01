@@ -101,11 +101,12 @@ $a_css = array(
 
 // Dates for history backups
 $a_histdates = array(
-'2017_02' => 'March 1st, 2017',
-'2017_03' => 'March 30th, 2017'
+	'2017_02' => '',
+	'2017_03' => array('March 1st, 2017', 'March 29th, 2017'),
+	'2017_04' => array('March 30th, 2017', 'April 30th, 2017'),
 );
 
 // Current month
-$currenthist = '2017_04';
+$a_currenthist = array('2017_05', 'May 1st, 2017');
 
 ?>
