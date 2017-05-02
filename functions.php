@@ -143,7 +143,7 @@ function getThread($text, $tid) {
 function getCommit($cid) {
 	global $c_github, $a_css, $c_unkcommit;
 	
-	if ($cid == "0") { return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'>Unknown</div>"; }
+	if ($cid == "0") { return "<a class='{$a_css["NOBUILD"]}'><i>Unknown</i></div>"; }
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -162,7 +162,7 @@ function getCommit($cid) {
 	if ($row->valid == "1") {
 		return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
 	} else {
-		return "<div class='{$a_css["NOBUILD"]}' style='background: #{$c_unkcommit};'><i>{$cid}</i></div>";
+		return "<a class='{$a_css["NOBUILD"]}'><i>{$cid}</i></div>";
 	}
 }
 
@@ -397,7 +397,7 @@ function obtainGet() {
 	}
 	
 	// Order by
-	if (isset($_GET['o']) && array_key_exists($_GET['o'], $a_order)) {
+	if (isset($_GET['o']) && isset($a_order) && array_key_exists($_GET['o'], $a_order)) {
 		$get['o'] = strtolower($_GET['o']);
 	}
 	
@@ -516,7 +516,7 @@ function generateQuery($get, $status) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($query, $count) {
+function countGames($query = '', $count = 0) {
 	global $a_title, $get;
 	
 	// Connect to database
@@ -651,6 +651,21 @@ function getPagesCounter($pages, $currentPage, $extra) {
 	
 	return $s_pagescounter;
 	
+}
+
+
+function getTableHeaders($headers, $extra = '') {
+	global $get;
+	$s_tableheaders .= "<tr>";	
+	foreach ($headers as $k => $v) { 
+		if     ($v == 0)              { $s_tableheaders .= "<th>{$k}</th>"; }
+		elseif ($get['o'] == "{$v}a") { $s_tableheaders .= "<th><a href =\"?{$extra}o={$v}d\">{$k} &nbsp; &#8593;</a></th>"; }
+		elseif ($get['o'] == "{$v}d") { $s_tableheaders .= "<th><a href =\"?{$extra}\">{$k} &nbsp; &#8595;</a></th>"; }
+		else                          { $s_tableheaders .= "<th><a href =\"?{$extra}o={$v}a\">{$k}</a></th>"; } 
+	}
+	$s_tableheaders .= "</tr>";
+	
+	return $s_tableheaders;
 }
 
 

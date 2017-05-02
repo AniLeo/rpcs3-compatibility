@@ -96,8 +96,8 @@ $a_css = array(
 "MEDIA_ICON" => 'div-compat-fmat',
 "CHARACTER_SEARCH" => 'compat-inr-search',
 "STATUS" => 'txt-compat-status',
-"BUILD" => 'txt-compat-build',
-"NOBUILD" => 'txt-compat-nobuild'
+"BUILD" => '',  // Disabled 
+"NOBUILD" => '' // Disabled (style='background: #{$c_unkcommit};)
 );
 
 // Dates for history backups

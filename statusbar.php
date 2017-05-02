@@ -30,7 +30,7 @@ if ( !isset($_GET['width']) ) { $width = 1100; } else { $width = $_GET['width'];
 if ( !isset($_GET['height']) || $_GET['height'] < 30 ) { $height = 30; } else { $height = $_GET['height']; }
 
 // Get games count per status
-$count = countGames("", 0);
+$count = countGames();
 
 // Prepare true color for given width, height
 $im = imagecreatetruecolor($width, $height);  
@@ -55,47 +55,46 @@ if ($count == 0) {
 	// Set image misc colors
 	$c_white = imagecolorallocatealpha($im, 236, 240, 241, 0.0);
 	$c_black = imagecolorallocatealpha($im, 0, 0, 0, 0.0);
-
-	// Calculate percentage with database information fetched beforehand
-	$p_playable = round(($count[1]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-	$p_ingame = round(($count[2]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-	$p_intro = round(($count[3]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-	$p_loadable = round(($count[4]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-	$p_nothing = round(($count[5]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-
+	
+	// Calculate percentages of games per status
+	for ($i=1; $i<=max(array_keys($a_title)); $i++) {
+		$percentages[$i] = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
+	}
+	
 	// Calculate width per status (add the previous status width as well) 
 	// I don't think it really matters if we round here...
-	$val_playable = round( (($p_playable * $width-3) / 100), 2, PHP_ROUND_HALF_UP);  
-	$val_ingame = round( ($val_playable + (($p_ingame * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
-	$val_intro = round( ($val_ingame + (($p_intro * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
-	$val_loadable = round( ($val_intro + (($p_loadable * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
-	$val_nothing = round( ($val_loadable + (($p_nothing * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
+	$values[1] = round((($percentages[1] * $width-3) / 100), 2, PHP_ROUND_HALF_UP);  
+	$values[2] = round(($values[1] + (($percentages[2] * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
+	$values[3] = round(($values[2] + (($percentages[3] * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
+	$values[4] = round(($values[3] + (($percentages[4] * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
+	$values[5] = round(($values[4] + (($percentages[5] * $width-3) / 100)), 2, PHP_ROUND_HALF_UP); 
+
 
 	// Main rectangle
 	imagefilledrectangle($im, 0, 0, $width, $height, $c_bg);  
 
 	// Progress bar inside rectangles
-	imagefilledrectangle($im, 0, 1, $val_playable-1, $height-2, $scolor[1]);  
-	imagefilledrectangle($im, $val_playable, 1, $val_ingame-1, $height-2, $scolor[2]);  
-	imagefilledrectangle($im, $val_ingame, 1, $val_intro-1, $height-2, $scolor[3]);  
-	imagefilledrectangle($im, $val_intro, 1, $val_loadable-1, $height-2, $scolor[4]);  
-	imagefilledrectangle($im, $val_loadable, 1, $val_nothing, $height-2, $scolor[5]);
+	imagefilledrectangle($im, 0, 1, $values[1]-1, $height-2, $scolor[1]);  
+	imagefilledrectangle($im, $values[1], 1, $values[2]-1, $height-2, $scolor[2]);  
+	imagefilledrectangle($im, $values[2], 1, $values[3]-1, $height-2, $scolor[3]);  
+	imagefilledrectangle($im, $values[3], 1, $values[4]-1, $height-2, $scolor[4]);  
+	imagefilledrectangle($im, $values[4], 1, $values[5], $height-2, $scolor[5]);
 
 	// Strings with borders for text
-	imagestringstroketext($im, 2, 6, 2, $c_white, $c_black, "Playable", 1);
-	imagestringstroketext($im, 2, 6, 14, $c_white, $c_black, "{$p_playable}%", 1);
+	imagestringstroketext($im, 2, 6, 2, $c_white, $c_black, "{$a_title[1]}", 1);
+	imagestringstroketext($im, 2, 6, 14, $c_white, $c_black, "{$percentages[1]}%", 1);
 
-	imagestringstroketext($im, 2, $val_playable+4, 2, $c_white, $c_black, "Ingame", 1);
-	imagestringstroketext($im, 2, $val_playable+4, 14, $c_white, $c_black, "{$p_ingame}%", 1);
+	imagestringstroketext($im, 2, $values[1]+4, 2, $c_white, $c_black, "{$a_title[2]}", 1);
+	imagestringstroketext($im, 2, $values[1]+4, 14, $c_white, $c_black, "{$percentages[2]}%", 1);
 
-	imagestringstroketext($im, 2, $val_ingame+4, 2, $c_white, $c_black, "Intro", 1);
-	imagestringstroketext($im, 2, $val_ingame+4, 14, $c_white, $c_black, "{$p_intro}%", 1);
+	imagestringstroketext($im, 2, $values[2]+4, 2, $c_white, $c_black, "{$a_title[3]}", 1);
+	imagestringstroketext($im, 2, $values[2]+4, 14, $c_white, $c_black, "{$percentages[3]}%", 1);
 
-	imagestringstroketext($im, 2, $val_intro+4, 2, $c_white, $c_black, "Loadable", 1);
-	imagestringstroketext($im, 2, $val_intro+4, 14, $c_white, $c_black, "{$p_loadable}%", 1);
+	imagestringstroketext($im, 2, $values[3]+4, 2, $c_white, $c_black, "{$a_title[4]}", 1);
+	imagestringstroketext($im, 2, $values[3]+4, 14, $c_white, $c_black, "{$percentages[4]}%", 1);
 
-	imagestringstroketext($im, 2, $val_loadable+4, 2, $c_white, $c_black, "Nothing", 1);
-	imagestringstroketext($im, 2, $val_loadable+4, 14, $c_white, $c_black, "{$p_nothing}%", 1);
+	imagestringstroketext($im, 2, $values[4]+4, 2, $c_white, $c_black, "{$a_title[5]}", 1);
+	imagestringstroketext($im, 2, $values[4]+4, 14, $c_white, $c_black, "{$percentages[5]}%", 1);
 	
 }
 

@@ -74,7 +74,7 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 		</div>
 		
 		<table class='compat-con-container'>
-			<?php if ($scount[$get['s']] > 0) { echo getTableHeaders(); } echo getTableContent(); ?>
+			<?php if ($scount[$get['s']] > 0) { echo compat_getTableHeaders(); } echo getTableContent(); ?>
 		</table>
 		<!--End -->
 		<div id="compat-con-pages">

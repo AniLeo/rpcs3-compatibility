@@ -25,64 +25,36 @@ if (!@include_once("functions.php")) throw new Exception("Compat: functions.php 
 // Start: Microtime when page started loading
 $start = getTime();
 
+// Order queries
+$a_order = array(
+'' => 'ORDER BY merge_datetime DESC',
+'1a' => 'ORDER BY pr ASC',
+'1d' => 'ORDER BY pr DESC',
+'2a' => 'ORDER BY author ASC',
+'2d' => 'ORDER BY author DESC',
+'3a' => 'ORDER BY merge_datetime ASC',
+'3d' => 'ORDER BY merge_datetime DESC',
+'4a' => 'ORDER BY merge_datetime ASC',
+'4d' => 'ORDER BY merge_datetime DESC'
+);
+
 // Obtain values from get
 $get = obtainGet();
 
 
 function builds_getTableHeaders() {
-	global $get;
-	
-	$s_tableheaders .= "<tr>";
-	
-	/* Commonly used code: so we don't have to waste lines repeating this */
-	$common .= "<th><a href =\"?b&";
-	
-	
-	/* Pull Request */
-	$s_tableheaders .= $common;
-	// Order by: Pull Request (ASC, DESC)
-	if ($get['o'] == "1a") { $s_tableheaders .= "o=1d\">Pull Request &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "1d") { $s_tableheaders .= "\">Pull Request &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=1a\">Pull Request</a></th>"; } 
-
-	/* Author */
-	$s_tableheaders .= $common;
-	// Order by: Author (ASC, DESC)
-	if ($get['o'] == "2a") { $s_tableheaders .= "o=2d\">Author &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "2d") { $s_tableheaders .= "\">Author &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=2a\">Author</a></th>"; }
-
-	/* Build Date  */
-	$s_tableheaders .= $common;
-	// Order by: Build Date (ASC, DESC)
-	if ($get['o'] == "4a") { $s_tableheaders .= "o=4d\">Build Date &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "4d") { $s_tableheaders .= "\">Build Date &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=4a\">Build Date </a></th>"; }
-	
-	/* AppVeyor Download */
-	$s_tableheaders .= "<th>Download</th>";
-	
-	$s_tableheaders .= "</tr>";
-	
-	return $s_tableheaders;
+	$headers = array(
+		'Pull Request' => 1,
+		'Author' => 2,
+		'Build Date' => 4,
+		'Download' => 0
+	);	
+	return getTableHeaders($headers, 'b&');
 }
 
 
 function builds_getTableContent() {
-	global $get, $c_appveyor;
-
-	// Order queries
-	$a_order = array(
-	'' => 'ORDER BY merge_datetime DESC',
-	'1a' => 'ORDER BY pr ASC',
-	'1d' => 'ORDER BY pr DESC',
-	'2a' => 'ORDER BY author ASC',
-	'2d' => 'ORDER BY author DESC',
-	'3a' => 'ORDER BY merge_datetime ASC',
-	'3d' => 'ORDER BY merge_datetime DESC',
-	'4a' => 'ORDER BY merge_datetime DESC',
-	'4d' => 'ORDER BY merge_datetime DESC'
-	);
+	global $get, $c_appveyor, $a_order;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');

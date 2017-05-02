@@ -85,7 +85,7 @@ if ($get['g'] != "") {
 		$pages = countPages($get, $partTwo, $scount[0]);
 		$currentPage = getCurrentPage($pages);
 		if (strlen($get['g']) <= 3) {
-			$scount = countGames($partTwo, 0);
+			$scount = countGames($partTwo);
 		} else {
 			$scount = countGames($partTwo, $scount);
 		}
@@ -128,7 +128,7 @@ if ($get['g'] != "") {
 			// Recalculate Pages / CurrentPage
 			$pages = countPages($get, $genquery, 0);
 			$currentPage = getCurrentPage($pages);
-			$scount = countGames($genquery, 0);
+			$scount = countGames($genquery);
 			
 			// Replace faulty search with returned game but keep the original search for display
 			$l_orig = $get['g'];
@@ -262,60 +262,30 @@ function getCharSearch() {
 /*****************
  * Table Headers *
  *****************/
-function getTableHeaders() {
+function compat_getTableHeaders() {
 	global $g_pageresults, $scount, $a_title, $get;
-	
-	$s_tableheaders .= "<tr>";
-	
-	/* Commonly used code: so we don't have to waste lines repeating this */
-	$common .= "<th><a href =\"?";
 
 	// Order support: Sort by status
-	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
+	if ($get['s'] > min(array_keys($a_title))) {$extra .= "s={$get['s']}&";} 
 	// Order support: Results per page
-	$common .= $g_pageresults;
+	$extra .= $g_pageresults;
 	// Order support: Search by character
-	if ($get['c'] != "") {$common .= "c={$get['c']}&";} 
+	if ($get['c'] != "") {$extra .= "c={$get['c']}&";} 
 	// Order support: Searchbox
-	if ($get['g'] != "" && $scount[0] > 0) {$common .= "g=".urlencode($get['g'])."&";} 
+	if ($get['g'] != "" && $scount[0] > 0) {$extra .= "g=".urlencode($get['g'])."&";} 
 	// Order support: Search by region
-	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
 	// Order support: Date search
-	if ($get['d'] != "") {$common .= "d={$get['d']}&";} 
+	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
 	
+	$headers = array(
+		'Game ID' => 1,
+		'Game Title' => 2,
+		'Status' => 3,
+		'Last Test' => 4
+	);
 	
-	/* Game ID */
-	$s_tableheaders .= $common;
-	// Order by: Game ID (ASC, DESC)
-	if ($get['o'] == "1a") { $s_tableheaders .= "o=1d\">Game ID &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "1d") { $s_tableheaders .= "\">Game ID &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=1a\">Game ID</a></th>"; } 
-
-	/* Game Title */
-	$s_tableheaders .= $common;
-	// Order by: Game Title (ASC, DESC)
-	if ($get['o'] == "2a") { $s_tableheaders .= "o=2d\">Game Title &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "2d") { $s_tableheaders .= "\">Game Title &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=2a\">Game Title</a></th>"; }
-
-	/* Build Used */
-	$s_tableheaders .= "<th>Last tested on</th>";
-
-	/* Status */
-	$s_tableheaders .= $common;
-	// Order by: Status (ASC, DESC)
-	if ($get['o'] == "3a") { $s_tableheaders .= "o=3d\">Status &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "3d") { $s_tableheaders .= "\">Status &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=3a\">Status</a></th>"; }
-
-	/* Last Updated */
-	$s_tableheaders .= $common;
-	// Order by: Last Updated (ASC, DESC)
-	if ($get['o'] == "4a") { $s_tableheaders .= "o=4d\">Last Updated &nbsp; &#8593;</a></th>"; }
-	elseif ($get['o'] == "4d") { $s_tableheaders .= "\">Last Updated &nbsp; &#8595;</a></th>"; }
-	else { $s_tableheaders .= "o=4a\">Last Updated</a></th>"; }
-	
-	$s_tableheaders .= "</tr>";
+	$s_tableheaders .= getTableHeaders($headers, $extra);
 	
 	return $s_tableheaders;
 }
@@ -362,9 +332,8 @@ function getTableContentRow($row) {
 	return "<tr>
 	<td>".getGameRegion($row->game_id, true)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
 	<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
-	<td>".getCommit($row->build_commit)."</td>
 	<td>".getColoredStatus($row->status)."</td>
-	<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a></td>
+	<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit).")</td>
 	</tr>";	
 }
 
