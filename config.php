@@ -33,6 +33,7 @@ $c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
 $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pageresults = 3; // Default results per page (50)
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
+$c_maintenance = false; // Maintenance Mode
 
 // Background color for unknown commit div
 $c_unkcommit = 'ffd700';
