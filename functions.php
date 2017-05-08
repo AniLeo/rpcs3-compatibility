@@ -424,7 +424,7 @@ function obtainGet() {
 	}
 	
 	// Region
-	if (isset($_GET['f']) && array_key_exists($_GET['f'], $a_flags)) {
+	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
 		$get['f'] = strtolower($_GET['f']); 
 	}
 	
