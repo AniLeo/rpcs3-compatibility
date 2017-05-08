@@ -59,13 +59,18 @@ function getGameMedia($gid) {
   * @return string
   */
 function getGameRegion($gid, $url) {
-	global $a_flags;
+	global $a_flags, $get;
 	
 	$l = substr($gid, 2, 1);
 	
 	// If it's not a valid / known region then we return an empty string
 	if (!array_key_exists($l, $a_flags)) {
 		return "";
+	}
+	
+	// Allow for filter reseting by clicking the flag again
+	if ($get['f'] == strtolower($l)) {
+		return "<a href=\"?\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
 	
 	if ($url) {
