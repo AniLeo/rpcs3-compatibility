@@ -90,7 +90,7 @@ if ($get['g'] != "") {
 			$scount = countGames($partTwo, $scount);
 		}
 		
-		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
+		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
 	}
 	
 	// If results not found then apply levenshtein to get the closest result
@@ -120,6 +120,7 @@ if ($get['g'] != "") {
 			// Re-run the main query
 			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
 					FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' 
+					{$a_order[$get['o']]} 
 					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
 			
