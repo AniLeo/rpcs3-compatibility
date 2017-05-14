@@ -32,16 +32,38 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   *  empty string if Game Media is invalid.
   *
   * @param string $gid GameID: 9 character ID that identifies a game
+  * @param bool   $url Whether to return Game Media as a clickable(1) or non-clickable(0) flag
   *
   * @return string
   */
-function getGameMedia($gid) {
-	global $a_media, $a_css;
+function getGameMedia($gid, $url = true) {
+	global $a_media, $a_css, $get;
 	
-	if     (substr($gid, 0, 1) == "N")  { return "<img alt=\"Digital\" src=\"{$a_media["PSN"]}\" class=\"{$a_css["MEDIA_ICON"]}\">"; }  // PSN Retail
-	elseif (substr($gid, 0, 1) == "B")  { return "<img alt=\"Blu-Ray\" src=\"{$a_media["BLR"]}\" class=\"{$a_css["MEDIA_ICON"]}\">"; }  // PS3 Blu-Ray
-	elseif (substr($gid, 0, 1) == "X")  { return "<img alt=\"Blu-Ray\" src=\"{$a_media["BLR"]}\" class=\"{$a_css["MEDIA_ICON"]}\">"; }  // PS3 Blu-Ray + Extras
-	else                                { return ""; }
+	$l = substr($gid, 0, 1);
+	
+	// If it's not a valid / known region then we return an empty string
+	if (!array_key_exists($l, $a_media)) {
+		return "";
+	}
+	
+	if     ($l == "N")  { $alt = 'Digital'; }           // PSN Retail
+	elseif ($l == "B")  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
+	elseif ($l == "X")  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
+	
+	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"{$a_css["MEDIA_ICON"]}\">";
+	
+	// Allow for filter reseting by clicking the flag again
+	if ($get['t'] == strtolower($l) && $url) {
+		return "<a href=\"?\">{$img}</a>";
+	}
+	
+	if ($url) {
+		// Returns clickable flag for region (flag) search
+		return "<a href=\"?t=".strtolower($l)."\">{$img}</a>";
+	} else {
+		// Returns unclickable flag
+		return $img;
+	}
 }
 
 
@@ -58,7 +80,7 @@ function getGameMedia($gid) {
   *
   * @return string
   */
-function getGameRegion($gid, $url) {
+function getGameRegion($gid, $url = true) {
 	global $a_flags, $get;
 	
 	$l = substr($gid, 2, 1);
@@ -69,7 +91,7 @@ function getGameRegion($gid, $url) {
 	}
 	
 	// Allow for filter reseting by clicking the flag again
-	if ($get['f'] == strtolower($l)) {
+	if ($get['f'] == strtolower($l) && $url) {
 		return "<a href=\"?\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
 	
@@ -371,7 +393,7 @@ function highlightBold($str) {
 
 
 function obtainGet() {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_admin;
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_admin, $a_media;
 	
 	// Start new $get array
 	$get = array();
@@ -385,6 +407,7 @@ function obtainGet() {
 	$get['g'] = "";
 	$get['d'] = '';
 	$get['f'] = '';
+	$get['t'] = '';
 	$get['h'] = '';
 	$get['h1'] = db_table;
 	$get['h2'] = '2017_04'; 
@@ -431,6 +454,11 @@ function obtainGet() {
 	// Region
 	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
 		$get['f'] = strtolower($_GET['f']); 
+	}
+	
+	// Media type
+	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media)) {
+		$get['t'] = strtolower($_GET['t']); 
 	}
 	
 	// History
@@ -505,11 +533,18 @@ function generateQuery($get, $status) {
 		if ($get['c'] != "" || $get['g'] != "") { $genquery .= " AND "; }
 		$genquery .= " SUBSTR(game_id, 3, 1) = '{$get['f']}' ";
 	}
+	
+	// QUERYGEN: Search by media type
+	if ($get['t'] != "") {
+		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "") { $genquery .= " AND "; }
+		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "") { $genquery .= " AND "; }
+		$genquery .= " SUBSTR(game_id, 1, 1) = '{$get['t']}' ";
+	}
 
 	// QUERYGEN: Search by date
 	if ($get['d'] != "") {
-		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "") { $genquery .= " AND "; }
-		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "") { $genquery .= " AND "; }
+		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "" && $get['t'] != "") { $genquery .= " AND "; }
+		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "" || $get['t'] != "") { $genquery .= " AND "; }
 		$sd = mysqli_real_escape_string($db, $get['d']);
 		$genquery .= " last_edit = '{$sd}' "; 
 	}

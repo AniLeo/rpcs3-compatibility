@@ -172,6 +172,8 @@ function getSortBy() {
 		if ($get['g'] != "" && $scount[0] > 0)	{$s_sortby .= "g=".urlencode($get['g'])."&";} 
 		// Combined search: Search by region
 		if ($get['f'] != "") {$s_sortby .= "f={$get['f']}&";} 
+		// Combined search: Search by media type
+		if ($get['t'] != "") {$s_sortby .= "t={$get['t']}&";} 
 		// Combined search: Date search
 		if ($get['d'] != "") {$s_sortby .= "d={$get['d']}&";} 
 		
@@ -206,6 +208,8 @@ function getResultsPerPage() {
 		if ($get['g'] != "" && $scount[0] > 0) {$s_pageresults .= "g=".urlencode($get['g'])."&";} 
 		// Combined search: Search by region
 		if ($get['f'] != "") {$s_pageresults .= "f={$get['f']}&";} 
+		// Combined search: Search by media type
+		if ($get['t'] != "") {$s_pageresults .= "t={$get['t']}&";} 
 		// Combined search: Date search
 		if ($get['d'] != "") {$s_pageresults .= "d={$get['d']}&";} 
 		
@@ -246,6 +250,8 @@ function getCharSearch() {
 	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
 	// Combined search: Search by region
 	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
+	// Combined search: Search by media type
+	if ($get['t'] != "") {$common .= "t={$get['t']}&";} 
 	// Combined search: Date search
 	if ($get['d'] != "") {$common .= "d={$get['d']}&";} 
 	
@@ -276,6 +282,8 @@ function compat_getTableHeaders() {
 	if ($get['g'] != "" && $scount[0] > 0) {$extra .= "g=".urlencode($get['g'])."&";} 
 	// Order support: Search by region
 	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
+	// Order support: Search by region
+	if ($get['t'] != "") {$extra .= "t={$get['t']}&";} 
 	// Order support: Date search
 	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
 	
@@ -331,7 +339,7 @@ function getTableContent() {
  **********************/
 function getTableContentRow($row) {
 	return "<tr>
-	<td>".getGameRegion($row->game_id, true)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
+	<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
 	<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
 	<td>".getColoredStatus($row->status)."</td>
 	<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit).")</td>
@@ -353,6 +361,8 @@ function compat_getPagesCounter() {
 	if ($get['c'] != "") {$extra .= "c={$get['c']}&";} 
 	// Page support: Search by region
 	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
+	// Page support: Search by media type
+	if ($get['t'] != "") {$extra .= "t={$get['t']}&";} 
 	// Page support: Date search
 	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
 	// Page support: Order by

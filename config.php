@@ -77,18 +77,19 @@ $a_color = array(
 
 // Region flags
 $a_flags = array(
-"A" => "/img/icons/flags/CN.png", // Asia
-"E" => "/img/icons/flags/EU.png", // Europe
-"H" => "/img/icons/flags/CN.png", // Southern Asia
-"K" => "/img/icons/flags/HK.png", // Hong Kong
-"J" => "/img/icons/flags/JP.png", // Japan
-"U" => "/img/icons/flags/US.png"  // USA
+"A" => "/img/icons/compat/CN.png", // Asia
+"E" => "/img/icons/compat/EU.png", // Europe
+"H" => "/img/icons/compat/CN.png", // Southern Asia
+"K" => "/img/icons/compat/HK.png", // Hong Kong
+"J" => "/img/icons/compat/JP.png", // Japan
+"U" => "/img/icons/compat/US.png"  // USA
 );
 
 // Game media icons
 $a_media = array(
-"PSN" => '/img/icons/list/psn.png',
-"BLR" => '/img/icons/list/rom.png'
+"N" => '/img/icons/list/psn.png',
+"B" => '/img/icons/list/rom.png',
+"X" => '/img/icons/list/rom.png'
 );
 
 // CSS elements
