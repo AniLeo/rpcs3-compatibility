@@ -54,15 +54,16 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 			</div>
 			<!--End -->
 			<div id='compat-con-searchbox'>
-				<form method="get" id="searchbox-field">
+				<form method='get' id='game-search'>
 					<div id='searchbox'>
-						<?php echo '<input id="searchbox-field" name="g" type="text" value="';
+						<?php 
+							echo '<input id="searchbox-field" name="g" type="text" value="';
 							if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	} 
 							echo '" placeholder="Game Title / Game ID" />'; 
 						?>
 					</div>
 					<div id='submit'>
-						<button id='submit' class='div-button' type="submit"></button>
+						<button type='submit' form='game-search' class='div-button'></button>
 					</div>
 				</form>
 			</div>
