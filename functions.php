@@ -435,8 +435,8 @@ function obtainGet() {
 		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1)) {
 			$get['c'] = strtolower($_GET['c']);
 		}
-		if ($_GET['c'] == "09")  { $get['c'] = "09";  } // Numbers
-		if ($_GET['c'] == "sym") { $get['c'] = "sym"; } // Symbols
+		if ($_GET['c'] == '09')  { $get['c'] = '09';  } // Numbers
+		if ($_GET['c'] == 'sym') { $get['c'] = 'sym'; } // Symbols
 	}
 	
 	// Searchbox (sf deprecated, use g instead)
@@ -487,66 +487,64 @@ function obtainGet() {
 
 
 // Generates query from given GET parameters
-function generateQuery($get, $status) {
-	global $a_title, $a_order;
-
+function generateQuery($get, $status = true) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$genquery = "";
+	$genquery = '';
+	$and = false;
 	
 	// Force status to be All
-	if (!$status) {
-		$get['s'] = 0;
-	}
+	if (!$status) { $get['s'] = 0; }
 	
 	// QUERYGEN: Status
-	if ($get['s'] > min(array_keys($a_title))) { $genquery .= " status = {$get['s']} "; } 
+	if ($get['s'] != 0) { 
+		$genquery .= " status = {$get['s']} ";
+		$and = true;
+	} 
 	
 	// QUERYGEN: Character
-	if ($get['c'] != "") {
+	if ($get['c'] != '') {
+		if ($and) { $genquery .= " AND "; }
 		if ($get['c'] == '09') {
-			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
 			$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
 			OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
 			OR game_title LIKE '8%' OR game_title LIKE '9%') ";
 		} elseif ($get['c'] == 'sym') {
-			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
-			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') "; // TODO: Add more symbols when they show up
+			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') ";
 		} else {
-			if ($get['s'] > min(array_keys($a_title))) { $genquery .= " AND "; }
 			$genquery .= " game_title LIKE '{$get['c']}%' ";
 		}
+		$and = true;
 	}
 
 	// QUERYGEN: Searchbox
-	if ($get['g'] != "") {
-		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "") { $genquery .= " AND "; }
-		if ($get['c'] != "") { $genquery .= " AND "; }
-		$ssf = mysqli_real_escape_string($db, $get['g']);
-		$genquery .= " (game_title LIKE '%{$ssf}%' OR game_id LIKE '%{$ssf}%') ";
+	if ($get['g'] != '') {
+		if ($and) { $genquery .= " AND "; }
+		$s_g = mysqli_real_escape_string($db, $get['g']);
+		$genquery .= " (game_title LIKE '%{$s_g}%' OR game_id LIKE '%{$s_g}%') ";
+		$and = true;
 	}
 
 	// QUERYGEN: Search by region
-	if ($get['f'] != "") {
-		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "") { $genquery .= " AND "; }
-		if ($get['c'] != "" || $get['g'] != "") { $genquery .= " AND "; }
+	if ($get['f'] != '') {
+		if ($and) { $genquery .= " AND "; }
 		$genquery .= " SUBSTR(game_id, 3, 1) = '{$get['f']}' ";
+		$and = true;
 	}
 	
 	// QUERYGEN: Search by media type
-	if ($get['t'] != "") {
-		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "") { $genquery .= " AND "; }
-		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "") { $genquery .= " AND "; }
+	if ($get['t'] != '') {
+		if ($and) { $genquery .= " AND "; }
 		$genquery .= " SUBSTR(game_id, 1, 1) = '{$get['t']}' ";
+		$and = true;
 	}
 
 	// QUERYGEN: Search by date
-	if ($get['d'] != "") {
-		if ($get['s'] > min(array_keys($a_title)) && $get['c'] == "" && $get['f'] != "" && $get['t'] != "") { $genquery .= " AND "; }
-		if ($get['c'] != "" || $get['g'] != "" || $get['f'] != "" || $get['t'] != "") { $genquery .= " AND "; }
-		$sd = mysqli_real_escape_string($db, $get['d']);
-		$genquery .= " last_edit = '{$sd}' "; 
+	if ($get['d'] != '') {
+		if ($and) { $genquery .= " AND "; }
+		$s_d = mysqli_real_escape_string($db, $get['d']);
+		$genquery .= " last_edit = '{$s_d}' "; 
 	}
 	
 	mysqli_close($db);
@@ -873,5 +871,29 @@ function isWhitelisted() {
 	mysqli_close($db);
 	
 	return $valid;
+}
+
+
+function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
+	global $get, $scount, $g_pageresults;
+	
+	// Combined search: results per page
+	if ($r) {$combined .= $g_pageresults;}
+	// Combined search: sort by status
+	if ($get['s'] != 0 && $s) {$combined .= "s={$get['s']}&";} 
+	// Combined search: search by character
+	if ($get['c'] != "" && $c) {$combined .= "c={$get['c']}&";}
+	// Combined search: searchbox
+	if ($get['g'] != "" && $scount[0] > 0 && $g) {$combined .= "g=".urlencode($get['g'])."&";} 
+	// Combined search: search by region
+	if ($get['f'] != "" && $f) {$combined .= "f={$get['f']}&";} 
+	// Combined search: search by media type
+	if ($get['t'] != "" && $t) {$combined .= "t={$get['t']}&";} 
+	// Combined search: date search
+	if ($get['d'] != "" && $d) {$combined .= "d={$get['d']}&";}
+	// Combined search: order by
+	if ($get['o'] != "" && $o) {$combined .= "o={$get['o']}&";} 
+	
+	return $combined;
 }
 ?>

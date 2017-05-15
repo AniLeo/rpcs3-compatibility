@@ -42,7 +42,7 @@ $a_order = array(
 $get = obtainGet();
 
 // Generate query
-$genquery = generateQuery($get, true);
+$genquery = generateQuery($get);
 
 // Get game count per status
 $scount = countGames(generateQuery($get, false));
@@ -138,11 +138,10 @@ if ($get['g'] != "") {
 	}
 }
 
-// Close MySQL connection. If user is search
+// Close MySQL connection.
 mysqli_close($db);
 
 /*****************************************************************************************************************************/
-
 
 /*******************************
  * General: Combined Search    *
@@ -158,25 +157,12 @@ if (in_array($get['r'], $a_pageresults)) {
  * Sort By *
  ***********/
 function getSortBy() {
-	global $a_title, $a_desc, $g_pageresults, $scount, $get;
+	global $a_title, $a_desc, $scount, $get;
 
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
 		$s_sortby .= "<a title='$a_desc[$i]' href=\"?"; 
-		
-		// Combined search: results per page
-		$s_sortby .= $g_pageresults;
-		// Combined search: search by character
-		if ($get['c'] != "") {$s_sortby .= "c={$get['c']}&";}
-		// Combined search: searchbox
-		if ($get['g'] != "" && $scount[0] > 0)	{$s_sortby .= "g=".urlencode($get['g'])."&";} 
-		// Combined search: Search by region
-		if ($get['f'] != "") {$s_sortby .= "f={$get['f']}&";} 
-		// Combined search: Search by media type
-		if ($get['t'] != "") {$s_sortby .= "t={$get['t']}&";} 
-		// Combined search: Date search
-		if ($get['d'] != "") {$s_sortby .= "d={$get['d']}&";} 
-		
+		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true, false);
 		$s_sortby .= "s=$i\">"; 
 		
 		$temp = "$a_title[$i]&nbsp;($scount[$i])";
@@ -195,24 +181,11 @@ function getSortBy() {
  * Results per page *
  ********************/
 function getResultsPerPage() {
-	global $a_pageresults, $s_pageresults, $scount, $a_title, $get;
+	global $a_pageresults, $s_pageresults, $get;
 	
 	foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
-		
-		// Combined search: sort by status
-		if ($get['s'] > min(array_keys($a_title))) {$s_pageresults .= "s={$get['s']}&";} 
-		// Combined search: search by character
-		if ($get['c'] != "") {$s_pageresults .= "c={$get['c']}&";} 
-		// Combined search: searchbox
-		if ($get['g'] != "" && $scount[0] > 0) {$s_pageresults .= "g=".urlencode($get['g'])."&";} 
-		// Combined search: Search by region
-		if ($get['f'] != "") {$s_pageresults .= "f={$get['f']}&";} 
-		// Combined search: Search by media type
-		if ($get['t'] != "") {$s_pageresults .= "t={$get['t']}&";} 
-		// Combined search: Date search
-		if ($get['d'] != "") {$s_pageresults .= "d={$get['d']}&";} 
-		
+		$s_pageresults .= combinedSearch(false, true, true, true, true, true, true, true);
 		$s_pageresults .= "r=$i\">"; 
 		
 		// If the current selected status, highlight with bold
@@ -232,7 +205,7 @@ function getResultsPerPage() {
  * Clickable URL: Character search *
  **********************************/
 function getCharSearch() {
-	global $g_pageresults, $a_css, $a_title, $get;
+	global $a_css, $get;
 
 	$a_chars[""] = "All";
 	$a_chars["09"] = "0-9";
@@ -243,17 +216,7 @@ function getCharSearch() {
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
-
-	// Combined search: results per page
-	$common .= $g_pageresults;
-	// Combined search: search by status
-	if ($get['s'] > min(array_keys($a_title))) {$common .= "s={$get['s']}&";} 
-	// Combined search: Search by region
-	if ($get['f'] != "") {$common .= "f={$get['f']}&";} 
-	// Combined search: Search by media type
-	if ($get['t'] != "") {$common .= "t={$get['t']}&";} 
-	// Combined search: Date search
-	if ($get['d'] != "") {$common .= "d={$get['d']}&";} 
+	$common .= combinedSearch(true, true, false, false, true, true, true, false);
 	
 	foreach ($a_chars as $key => $value) { 
 		$s_charsearch .= "{$common}c={$key}\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
@@ -270,22 +233,7 @@ function getCharSearch() {
  * Table Headers *
  *****************/
 function compat_getTableHeaders() {
-	global $g_pageresults, $scount, $a_title, $get;
-
-	// Order support: Sort by status
-	if ($get['s'] > min(array_keys($a_title))) {$extra .= "s={$get['s']}&";} 
-	// Order support: Results per page
-	$extra .= $g_pageresults;
-	// Order support: Search by character
-	if ($get['c'] != "") {$extra .= "c={$get['c']}&";} 
-	// Order support: Searchbox
-	if ($get['g'] != "" && $scount[0] > 0) {$extra .= "g=".urlencode($get['g'])."&";} 
-	// Order support: Search by region
-	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
-	// Order support: Search by region
-	if ($get['t'] != "") {$extra .= "t={$get['t']}&";} 
-	// Order support: Date search
-	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
+	$extra = combinedSearch(true, true, true, true, true, true, true, false);
 	
 	$headers = array(
 		'Game ID' => 1,
@@ -294,9 +242,7 @@ function compat_getTableHeaders() {
 		'Last Test' => 4
 	);
 	
-	$s_tableheaders .= getTableHeaders($headers, $extra);
-	
-	return $s_tableheaders;
+	return getTableHeaders($headers, $extra);
 }
 
 
@@ -351,27 +297,11 @@ function getTableContentRow($row) {
  * Pages Counter *
  *****************/
 function compat_getPagesCounter() {
-	global $pages, $currentPage, $g_pageresults, $a_title, $get;
+	global $pages, $currentPage;
 	
-	// Page support: Sort by status
-	if ($get['s'] > min(array_keys($a_title))) {$extra .= "s={$get['s']}&";} 
-	// Page support: Results per page
-	$extra .= $g_pageresults;
-	// Page support: Search by character
-	if ($get['c'] != "") {$extra .= "c={$get['c']}&";} 
-	// Page support: Search by region
-	if ($get['f'] != "") {$extra .= "f={$get['f']}&";} 
-	// Page support: Search by media type
-	if ($get['t'] != "") {$extra .= "t={$get['t']}&";} 
-	// Page support: Date search
-	if ($get['d'] != "") {$extra .= "d={$get['d']}&";} 
-	// Page support: Order by
-	if ($get['o'] != "") {$extra .= "o={$get['o']}&";} 
-	// Page support: Searchbox
-	if ($get['g'] != "") {$extra .= "g={$get['g']}&";}
+	$extra = combinedSearch(true, true, true, true, true, true, true, true);
 	
 	return getPagesCounter($pages, $currentPage, $extra);
-	
 }
 
 ?>

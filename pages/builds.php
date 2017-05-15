@@ -31,7 +31,7 @@ if(!@include_once(__DIR__.'/../inc.builds.php')) throw new Exception("Compat: in
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
 						This is the history of all RPCS3 builds made per pull request after AppVeyor artifacts were firstly added to the project.<br>
-						<a href="?"><b>Back to compatibility list</b></a>
+						<a href="compatibility"><b>Back to compatibility list</b></a>
 					</p>
 				</div>
 			</div>
