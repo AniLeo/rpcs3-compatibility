@@ -68,7 +68,7 @@ $mainQuery1 = mysqli_query($db, $sqlCmd);
 
 
 // Abbreviation search / Levenshtein search
-if ($get['g'] != "") {
+if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5))))) {
 	$abbreviationQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
 	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0) {
@@ -183,7 +183,7 @@ function getSortBy() {
 function getResultsPerPage() {
 	global $a_pageresults, $s_pageresults, $get;
 	
-	foreach (range(min(array_keys($a_pageresults)), max(array_keys($a_pageresults))) as $i) { 
+	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
 		$s_pageresults .= combinedSearch(false, true, true, true, true, true, true, true);
 		$s_pageresults .= "r=$i\">"; 
