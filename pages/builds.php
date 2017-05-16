@@ -26,12 +26,12 @@ if(!@include_once(__DIR__.'/../inc.builds.php')) throw new Exception("Compat: in
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
-					<h2>RPCS3 Builds History</h2>
+					<p id='title1'>RPCS3 Builds History</p>
+					<p id='title2'><a href="?">Compatibility List</a> • <a href="?h">Compatibility List History</a></p>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
-						This is the history of all RPCS3 builds made per pull request after AppVeyor artifacts were firstly added to the project.<br>
-						<a href="compatibility"><b>Back to compatibility list</b></a>
+						This is the history of all RPCS3 builds made per pull request after AppVeyor artifacts were firstly added to the project.
 					</p>
 				</div>
 			</div>

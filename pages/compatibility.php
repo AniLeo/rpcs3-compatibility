@@ -26,26 +26,27 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
-					<h2>RPCS3 Compatibility List</h2>
+					<p id='title1'>RPCS3 Compatibility List</p>
+					<p id='title2'><a href="?h">Compatibility List History</a> • <a href="?b">RPCS3 Builds History</a></p>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
-						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions. <br>
-						<a href="?h"><b>See compatibility history</b></a> • <a href="?b"><b>See RPCS3 builds history</b></a>
+						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions.						
 					</p>
 				</div>
 			</div>
 			<!--End -->
-			<div id="compat-hdr-right">
-				<p>
-					Sort By <?php echo getSortBy(); ?>
-				</p>
-			</div>
 			<div id="compat-hdr-left">
 				<p>
 					Results per page <?php echo getResultsPerPage(); ?>
 				</p>
 			</div>
+			<div id="compat-hdr-right">
+				<p>
+					Sort By <?php echo getSortBy(); ?>
+				</p>
+			</div>
+			
 			<!--End -->
 			<div id="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>

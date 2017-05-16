@@ -98,9 +98,7 @@ function getHistoryOptions() {
 	} else {
 		$s_historyoptions .= $o3;
 	}
-	$s_historyoptions .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
-	
-	$s_historyoptions .= "<a href=\"?\">Back to Compatibility List</a>";
+	$s_historyoptions .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
 	
 	$s_historyoptions .= "</p>";
 	

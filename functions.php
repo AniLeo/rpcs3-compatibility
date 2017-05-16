@@ -170,7 +170,7 @@ function getThread($text, $tid) {
 function getCommit($cid) {
 	global $c_github, $a_css, $c_unkcommit;
 	
-	if ($cid == "0") { return "<a class='{$a_css["NOBUILD"]}'><i>Unknown</i></div>"; }
+	if ($cid == "0") { return "<a class='{$a_css["NOBUILD"]}'><i>Unknown</i></a>"; }
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -189,7 +189,7 @@ function getCommit($cid) {
 	if ($row->valid == "1") {
 		return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
 	} else {
-		return "<a class='{$a_css["NOBUILD"]}'><i>{$cid}</i></div>";
+		return "<a class='{$a_css["NOBUILD"]}'><i>{$cid}</i></a>";
 	}
 }
 
@@ -851,7 +851,7 @@ function getStatusDescriptions($getCount = true) {
 	
 		$s_descontainer .= "<div id=\"compat-con-status\">
 		<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
-		<div id=\"compat-tx1-status\"><strong><p style='color:#{$a_color[$i]}'>{$a_title[$i]}";
+		<div id=\"compat-tx1-status\"><p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
 		if ($getCount) {
 			$percentage = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
 			$s_descontainer .= " ({$percentage}%)";
@@ -860,7 +860,7 @@ function getStatusDescriptions($getCount = true) {
 		
 		if ($getCount) {
 			$s_descontainer .= "<div id=\"compat-tx2-status\">
-			<progress class='compat-progress' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max='100' value='{$percentage}'></progress>
+			<progress class='compat-progress' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>
 			</div>";
 		}
 		
