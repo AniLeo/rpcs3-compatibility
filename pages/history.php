@@ -36,7 +36,7 @@ if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: i
 			</div> <!-- featured-wrp-block -->
 			
 			<div id='compat-con-container'>
-				<?php echo getStatusDescriptions(); ?>
+				<?php echo getStatusDescriptions(false); ?>
 			</div>
 		</div> <!-- featured-wrp-block -->
 		

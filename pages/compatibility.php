@@ -38,26 +38,28 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 			<!--End -->
 			<div id="compat-hdr-right">
 				<p>
-					Sort By - <?php echo getSortBy(); ?>
+					Sort By <?php echo getSortBy(); ?>
 				</p>
 			</div>
 			<div id="compat-hdr-left">
 				<p>
-					Results per page - <?php echo getResultsPerPage(); ?>
+					Results per page <?php echo getResultsPerPage(); ?>
 				</p>
 			</div>
 			<!--End -->
 			<div id="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>
 			</div>
+			<!-- 
 			<div style="background: url(https://rpcs3.net/compatbar); background-size: contain; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
 			</div>
+			-->
 			<!--End -->
 			<div id='compat-con-searchbox'>
 				<form method='get' id='game-search'>
 					<div id='searchbox'>
 						<?php 
-							echo '<input id="searchbox-field" name="g" type="text" value="';
+							echo '<input id="searchbox-field" style ="background-color: transparent;" name="g" type="text" value="';
 							if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	} 
 							echo '" placeholder="Game Title / Game ID" />'; 
 						?>

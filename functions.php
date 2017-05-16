@@ -841,14 +841,30 @@ function cacheInitials() {
 /***********************
  * Status descriptions *
  ***********************/
-function getStatusDescriptions() {
+function getStatusDescriptions($getCount = true) {
 	global $a_desc, $a_color, $a_title;
 	
+	// Get games count per status
+	$count = countGames();
+	
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
+	
 		$s_descontainer .= "<div id=\"compat-con-status\">
-								<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
-								<div id=\"compat-tx1-status\"><strong>{$a_title[$i]}:</strong> {$a_desc[$i]}</div>
-							</div>";
+		<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
+		<div id=\"compat-tx1-status\"><strong><p style='color:#{$a_color[$i]}'>{$a_title[$i]}";
+		if ($getCount) {
+			$percentage = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
+			$s_descontainer .= " ({$percentage}%)";
+		}
+		$s_descontainer .= ":</strong></p> {$a_desc[$i]}</div>";
+		
+		if ($getCount) {
+			$s_descontainer .= "<div id=\"compat-tx2-status\">
+			<progress class='compat-progress' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max='100' value='{$percentage}'></progress>
+			</div>";
+		}
+		
+		$s_descontainer .= "</div>";
 	}	
 	return $s_descontainer;
 }
