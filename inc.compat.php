@@ -205,7 +205,7 @@ function getResultsPerPage() {
  * Clickable URL: Character search *
  **********************************/
 function getCharSearch() {
-	global $a_css, $get;
+	global $get;
 
 	$a_chars[""] = "All";
 	$a_chars["09"] = "0-9";
@@ -219,7 +219,7 @@ function getCharSearch() {
 	$common .= combinedSearch(true, true, false, false, true, true, true, false);
 	
 	foreach ($a_chars as $key => $value) { 
-		$s_charsearch .= "{$common}c={$key}\"><div id=\"{$a_css["CHARACTER_SEARCH"]}\">"; 
+		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>"; 
 		if ($get['c'] == $key) { $s_charsearch .= highlightBold($value); }
 		else { $s_charsearch .= $value; }
 		$s_charsearch .= "</div></a></td>"; 

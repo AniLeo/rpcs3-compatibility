@@ -84,11 +84,11 @@ function builds_getTableContent() {
 			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
 	
 			$s_tablecontent .= "<tr>
-			<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15px' height='15px' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
+			<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15' height='15' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
 			<td><a href=\"https://github.com/{$row->author}\">{$row->author}</a></td>
 			<td>{$diffdate} ({$fulldate})</td>";
 			if ($row->appveyor != "0") { 
-				$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15px' height='15px' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$row->appveyor}</a></td>";
+				$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$row->appveyor}</a></td>";
 			} else {
 				$s_tablecontent .= "<td><i>None</i></td>";
 			}

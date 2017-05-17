@@ -28,8 +28,7 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   * getGameMedia
   *
   * Obtains Game Media by checking Game ID's first character. 
-  * Returns Game Media as an image with MEDIA_ICON CSS class,
-  *  empty string if Game Media is invalid.
+  * Returns Game Media as an image, empty string if Game Media is invalid.
   *
   * @param string $gid GameID: 9 character ID that identifies a game
   * @param bool   $url Whether to return Game Media as a clickable(1) or non-clickable(0) flag
@@ -37,7 +36,7 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   * @return string
   */
 function getGameMedia($gid, $url = true) {
-	global $a_media, $a_css, $get;
+	global $a_media, $get;
 	
 	$l = substr($gid, 0, 1);
 	
@@ -50,7 +49,7 @@ function getGameMedia($gid, $url = true) {
 	elseif ($l == "B")  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
 	elseif ($l == "X")  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
 	
-	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"{$a_css["MEDIA_ICON"]}\">";
+	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class='div-compat-fmat'>";
 	
 	// Allow for filter reseting by clicking the flag again
 	if ($get['t'] == strtolower($l) && $url) {
@@ -100,7 +99,7 @@ function getGameRegion($gid, $url = true) {
 		return "<a href=\"?f=".strtolower($l)."\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
-		return "<img src=\"$a_flags[$l]\">";
+		return "<img alt=\"{$l}\" src=\"$a_flags[$l]\">";
 	}
 }
 
@@ -168,9 +167,9 @@ function getThread($text, $tid) {
   * @return string
   */
 function getCommit($cid) {
-	global $c_github, $a_css, $c_unkcommit;
+	global $c_github, $c_unkcommit;
 	
-	if ($cid == "0") { return "<a class='{$a_css["NOBUILD"]}'><i>Unknown</i></a>"; }
+	if ($cid == "0") { return "<i>Unknown</i>"; }
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -187,9 +186,9 @@ function getCommit($cid) {
 	mysqli_close($db);
 	
 	if ($row->valid == "1") {
-		return "<a class='{$a_css["BUILD"]}' href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
+		return "<a href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
 	} else {
-		return "<a class='{$a_css["NOBUILD"]}'><i>{$cid}</i></a>";
+		return "<i>{$cid}</i>";
 	}
 }
 
@@ -206,10 +205,10 @@ function getCommit($cid) {
   * @return string
   */
 function getColoredStatus($sn) {
-	global $a_title, $a_color, $a_css;
+	global $a_title, $a_color;
 	
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $i) { 
-		if ($sn == $a_title[$i]) { return "<div class='{$a_css["STATUS"]}' style='background: #{$a_color[$i]};'>{$a_title[$i]}</div>"; }
+		if ($sn == $a_title[$i]) { return "<div class='txt-compat-status' style='background: #{$a_color[$i]};'>{$a_title[$i]}</div>"; }
 	}
 	
 	// This should be unreachable unless someone wrongly inputs status in the database
@@ -718,6 +717,29 @@ function getFooter($start) {
 }
 
 
+function getMenu($c, $h, $b, $a) {
+	$and = false;
+	if ($c) {
+		$menu .= "<a href='?'>Compatibility List</a>";
+		$and = true;
+	}
+	if ($h) {
+		if ($and) { $menu .= " • "; }
+		$menu .= "<a href='?h'>Compatibility List History</a>";
+		$and = true;
+	}
+	if ($b) {
+		if ($and) { $menu .= " • "; }
+		$menu .= "<a href='?b'>RPCS3 Builds History</a>";
+		$and = true;
+	}
+	if (isWhitelisted() && $a) {
+		if ($and) { $menu .= " • "; }
+		$menu .= "<a href='?a'>Debug Panel</a>";
+	}
+	return "<p id='title2'>{$menu}</p>";
+}
+
 // Get current page user is on
 function getCurrentPage($pages) {
 	if (isset($_GET['p'])) {
@@ -849,9 +871,10 @@ function getStatusDescriptions($getCount = true) {
 	
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
 	
-		$s_descontainer .= "<div id=\"compat-con-status\">
-		<div id=\"compat-ico-status\" style=\"background:#{$a_color[$i]}\"></div>
-		<div id=\"compat-tx1-status\"><p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
+		$s_descontainer .= "<div class='compat-status-main'>
+		<div class='compat-status-icon' style='background:#{$a_color[$i]}'></div>
+		<div class='compat-status-text'>
+		<p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
 		if ($getCount) {
 			$percentage = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
 			$s_descontainer .= " ({$percentage}%)";
@@ -859,8 +882,8 @@ function getStatusDescriptions($getCount = true) {
 		$s_descontainer .= ":</strong></p> {$a_desc[$i]}</div>";
 		
 		if ($getCount) {
-			$s_descontainer .= "<div id=\"compat-tx2-status\">
-			<progress class='compat-progress' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>
+			$s_descontainer .= "<div class='compat-status-progress'>
+			<progress class='compat-status-progressbar' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>
 			</div>";
 		}
 		

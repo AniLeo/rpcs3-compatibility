@@ -27,7 +27,7 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
 					<p id='title1'>RPCS3 Compatibility List</p>
-					<p id='title2'><a href="?h">Compatibility List History</a> • <a href="?b">RPCS3 Builds History</a></p>
+					<?php echo getMenu(false, true, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>

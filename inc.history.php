@@ -51,7 +51,7 @@ function getHistoryOptions() {
 		$s_historyoptions .= $m1;
 	}
 	
-	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
+	$s_historyoptions .= "&nbsp;&#8226;&nbsp;";
 	
 	if ($get['h2'] == "2017_03") { 
 		$s_historyoptions .= highlightBold($m2);
@@ -59,7 +59,7 @@ function getHistoryOptions() {
 		$s_historyoptions .= $m2;
 	}
 	
-	$s_historyoptions .= "&nbsp;&#8226;&nbsp";
+	$s_historyoptions .= "&nbsp;&#8226;&nbsp;";
 	
 	if ($get['h1'] == db_table) { 
 		$s_historyoptions .= highlightBold($m3);

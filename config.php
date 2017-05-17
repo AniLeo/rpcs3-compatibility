@@ -92,15 +92,6 @@ $a_media = array(
 "X" => '/img/icons/list/rom.png'
 );
 
-// CSS elements
-$a_css = array(
-"MEDIA_ICON" => 'div-compat-fmat',
-"CHARACTER_SEARCH" => 'compat-inr-search',
-"STATUS" => 'txt-compat-status',
-"BUILD" => '',  // Disabled 
-"NOBUILD" => '' // Disabled (style='background: #{$c_unkcommit};)
-);
-
 // Dates for history backups
 $a_histdates = array(
 	'2017_02' => '',

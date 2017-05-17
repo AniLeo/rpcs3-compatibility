@@ -27,7 +27,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 			<div id='featured-wrp-block'>
 			
 				<div id='featured-tx1-block' class="compat-title">
-					<h2>Debug mode</h2>
+					<p id='title1'>Debug Panel</p>
+					<?php echo getMenu(true, true, true, false); ?>
 				</div>
 			
 				<div id='featured-tx2-block' class="compat-desc">
@@ -37,14 +38,12 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 						<a href="?a=updateBuildCache">Update Build Cache</a>
 						&nbsp;•&nbsp;
 						<a href="?a=updateInitialsCache">Update Initials Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?">Back to Compatibility</a>
 					</p>
-					<br>
+					
 					<form action="?a=generatePassword" method="post">
 						<p style="font-size: 12px;">
 							<b>Generate secure password:</b>&nbsp;
-							<input style="background-color: #ecf0f1; color: #34495e; padding: 1px 2px 1px 2px; border-radius: 3px; font-size:12px;" type="password" name="pw" size="16" maxlength="32" />
+							<input style="background-color: #ecf0f1; color: #34495e; padding: 1px 2px 1px 2px; border-radius: 3px; font-size:10px;" type="password" name="pw" size="16" maxlength="32" />
 							<br>
 						</p>
 					</form>

@@ -29,7 +29,7 @@ if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: i
 			<div id='featured-wrp-block' style='padding-bottom:1px'>
 				<div id='featured-tx1-block' class='compat-title'>
 					<p id='title1'>RPCS3 Compatibility List History</p>
-					<p id='title2'><a href="?">Compatibility List</a> • <a href="?b">RPCS3 Builds History</a></p>
+					<?php echo getMenu(true, false, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class='compat-desc'>
 					<?php echo getHistoryOptions();	?>	
