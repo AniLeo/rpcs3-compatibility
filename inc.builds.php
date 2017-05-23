@@ -75,13 +75,29 @@ function builds_getTableContent() {
 	if ($buildsQuery && mysqli_num_rows($buildsQuery) > 0) {
 		while ($row = mysqli_fetch_object($buildsQuery)) { 
 		
-			$days = floor( (time() - strtotime($row->merge_datetime) ) / 86400 );			
-			if ($days == 0) {
-				$hours = floor( (time() - strtotime($row->merge_datetime) ) / 3600 );
-				$diffdate = $hours . " hours ago";
-			} elseif ($days == 1) { $diffdate = $days . " day ago"; } 
-			else {  $diffdate = $days . " days ago"; }
 			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
+			$diff = time() - strtotime($row->merge_datetime);
+			$days = floor($diff / 86400);	
+			
+			if ($days == 0) {
+				$hours = floor($diff / 3600);	
+				if ($hours == 0) { 
+					$minutes = floor($diff / 60);
+					if ($minutes == 1) { 
+						$diffdate = "{$minutes} minute ago";
+					} else {
+						$diffdate = "{$minutes} minutes ago";
+					}
+				} elseif ($hours == 1) { 
+					$diffdate = "{$hours} hour ago";
+				} else {
+					$diffdate = "{$hours} hours ago";
+				}
+			} elseif ($days == 1) { 
+				$diffdate = "{$days} day ago"; 
+			} else { 
+				$diffdate = "{$days} days ago"; 
+			}
 	
 			$s_tablecontent .= "<tr>
 			<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15' height='15' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
