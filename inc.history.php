@@ -29,85 +29,98 @@ $start = getTime();
 $get = obtainGet();
 
 
-function getHistoryOptions() {
+function getHistoryDescription() {
 	global $get, $a_histdates, $a_currenthist;
 	
+	$s_desc .= "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
+	
 	if ($get['h1'] == db_table) {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List since <b>{$a_currenthist[1]}</b>.</p>";
+		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
 	} else {
-		$s_historyoptions .= "<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List from <b>{$a_histdates[$get['h1']][0]}</b> to <b>{$a_histdates[$get['h1']][1]}</b>.</p>";
+		$s_desc .= "from <b>{$a_histdates[$get['h1']][0]}</b> to <b>{$a_histdates[$get['h1']][1]}</b>.";
 	}
 
+	return "<p id='compat-history-description'>{$s_desc}</p>";
+}
+
+
+function getHistoryMonths() {
+	global $get;
+	
 	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
 	$m2 = "<a href=\"?h=2017_04\">April 2017</a>";
 	$m3 = "<a href=\"?h\">May 2017</a>";
+	$spacer = "&nbsp;&#8226;&nbsp;";
 	
-	$s_historyoptions .= "<br><p style=\"font-size:13px\">
-	<strong>Month:&nbsp;</strong>";
+	$s_months .= "<strong>Month:&nbsp;</strong>";
 	
-	if ($get['h2'] == "2017_02") { 
-		$s_historyoptions .= highlightBold($m1);
-	} else {
-		$s_historyoptions .= $m1;
-	}
+	if ($get['h2'] == "2017_02") { $s_months .= highlightBold($m1); } 
+	else                         { $s_months .= $m1;}
+	$s_months .= $spacer;
 	
-	$s_historyoptions .= "&nbsp;&#8226;&nbsp;";
+	if ($get['h2'] == "2017_03") { $s_months .= highlightBold($m2); } 
+	else                         { $s_months .= $m2; }
+	$s_months .= $spacer;
 	
-	if ($get['h2'] == "2017_03") { 
-		$s_historyoptions .= highlightBold($m2);
-	} else {
-		$s_historyoptions .= $m2;
-	}
+	if ($get['h1'] == db_table)  { $s_months .= highlightBold($m3); } 
+	else                         { $s_months .= $m3; }	
 	
-	$s_historyoptions .= "&nbsp;&#8226;&nbsp;";
+	return "<p id='compat-history-months'>{$s_months}</p>";
+}
+
+
+function getHistoryOptions() {
+	global $get;
 	
-	if ($get['h1'] == db_table) { 
-		$s_historyoptions .= highlightBold($m3);
-	} else {
-		$s_historyoptions .= $m3;
-	}
-	
-	$s_historyoptions .= "<br>";
-	
-	if ($get['h1'] != "" && $get['h1'] != db_table) {
-		$h = "={$get['h1']}";
-	} else {
-		$h = "";
-	}
+	if ($get['h1'] != "" && $get['h1'] != db_table) { $h = "={$get['h1']}"; } 
+	else                                            { $h = ""; }
 	
 	$o1 = "<a href=\"?h{$h}\">Show all entries</a>";
 	$o2 = "<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>";
 	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
+	$spacer = "&nbsp;&#8226;&nbsp;";
 	
-	if ($get['m'] == "") { 
-		$s_historyoptions .= highlightBold($o1);
+	if ($get['m'] == "")  { $s_options .= highlightBold($o1); } 
+	else                  { $s_options .= $o1; }
+	$s_options .= " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
+	
+	if ($get['m'] == "c") { $s_options .= highlightBold($o2); } 
+	else                  { $s_options .= $o2; }
+	$s_options .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
+	
+	if ($get['m'] == "n") { $s_options .= highlightBold($o3); } 
+	else                  { $s_options .= $o3; }
+	$s_options .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
+	
+	return "<p id='compat-history-options'>{$s_options}</p>";
+}
+
+
+function getHistoryHeaders($full = true) {
+	if ($full) {
+		$headers = array(
+			'Game ID' => 0,
+			'Game Title' => 0,
+			'New Status' => 0,
+			'New Date' => 0,
+			'Old Status' => 0,
+			'Old Date' => 0
+		);
 	} else {
-		$s_historyoptions .= $o1;
+		$headers = array(
+			'Game ID' => 0,
+			'Game Title' => 0,
+			'Status' => 0,
+			'Date' => 0
+		);
 	}
-	$s_historyoptions .= " <a href=\"?h{$h}&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
 	
-	if ($get['m'] == "c") { 
-		$s_historyoptions .= highlightBold($o2);
-	} else {
-		$s_historyoptions .= $o2;
-	}
-	$s_historyoptions .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>&nbsp;&#8226;&nbsp;";
-	
-	if ($get['m'] == "n") { 
-		$s_historyoptions .= highlightBold($o3);
-	} else {
-		$s_historyoptions .= $o3;
-	}
-	$s_historyoptions .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
-	
-	$s_historyoptions .= "</p>";
-	
-	return $s_historyoptions;
+	return getTableHeaders($headers, 'h');
 }
 
 
 // Compatibility History: Pulls information from backup and compares with current database
-function getHistory(){
+function getHistoryContent() {
 	global $get; 
 	
 	// Establish MySQL connection to be used for history
@@ -124,22 +137,16 @@ function getHistory(){
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
 	
 		if (!$cQuery) { 
-			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($cQuery) == 0) {
-			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
-			echo "
-			<table class='compat-con-container'><tr>
-			<th>Game ID</th>
-			<th>Game Title</th>
-			<th>New Status</th>
-			<th>New Date</th>
-			<th>Old Status</th>
-			<th>Old Date</th>
-			</tr>";
 			
+			$s_content .= "<table class='compat-con-container'>";
+			$s_content .= getHistoryHeaders();
+
 			while($row = mysqli_fetch_object($cQuery)) {
-				echo "<tr>
+				$s_content .= "<tr>
 				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
 				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
@@ -148,7 +155,7 @@ function getHistory(){
 				<td>{$row->old_date}</td>
 				</tr>";	
 			}
-			echo "</table><br>";
+			$s_content .= "</table><br>";
 		}
 	}
 	
@@ -162,33 +169,31 @@ function getHistory(){
 		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
 		
 		if (!$nQuery) { 
-			echo "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($nQuery) == 0) {
-			echo "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
-			echo "
-			<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>
-			<table class='compat-con-container'><tr>
-			<th>Game ID</th>
-			<th>Game Title</th>
-			<th>Status</th>
-			<th>Date</th>
-			</tr>";
+			
+			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";
+			$s_content .= "<table class='compat-con-container'>";
+			$s_content .= getHistoryHeaders(false);
 			
 			while($row = mysqli_fetch_object($nQuery)) {
-				echo "<tr>
+				$s_content .= "<tr>
 				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
 				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
 				<td>{$row->new_date}</td>
 				</tr>";	
 			}
-			echo "</table><br>";
+			$s_content .= "</table><br>";
 		}
 	}
 	
 	// Close MySQL connection again since it won't be required
 	mysqli_close($db);
+	
+	return $s_content;
 }
 
 

@@ -32,7 +32,12 @@ if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: i
 					<?php echo getMenu(true, false, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class='compat-desc'>
-					<?php echo getHistoryOptions();	?>	
+					<?php echo getHistoryDescription(); ?>
+					<br>
+					<?php 
+						echo getHistoryMonths();
+						echo getHistoryOptions();	
+					?>	
 				</div>
 			</div> <!-- featured-wrp-block -->
 			
@@ -41,7 +46,7 @@ if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: i
 			</div>
 		</div> <!-- featured-wrp-block -->
 		
-		<?php echo getHistory(); ?>
+		<?php echo getHistoryContent(); ?>
 		
 		<div id='compat-con-author'>
 			<div id='compat-tx1-author'>
