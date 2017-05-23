@@ -21,6 +21,9 @@
 
 // Calls for the file that contains the functions needed
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+// Calls for the file that contains the cachers
+if (!@include_once("cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
+
 
 // Start: Microtime when page started loading
 $start = getTime();
