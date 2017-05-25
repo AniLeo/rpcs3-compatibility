@@ -63,34 +63,37 @@ function cacheCommits($mode) {
 }
 
 
-function cacheWindowsBuilds(){
+function cacheWindowsBuilds($full = false){
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
-	$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
-	$row = mysqli_fetch_object($mergeDateQuery);
-	
-	$merge_datetime = date_create($row->merge_datetime);
-	date_sub($merge_datetime, date_interval_create_from_date_string('1 day'));
-	$date = date_format($merge_datetime, 'Y-m-d');
-
 	// This takes a while to do...
 	set_time_limit(60*60);
 	
-	/*
-	Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
-	$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Acreated-asc%20merged%3A%3E{$date}");
-	$step_1 = explode("<span class=\"gap\">&hellip;</span>", $content);
-	$step_2 = explode("<a class=\"next_page\" rel=\"next\"" , $step_1[1]);
-	$step_3 = explode(">" , $step_2[0]);
-	$step_4 = explode("</a" , $step_3[3]);
-	$last_page = $step_4[0];
-	*/
+	if (!$full) {
+		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
+		$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+		$row = mysqli_fetch_object($mergeDateQuery);
+		
+		$merge_datetime = date_create($row->merge_datetime);
+		date_sub($merge_datetime, date_interval_create_from_date_string('1 day'));
+		$date = date_format($merge_datetime, 'Y-m-d');
+		$last_page = 1;
+	}	
+	
+	if ($full) {
+		// Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
+		$date = '2015-08-10';
+		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Acreated-asc%20merged%3A%3E{$date}");
+		$step_1 = explode("<span class=\"gap\">&hellip;</span>", $content);
+		$step_2 = explode("<a class=\"next_page\" rel=\"next\"" , $step_1[1]);
+		$step_3 = explode(">" , $step_2[0]);
+		$step_4 = explode("</a" , $step_3[3]);
+		$last_page = $step_4[0];
+	}
 
-	$last_page = 1;
 	$a_PR = array();
-
+	
 	// Loop through all pages and get PR information
 	for ($i=1; $i<=$last_page; $i++) {
 		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Acreated-asc+merged%3A%3E{$date}&utf8=%E2%9C%93");
@@ -127,11 +130,18 @@ function cacheWindowsBuilds(){
 					$merge_datetime = explode("\"", $e_datetime[1])[0];
 					$start_datetime = explode("\"", $e_datetime[2])[0];
 					
-					$e_appveyor = explode("<a class=\"status-actions\" href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/", $content2);
-					$build = explode("\"", $e_appveyor[1])[0];
-				
-					$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
-					VALUES ('{$pr}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+					// TODO: Handle false positives from where people comment links
+					// <a href="https://ci.appveyor.com/project/rpcs3/rpcs3/build/ID" class="ml-2">Details</a>
+					$e_appveyor = explode("<a href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/", $content2);
+					$build = explode("\" class=\"ml-2\">", $e_appveyor[1])[0];
+					
+					// Only caches if the post-merge build has been successefully built.
+					if (!empty($build)) {
+						$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
+						VALUES ('{$pr}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+					}
+
+					
 				}
 				$a++;
 			}
