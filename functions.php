@@ -726,4 +726,30 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	
 	return $combined;
 }
+
+
+function getLatestWindowsBuild() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+	$row = mysqli_fetch_object($query);
+
+	mysqli_close($db);
+	
+	return array($row->appveyor, date_format(date_create($row->merge_datetime), "Y-m-d"));
+}
+
+
+function getLatestLinuxBuild() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$query = mysqli_query($db, "SELECT * FROM builds_linux ORDER BY datetime DESC LIMIT 1;");
+	$row = mysqli_fetch_object($query);
+
+	mysqli_close($db);
+	
+	return array($row->buildname, date_format(date_create($row->datetime), "Y-m-d"));
+}
 ?>

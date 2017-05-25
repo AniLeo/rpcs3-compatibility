@@ -67,6 +67,20 @@
 	background:#5e32eb;
 }
 
+/* History */
+#compat-history-description { 
+	font-family: arial;
+	font-size: 14px;
+}
+#compat-history-months { 
+	font-family: arial;
+	font-size: 13px;
+}
+#compat-history-options {
+	font-family: arial;
+	font-size: 13px;
+}
+
 /*--------------------------------------------------------------------------------------------------------------------------------------
   TODO: Clean below 
   --------------------------------------------------------------------------------------------------------------------------------------*/
