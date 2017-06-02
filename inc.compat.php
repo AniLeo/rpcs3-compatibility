@@ -21,6 +21,8 @@
 
 // Calls for the file that contains the functions needed
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once("cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
+
 
 // Start: Microtime when page started loading
 $start = getTime();
@@ -117,14 +119,14 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 				}
 			}
 			
+			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
+			
 			// Re-run the main query
 			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
-					FROM ".db_table." WHERE game_title = '".mysqli_real_escape_string($db, $l_title)."' 
+					FROM ".db_table." WHERE {$genquery} 
 					{$a_order[$get['o']]} 
 					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
-			
-			$genquery = " game_title = '".mysqli_real_escape_string($db, $l_title)."' ";
 			
 			// Recalculate Pages / CurrentPage
 			$pages = countPages($get, $genquery, 0);

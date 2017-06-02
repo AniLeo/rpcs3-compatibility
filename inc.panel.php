@@ -58,6 +58,13 @@ if ($get['a'] == 'updateInitialsCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on initials cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateLibraryCache') { 
+	$startA = getTime();
+	cacheLibraryStatistics();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on library cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 
 	$startA = getTime();
 	$cost = 13;

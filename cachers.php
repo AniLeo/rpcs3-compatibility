@@ -242,4 +242,67 @@ function cacheInitials() {
 	mysqli_close($db);
 }
 
+
+function cacheLibraryStatistics() {
+	
+	$a_filter = array(
+	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
+	);
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	// Get all games in the database (ID + Title)
+	$a_games = array();
+	$query = mysqli_query($db, "SELECT * FROM rpcs3; ");
+	
+	while($row = mysqli_fetch_object($query)) {
+		$a_games[$row->game_id] = $row->game_title;
+	}
+	
+	mysqli_close($db);
+
+	$handle = fopen(__DIR__."/ps3tdb.txt", "r");
+
+	$tested = 0;
+	$untested = 0;
+	
+	if ($handle) {
+		
+		while (($line = fgets($handle)) !== false) {
+			
+			$type = mb_substr($line, 0, 4);
+			
+			if (in_array($type, $a_filter)) {
+				
+				$gameID = mb_substr($line, 0, 9);
+				//$gameTitle = mb_substr($line, 11);
+				
+				if (array_key_exists($gameID, $a_games)) {
+					$tested++;
+				} else {
+					$untested++;
+				}
+			}
+		}
+			
+		unlink(__DIR__."/tested.txt");
+		$handle2 = fopen(__DIR__."/tested.txt", 'w');
+		fwrite($handle2, $tested);
+		fclose($handle2);
+		
+		unlink(__DIR__."/untested.txt");
+		$handle2 = fopen(__DIR__."/untested.txt", 'w');
+		fwrite($handle2, $untested);
+		fclose($handle2);
+		
+		fclose($handle);
+		
+	} else {
+		//echo "Error opening ps3tdb.txt";
+	}
+	
+	
+}
+
 ?>

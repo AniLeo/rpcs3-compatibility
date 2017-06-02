@@ -39,12 +39,21 @@ $c_maintenance = false; // Maintenance Mode
 $c_unkcommit = 'ffd700';
 
 // Results per page
-$a_pageresults = array(
-1 => 15,
-2 => 25,
-3 => 50,
-4 => 100
-);
+if (isset($_GET['l'])) {
+	$a_pageresults = array(
+	1 => 25,
+	2 => 50,
+	3 => 100,
+	4 => 250
+	);
+} else {
+	$a_pageresults = array(
+	1 => 15,
+	2 => 25,
+	3 => 50,
+	4 => 100
+	);
+}
 
 // Status titles 
 $a_title = array(

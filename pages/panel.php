@@ -28,7 +28,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 			
 				<div id='featured-tx1-block' class="compat-title">
 					<p id='title1'>Debug Panel</p>
-					<?php echo getMenu(true, true, true, false); ?>
+					<?php echo getMenu(true, true, true, true, false); ?>
 				</div>
 			
 				<div id='featured-tx2-block' class="compat-desc">
@@ -38,6 +38,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 						<a href="?a=updateBuildCache">Update Build Cache</a>
 						&nbsp;•&nbsp;
 						<a href="?a=updateInitialsCache">Update Initials Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateLibraryCache">Update Library Cache</a>
 					</p>
 					
 					<form action="?a=generatePassword" method="post">
@@ -59,6 +61,14 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 		</div>
 		
 		<?php if (isset($message)) { echo $message; } ?>
+
+		<div id='compat-con-author'>
+			<div id='compat-tx1-author'>
+				<p>
+					<?php echo getFooter($start); ?>
+				</p>
+			</div>
+		</div>
 		
 	</div>
 </div>

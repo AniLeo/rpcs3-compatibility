@@ -32,10 +32,11 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   *
   * @param string $gid GameID: 9 character ID that identifies a game
   * @param bool   $url Whether to return Game Media as a clickable(1) or non-clickable(0) flag
+  * @param top    $top Workaround for CSS
   *
   * @return string
   */
-function getGameMedia($gid, $url = true) {
+function getGameMedia($gid, $url = true, $top = "3px", $extra = '') {
 	global $a_media, $get;
 	
 	$l = substr($gid, 0, 1);
@@ -49,16 +50,20 @@ function getGameMedia($gid, $url = true) {
 	elseif ($l == "B")  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
 	elseif ($l == "X")  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
 	
-	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class='div-compat-fmat'>";
+	$img = "<img style='top:{$top}' alt=\"{$alt}\" src=\"{$a_media[$l]}\" class='div-compat-fmat'>";
+	
+	if ($extra != '') {
+		$ex = substr($extra, 0, 1);
+	} else { $ex = ''; }
 	
 	// Allow for filter reseting by clicking the flag again
 	if ($get['t'] == strtolower($l) && $url) {
-		return "<a href=\"?\">{$img}</a>";
+		return "<a href=\"?{$ex}\">{$img}</a>";
 	}
 	
 	if ($url) {
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?t=".strtolower($l)."\">{$img}</a>";
+		return "<a href=\"?{$extra}t=".strtolower($l)."\">{$img}</a>";
 	} else {
 		// Returns unclickable flag
 		return $img;
@@ -79,7 +84,7 @@ function getGameMedia($gid, $url = true) {
   *
   * @return string
   */
-function getGameRegion($gid, $url = true) {
+function getGameRegion($gid, $url = true, $extra = '') {
 	global $a_flags, $get;
 	
 	$l = substr($gid, 2, 1);
@@ -89,14 +94,18 @@ function getGameRegion($gid, $url = true) {
 		return "";
 	}
 	
+	if ($extra != '') {
+		$ex = substr($extra, 0, 1);
+	} else { $ex = ''; }
+	
 	// Allow for filter reseting by clicking the flag again
 	if ($get['f'] == strtolower($l) && $url) {
-		return "<a href=\"?\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$ex}\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
 	
 	if ($url) {
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?f=".strtolower($l)."\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
 		return "<img alt=\"{$l}\" src=\"$a_flags[$l]\">";
@@ -290,6 +299,11 @@ function obtainGet() {
 	$get['h1'] = db_table;
 	$get['h2'] = '2017_04'; 
 	$get['m'] = ''; 
+	
+	// PS3 Games List
+	if (isset($_GET['l'])) {
+		$get['l'] = $_GET['l'];
+	}
 	
 	// Results per page
 	if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
@@ -596,7 +610,7 @@ function getFooter($start) {
 }
 
 
-function getMenu($c, $h, $b, $a) {
+function getMenu($c, $h, $b, $l, $a) {
 	$and = false;
 	if ($c) {
 		$menu .= "<a href='?'>Compatibility List</a>";
@@ -610,6 +624,11 @@ function getMenu($c, $h, $b, $a) {
 	if ($b) {
 		if ($and) { $menu .= " • "; }
 		$menu .= "<a href='?b'>RPCS3 Builds History</a>";
+		$and = true;
+	}
+	if ($l) {
+		if ($and) { $menu .= " • "; }
+		$menu .= "<a href='?l'>PS3 Game Library</a>";
 		$and = true;
 	}
 	if (isWhitelisted() && $a) {

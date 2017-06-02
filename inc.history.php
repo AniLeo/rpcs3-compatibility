@@ -142,7 +142,7 @@ function getHistoryContent() {
 			$s_content .= "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
 		} else {
 			
-			$s_content .= "<table class='compat-con-container'>";
+			$s_content .= "<table class='compat-hist-container'>";
 			$s_content .= getHistoryHeaders();
 
 			while($row = mysqli_fetch_object($cQuery)) {
@@ -175,7 +175,7 @@ function getHistoryContent() {
 		} else {
 			
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";
-			$s_content .= "<table class='compat-con-container'>";
+			$s_content .= "<table class='compat-hist-container'>";
 			$s_content .= getHistoryHeaders(false);
 			
 			while($row = mysqli_fetch_object($nQuery)) {
