@@ -62,13 +62,7 @@ if(!@include_once(__DIR__.'/../inc.builds.php')) throw new Exception("Compat: in
 			</p>
 		</div>
 		
-		<div id="compat-con-author">
-			<div id="compat-tx1-author">
-				<p>
-					<?php echo getFooter($start); ?>
-				</p>
-			</div>
-		</div>
+		<?php echo getFooter($start); ?>
 		<!--End -->
 	</div>
 </div>

@@ -62,13 +62,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 		
 		<?php if (isset($message)) { echo $message; } ?>
 
-		<div id='compat-con-author'>
-			<div id='compat-tx1-author'>
-				<p>
-					<?php echo getFooter($start); ?>
-				</p>
-			</div>
-		</div>
+		<?php echo getFooter($start); ?>
 		
 	</div>
 </div>

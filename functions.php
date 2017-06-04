@@ -604,9 +604,11 @@ function getFooter($start) {
 	$finish = getTime();
 	$total_time = round(($finish - $start), 4);
 	
-	return "Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
+	return "<div id=\"compat-author\"><p>
+	Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
-	Page loaded in {$total_time} seconds";
+	Page loaded in {$total_time} seconds
+	</p></div>";
 }
 
 
