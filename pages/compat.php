@@ -51,10 +51,6 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 			<div class="compat-con-container">
 				<?php echo getStatusDescriptions(); ?>
 			</div>
-			<!-- 
-			<div style="background: url(https://rpcs3.net/compatbar); background-size: contain; height:30px; background-repeat: no-repeat; background-position: center; padding-top:4px; border-top: 1px solid rgba(0,0,0,.05);">
-			</div>
-			-->
 			<!--End -->
 			<div id='compat-con-searchbox'>
 				<form method='get' id='game-search'>
@@ -65,8 +61,8 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 							echo '" placeholder="Game Title / Game ID" />'; 
 						?>
 					</div>
-					<div id='submit'>
-						<button type='submit' form='game-search' class='div-button'></button>
+					<div id='compat-searchbox-div'>
+						<button id='compat-searchbox-button' type='submit' form='game-search'></button>
 					</div>
 				</form>
 			</div>
