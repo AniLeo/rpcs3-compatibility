@@ -183,11 +183,11 @@
 .compat-tested-table td {
 	line-height:28px;
 	height: 28px;
-	padding-left: 5%;
+	padding-left: 4%;
 	/*border-bottom: 1px solid white;*/
 }
 .compat-tested-table th {
-	padding-left: 5%;
+	padding-left: 4%;
 }
 
 

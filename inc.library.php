@@ -20,15 +20,16 @@
 */
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
-// TODO: Cleanup
 
 if (in_array($get['r'], $a_pageresults)) {
 	if ($get['r'] == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
 	else { $g_pageresults = "r={$get['rID']}&"; }
 }
 
-// Count number of entries for page calculation
-$entries = 0;
+
+// Count number of entries for page calculation and cache results on array
+$entries = 1;
+$a_db = array();
 $handle = fopen(__DIR__."/ps3tdb.txt", "r");
 	while (!feof($handle)) {
 		$line = fgets($handle);
@@ -44,6 +45,7 @@ $handle = fopen(__DIR__."/ps3tdb.txt", "r");
 			} 
 			
 			if ($valid) {
+				$a_db[$entries] = array(mb_substr($line, 0, 9) => mb_substr($line, 12));
 				$entries++;
 			}
 			
@@ -75,12 +77,12 @@ function getResultsPerPage() {
 
 
 function getTestedContents() {
-	global $get, $pages, $currentPage, $a_filter;
+	global $get, $pages, $currentPage, $a_filter, $a_db;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 
-
+	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
 	$query = mysqli_query($db, "SELECT * FROM rpcs3; ");
@@ -92,64 +94,37 @@ function getTestedContents() {
 	}
 	
 	mysqli_close($db);
-
-	$handle = fopen(__DIR__."/ps3tdb.txt", "r");
-
-	if ($handle) {
-		
-		$i = 1;
-		
-		while (($line = fgets($handle)) !== false) {
-			
-			$type = mb_substr($line, 0, 4);
-			
-			if (in_array($type, $a_filter)) {
-
-				$valid = true;
-				
-				if ($get['f'] != '') {
-					if (strtolower(substr($type, 2, 1)) != $get['f']) { $valid = false; } 
-				}
-				if ($get['t'] != '') {
-					if (strtolower(substr($type, 0, 1)) != $get['t']) { $valid = false; }
-				}
-					
-				if ($valid) {
-					if ( ($i >= ($get['r']*$currentPage-$get['r']+1) && $i <= $get['r']*$currentPage ) ) {
-						
-						$gameID = mb_substr($line, 0, 9);
-						$gameTitle = mb_substr($line, 12);
-						
-						if (!array_key_exists($gameID, $a_games)) {
-							// background-color:rgba(231, 76, 60, 0.1);
-							echo "<tr style=''>
-							<td style='color:#e74c3c;'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a></td>
-							<td style='color:#e74c3c'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a></td>
-							<td style='color:#e74c3c;'>Untested</td>
-							</tr>";
-						} else {
-							if (time() - strtotime($a_tested[$gameID]) > 60*60*24*30*6) {
-								$color = '#f39c12';
-							} else {
-								$color = '#27ae60';
-							}
-							// background-color:rgba(46, 204, 113, 0.1);
-							echo "<tr style=''>
-							<td style='color:{$color};'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;".getThread($gameID, $a_threads[$gameID])."</td>
-							<td style='color:{$color}'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;".getThread($a_games[$gameID], $a_threads[$gameID])."</td>
-							<td style='color:{$color};'>{$a_tested[$gameID]}</a>&nbsp;&nbsp;&nbsp;(".getCommit($a_commit[$gameID]).")</td>
-							</tr>";
-						}
-					}
-				++$i;
-				}
-			}
-		}
-		
-		fclose($handle);
-		
+	
+	
+	$start = $get['r']*$currentPage-$get['r']+1;
+	if ($pages == $currentPage) {
+		$end = max(array_keys($a_db));
 	} else {
-		echo "Error opening ps3tdb.txt";
+		$end = $get['r']*$currentPage;
+	}
+	
+	foreach (range($start, $end) as $i) { 
+		$gameID = key($a_db[$i]);
+		$gameTitle = $a_db[$i][$gameID];
+		
+		if (!array_key_exists($gameID, $a_games)) {
+			echo "<tr>
+			<td style='color:#e74c3c;'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a></td>
+			<td style='color:#e74c3c'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a></td>
+			<td style='color:#e74c3c;'>Untested</td>
+			</tr>";
+		} else {
+			if (time() - strtotime($a_tested[$gameID]) > 60*60*24*30*6) {
+				$color = '#f39c12';
+			} else {
+				$color = '#27ae60';
+			}
+			echo "<tr style=''>
+			<td style='color:{$color};'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;".getThread($gameID, $a_threads[$gameID])."</td>
+			<td style='color:{$color}'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;".getThread($a_games[$gameID], $a_threads[$gameID])."</td>
+			<td style='color:{$color};'>{$a_tested[$gameID]}</a>&nbsp;&nbsp;&nbsp;(".getCommit($a_commit[$gameID]).")</td>
+			</tr>";
+		}
 	}
 
 }
