@@ -297,7 +297,7 @@ function obtainGet() {
 	$get['t'] = '';
 	$get['h'] = '';
 	$get['h1'] = db_table;
-	$get['h2'] = '2017_04'; 
+	$get['h2'] = end((array_keys($a_histdates))); 
 	$get['m'] = ''; 
 	
 	// PS3 Games List

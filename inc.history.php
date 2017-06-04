@@ -49,7 +49,8 @@ function getHistoryMonths() {
 	
 	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
 	$m2 = "<a href=\"?h=2017_04\">April 2017</a>";
-	$m3 = "<a href=\"?h\">May 2017</a>";
+	$m3 = "<a href=\"?h=2017_05\">May 2017</a>";
+	$m = "<a href=\"?h\">June 2017</a>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 	
 	$s_months .= "<strong>Month:&nbsp;</strong>";
@@ -62,8 +63,12 @@ function getHistoryMonths() {
 	else                         { $s_months .= $m2; }
 	$s_months .= $spacer;
 	
-	if ($get['h1'] == db_table)  { $s_months .= highlightBold($m3); } 
-	else                         { $s_months .= $m3; }	
+	if ($get['h2'] == "2017_04") { $s_months .= highlightBold($m3); } 
+	else                         { $s_months .= $m3; }
+	$s_months .= $spacer;
+	
+	if ($get['h1'] == db_table)  { $s_months .= highlightBold($m); } 
+	else                         { $s_months .= $m; }	
 	
 	return "<p id='compat-history-months'>{$s_months}</p>";
 }
@@ -139,7 +144,7 @@ function getHistoryContent() {
 		if (!$cQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($cQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No updates to previously existent entries were reported yet.</p>";
 		} else {
 			
 			$s_content .= "<table class='compat-hist-container'>";
@@ -171,7 +176,7 @@ function getHistoryContent() {
 		if (!$nQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($nQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No results found for the selected criteria.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No newer entries were reported yet.</p>";
 		} else {
 			
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";

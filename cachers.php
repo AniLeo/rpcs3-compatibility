@@ -41,21 +41,22 @@ function cacheCommits($mode) {
 
 	while($row = mysqli_fetch_object($commitQuery)) {
 		
-		$checkQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $row->build_commit)."' LIMIT 1; ");
+		$cid = mysqli_real_escape_string($db, $row->build_commit);
+		$checkQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '{$cid}' LIMIT 1; ");
 		$row2 = mysqli_fetch_object($checkQuery);
 		
 		// Partial recache: If value isn't cached, then cache it 
 		if (mysqli_num_rows($checkQuery) === 0) {
-			if (isValidCommit($row->build_commit)) { $valid = 1; } else { $valid = 0; }
-			mysqli_query($db, "INSERT INTO commit_cache (commit_id, valid) VALUES ('".mysqli_real_escape_string($db, $row->build_commit)."', '{$valid}'); ");
+			$valid = isValidCommit($row->build_commit) ? 1 : 0;
+			mysqli_query($db, "INSERT INTO commit_cache (commit_id, valid) VALUES ('{$cid}', '{$valid}'); ");
 		} 
 		
 		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
 		elseif ($mode) {
-			if (isValidCommit($row->build_commit)) { $valid = 1; } else { $valid = 0; }
+			$valid = isValidCommit($row->build_commit) ? 1 : 0;
 			// If value is cached but differs on validation, update it	
 			if ($row2->valid != $valid) {
-				mysqli_query($db, "UPDATE commit_cache SET valid = '{$valid}' WHERE commit_id = '".mysqli_real_escape_string($db, $row->build_commit)."' LIMIT 1; ");
+				mysqli_query($db, "UPDATE commit_cache SET valid = '{$valid}' WHERE commit_id = '{$cid}' LIMIT 1; ");
 			}
 		}
 	}
@@ -244,10 +245,7 @@ function cacheInitials() {
 
 
 function cacheLibraryStatistics() {
-	
-	$a_filter = array(
-	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
-	);
+	global $a_filter;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');

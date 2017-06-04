@@ -27,11 +27,6 @@ if (in_array($get['r'], $a_pageresults)) {
 	else { $g_pageresults = "r={$get['rID']}&"; }
 }
 
-// Allowed GameIDs (Commercial titles only)
-$a_filter = array(
-	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
-);
-
 // Count number of entries for page calculation
 $entries = 0;
 $handle = fopen(__DIR__."/ps3tdb.txt", "r");

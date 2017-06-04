@@ -101,14 +101,19 @@ $a_media = array(
 "X" => '/img/icons/list/rom.png'
 );
 
+// Game ID filters for library page
+$a_filter = array(
+	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
+);
+
 // Dates for history backups
 $a_histdates = array(
 	'2017_02' => '',
 	'2017_03' => array('March 1st, 2017', 'March 29th, 2017'),
 	'2017_04' => array('March 30th, 2017', 'April 30th, 2017'),
+	'2017_05' => array('May 1st, 2017', 'May 31st, 2017'),
 );
 
 // Current month
-$a_currenthist = array('2017_05', 'May 1st, 2017');
-
+$a_currenthist = array('2017_06', 'June 1st, 2017');
 ?>
