@@ -773,4 +773,16 @@ function getLatestLinuxBuild() {
 	
 	return array($row->buildname, date_format(date_create($row->datetime), "Y-m-d"));
 }
+
+
+function isValidThread($tid) {
+	@file_get_contents("http://www.emunewz.net/forum/archive/index.php?thread-{$tid}.html");
+
+	// HTTP/1.1 404 Not Found - Invalid commit
+	if (strpos($http_response_header[0], '404') !== false)     { return 0; } 
+	// HTTP/1.1 200 OK - Commit found
+	elseif (strpos($http_response_header[0], '200') !== false) { return 1; } 
+	
+	return 2; // Fallback for other error codes
+}
 ?>

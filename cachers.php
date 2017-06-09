@@ -47,18 +47,54 @@ function cacheCommits($mode) {
 		
 		// Partial recache: If value isn't cached, then cache it 
 		if (mysqli_num_rows($checkQuery) === 0) {
-			$valid = isValidCommit($row->build_commit) ? 1 : 0;
+			$valid = isValidCommit($row->build_commit);
 			mysqli_query($db, "INSERT INTO commit_cache (commit_id, valid) VALUES ('{$cid}', '{$valid}'); ");
 		} 
 		
 		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
 		elseif ($mode) {
-			$valid = isValidCommit($row->build_commit) ? 1 : 0;
+			$valid = isValidCommit($row->build_commit);
 			// If value is cached but differs on validation, update it	
 			if ($row2->valid != $valid) {
 				mysqli_query($db, "UPDATE commit_cache SET valid = '{$valid}' WHERE commit_id = '{$cid}' LIMIT 1; ");
 			}
 		}
+	}
+	mysqli_close($db);
+}
+
+
+function cacheThreadValidity($mode) {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$threadQuery = mysqli_query($db, "SELECT t1.thread_id, t2.tid, t2.valid 
+	FROM ".db_table." AS t1 
+	LEFT JOIN cache_threads AS t2 
+	ON t1.thread_id = t2.tid
+	WHERE valid != 1;");
+	
+	while ($row = mysqli_fetch_object($threadQuery)) {
+		
+		$tid = mysqli_real_escape_string($db, $row->thread_id);
+		$checkQuery = mysqli_query($db, "SELECT * FROM cache_threads WHERE tid = '{$tid}' LIMIT 1; ");
+		$row2 = mysqli_fetch_object($checkQuery);
+		
+		// Partial recache: If value isn't cached, then cache it 
+		if (mysqli_num_rows($checkQuery) === 0) {
+			$valid = isValidThread($tid);
+			mysqli_query($db, "INSERT INTO cache_threads (tid, valid) VALUES ('{$tid}', '{$valid}'); ");
+		}
+		
+		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
+		elseif ($mode) {
+			$valid = isValidThread($tid);
+			// If value is cached but differs on validation, update it	
+			if ($row2->valid != $valid) {
+				mysqli_query($db, "UPDATE cache_threads SET valid = '{$valid}' WHERE tid = '{$tid}' LIMIT 1; ");
+			}
+		}
+	
 	}
 	mysqli_close($db);
 }

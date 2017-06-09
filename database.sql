@@ -53,3 +53,13 @@ CREATE TABLE `ip_whitelist` (
   `uid` int(11) NOT NULL,
   `ip` varchar(255) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for cache_threads
+-- ----------------------------
+DROP TABLE IF EXISTS `cache_threads`;
+CREATE TABLE `cache_threads` (
+  `tid` int(11) NOT NULL,
+  `valid` int(11) NOT NULL,
+  PRIMARY KEY (`tid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

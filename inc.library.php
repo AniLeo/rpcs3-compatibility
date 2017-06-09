@@ -31,27 +31,27 @@ if (in_array($get['r'], $a_pageresults)) {
 $entries = 1;
 $a_db = array();
 $handle = fopen(__DIR__."/ps3tdb.txt", "r");
-	while (!feof($handle)) {
-		$line = fgets($handle);
-		if (in_array(mb_substr($line, 0, 4), $a_filter)) {	
-			
-			$valid = true;
-			
-			if ($get['f'] != '') {
-				if (strtolower(substr($line, 2, 1)) != $get['f']) { $valid = false; } 
-			}
-			if ($get['t'] != '') {
-				if (strtolower(substr($line, 0, 1)) != $get['t']) { $valid = false; }
-			} 
-			
-			if ($valid) {
-				$a_db[$entries] = array(mb_substr($line, 0, 9) => mb_substr($line, 12));
-				$entries++;
-			}
-			
-		}
+while (!feof($handle)) {
+	$line = fgets($handle);
+	if (in_array(mb_substr($line, 0, 4), $a_filter)) {	
 		
+		$valid = true;
+		
+		if ($get['f'] != '') {
+			if (strtolower(substr($line, 2, 1)) != $get['f']) { $valid = false; } 
+		}
+		if ($get['t'] != '') {
+			if (strtolower(substr($line, 0, 1)) != $get['t']) { $valid = false; }
+		} 
+		
+		if ($valid) {
+			$a_db[$entries] = array(mb_substr($line, 0, 9) => mb_substr($line, 12));
+			$entries++;
+		}
+	
 	}
+
+}
 fclose($handle);
 $pages = ceil($entries / $get['r']);
 $currentPage = getCurrentPage($pages);

@@ -104,6 +104,31 @@
 	text-decoration:underline;
 }
 
+/* Debug: Thread Validity Checker */
+.compat-tvalidity-title {
+	font-size: 13px; 
+	font-family: tahoma; 
+	padding-top:15px;
+}
+.color-red {
+	color: #e74c3c; 
+}
+.color-green {
+	color: #2ecc71;
+}
+.compat-tvalidity-list {
+	font-size: 12px; 
+	font-family: tahoma; 
+	color: #e74c3c;
+}
+.compat-debugpw {
+	background-color: #ecf0f1; 
+	color: #34495e;	
+	padding: 1px 2px 1px 2px; 
+	border-radius: 3px; 
+	font-size:10px;
+}
+
 /*--------------------------------------------------------------------------------------------------------------------------------------
   TODO: Clean below 
   --------------------------------------------------------------------------------------------------------------------------------------*/

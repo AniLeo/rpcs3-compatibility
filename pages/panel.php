@@ -40,15 +40,19 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 						<a href="?a=updateInitialsCache">Update Initials Cache</a>
 						&nbsp;•&nbsp;
 						<a href="?a=updateLibraryCache">Update Library Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateThreadsCache">Update Threads Cache</a>
 					</p>
 					
 					<form action="?a=generatePassword" method="post">
 						<p style="font-size: 12px;">
 							<b>Generate secure password:</b>&nbsp;
-							<input style="background-color: #ecf0f1; color: #34495e; padding: 1px 2px 1px 2px; border-radius: 3px; font-size:10px;" type="password" name="pw" size="16" maxlength="32" />
+							<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
 							<br>
 						</p>
 					</form>
+					
+					<?php checkInvalidThreads(); ?>
 				</div>
 				
 			</div>

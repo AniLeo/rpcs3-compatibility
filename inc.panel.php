@@ -65,6 +65,13 @@ if ($get['a'] == 'updateLibraryCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on library cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateThreadsCache') { 
+	$startA = getTime();
+	cacheThreadValidity();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on threads cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 
 	$startA = getTime();
 	$cost = 13;
@@ -75,4 +82,27 @@ if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Hashed and salted secure password generated with {$iterations} iterations (".round(($finishA - $startA), 4)."s).<br><b>Password:</b> {$pass}<br><b>Salt:</b> {$salt}</p>";
 }
 
+
+function checkInvalidThreads() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+
+	$q_invalidThreads = mysqli_query($db, "SELECT t1.game_id, t1.game_title, t1.thread_id, t2.valid FROM rpcs3 
+	AS t1 LEFT JOIN cache_threads AS t2 
+	ON t1.thread_id = t2.tid WHERE valid != 1; ");
+
+	if (mysqli_num_rows($q_invalidThreads) > 0) {
+		echo "<p class='compat-tvalidity-title color-red'><b>Attention required! Invalid threads detected.</b></p>";
+		
+		echo "<p class='compat-tvalidity-list'>";
+		while ($row = mysqli_fetch_object($q_invalidThreads)) {
+			echo "Thread {$row->thread_id} doesn't exist ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+		}
+		echo "</p>";
+	} else {
+		echo "<p class='compat-tvalidity-title color-green'><b>Naisu! No invalid threads detected.</b></p>";
+	}
+
+	mysqli_close($db);
+}
 ?>
