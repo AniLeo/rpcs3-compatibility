@@ -187,12 +187,12 @@ function getCommit($cid) {
 	if (mysqli_num_rows($commitQuery) === 0) {
 		// Commit not in cache! Run recacher.
 		cacheCommits(false);
+		$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
 	}
-	
-	$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-	$row = mysqli_fetch_object($commitQuery);	
-	
+
 	mysqli_close($db);
+	
+	$row = mysqli_fetch_object($commitQuery);	
 	
 	if ($row->valid == "1") {
 		return "<a href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
