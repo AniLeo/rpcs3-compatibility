@@ -23,6 +23,7 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 <div id="page-con-container">
 	<div id="page-in-container">
 		<!--End -->
+		<?php prof_flag("Page: featured-con-block"); ?>
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
@@ -74,14 +75,23 @@ if (!@include_once(__DIR__.'/../inc.compat.php')) throw new Exception("Compat: i
 		</div>
 		
 		<table class='compat-con-container'>
-			<?php if ($scount[$get['s']] > 0) { echo compat_getTableHeaders(); } echo getTableContent(); ?>
+			<?php 
+				if ($scount[$get['s']] > 0) { 
+					prof_flag("Page: Display Table Headers");
+					echo compat_getTableHeaders(); 
+				} 
+				prof_flag("Page: Display Table Content");
+				echo getTableContent(); 
+			?>
 		</table>
 		<!--End -->
+		<?php prof_flag("Page: Pages Counter"); ?>
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
 				<?php echo compat_getPagesCounter(); ?>
 			</p>
 		</div>
+		<?php prof_flag("End"); ?>
 		<?php echo getFooter($start); ?>
 		<!--End -->
 	</div>

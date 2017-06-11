@@ -27,6 +27,11 @@ if (!@include_once("cachers.php")) throw new Exception("Compat: cachers.php is m
 // Start: Microtime when page started loading
 $start = getTime();
 
+// Profiler
+$prof_timing = array();
+$prof_names = array();
+$prof_desc = "Debug mode: Profiling compat";
+
 // Order queries
 $a_order = array(
 '' => 'ORDER BY status ASC, game_title ASC',
@@ -40,25 +45,39 @@ $a_order = array(
 '4d' => 'ORDER BY last_edit DESC'
 );
 
+prof_flag("Inc: Obtain GET");
+
 // Obtain values from get
 $get = obtainGet();
+
+prof_flag("Inc: Generate Query");
 
 // Generate query
 $genquery = generateQuery($get);
 
+prof_flag("Inc: Count Games (Status w/ Search)");
+
 // Get game count per status
 $scount = countGames(generateQuery($get, false));
+
+prof_flag("Inc: Count Games (All w/o Search)");
+
+// Get the total count of entries present in the database (not subjective to search params)
+$games = countGames('all');
+
+prof_flag("Inc: Calculate Pages & Current Page");
+
+// Pages / CurrentPage
+$pages = countPages($get, $genquery, 0);
+$currentPage = getCurrentPage($pages);
+
+prof_flag("Inc: Database Connection");
 
 // Connect to database
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
-// Get the total count of entries present in the database (not subjective to search params)
-$games = countGames('all');
-
-// Pages / CurrentPage
-$pages = countPages($get, $genquery, 0);
-$currentPage = getCurrentPage($pages);
+prof_flag("Inc: Execute Main Query");
 
 // Run the main query 
 $sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit FROM ".db_table." ";
@@ -68,6 +87,7 @@ if ($genquery != "") {
 $sqlCmd .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 $mainQuery1 = mysqli_query($db, $sqlCmd);
 
+prof_flag("Inc: Initials + Levenshtein");
 
 // Abbreviation search / Levenshtein search
 if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5))))) {
@@ -140,8 +160,12 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 	}
 }
 
+prof_flag("Inc: Close Database Connection");
+
 // Close MySQL connection.
 mysqli_close($db);
+
+prof_flag("Inc: Remaining Functions");
 
 /*****************************************************************************************************************************/
 
@@ -271,6 +295,7 @@ function getTableContent() {
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			}
 			while($row = mysqli_fetch_object($mainQuery1)) {
+				prof_flag("Page: Display Table Content: +Row");
 				$s_tablecontent .= getTableContentRow($row);
 			}
 		}
@@ -286,12 +311,15 @@ function getTableContent() {
  * Table Content: Row *
  **********************/
 function getTableContentRow($row) {
-	return "<tr>
-	<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
-	<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
-	<td>".getColoredStatus($row->status)."</td>
-	<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit).")</td>
-	</tr>";	
+	prof_flag("Page: Display Table Content: Row - GameID");
+	$s .= "<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>";
+	prof_flag("Page: Display Table Content: Row - Game Title");
+	$s .= "<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>";
+	prof_flag("Page: Display Table Content: Row - Status");
+	$s .= "<td>".getColoredStatus($row->status)."</td>"; 
+	prof_flag("Page: Display Table Content: Row - Last Updated");
+	$s .= "<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit).")</td>";	
+	return "<tr>{$s}</tr>";
 }
 
 

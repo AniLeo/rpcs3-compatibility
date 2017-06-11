@@ -600,15 +600,20 @@ function getTableHeaders($headers, $extra = '') {
 
 
 function getFooter($start) {
+	global $prof_timing, $prof_names, $prof_desc, $c_profiler;
+	
 	// Finish: Microtime after the page loaded
 	$finish = getTime();
 	$total_time = round(($finish - $start), 4);
 	
-	return "<div id=\"compat-author\"><p>
-	Compatibility list developed and mantained by <a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
+	$s = "<p>Compatibility list developed and mantained by 
+	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
-	Page loaded in {$total_time} seconds
-	</p></div>";
+	Page loaded in {$total_time} seconds</p>";
+	if (isWhitelisted() && $c_profiler && !empty($prof_desc)) {
+		$s .= "<p style='line-height:20px; padding-bottom:15px;'><b>{$prof_desc}</b><br>".prof_print()."</p>";
+	}
+	return "<div id=\"compat-author\">{$s}</div>";
 }
 
 
@@ -784,5 +789,26 @@ function isValidThread($tid) {
 	elseif (strpos($http_response_header[0], '200') !== false) { return 1; } 
 	
 	return 2; // Fallback for other error codes
+}
+
+
+// Based on https://stackoverflow.com/a/29022400
+function prof_flag($str) {
+    global $prof_timing, $prof_names;
+    $prof_timing[] = microtime(true) * 1000;
+    $prof_names[] = $str;
+}
+
+
+// Based on https://stackoverflow.com/a/29022400
+function prof_print() {
+    global $prof_timing, $prof_names;
+    $size = count($prof_timing);
+	
+    for ($i=0;$i<$size - 1; $i++) {
+        $s .= sprintf("%fms&nbsp;-&nbsp;{$prof_names[$i]}<br>", $prof_timing[$i+1]-$prof_timing[$i]);
+    }
+	
+	return $s;
 }
 ?>
