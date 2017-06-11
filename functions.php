@@ -447,8 +447,8 @@ function generateQuery($get, $status = true) {
 
 // Select the count of games in each status, subjective to query restrictions
 function countGames($query = '', $count = 0) {
-	global $a_title, $get;
-	
+	global $get, $a_title;
+		
 	// Connect to database
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	
@@ -463,24 +463,31 @@ function countGames($query = '', $count = 0) {
 		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
 	}
 	
-	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
+	if ($query == "") {
+		// Empty query or general query with order only, all games returned
+		$gen = "SELECT status, count(*) AS c FROM ".db_table." GROUP BY status;";
+	} else {
+		// Query defined, return count of games with searched parameters
+		$gen = "SELECT status, count(*) AS c FROM ".db_table." WHERE ({$query}) GROUP BY status;";
+	}
+
+	$query = mysqli_query($db, $gen);
 	
-		if ($query == "") {
-			// Empty query or general query with order only, all games returned
-			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE status = {$s}";
-		} else {
-			// Query defined, return count of games with searched parameters
-			$squery[$s] = "SELECT count(*) AS c FROM ".db_table." WHERE ({$query}) AND status = {$s}";
-		}
-		
-		$scount[$s] = mysqli_fetch_object(mysqli_query($db, $squery[$s]))->c;
+	// Zero-fill the array keys that are going to be used
+	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
+		$scount[$s] = 0;
+	}
+	
+	while ($row = mysqli_fetch_object($query)) {
+		$i = array_search($row->status, $a_title);
+		$scount[$i] = $row->c;
 		
 		if ($count[0] > 0) {
-			$scount[$s] += $count[$s];
+			$scount[$i] += $count[$i];
 		}
 		
 		// Instead of querying the database once more add all the previous counts to get the total count
-		$scount[0] += $scount[$s];
+		$scount[0] += $scount[$i];
 	}
 	
 	// Close database connection
