@@ -175,26 +175,30 @@ function getThread($text, $tid) {
   *
   * @return string
   */
-function getCommit($cid) {
+function getCommit($cid, $valid = 2) {
 	global $c_github, $c_unkcommit;
 	
 	if ($cid == "0") { return "<i>Unknown</i>"; }
 	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-	if (mysqli_num_rows($commitQuery) === 0) {
-		// Commit not in cache! Run recacher.
-		cacheCommits(false);
+	if (is_null($valid) || $valid == 2){
+		
+		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		mysqli_set_charset($db, 'utf8');
+		
 		$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-	}
+		if (mysqli_num_rows($commitQuery) === 0) {
+			// Commit not in cache! Run recacher.
+			cacheCommits(false);
+			$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
+		}
 
-	mysqli_close($db);
+		mysqli_close($db);
+		
+		$valid = mysqli_fetch_object($commitQuery)->valid;
+		
+	}
 	
-	$row = mysqli_fetch_object($commitQuery);	
-	
-	if ($row->valid == "1") {
+	if ($valid == 1) {
 		return "<a href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
 	} else {
 		return "<i>{$cid}</i>";

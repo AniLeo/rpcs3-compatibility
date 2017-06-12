@@ -80,7 +80,10 @@ mysqli_set_charset($db, 'utf8');
 prof_flag("Inc: Execute Main Query");
 
 // Run the main query 
-$sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit FROM ".db_table." ";
+$sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit, valid
+FROM ".db_table." AS t1 
+LEFT JOIN commit_cache AS t2 
+ON t1.build_commit = t2.commit_id ";
 if ($genquery != "") {
 	$sqlCmd .= " WHERE {$genquery} ";
 }
@@ -142,8 +145,11 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
 			
 			// Re-run the main query
-			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit
-					FROM ".db_table." WHERE {$genquery} 
+			$sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit 
+					FROM ".db_table." AS t1 
+					LEFT JOIN commit_cache AS t2 
+					ON t1.build_commit = t2.commit_id 
+					WHERE {$genquery} 
 					{$a_order[$get['o']]} 
 					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
@@ -295,7 +301,7 @@ function getTableContent() {
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			}
 			while($row = mysqli_fetch_object($mainQuery1)) {
-				prof_flag("Page: Display Table Content: +Row");
+				// prof_flag("Page: Display Table Content: +Row");
 				$s_tablecontent .= getTableContentRow($row);
 			}
 		}
@@ -311,14 +317,14 @@ function getTableContent() {
  * Table Content: Row *
  **********************/
 function getTableContentRow($row) {
-	prof_flag("Page: Display Table Content: Row - GameID");
+	// prof_flag("Page: Display Table Content: Row - GameID");
 	$s .= "<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>";
-	prof_flag("Page: Display Table Content: Row - Game Title");
+	// prof_flag("Page: Display Table Content: Row - Game Title");
 	$s .= "<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>";
-	prof_flag("Page: Display Table Content: Row - Status");
+	// prof_flag("Page: Display Table Content: Row - Status");
 	$s .= "<td>".getColoredStatus($row->status)."</td>"; 
-	prof_flag("Page: Display Table Content: Row - Last Updated");
-	$s .= "<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit).")</td>";	
+	// prof_flag("Page: Display Table Content: Row - Last Updated");
+	$s .= "<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit, $row->valid).")</td>";	
 	return "<tr>{$s}</tr>";
 }
 
