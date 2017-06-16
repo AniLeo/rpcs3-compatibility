@@ -145,7 +145,7 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
 			
 			// Re-run the main query
-			$sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit 
+			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit, valid
 					FROM ".db_table." AS t1 
 					LEFT JOIN commit_cache AS t2 
 					ON t1.build_commit = t2.commit_id 
