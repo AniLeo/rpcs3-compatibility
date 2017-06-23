@@ -72,6 +72,13 @@ if ($get['a'] == 'updateThreadsCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on threads cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateRoadmapCache') {
+	$startA = getTime();
+	cacheRoadmap();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on roadmap cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 
 	$startA = getTime();
 	$cost = 13;
