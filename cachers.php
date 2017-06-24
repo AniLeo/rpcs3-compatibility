@@ -64,35 +64,32 @@ function cacheCommits($mode) {
 }
 
 
-function cacheThreadValidity($mode) {
+function cacheThreadValidity($mode = false) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
-
-	$threadQuery = mysqli_query($db, "SELECT t1.thread_id, t2.tid, t2.valid 
+	
+	$threadCommand = "SELECT t1.game_id, t1.thread_id, t2.tid, t2.valid 
 	FROM ".db_table." AS t1 
 	LEFT JOIN cache_threads AS t2 
-	ON t1.thread_id = t2.tid
-	WHERE valid != 1;");
+	ON t1.thread_id = t2.tid ";
+	
+	// Partial recache: Only check for non-valid or uncached values
+	if (!$mode) {
+		$threadCommand .= " WHERE valid IS null OR valid != 1 ";
+	} // else: Full recache: Check all listed threads
+	
+	$threadQuery = mysqli_query($db, $threadCommand);
 	
 	while ($row = mysqli_fetch_object($threadQuery)) {
 		
 		$tid = mysqli_real_escape_string($db, $row->thread_id);
-		$checkQuery = mysqli_query($db, "SELECT * FROM cache_threads WHERE tid = '{$tid}' LIMIT 1; ");
-		$row2 = mysqli_fetch_object($checkQuery);
+		$checkQuery = mysqli_query($db, "SELECT * FROM cache_threads WHERE tid = '{$tid}' LIMIT 1; ");		
+		$valid = isValidThread($tid, $row->game_id);
 		
-		// Partial recache: If value isn't cached, then cache it 
 		if (mysqli_num_rows($checkQuery) === 0) {
-			$valid = isValidThread($tid);
 			mysqli_query($db, "INSERT INTO cache_threads (tid, valid) VALUES ('{$tid}', '{$valid}'); ");
-		}
-		
-		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
-		elseif ($mode) {
-			$valid = isValidThread($tid);
-			// If value is cached but differs on validation, update it	
-			if ($row2->valid != $valid) {
-				mysqli_query($db, "UPDATE cache_threads SET valid = '{$valid}' WHERE tid = '{$tid}' LIMIT 1; ");
-			}
+		} elseif ($row->valid != $valid) {
+			mysqli_query($db, "UPDATE cache_threads SET valid = '{$valid}' WHERE (tid = '{$tid}'); ");
 		}
 	
 	}

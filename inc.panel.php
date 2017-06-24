@@ -67,7 +67,7 @@ if ($get['a'] == 'updateLibraryCache') {
 
 if ($get['a'] == 'updateThreadsCache') { 
 	$startA = getTime();
-	cacheThreadValidity();
+	cacheThreadValidity(false);
 	$finishA = getTime();
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on threads cache (".round(($finishA - $startA), 4)."s).</p>";
 }
@@ -103,7 +103,13 @@ function checkInvalidThreads() {
 		
 		echo "<p class='compat-tvalidity-list'>";
 		while ($row = mysqli_fetch_object($q_invalidThreads)) {
-			echo "Thread {$row->thread_id} doesn't exist ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+			if ($row->valid == -1 || $row->valid == -2) {
+				echo "Thread ".getThread($row->thread_id, $row->thread_id)." failed caching ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+			} elseif ($row->valid == 2) {
+				echo "Thread ".getThread($row->thread_id, $row->thread_id)." is incorrect   ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+			} else {
+				echo "Thread ".getThread($row->thread_id, $row->thread_id)." doesn't exist  ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+			}
 		}
 		echo "</p>";
 	} else {

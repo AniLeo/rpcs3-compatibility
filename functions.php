@@ -766,15 +766,42 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 }
 
 
-function isValidThread($tid) {
-	@file_get_contents("http://www.emunewz.net/forum/archive/index.php?thread-{$tid}.html");
+// If gameID isn't empty then check thread title to see if GameID is in it.
+// Finds wrongly assigned threads.
+function isValidThread($tid, $gameID = '') {
+	$fp = @file_get_contents("http://www.emunewz.net/forum/archive/index.php?thread-{$tid}.html");
 
-	// HTTP/1.1 404 Not Found - Invalid commit
-	if (strpos($http_response_header[0], '404') !== false)     { return 0; } 
-	// HTTP/1.1 200 OK - Commit found
-	elseif (strpos($http_response_header[0], '200') !== false) { return 1; } 
+	// HTTP/1.1 404 Not Found - Invalid
+	if (strpos($http_response_header[0], '404') !== false) { return 0; } 
+	// HTTP/1.1 200 OK - Found
+	elseif (strpos($http_response_header[0], '200') !== false) { 
+		$title = getPageTitle($fp);
+		if ($title == '') {
+			return -2;
+		}
+		if ($gameID != '' && strpos($title, $gameID) === false) {
+			return 2;
+		}
+		return 1; 
+	} 
 	
-	return 2; // Fallback for other error codes
+	return -1; // Fallback for other error codes
+}
+
+
+// Based on https://stackoverflow.com/a/399357 
+function getPageTitle($fp) {
+    if (!$fp) { 
+		return '';
+	}
+
+	$res = preg_match("/<title>(.*)<\/title>/siU", $fp, $title_matches);
+    if (!$res) { return ''; }
+ 
+    // Clean up title: remove EOL's and excessive whitespace.
+    $title = preg_replace('/\s+/', ' ', $title_matches[1]);
+    $title = trim($title);
+    return $title;
 }
 
 
