@@ -476,8 +476,9 @@ function countGames($query = '', $count = 0) {
 	}
 
 	$query = mysqli_query($db, $gen);
-	
+
 	// Zero-fill the array keys that are going to be used
+	$scount[0] = 0;
 	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
 		$scount[$s] = 0;
 	}
