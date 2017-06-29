@@ -81,7 +81,11 @@ function getTestedContents() {
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
-
+	
+	if (!$a_db) {
+		echo "<p class=\"compat-tx1-criteria\">There are no games present in the selected categories.</p>";
+		return;
+	}
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
@@ -102,6 +106,13 @@ function getTestedContents() {
 	} else {
 		$end = $get['r']*$currentPage;
 	}
+	
+	echo "<table class='compat-tested-table'>
+			<tr>
+			<th>ID</th>
+			<th>Title</th>
+			<th>Last Tested</th>
+			</tr>";
 	
 	foreach (range($start, $end) as $i) { 
 		$gameID = key($a_db[$i]);
@@ -126,7 +137,7 @@ function getTestedContents() {
 			</tr>";
 		}
 	}
-
+	echo "</table>";
 }
 
 

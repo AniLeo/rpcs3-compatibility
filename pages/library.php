@@ -84,17 +84,9 @@ if(!@include_once(__DIR__.'/../inc.library.php')) throw new Exception("Compat: i
 			</div>
 			
 		</div> <!-- featured-wrp-block -->
-		
-		<table class='compat-tested-table'>
-			<tr>
-			<th>ID</th>
-			<th>Title</th>
-			<th>Last Tested</th>
-			</tr>
-				<?php getTestedContents(); ?>
-		</table>
-		
-		
+
+		<?php getTestedContents(); ?>		
+
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
 				<?php echo tested_getPagesCounter(); ?>
