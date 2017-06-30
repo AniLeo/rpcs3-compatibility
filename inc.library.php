@@ -89,12 +89,17 @@ function getTestedContents() {
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT * FROM rpcs3; ");
+	$query = mysqli_query($db, "SELECT t1.game_id AS game_id, t1.game_title AS game_title, t1.thread_id AS thread_id, t1.last_edit AS last_edit, t1.build_commit AS build_commit, t2.valid AS valid
+	FROM ".db_table." AS t1
+	LEFT JOIN commit_cache AS t2 
+	ON t1.build_commit = t2.commit_id; ");
 	while($row = mysqli_fetch_object($query)) {
-		$a_games[$row->game_id] = $row->game_title;
-		$a_threads[$row->game_id] = $row->thread_id;
-		$a_tested[$row->game_id] = $row->last_edit;
-		$a_commit[$row->game_id] = $row->build_commit;
+		$a_games[$row->game_id] = array(
+		'title' => $row->game_title,
+		'thread' => $row->thread_id,
+		'last_edit' => $row->last_edit,
+		'commit' => $row->build_commit,
+		'valid' => $row->valid);
 	}
 	
 	mysqli_close($db);
@@ -133,7 +138,7 @@ function getTestedContents() {
 				<div class=\"divTableCell\"  style='color:#e74c3c;'>Untested</div>
 			</div>";
 		} else {
-			if (time() - strtotime($a_tested[$gameID]) > 60*60*24*30*6) {
+			if (time() - strtotime($a_games[$gameID]['last_edit']) > 60*60*24*30*6) {
 				$color = '#f39c12';
 			} else {
 				$color = '#27ae60';
@@ -142,14 +147,14 @@ function getTestedContents() {
 			<div class=\"divTableRow\">
 				<div class=\"divTableCell\" style='color:{$color};'>"
 				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;
-				".getThread($gameID, $a_threads[$gameID])."
+				".getThread($gameID, $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\" style='color:{$color}'>"
 				.getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
-				".getThread($a_games[$gameID], $a_threads[$gameID])."
+				".getThread($a_games[$gameID]['title'], $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\"style='color:{$color};'>
-				{$a_tested[$gameID]}&nbsp;&nbsp;&nbsp;(".getCommit($a_commit[$gameID]).")
+				{$a_games[$gameID]['last_edit']}&nbsp;&nbsp;&nbsp;(".getCommit($a_games[$gameID]['commit'], $a_games[$gameID]['valid']).")
 				</div>
 			</div>";
 		}
