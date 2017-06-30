@@ -107,37 +107,55 @@ function getTestedContents() {
 		$end = $get['r']*$currentPage;
 	}
 	
-	echo "<table class='compat-tested-table'>
-			<tr>
-			<th>ID</th>
-			<th>Title</th>
-			<th>Last Tested</th>
-			</tr>";
+	echo "<div class=\"divTable compat-library-table\">
+	<div class=\"divTableHeading\">
+		<div class=\"divTableHead\">ID</div>
+		<div class=\"divTableHead\">Title</div>
+		<div class=\"divTableHead\">Last Tested</div>
+	</div>
+	<div class=\"divTableBody\">";
 	
 	foreach (range($start, $end) as $i) { 
 		$gameID = key($a_db[$i]);
 		$gameTitle = $a_db[$i][$gameID];
 		
 		if (!array_key_exists($gameID, $a_games)) {
-			echo "<tr>
-			<td style='color:#e74c3c;'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a></td>
-			<td style='color:#e74c3c'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a></td>
-			<td style='color:#e74c3c;'>Untested</td>
-			</tr>";
+			echo "
+			<div class=\"divTableRow\">
+				<div class=\"divTableCell\" style='color:#e74c3c;'>"
+				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;
+				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a>
+				</div>
+				<div class=\"divTableCell\"  style='color:#e74c3c'>"
+				.getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a>
+				</div>
+				<div class=\"divTableCell\"  style='color:#e74c3c;'>Untested</div>
+			</div>";
 		} else {
 			if (time() - strtotime($a_tested[$gameID]) > 60*60*24*30*6) {
 				$color = '#f39c12';
 			} else {
 				$color = '#27ae60';
 			}
-			echo "<tr style=''>
-			<td style='color:{$color};'>".getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;".getThread($gameID, $a_threads[$gameID])."</td>
-			<td style='color:{$color}'>".getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;".getThread($a_games[$gameID], $a_threads[$gameID])."</td>
-			<td style='color:{$color};'>{$a_tested[$gameID]}</a>&nbsp;&nbsp;&nbsp;(".getCommit($a_commit[$gameID]).")</td>
-			</tr>";
+			echo "
+			<div class=\"divTableRow\">
+				<div class=\"divTableCell\" style='color:{$color};'>"
+				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;
+				".getThread($gameID, $a_threads[$gameID])."
+				</div>
+				<div class=\"divTableCell\" style='color:{$color}'>"
+				.getGameMedia($gameID, true, '1px', 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				".getThread($a_games[$gameID], $a_threads[$gameID])."
+				</div>
+				<div class=\"divTableCell\"style='color:{$color};'>
+				{$a_tested[$gameID]}&nbsp;&nbsp;&nbsp;(".getCommit($a_commit[$gameID]).")
+				</div>
+			</div>";
 		}
 	}
-	echo "</table>";
+	echo "</div>
+	</div>";
 }
 
 

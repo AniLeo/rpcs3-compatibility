@@ -128,6 +128,45 @@
 	font-size:10px;
 }
 
+/* DivTable from DivTable.com */
+.divTable{
+	display: table;
+	width: 100%;
+	font-family: arial;
+	font-size: 12px;
+	line-height: 28px;
+	overflow:hidden;
+	background:#fff;
+}
+.divTableHeading {
+	color: #5e5e5e;
+	background-color: #fff;
+	display: table-header-group;
+	font-weight: bold;
+}
+.divTableBody {
+	display: table-row-group;
+}
+.divTableRow {
+	display: table-row;
+}
+.divTableRow:hover {
+	background-color: rgba(0, 102, 204, .1);
+}
+.divTableCell, .divTableHead {
+	display: table-cell;
+	padding-top: 2px;
+    padding-bottom: 2px;
+	padding-left: 24px;
+}
+
+/* Library */
+.compat-library-table {
+	margin-bottom: 14px;
+	margin-top: 14px;
+}
+
+
 /*--------------------------------------------------------------------------------------------------------------------------------------
   TODO: Clean below 
   --------------------------------------------------------------------------------------------------------------------------------------*/
@@ -192,26 +231,6 @@
 .compat-hist-container {
 	overflow:hidden;
 	background:#fff;
-}
-
-
-.compat-tested-table {
-	margin-bottom:14px;
-	margin-top:14px;
-	overflow:hidden;
-	background:#fff;
-}
-.compat-tested-table tr:hover {
-	background-color: rgba(0, 102, 204, .1);
-}
-.compat-tested-table td {
-	line-height:28px;
-	height: 28px;
-	padding-left: 4%;
-	/*border-bottom: 1px solid white;*/
-}
-.compat-tested-table th {
-	padding-left: 4%;
 }
 
 
