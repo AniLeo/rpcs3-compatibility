@@ -113,8 +113,9 @@ $a_histdates = array(
 	'2017_03' => array('March 1st, 2017', 'March 29th, 2017'),
 	'2017_04' => array('March 30th, 2017', 'April 30th, 2017'),
 	'2017_05' => array('May 1st, 2017', 'May 31st, 2017'),
+	'2017_06' => array('June 1st, 2017', 'June 30th, 2017')
 );
 
 // Current month
-$a_currenthist = array('2017_06', 'June 1st, 2017');
+$a_currenthist = array('2017_07', 'July 1st, 2017');
 ?>
