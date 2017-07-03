@@ -50,7 +50,8 @@ function getHistoryMonths() {
 	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
 	$m2 = "<a href=\"?h=2017_04\">April 2017</a>";
 	$m3 = "<a href=\"?h=2017_05\">May 2017</a>";
-	$m = "<a href=\"?h\">June 2017</a>";
+	$m4 = "<a href=\"?h=2017_06\">June 2017</a>";
+	$m = "<a href=\"?h\">July 2017</a>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 	
 	$s_months .= "<strong>Month:&nbsp;</strong>";
@@ -65,6 +66,10 @@ function getHistoryMonths() {
 	
 	if ($get['h2'] == "2017_04") { $s_months .= highlightBold($m3); } 
 	else                         { $s_months .= $m3; }
+	$s_months .= $spacer;
+	
+	if ($get['h2'] == "2017_05") { $s_months .= highlightBold($m4); } 
+	else                         { $s_months .= $m4; }
 	$s_months .= $spacer;
 	
 	if ($get['h1'] == db_table)  { $s_months .= highlightBold($m); } 

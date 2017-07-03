@@ -42,6 +42,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../inc.panel.php')) throw n
 						<a href="?a=updateLibraryCache">Update Library Cache</a>
 						&nbsp;•&nbsp;
 						<a href="?a=updateThreadsCache">Update Threads Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateRoadmapCache">Update Roadmap Cache</a>
 					</p>
 					
 					<form action="?a=generatePassword" method="post">
