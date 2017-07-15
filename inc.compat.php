@@ -364,6 +364,11 @@ function APIv1() {
 		return $results;
 	}
 	
+	if (isset($_GET['g']) && !empty($_GET['g']) && !isValid($_GET['g'])) {
+		$results['return_code'] = -3;
+		return $results;
+	}
+	
 	// Array to returned, then encoded in JSON
 	$results = array();
 	$results['return_code'] = 0;
