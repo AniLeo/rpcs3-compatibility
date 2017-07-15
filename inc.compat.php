@@ -346,6 +346,7 @@ return_code
 1  - Normal return with no results found
 2  - Normal return with results found via Levenshtein
 -1 - Internal error
+-2 - Maintenance
 
 gameID
   commit
@@ -356,7 +357,12 @@ gameID
     yyyy-mm-dd
 */
 function APIv1() {
-	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get;
+	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get, $c_maintenance;
+	
+	if ($c_maintenance) {
+		$results['return_code'] = -2;
+		return $results;
+	}
 	
 	// Array to returned, then encoded in JSON
 	$results = array();
@@ -365,15 +371,15 @@ function APIv1() {
 	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $mainQuery2 && mysqli_num_rows($mainQuery2) > 0) {
 		
 		while($row = mysqli_fetch_object($mainQuery2)) {
-			$results[$row->game_id] = array(
+			$results['results'][$row->game_id] = array(
 			'title' => $row->game_title,
 			'status' => $row->status,
 			'date' => $row->last_edit,
 			'thread' => intval($row->thread_id));
 			if ($row->build_commit != 0 && $row->valid == 1) {
-				$results[$row->game_id]['commit'] = $row->build_commit;
+				$results['results'][$row->game_id]['commit'] = $row->build_commit;
 			} else {
-				$results[$row->game_id]['commit'] = 0;
+				$results['results'][$row->game_id]['commit'] = 0;
 			}
 		}
 		
@@ -390,15 +396,15 @@ function APIv1() {
 				$results['return_code'] = 2; // No results found for {$l_orig}. Displaying results for {$l_title}.
 			}
 			while($row = mysqli_fetch_object($mainQuery1)) {
-				$results[$row->game_id] = array(
+				$results['results'][$row->game_id] = array(
 				'title' => $row->game_title,
 				'status' => $row->status,
 				'date' => $row->last_edit,
 				'thread' => intval($row->thread_id));
 				if ($row->build_commit != 0 && $row->valid == 1) {
-					$results[$row->game_id]['commit'] = $row->build_commit;
+					$results['results'][$row->game_id]['commit'] = $row->build_commit;
 				} else {
-					$results[$row->game_id]['commit'] = 0;
+					$results['results'][$row->game_id]['commit'] = 0;
 				}
 			}
 		} else {
