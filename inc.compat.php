@@ -340,4 +340,75 @@ function compat_getPagesCounter() {
 	return getPagesCounter($pages, $currentPage, $extra);
 }
 
+/*
+return_code
+0  - Normal return with results found
+1  - Normal return with no results found
+2  - Normal return with results found via Levenshtein
+-1 - Internal error
+
+gameID
+  commit
+    0 - Unknown / Invalid commit
+  status
+	Playable/Ingame/Intro/Loadable/Nothing
+  date
+    yyyy-mm-dd
+*/
+function APIv1() {
+	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get;
+	
+	// Array to returned, then encoded in JSON
+	$results = array();
+	$results['return_code'] = 0;
+	
+	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $mainQuery2 && mysqli_num_rows($mainQuery2) > 0) {
+		
+		while($row = mysqli_fetch_object($mainQuery2)) {
+			$results[$row->game_id] = array(
+			'title' => $row->game_title,
+			'status' => $row->status,
+			'date' => $row->last_edit,
+			'thread' => intval($row->thread_id));
+			if ($row->build_commit != 0 && $row->valid == 1) {
+				$results[$row->game_id]['commit'] = $row->build_commit;
+			} else {
+				$results[$row->game_id]['commit'] = 0;
+			}
+		}
+		
+		// If used abbreviation is smaller than 3 characters then don't return normal results as they're probably a lot and unrelated
+		if (strlen($get['g']) <= 3) {
+			return $results;
+		}
+		
+	}
+	
+	if ($mainQuery1) {
+		if (mysqli_num_rows($mainQuery1) > 0) {
+			if ($l_title != "") {
+				$results['return_code'] = 2; // No results found for {$l_orig}. Displaying results for {$l_title}.
+			}
+			while($row = mysqli_fetch_object($mainQuery1)) {
+				$results[$row->game_id] = array(
+				'title' => $row->game_title,
+				'status' => $row->status,
+				'date' => $row->last_edit,
+				'thread' => intval($row->thread_id));
+				if ($row->build_commit != 0 && $row->valid == 1) {
+					$results[$row->game_id]['commit'] = $row->build_commit;
+				} else {
+					$results[$row->game_id]['commit'] = 0;
+				}
+			}
+		} else {
+			$results['return_code'] = 1;
+		}
+	} else {
+		$results['return_code'] = -1;
+	}
+	
+	return $results;
+}
+
 ?>

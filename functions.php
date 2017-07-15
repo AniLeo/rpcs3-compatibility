@@ -289,6 +289,9 @@ function obtainGet() {
 	// Start new $get array
 	$get = array();
 	
+	// rss - Global
+	// api - Global
+	
 	// Set default values
 	$get['r'] = $a_pageresults[$c_pageresults];
 	$get['rID'] = $c_pageresults;
@@ -824,5 +827,6 @@ function prof_print() {
 	
 	return $s;
 }
+
 
 ?>

@@ -24,6 +24,16 @@ if(!@include_once("inc.history.php")) throw new Exception("Compat: inc.history.p
 // These need to be displayed before any HTML code is loaded or the syntax is broken.
 if (isset($_GET['h']) & isset($_GET['rss'])) { 	
 	echo getHistoryRSS(); 
+} elseif (isset($_GET['api'])) {
+	
+	// WIP
+	if ($_GET['api'] == 'v1') {
+		if(!@include_once("inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
+		$results = APIv1();
+		header('Content-Type: application/json');
+		echo json_encode($results, JSON_PRETTY_PRINT);
+	}
+	
 } else {
 ?>
 <!-- 
