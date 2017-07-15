@@ -110,10 +110,10 @@ $a_filter = array(
 // Dates for history backups
 $a_histdates = array(
 	'2017_02' => '',
-	'2017_03' => array('March 1st, 2017', 'March 29th, 2017'),
-	'2017_04' => array('March 30th, 2017', 'April 30th, 2017'),
-	'2017_05' => array('May 1st, 2017', 'May 31st, 2017'),
-	'2017_06' => array('June 1st, 2017', 'June 30th, 2017')
+	'2017_03' => array(array('y' => 2017, 'm' => 'March', 'd' => '1'),  array(y => 2017, 'm' => 'March', 'd' => '29')),
+	'2017_04' => array(array('y' => 2017, 'm' => 'March', 'd' => '30'), array(y => 2017, 'm' => 'April', 'd' => '30')),
+	'2017_05' => array(array('y' => 2017, 'm' => 'May',   'd' => '1'),  array(y => 2017, 'm' => 'May',   'd' => '31')),
+	'2017_06' => array(array('y' => 2017, 'm' => 'June',  'd' => '1'),  array(y => 2017, 'm' => 'June',  'd' => '30'))
 );
 
 // Current month

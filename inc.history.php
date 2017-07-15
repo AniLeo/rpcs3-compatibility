@@ -33,11 +33,12 @@ function getHistoryDescription() {
 	global $get, $a_histdates, $a_currenthist;
 	
 	$s_desc .= "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
-	
+
 	if ($get['h1'] == db_table) {
 		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
 	} else {
-		$s_desc .= "from <b>{$a_histdates[$get['h1']][0]}</b> to <b>{$a_histdates[$get['h1']][1]}</b>.";
+		$v = $a_histdates[$get['h1']];
+		$s_desc .= "from <b>{$v[0][m]} {$v[0][d]}, {$v[0][y]}</b> to <b>{$v[1][m]} {$v[1][d]}, {$v[1][y]}</b>.";
 	}
 
 	return "<p id='compat-history-description'>{$s_desc}</p>";
@@ -45,35 +46,24 @@ function getHistoryDescription() {
 
 
 function getHistoryMonths() {
-	global $get;
-	
-	$m1 = "<a href=\"?h=2017_03\">March 2017</a>";
-	$m2 = "<a href=\"?h=2017_04\">April 2017</a>";
-	$m3 = "<a href=\"?h=2017_05\">May 2017</a>";
-	$m4 = "<a href=\"?h=2017_06\">June 2017</a>";
-	$m = "<a href=\"?h\">July 2017</a>";
-	$spacer = "&nbsp;&#8226;&nbsp;";
+	global $get, $a_histdates;
 	
 	$s_months .= "<strong>Month:&nbsp;</strong>";
+	$spacer = "&nbsp;&#8226;&nbsp;";
 	
-	if ($get['h2'] == "2017_02") { $s_months .= highlightBold($m1); } 
-	else                         { $s_months .= $m1;}
-	$s_months .= $spacer;
+	$keys = array_keys($a_histdates);
 	
-	if ($get['h2'] == "2017_03") { $s_months .= highlightBold($m2); } 
-	else                         { $s_months .= $m2; }
-	$s_months .= $spacer;
+	foreach(array_slice($keys,1) as $k => $v) {
+		$m = "<a href=\"?h={$v}\">{$a_histdates[$v][1][m]} {$a_histdates[$v][1][y]}</a>";
+		
+		if ($get['h1'] == $v) { $s_months .= highlightBold($m); } 
+		else                  { $s_months .= $m; }
+		$s_months .= $spacer;
+	}
 	
-	if ($get['h2'] == "2017_04") { $s_months .= highlightBold($m3); } 
-	else                         { $s_months .= $m3; }
-	$s_months .= $spacer;
-	
-	if ($get['h2'] == "2017_05") { $s_months .= highlightBold($m4); } 
-	else                         { $s_months .= $m4; }
-	$s_months .= $spacer;
-	
-	if ($get['h1'] == db_table)  { $s_months .= highlightBold($m); } 
-	else                         { $s_months .= $m; }	
+	$m = "<a href=\"?h\">July 2017</a>";
+	if ($get['h1'] == db_table)        { $s_months .= highlightBold($m); } 
+	else                               { $s_months .= $m; }	
 	
 	return "<p id='compat-history-months'>{$s_months}</p>";
 }
@@ -149,7 +139,7 @@ function getHistoryContent() {
 		if (!$cQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($cQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No updates to previously existent entries were reported yet.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No updates to previously existing entries were reported and/or reviewed yet.</p>";
 		} else {
 			
 			$s_content .= "<table class='compat-hist-container'>";
@@ -181,7 +171,7 @@ function getHistoryContent() {
 		if (!$nQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		} elseif (mysqli_num_rows($nQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No newer entries were reported yet.</p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\">No newer entries were reported and/or reviewed yet.</p>";
 		} else {
 			
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";
