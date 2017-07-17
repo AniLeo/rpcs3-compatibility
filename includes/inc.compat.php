@@ -20,8 +20,8 @@
 */
 
 // Calls for the file that contains the functions needed
-if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once("cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
+if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 
 
 // Start: Microtime when page started loading

@@ -18,7 +18,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <?php 
-if(!@include_once(__DIR__.'/../inc.library.php')) throw new Exception("Compat: inc.library.php is missing. Failed to include inc.library.php"); 
+if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("Compat: inc.library.php is missing. Failed to include inc.library.php"); 
 ?>
 <div id='page-con-container'>
 	<div id='page-in-container'>

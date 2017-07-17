@@ -18,7 +18,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <?php 
-if(!@include_once(__DIR__.'/../inc.history.php')) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php"); 
+if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php"); 
 ?>
 <div id='page-con-container'>
 	<div id='page-in-container'>

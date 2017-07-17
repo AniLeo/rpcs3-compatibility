@@ -18,7 +18,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if(!@include_once("inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
+if(!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 
 // Firstly we check if it's a RSS request. 
 // These need to be displayed before any HTML code is loaded or the syntax is broken.
@@ -28,7 +28,7 @@ if (isset($_GET['h']) & isset($_GET['rss'])) {
 	
 	// WIP
 	if ($_GET['api'] == 'v1') {
-		if(!@include_once("inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
+		if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
 		$results = APIv1();
 		header('Content-Type: application/json');
 		echo json_encode($results, JSON_PRETTY_PRINT);
