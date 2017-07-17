@@ -41,7 +41,7 @@ RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22 
 -->
-<?php if (!@include_once(__DIR__.'/../../head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
+<?php if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
 <div id="page-con-content">
 	<div id="header-con-head">
 		<div id='header-img-head' class="dynamic-banner">
@@ -89,5 +89,5 @@ https://github.com/AniLeo
 	}
 	?>
 </div>
-<?php if (!@include_once(__DIR__.'/../../footer.compat.php')) throw new Exception("Compat: footer.compat.php is missing. Failed to include footer.compat.php"); ?>
+<?php if (!@include_once(__DIR__.'/../../lib/module/metadata/footer.compat.php')) throw new Exception("Compat: footer.compat.php is missing. Failed to include footer.compat.php"); ?>
 <?php } // Closes RSS If clause ?>
