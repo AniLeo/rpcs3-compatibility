@@ -171,7 +171,7 @@ prof_flag("Inc: Close Database Connection");
 // Close MySQL connection.
 mysqli_close($db);
 
-prof_flag("Inc: Remaining Functions");
+prof_flag("--- / ---");
 
 /*****************************************************************************************************************************/
 

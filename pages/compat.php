@@ -23,11 +23,11 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 <div id="page-con-container">
 	<div id="page-in-container">
 		<!--End -->
-		<?php prof_flag("Page: featured-con-block"); ?>
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
 					<p id='title1'>RPCS3 Compatibility List</p>
+					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(false, true, true, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
@@ -39,21 +39,25 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<!--End -->
 			<div id="compat-hdr-left">
 				<p>
+					<?php prof_flag("Page: Get Results Per Page"); ?>
 					Results per page <?php echo getResultsPerPage(); ?>
 				</p>
 			</div>
 			<div id="compat-hdr-right">
 				<p>
+					<?php prof_flag("Page: Get Sort By"); ?>
 					Sort By <?php echo getSortBy(); ?>
 				</p>
 			</div>
 			
 			<!--End -->
 			<div class="compat-con-container">
+				<?php prof_flag("Page: Get Status Descriptions"); ?>
 				<?php echo getStatusDescriptions(); ?>
 			</div>
 			<!--End -->
 			<div id='compat-con-searchbox'>
+				<?php prof_flag("Page: Display Searchbox"); ?>
 				<form method='get' id='game-search'>
 					<div id='searchbox'>
 						<?php 
@@ -69,6 +73,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</div>
 			<!--End -->
 			<table id="compat-con-search">
+				<?php prof_flag("Page: Get Character Search"); ?>
 				<?php echo getCharSearch(); ?>
 			</table>
 			<!--End -->
