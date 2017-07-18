@@ -51,10 +51,14 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</div>
 			
 			<!--End -->
-			<div class="compat-con-container">
-				<?php prof_flag("Page: Get Status Descriptions"); ?>
-				<?php echo getStatusDescriptions(); ?>
-			</div>
+			<?php 
+			prof_flag("Page: Get Status Module");
+			if (file_exists(__DIR__.'/../modules/mod.status.count.php')) {
+				include(__DIR__.'/../modules/mod.status.count.php');
+			} else {
+				echo generateStatusModule();
+			}
+			?>
 			<!--End -->
 			<div id='compat-con-searchbox'>
 				<?php prof_flag("Page: Display Searchbox"); ?>

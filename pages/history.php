@@ -41,9 +41,13 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 				</div>
 			</div> <!-- featured-wrp-block -->
 			
-			<div class='compat-con-container'>
-				<?php echo getStatusDescriptions(false); ?>
-			</div>
+			<?php 
+			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php')) {
+				include(__DIR__.'/../modules/mod.status.nocount.php');
+			} else {
+				echo generateStatusModule(false);
+			}
+			?>
 		</div> <!-- featured-wrp-block -->
 		
 		<?php echo getHistoryContent(); ?>

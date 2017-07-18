@@ -692,36 +692,40 @@ function countPages($get, $genquery, $count) {
 }
 
 
-/***********************
- * Status descriptions *
- ***********************/
-function getStatusDescriptions($getCount = true) {
+/*****************
+ * Status Module *
+ *****************/
+function generateStatusModule($getCount = true) {
 	global $a_desc, $a_color, $a_title;
 	
 	// Get games count per status
 	$count = countGames();
 	
+	// Pretty output for readibility
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
 	
-		$s_descontainer .= "<div class='compat-status-main'>
-		<div class='compat-status-icon' style='background:#{$a_color[$i]}'></div>
-		<div class='compat-status-text'>
-		<p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
+		$output .= "<div class='compat-status-main'>\n";
+		$output .= "<div class='compat-status-icon' style='background:#{$a_color[$i]}'></div>\n";
+		$output .= "<div class='compat-status-text'>\n";
+		$output .= "<p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
+		
 		if ($getCount) {
 			$percentage = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
-			$s_descontainer .= " ({$percentage}%)";
+			$output .= " ({$percentage}%)";
 		}
-		$s_descontainer .= ":</strong></p> {$a_desc[$i]}</div>";
-		
+
+		$output .= ":</strong></p>&nbsp;&nbsp;{$a_desc[$i]}\n</div>\n";
+
 		if ($getCount) {
-			$s_descontainer .= "<div class='compat-status-progress'>
-			<progress class='compat-status-progressbar' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>
-			</div>";
+			$output .= "<div class='compat-status-progress'>\n";
+			$output .= "<progress class='compat-status-progressbar' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>\n";
+			$output .= "</div>\n";
 		}
 		
-		$s_descontainer .= "</div>";
-	}	
-	return $s_descontainer;
+		$output .= "</div>\n";
+	}
+	
+	return "<div class='compat-con-container'>\n{$output}</div>";
 }
 
 

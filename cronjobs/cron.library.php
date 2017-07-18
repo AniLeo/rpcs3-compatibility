@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
     RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
     Copyright (C) 2017 AniLeo

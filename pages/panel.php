@@ -44,6 +44,10 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 						<a href="?a=updateThreadsCache">Update Threads Cache</a>
 						&nbsp;•&nbsp;
 						<a href="?a=updateRoadmapCache">Update Roadmap Cache</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateStatusModuleCount">Update Status Module [Count]</a>
+						&nbsp;•&nbsp;
+						<a href="?a=updateStatusModuleNoCount">Update Status Module [No Count]</a>
 					</p>
 					
 					<form action="?a=generatePassword" method="post">
