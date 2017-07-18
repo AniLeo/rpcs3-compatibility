@@ -30,7 +30,7 @@ if (in_array($get['r'], $a_pageresults)) {
 // Count number of entries for page calculation and cache results on array
 $entries = 1;
 $a_db = array();
-$handle = fopen(__DIR__."/ps3tdb.txt", "r");
+$handle = fopen(__DIR__."/../ps3tdb.txt", "r");
 while (!feof($handle)) {
 	$line = fgets($handle);
 	if (in_array(mb_substr($line, 0, 4), $a_filter)) {	
@@ -175,7 +175,7 @@ function tested_getPagesCounter() {
 
 function getGames($tested) {
 	if ($tested) { $file = 'tested.txt'; } else { $file = 'untested.txt'; } 
-	return fgets(fopen(__DIR__."/{$file}", 'r'));
+	return fgets(fopen(__DIR__."/../{$file}", 'r'));
 }
 
 
