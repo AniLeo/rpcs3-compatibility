@@ -288,52 +288,48 @@ function cacheLibraryStatistics() {
 	$query = mysqli_query($db, "SELECT * FROM rpcs3; ");
 	
 	while($row = mysqli_fetch_object($query)) {
-		$a_games[$row->game_id] = $row->game_title;
+		$a_games[] = $row->game_id;
 	}
 	
 	mysqli_close($db);
 
-	$handle = fopen(__DIR__."/ps3tdb.txt", "r");
+	$f_ps3tdb = fopen(__DIR__.'/ps3tdb.txt', 'r');
 
 	$tested = 0;
 	$untested = 0;
 	
-	if ($handle) {
+	if ($f_ps3tdb) {
 		
-		while (($line = fgets($handle)) !== false) {
-			
-			$type = mb_substr($line, 0, 4);
-			
-			if (in_array($type, $a_filter)) {
-				
-				$gameID = mb_substr($line, 0, 9);
-				//$gameTitle = mb_substr($line, 11);
-				
-				if (array_key_exists($gameID, $a_games)) {
-					$tested++;
-				} else {
-					$untested++;
-				}
+		while (($line = fgets($f_ps3tdb)) !== false) {
+			// Type: mb_substr($line, 0, 4)
+			if (in_array(mb_substr($line, 0, 4), $a_filter)) {
+				// GameID: mb_substr($line, 0, 9)
+				in_array(mb_substr($line, 0, 9), $a_games) ? $tested++ : $untested++;
 			}
 		}
-			
-		unlink(__DIR__."/tested.txt");
-		$handle2 = fopen(__DIR__."/tested.txt", 'w');
-		fwrite($handle2, $tested);
-		fclose($handle2);
 		
-		unlink(__DIR__."/untested.txt");
-		$handle2 = fopen(__DIR__."/untested.txt", 'w');
-		fwrite($handle2, $untested);
-		fclose($handle2);
+		// Closes ps3tdb.txt file resource 
+		fclose($f_ps3tdb);
 		
-		fclose($handle);
+		// Delete tested.txt if file exists
+		if (file_exists(__DIR__.'/tested.txt')) {
+			unlink(__DIR__.'/tested.txt');
+		}
+		// Open tested.txt and write number of tested games in one line
+		$f_tested = fopen(__DIR__.'/tested.txt', 'w');
+		fwrite($f_tested, $tested);
+		fclose($f_tested);
 		
-	} else {
-		//echo "Error opening ps3tdb.txt";
-	}
-	
-	
+		// Delete untested.txt if file exists
+		if (file_exists(__DIR__.'/untested.txt')) {
+			unlink(__DIR__.'/untested.txt');
+		}
+		// Open untested.txt and write number of untested games in one line
+		$f_untested = fopen(__DIR__.'/untested.txt', 'w');
+		fwrite($f_untested, $untested);
+		fclose($f_untested);
+		
+	} 
 }
 
 ?>
