@@ -386,25 +386,16 @@ function obtainGet() {
 
 
 // Generates query from given GET parameters
-function generateQuery($get, $status = true) {
+function generateQuery($get) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
-	
+
 	$genquery = '';
+	$status = '';
 	$and = false;
-	
-	// Force status to be All
-	if (!$status) { $get['s'] = 0; }
-	
-	// QUERYGEN: Status
-	if ($get['s'] != 0) { 
-		$genquery .= " status = {$get['s']} ";
-		$and = true;
-	} 
 	
 	// QUERYGEN: Character
 	if ($get['c'] != '') {
-		if ($and) { $genquery .= " AND "; }
 		if ($get['c'] == '09') {
 			$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
 			OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
@@ -444,18 +435,28 @@ function generateQuery($get, $status = true) {
 		if ($and) { $genquery .= " AND "; }
 		$s_d = mysqli_real_escape_string($db, $get['d']);
 		$genquery .= " last_edit = '{$s_d}' "; 
+		$and = true;
+	}
+		
+	// QUERYGEN: Status
+	if ($get['s'] != 0) { 
+		if ($and) { $status .= " AND "; }
+		$status .= " status = {$get['s']} ";
+		$and = true;
 	}
 	
 	mysqli_close($db);
 	
-	return $genquery;
+	// 0 => With specified status 
+	// 1 => Without specified status
+	return array($genquery.$status, $genquery);
 }
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($query = '', $count = 0) {
+function countGames($query, $count = 0) {
 	global $get, $a_title;
-		
+	
 	// Connect to database
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	
@@ -470,7 +471,7 @@ function countGames($query = '', $count = 0) {
 		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
 	}
 	
-	if ($query == "") {
+	if ($query == '') {
 		// Empty query or general query with order only, all games returned
 		$gen = "SELECT status, count(*) AS c FROM ".db_table." GROUP BY status;";
 	} else {
@@ -478,24 +479,40 @@ function countGames($query = '', $count = 0) {
 		$gen = "SELECT status, count(*) AS c FROM ".db_table." WHERE ({$query}) GROUP BY status;";
 	}
 
-	$query = mysqli_query($db, $gen);
+	$q_gen = mysqli_query($db, $gen);
 
 	// Zero-fill the array keys that are going to be used
-	$scount[0] = 0;
-	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $s) { 
-		$scount[$s] = 0;
+	foreach (range( min(array_keys($a_title)), max(array_keys($a_title)) ) as $s) { 
+		$scount[0][$s] = 0;
+		$scount[1][$s] = 0;
 	}
-	
-	while ($row = mysqli_fetch_object($query)) {
-		$i = array_search($row->status, $a_title);
-		$scount[$i] = $row->c;
+
+	while ($row = mysqli_fetch_object($q_gen)) {
 		
-		if ($count[0] > 0) {
-			$scount[$i] += $count[$i];
+		// Get Status ID
+		$id = array_search($row->status, $a_title);
+		
+		// For count with specified status, include only results for specified status
+		if ($id == $get['s']) {
+			$scount[0][$id] = $row->c;
+			$scount[0][0] = $row->c;
 		}
 		
+		// Add count from status to the array
+		$scount[1][$id] = $row->c;
+		
+		// Add extra counts if existing
+		if ($count[0] > 0) {
+			$scount[1][$id] += $count[$id];
+		}
+	
 		// Instead of querying the database once more add all the previous counts to get the total count
-		$scount[0] += $scount[$i];
+		$scount[1][0] += $scount[1][$id];
+	}
+	
+	// If no status is specified, fill status-specified array normally
+	if ($get['s'] == 0) {
+		$scount[0] = $scount[1];
 	}
 	
 	// Close database connection
@@ -673,22 +690,8 @@ function getCurrentPage($pages) {
 
 
 // Calculate the number of pages according selected status and results per page
-function countPages($get, $genquery, $count) {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	// Page calculation according to the user's search
-	$pagesCmd = "SELECT count(*) AS c FROM ".db_table;
-	if ($genquery != "") {
-		$pagesCmd .= " WHERE {$genquery} ";
-	}
-
-	$pagesQuery = mysqli_query($db, $pagesCmd);
-	$pages = ceil( (mysqli_fetch_object($pagesQuery)->c + $count) / $get['r'] );
-
-	mysqli_close($db);
-	
-	return $pages;
+function countPages($get, $count) {
+	return ceil($count / $get['r']);
 }
 
 
@@ -699,7 +702,7 @@ function generateStatusModule($getCount = true) {
 	global $a_desc, $a_color, $a_title;
 	
 	// Get games count per status
-	$count = countGames();
+	$count = countGames()[0];
 	
 	// Pretty output for readibility
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
@@ -815,7 +818,7 @@ function getPageTitle($fp) {
 // Based on https://stackoverflow.com/a/29022400
 function prof_flag($str) {
     global $prof_timing, $prof_names;
-    $prof_timing[] = microtime(true) * 1000;
+    $prof_timing[] = microtime(true) * 10000000;
     $prof_names[] = $str;
 }
 
@@ -826,7 +829,7 @@ function prof_print() {
     $size = count($prof_timing);
 	
     for ($i=0;$i<$size - 1; $i++) {
-        $s .= sprintf("%fms&nbsp;-&nbsp;{$prof_names[$i]}<br>", $prof_timing[$i+1]-$prof_timing[$i]);
+        $s .= sprintf("%05dμs&nbsp;-&nbsp;{$prof_names[$i]}<br>", $prof_timing[$i+1]-$prof_timing[$i]);
     }
 	
 	return $s;

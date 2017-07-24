@@ -69,7 +69,7 @@ https://github.com/AniLeo
 						elseif (isset($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
 						elseif (isset($get['a']))  { echo "Super cool compatibility list debug control panel"; }
 						elseif (isset($get['l']))  { echo "List of all existing PS3 games known to mankind"; }
-						else                       { echo "There are currently ".countGames('all', 0)." games listed in our database"; } 
+						else                       { echo "There are currently ".countGames('all')." games listed in our database"; } 
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}

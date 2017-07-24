@@ -45,77 +45,89 @@ $a_order = array(
 '4d' => 'ORDER BY last_edit DESC'
 );
 
-prof_flag("Inc: Obtain GET");
 
 // Obtain values from get
+prof_flag("Inc: Obtain GET");
 $get = obtainGet();
 
-prof_flag("Inc: Generate Query");
 
 // Generate query
+// 0 => With specified status 
+// 1 => Without specified status
+prof_flag("Inc: Generate Query");
 $genquery = generateQuery($get);
 
-prof_flag("Inc: Count Games (Status w/ Search)");
 
 // Get game count per status
-$scount = countGames(generateQuery($get, false));
+prof_flag("Inc: Count Games (Search)");
+$scount = countGames($genquery[1]);
 
-prof_flag("Inc: Count Games (All w/o Search)");
 
 // Get the total count of entries present in the database (not subjective to search params)
+prof_flag("Inc: Count Games (All)");
 $games = countGames('all');
 
-prof_flag("Inc: Calculate Pages & Current Page");
 
 // Pages / CurrentPage
-$pages = countPages($get, $genquery, 0);
+prof_flag("Inc: Count Pages");
+$pages = countPages($get, $scount[0][0]);
+
+prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
-prof_flag("Inc: Database Connection");
 
 // Connect to database
+prof_flag("Inc: Database Connection");
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
-prof_flag("Inc: Execute Main Query");
 
 // Run the main query 
+prof_flag("Inc: Execute Main Query");
 $sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit, valid
 FROM ".db_table." AS t1 
 LEFT JOIN commit_cache AS t2 
 ON t1.build_commit = t2.commit_id ";
-if ($genquery != "") {
-	$sqlCmd .= " WHERE {$genquery} ";
+if ($genquery[0] != "") {
+	$sqlCmd .= " WHERE {$genquery[0]} ";
 }
 $sqlCmd .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 $mainQuery1 = mysqli_query($db, $sqlCmd);
 
-prof_flag("Inc: Initials + Levenshtein");
 
 // Abbreviation search / Levenshtein search
+prof_flag("Inc: Initials + Levenshtein");
 if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5))))) {
+	
+	// Initials
 	$abbreviationQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
 	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0) {
-		$partOne = "SELECT * FROM ".db_table." WHERE ";
 		
 		$i = 0;
-		while($row = mysqli_fetch_object($abbreviationQuery)) {
+		$partTwo .= " ( ";
+		while ($row = mysqli_fetch_object($abbreviationQuery)) {
 			if ($i > 0) { $partTwo .= " OR "; }
 			$partTwo .= " game_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
 			$i++;
 		}
-		
+		$partTwo .= " ) ";
+
 		// Recalculate Pages / CurrentPage
-		$pages = countPages($get, $partTwo, $scount[0]);
+		$scount2 = countGames($partTwo);
+		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
-		if (strlen($get['g']) <= 3) {
-			$scount = countGames($partTwo);
-		} else {
-			$scount = countGames($partTwo, $scount);
+		
+		if (strlen($get['g']) > 3) {
+			$scount = countGames($partTwo, $scount[0]);
 		}
 		
-		$mainQuery2 = mysqli_query($db, "{$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
+		$partOne = "SELECT * FROM ".db_table." WHERE ";
+		if ($get['s'] != 0) {
+			$partOne .= " status = {$get['s']} AND ";
+		}
+		
+		$mainQuery2 = mysqli_query($db, " {$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
 	}
 	
 	// If results not found then apply levenshtein to get the closest result
@@ -155,9 +167,9 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
 			
 			// Recalculate Pages / CurrentPage
-			$pages = countPages($get, $genquery, 0);
-			$currentPage = getCurrentPage($pages);
 			$scount = countGames($genquery);
+			$pages = countPages($get, $scount[0][0]);
+			$currentPage = getCurrentPage($pages);
 			
 			// Replace faulty search with returned game but keep the original search for display
 			$l_orig = $get['g'];
@@ -166,12 +178,13 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 	}
 }
 
-prof_flag("Inc: Close Database Connection");
 
 // Close MySQL connection.
+prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
 
 prof_flag("--- / ---");
+
 
 /*****************************************************************************************************************************/
 
@@ -197,7 +210,7 @@ function getSortBy() {
 		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true, false);
 		$s_sortby .= "s=$i\">"; 
 		
-		$temp = "$a_title[$i]&nbsp;($scount[$i])";
+		$temp = "$a_title[$i]&nbsp;({$scount[1][$i]})";
 		
 		// If the current selected status, highlight with bold
 		if ($get['s'] == $i) { $s_sortby .= highlightBold($temp); }
@@ -347,6 +360,7 @@ return_code
 2  - Normal return with results found via Levenshtein
 -1 - Internal error
 -2 - Maintenance
+-3 - Illegal search
 
 gameID
   commit
