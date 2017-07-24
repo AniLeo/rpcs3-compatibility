@@ -283,7 +283,7 @@ function highlightBold($str) {
 }
 
 
-function obtainGet() {
+function obtainGet($db = null) {
 	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_admin, $a_media;
 	
 	// Start new $get array
@@ -376,8 +376,11 @@ function obtainGet() {
 		$get['m'] = strtolower($_GET['m']);
 	}
 	
+	// Is whitelisted?
+	$get['w'] = isWhitelisted($db) ? true : false;
+	
 	// Admin debug mode
-	if (isset($_GET['a']) && isWhitelisted()) {
+	if (isset($_GET['a']) && $get['w']) {
 		$get['a'] = $_GET['a'];
 	}
 	
@@ -386,9 +389,15 @@ function obtainGet() {
 
 
 // Generates query from given GET parameters
-function generateQuery($get) {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+function generateQuery($get, $db = null) {
+	
+	if ($db == null) {
+		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		mysqli_set_charset($db, 'utf8');
+		$close = true;
+	} else {
+		$close = false;
+	}
 
 	$genquery = '';
 	$status = '';
@@ -445,7 +454,9 @@ function generateQuery($get) {
 		$and = true;
 	}
 	
-	mysqli_close($db);
+	if ($close) {
+		mysqli_close($db);
+	}
 	
 	// 0 => With specified status 
 	// 1 => Without specified status
@@ -454,18 +465,21 @@ function generateQuery($get) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($query, $count = 0) {
+function countGames($db = null, $query, $count = 0) {
 	global $get, $a_title;
 	
-	// Connect to database
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	if ($db == null) {
+		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		mysqli_set_charset($db, 'utf8');
+		$close = true;
+	} else {
+		$close = false;
+	}
 	
 	// Failed database connection, return 0 games
 	if (!$db) {
 		return 0;
 	}
-
-	mysqli_set_charset($db, 'utf8');
 	
 	if ($query == 'all') {
 		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
@@ -515,8 +529,9 @@ function countGames($query, $count = 0) {
 		$scount[0] = $scount[1];
 	}
 	
-	// Close database connection
-	mysqli_close($db);
+	if ($close) {
+		mysqli_close($db);
+	}
 	
 	return $scount;
 }
@@ -623,7 +638,7 @@ function getTableHeaders($headers, $extra = '') {
 
 
 function getFooter($start) {
-	global $prof_timing, $prof_names, $prof_desc, $c_profiler;
+	global $prof_timing, $prof_names, $prof_desc, $c_profiler, $get;
 	
 	// Finish: Microtime after the page loaded
 	$finish = getTime();
@@ -633,7 +648,7 @@ function getFooter($start) {
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time} seconds</p>";
-	if (isWhitelisted() && $c_profiler && !empty($prof_desc)) {
+	if ($get['w'] && $c_profiler && !empty($prof_desc)) {
 		$s .= "<p style='line-height:20px; padding-bottom:15px;'><b>{$prof_desc}</b><br>".prof_print()."</p>";
 	}
 	return "<div id=\"compat-author\">{$s}</div>";
@@ -641,6 +656,8 @@ function getFooter($start) {
 
 
 function getMenu($c, $h, $b, $l, $a) {
+	global $get;
+	
 	$and = false;
 	if ($c) {
 		$menu .= "<a href='?'>Compatibility List</a>";
@@ -661,7 +678,7 @@ function getMenu($c, $h, $b, $l, $a) {
 		$menu .= "<a href='?l'>PS3 Game Library</a>";
 		$and = true;
 	}
-	if (isWhitelisted() && $a) {
+	if ($get['w'] && $a) {
 		if ($and) { $menu .= " • "; }
 		$menu .= "<a href='?a'>Debug Panel</a>";
 	}
@@ -724,22 +741,23 @@ function generateStatusModule($getCount = true) {
 
 
 // Checks if IP is on whitelist
-function isWhitelisted() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	// Page calculation according to the user's search
-	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $_SERVER['REMOTE_ADDR'])."'; ");
-
-	$valid = false;
-	
-	if (mysqli_num_rows($ipQuery) === 1) {
-		$valid = true;
+function isWhitelisted($db = null) {
+	if ($db == null) {
+		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		mysqli_set_charset($db, 'utf8');
+		$close = true;
+	} else {
+		$close = false;
 	}
 	
-	mysqli_close($db);
+	// Page calculation according to the user's search
+	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $_SERVER['REMOTE_ADDR'])."' LIMIT 1; ");
 	
-	return $valid;
+	if ($close) {
+		mysqli_close($db);
+	}
+	
+	return mysqli_num_rows($ipQuery) === 1 ? true : false;
 }
 
 

@@ -46,26 +46,30 @@ $a_order = array(
 );
 
 
+// Connect to database
+prof_flag("Inc: Database Connection");
+$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+mysqli_set_charset($db, 'utf8');
+
 // Obtain values from get
 prof_flag("Inc: Obtain GET");
-$get = obtainGet();
+$get = obtainGet($db);
 
 
 // Generate query
 // 0 => With specified status 
 // 1 => Without specified status
 prof_flag("Inc: Generate Query");
-$genquery = generateQuery($get);
+$genquery = generateQuery($get, $db);
 
 
 // Get game count per status
 prof_flag("Inc: Count Games (Search)");
-$scount = countGames($genquery[1]);
-
+$scount = countGames($db, $genquery[1]);
 
 // Get the total count of entries present in the database (not subjective to search params)
 prof_flag("Inc: Count Games (All)");
-$games = countGames('all');
+$games = countGames($db, 'all');
 
 
 // Pages / CurrentPage
@@ -74,12 +78,6 @@ $pages = countPages($get, $scount[0][0]);
 
 prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
-
-
-// Connect to database
-prof_flag("Inc: Database Connection");
-$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-mysqli_set_charset($db, 'utf8');
 
 
 // Run the main query 
@@ -114,12 +112,12 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 		$partTwo .= " ) ";
 
 		// Recalculate Pages / CurrentPage
-		$scount2 = countGames($partTwo);
+		$scount2 = countGames($db, $partTwo);
 		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
 		
 		if (strlen($get['g']) > 3) {
-			$scount = countGames($partTwo, $scount[0]);
+			$scount = countGames($db, $partTwo, $scount[0]);
 		}
 		
 		$partOne = "SELECT * FROM ".db_table." WHERE ";
@@ -167,7 +165,7 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$mainQuery1 = mysqli_query($db, $sqlCmd);
 			
 			// Recalculate Pages / CurrentPage
-			$scount = countGames($genquery);
+			$scount = countGames($db, $genquery);
 			$pages = countPages($get, $scount[0][0]);
 			$currentPage = getCurrentPage($pages);
 			

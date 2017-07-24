@@ -64,12 +64,12 @@ https://github.com/AniLeo
 			<div id='header-tx2-body'>
 				<p>
 					<?php 
-					if (!$c_maintenance || isWhitelisted()) {
+					if (!$c_maintenance || $get['w']) {
 						if (isset($_GET['h']))     { echo "History of the updates made to the compatibility list"; } 
 						elseif (isset($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
 						elseif (isset($get['a']))  { echo "Super cool compatibility list debug control panel"; }
 						elseif (isset($get['l']))  { echo "List of all existing PS3 games known to mankind"; }
-						else                       { echo "There are currently ".countGames('all')." games listed in our database"; } 
+						else                       { echo "There are currently ".countGames(null, 'all')." games listed in our database"; } 
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}
@@ -80,7 +80,7 @@ https://github.com/AniLeo
 		</div>
 	</div>
 	<?php 
-	if (!$c_maintenance || isWhitelisted()) {
+	if (!$c_maintenance || $get['w']) {
 		if (isset($_GET['h']))     { include 'pages/history.php'; }
 		elseif (isset($_GET['b'])) { include 'pages/builds.php'; }
 		elseif (isset($get['a']))  { include 'pages/panel.php'; }
