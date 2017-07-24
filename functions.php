@@ -544,15 +544,6 @@ function colorHEXtoRGB($color) {
 }
 
 
-// Adapted from: http://www.johnciacia.com/2010/01/04/using-php-and-gd-to-add-border-to-text/ to imagestring by me
-function imagestringstroketext(&$image, $size, $x, $y, &$textcolor, &$strokecolor, $text, $px) {
-    for($c1 = ($x-abs($px)); $c1 <= ($x+abs($px)); $c1++)
-        for($c2 = ($y-abs($px)); $c2 <= ($y+abs($px)); $c2++)
-            $bg = imagestring($image, $size, $c1, $c2, $text, $strokecolor);
-   return imagestring($image, $size, $x, $y, $text, $textcolor);
-}
-
-
 function getTime() {
 	$t = explode(' ', microtime());
 	return $t[1] + $t[0];
