@@ -742,6 +742,8 @@ function generateStatusModule($getCount = true) {
 
 // Checks if IP is on whitelist
 function isWhitelisted($db = null) {
+	global $c_cloudflare;
+	
 	if ($db == null) {
 		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 		mysqli_set_charset($db, 'utf8');
@@ -750,8 +752,14 @@ function isWhitelisted($db = null) {
 		$close = false;
 	}
 	
+	if ($c_cloudflare) {
+		$ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
+	} else {
+		$ip = $_SERVER["REMOTE_ADDR"];
+	}
+	
 	// Page calculation according to the user's search
-	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $_SERVER['REMOTE_ADDR'])."' LIMIT 1; ");
+	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $ip)."' LIMIT 1; ");
 	
 	if ($close) {
 		mysqli_close($db);

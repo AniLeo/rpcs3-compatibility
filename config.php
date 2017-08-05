@@ -35,6 +35,7 @@ $c_pageresults = 3; // Default results per page (50)
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
+$c_cloudflare = true; // Use cloudflare
 
 // Background color for unknown commit div
 $c_unkcommit = 'ffd700';
