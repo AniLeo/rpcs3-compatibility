@@ -25,7 +25,7 @@ define('db_port', 'PORT');
 define('db_user', 'USERNAME');
 define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
-define('db_table' , 'TABLE_NAME');
+define('db_table', 'TABLE_NAME');
 
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
@@ -114,9 +114,10 @@ $a_histdates = array(
 	'2017_03' => array(array('y' => 2017, 'm' => 'March', 'd' => '1'),  array(y => 2017, 'm' => 'March', 'd' => '29')),
 	'2017_04' => array(array('y' => 2017, 'm' => 'March', 'd' => '30'), array(y => 2017, 'm' => 'April', 'd' => '30')),
 	'2017_05' => array(array('y' => 2017, 'm' => 'May',   'd' => '1'),  array(y => 2017, 'm' => 'May',   'd' => '31')),
-	'2017_06' => array(array('y' => 2017, 'm' => 'June',  'd' => '1'),  array(y => 2017, 'm' => 'June',  'd' => '30'))
+	'2017_06' => array(array('y' => 2017, 'm' => 'June',  'd' => '1'),  array(y => 2017, 'm' => 'June',  'd' => '30')),
+	'2017_07' => array(array('y' => 2017, 'm' => 'July',  'd' => '1'),  array(y => 2017, 'm' => 'July',  'd' => '31'))
 );
 
 // Current month
-$a_currenthist = array('2017_07', 'July 1st, 2017');
+$a_currenthist = array('2017_08', 'August 1st, 2017');
 ?>

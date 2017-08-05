@@ -61,7 +61,7 @@ function getHistoryMonths() {
 		$s_months .= $spacer;
 	}
 	
-	$m = "<a href=\"?h\">July 2017</a>";
+	$m = "<a href=\"?h\">August 2017</a>";
 	if ($get['h1'] == db_table)        { $s_months .= highlightBold($m); } 
 	else                               { $s_months .= $m; }	
 	
