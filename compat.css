@@ -43,6 +43,7 @@
 	opacity:.9;
 	background-color: transparent;
 	direction: rtl;
+	margin-top: 3px;
 }
 @media screen and (max-width:880px) {
 	.compat-status-progressbar {
