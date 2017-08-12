@@ -19,14 +19,21 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if(!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
+if(!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.history.php");
 
 // Firstly we check if it's a RSS request. 
 // These need to be displayed before any HTML code is loaded or the syntax is broken.
-if (isset($_GET['h']) & isset($_GET['rss'])) { 	
-	echo getHistoryRSS(); 
+if (isset($_GET['rss'])) { 	
+	if (isset($_GET['h'])) {
+		header('Content-Type: application/xml');
+		echo getHistoryRSS(); 
+	} elseif (isset($_GET['b'])) {
+		header('Content-Type: application/xml');
+		echo getBuildsRSS();
+	}
 } elseif (isset($_GET['api'])) {
 	
-	// WIP
+	// API: v1
 	if ($_GET['api'] == 'v1') {
 		if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
 		$results = APIv1();
@@ -35,13 +42,12 @@ if (isset($_GET['h']) & isset($_GET['rss'])) {
 	}
 	
 } else {
-?>
-<!-- 
+/**
 RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22 
--->
-<?php if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
+**/  
+if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
 <div id="page-con-content">
 	<div id="header-con-head">
 		<div id='header-img-head' class="dynamic-banner">

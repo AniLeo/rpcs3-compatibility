@@ -853,4 +853,31 @@ function prof_print() {
 }
 
 
+function getDateDiff($datetime) {
+	$diff = time() - strtotime($datetime);
+	$days = floor($diff / 86400);	
+		
+	if ($days == 0) {
+		$hours = floor($diff / 3600);	
+		if ($hours == 0) { 
+			$minutes = floor($diff / 60);
+			if ($minutes == 1) { 
+				$diff = "{$minutes} minute ago";
+			} else {
+				$diff = "{$minutes} minutes ago";
+			}
+		} elseif ($hours == 1) { 
+			$diff = "{$hours} hour ago";
+		} else {
+			$diff = "{$hours} hours ago";
+		}
+	} elseif ($days == 1) { 
+		$diff = "{$days} day ago"; 
+	} else { 
+		$diff = "{$days} days ago"; 
+	}
+	
+	return $diff;
+}
+
 ?>

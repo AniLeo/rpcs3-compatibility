@@ -26,7 +26,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		<div id='featured-con-block'>
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
-					<p id='title1'>RPCS3 Builds History</p>
+					<p id='title1'>RPCS3 Builds History <a href='compatibility?b&rss'>(RSS)</a></p>
 					<?php echo getMenu(true, true, false, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">

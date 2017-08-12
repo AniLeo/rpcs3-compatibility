@@ -51,7 +51,6 @@ function getLatestLinuxBuild() {
 }
 
 
-
 function cacheRoadmap() {
 	$content = file_get_contents("https://github.com/RPCS3/rpcs3/wiki/Roadmap");
 
