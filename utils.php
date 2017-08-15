@@ -29,7 +29,7 @@ function getLatestWindowsBuild() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+	$query = mysqli_query($db, "SELECT * FROM builds_windows WHERE type = 'branch' ORDER BY merge_datetime DESC LIMIT 1;");
 	$row = mysqli_fetch_object($query);
 
 	mysqli_close($db);
