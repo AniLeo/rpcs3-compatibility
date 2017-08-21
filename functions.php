@@ -160,7 +160,7 @@ function getThread($text, $tid) {
 	global $c_forum;
 	
 	// The thread should never be 0. All games MUST have a thread.
-	if ($tid != "0") { return "<a href=\"{$c_forum}{$tid}\">{$text}</a>"; } 
+	if ($tid != "0") { return "<a href=\"{$c_forum}{$tid}.html\">{$text}</a>"; } 
 	else             { return $text; }
 }
 

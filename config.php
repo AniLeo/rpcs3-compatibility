@@ -29,7 +29,7 @@ define('db_table', 'TABLE_NAME');
 
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';
-$c_forum = 'http://www.emunewz.net/forum/showthread.php?tid=';
+$c_forum = 'https://forums.rpcs3.net/thread-';
 $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pageresults = 3; // Default results per page (50)
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
