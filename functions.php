@@ -30,31 +30,32 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   * Obtains Game Media by checking Game ID's first character. 
   * Returns Game Media as an image, empty string if Game Media is invalid.
   *
-  * @param string $gid GameID: 9 character ID that identifies a game
-  * @param bool   $url Whether to return Game Media as a clickable(1) or non-clickable(0) flag
-  * @param top    $top Workaround for CSS
+  * @param string $gid   GameID, 9 character ID that identifies a game
+  * @param bool   $url   Whether to return Game Media as a clickable(1) or non-clickable(0) flag
+  * @param class  $class CSS classes for returned image
+  * @param extra  $extra Extra params for clickable URL (combined search)
   *
   * @return string
   */
-function getGameMedia($gid, $url = true, $top = "3px", $extra = '') {
+function getGameMedia($gid, $url = true, $class = 'compat-icon-media', $extra = '') {
 	global $a_media, $get;
 	
+	// First letter of Game ID
 	$l = substr($gid, 0, 1);
 	
 	// If it's not a valid / known region then we return an empty string
 	if (!array_key_exists($l, $a_media)) {
-		return "";
+		return '';
 	}
 	
-	if     ($l == "N")  { $alt = 'Digital'; }           // PSN Retail
-	elseif ($l == "B")  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
-	elseif ($l == "X")  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
+	if     ($l == 'N')  { $alt = 'Digital'; }           // PSN Digital
+	elseif ($l == 'B')  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
+	elseif ($l == 'X')  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
 	
-	$img = "<img style='top:{$top}' alt=\"{$alt}\" src=\"{$a_media[$l]}\" class='div-compat-fmat'>";
+	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"{$class}\">";
 	
-	if ($extra != '') {
-		$ex = substr($extra, 0, 1);
-	} else { $ex = ''; }
+	// Get the page we're on so we can reset back to the correct page
+	$ex = $extra != '' ? substr($extra, 0, 1) : '';
 	
 	// Allow for filter reseting by clicking the flag again
 	if ($get['t'] == strtolower($l) && $url) {

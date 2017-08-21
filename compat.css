@@ -167,6 +167,24 @@
 	margin-top: 14px;
 }
 
+/* Media Icon */
+.compat-icon-media {
+	width: 18px;
+	height: 18px;
+	position: relative;
+	float: left;
+	z-index: 1;
+	margin-top: 3px;
+	margin-right: 3px;
+	padding: 4px 4px;
+	text-align: left;
+	border-radius: 100%;
+}
+/* For Library Page */
+.icon-library {
+	margin-top: 1px;
+}
+
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
   TODO: Clean below 
@@ -407,22 +425,7 @@ font-family:arial;
 
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
 
-.div-compat-fmat {
-	position:relative;
-	z-index:1;
-	top:3px;
-	left:0;
-	float:left;
-	width: 18px;
-	height: 18px;
-	margin-right:4px;
-	padding-top:4px;
-	padding-right:4px;
-	padding-bottom:4px;
-	padding-left:4px;
-	text-align:left;
-	border-radius: 100%;
-}
+
 
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
 
