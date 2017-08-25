@@ -28,11 +28,13 @@ CREATE TABLE `commit_cache` (
 DROP TABLE IF EXISTS `builds_windows`;
 CREATE TABLE `builds_windows` (
   `pr` int(11) NOT NULL,
+  `commit` varchar(255) NOT NULL,
   `author` varchar(255) NOT NULL,
   `start_datetime` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `merge_datetime` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `appveyor` varchar(255) NOT NULL,
-  PRIMARY KEY (`pr`)
+  `type` varchar(255) NOT NULL,
+  PRIMARY KEY (`pr`,`commit`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- ----------------------------
