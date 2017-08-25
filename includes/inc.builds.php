@@ -89,7 +89,7 @@ function builds_getTableContent() {
 				<td><a href=\"https://github.com/{$row->author}\">{$row->author}</a></td>
 				<td>{$diff} ({$fulldate})</td>";
 				if ($row->appveyor != "0") { 
-					$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$row->appveyor}</a></td>";
+					$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></td>";
 				} else {
 					$s_tablecontent .= "<td><i>None</i></td>";
 				}
