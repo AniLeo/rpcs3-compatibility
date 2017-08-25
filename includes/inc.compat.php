@@ -82,34 +82,33 @@ $currentPage = getCurrentPage($pages);
 
 // Run the main query 
 prof_flag("Inc: Execute Main Query");
-$sqlCmd .= "SELECT game_id, game_title, build_commit, thread_id, status, last_edit, valid
-FROM ".db_table." AS t1 
-LEFT JOIN commit_cache AS t2 
-ON t1.build_commit = t2.commit_id ";
-if ($genquery[0] != "") {
-	$sqlCmd .= " WHERE {$genquery[0]} ";
-}
-$sqlCmd .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-$mainQuery1 = mysqli_query($db, $sqlCmd);
+
+$c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
+FROM ".db_table." ";
+if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
+$c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+
+$q_main = mysqli_query($db, $c_main);
 
 
-// Abbreviation search / Levenshtein search
+// Initials search / Levenshtein search
 prof_flag("Inc: Initials + Levenshtein");
-if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5))))) {
+
+// If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
+if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5)))) {
 	
 	// Initials
-	$abbreviationQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
+	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
-	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0) {
-		
+	if ($q_initials && mysqli_num_rows($q_initials) > 0) {
+
 		$i = 0;
-		$partTwo .= " ( ";
-		while ($row = mysqli_fetch_object($abbreviationQuery)) {
+		while ($row = mysqli_fetch_object($q_initials)) {
 			if ($i > 0) { $partTwo .= " OR "; }
 			$partTwo .= " game_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
 			$i++;
 		}
-		$partTwo .= " ) ";
+		$partTwo = " ( {$partTwo} ) ";
 
 		// Recalculate Pages / CurrentPage
 		$scount2 = countGames($db, $partTwo);
@@ -125,25 +124,25 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$partOne .= " status = {$get['s']} AND ";
 		}
 		
-		$mainQuery2 = mysqli_query($db, " {$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
+		$q_main2 = mysqli_query($db, " {$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
 	}
 	
 	// If results not found then apply levenshtein to get the closest result
 	$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 	
-	if ($levCheck && mysqli_num_rows($levCheck) === 0 && $abbreviationQuery && mysqli_num_rows($abbreviationQuery) === 0) {
+	if ($levCheck && mysqli_num_rows($levCheck) == 0 && $q_initials && mysqli_num_rows($q_initials) == 0) {
 		$l_title = "";
 		$l_dist = -1;
 		$l_orig = "";
 		
-		if ($mainQuery1 && mysqli_num_rows($mainQuery1) === 0) {
+		if ($q_main && mysqli_num_rows($q_main) == 0) {
 			
 			// Select all database entries
 			$sqlCmd2 = "SELECT * FROM ".db_table."; ";
-			$mainQuery2 = mysqli_query($db, $sqlCmd2);
+			$q_main2 = mysqli_query($db, $sqlCmd2);
 			
 			// Calculate proximity for each database entry
-			while($row = mysqli_fetch_object($mainQuery2)) {
+			while($row = mysqli_fetch_object($q_main2)) {
 				$lev = levenshtein($get['g'], $row->game_title);
 				
 				if ($lev <= $l_dist || $l_dist < 0) {
@@ -155,14 +154,12 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
 			
 			// Re-run the main query
-			$sqlCmd = "SELECT game_id, game_title, build_commit, thread_id, status, last_edit, valid
-					FROM ".db_table." AS t1 
-					LEFT JOIN commit_cache AS t2 
-					ON t1.build_commit = t2.commit_id 
-					WHERE {$genquery} 
-					{$a_order[$get['o']]} 
-					LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-			$mainQuery1 = mysqli_query($db, $sqlCmd);
+			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
+			FROM ".db_table."
+			WHERE {$genquery} 
+			{$a_order[$get['o']]} 
+			LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+			$q_main = mysqli_query($db, $sqlCmd);
 			
 			// Recalculate Pages / CurrentPage
 			$scount = countGames($db, $genquery);
@@ -173,6 +170,116 @@ if ($get['g'] != "" && (strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4
 			$l_orig = $get['g'];
 			$get['g'] = $l_title;
 		}
+	}
+}
+
+
+// Store results
+prof_flag("Inc: Store Results");
+$a_results = array();
+
+/* 
+Small cache for commit -> pr information
+Note: Left joining the main query with builds_windows highly increases query time
+
+- Page loaded in 0.0052 seconds (Query: 19570μs)
+LEFT JOIN commit_cache AS t2 
+ON t1.build_commit = t2.commit_id
+
+- Page loaded in 0.7242 seconds (Query: 7199060μs)
+LEFT JOIN builds_windows
+ON commit LIKE CONCAT(build_commit, '%') && build_commit != 0
+
+- Page loaded in 0.4061 seconds (Query: 4027700μs)
+LEFT JOIN builds_windows
+ON SUBSTR(commit,1,7) = SUBSTR(build_commit,1,7) 
+
+- Page loaded in 0.0139 seconds (Query: 15772μs , Store: 97872μs)
+Current method
+*/
+$a_cache = array();
+
+// Stop if too many data is returned on Initials / Levenshtein
+$stop = false;
+
+
+// TODO: Refator cache
+if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_rows($q_main2) == 0) {
+	while ($row = mysqli_fetch_object($q_main2)) {
+		
+		// Check if commit has been cached already. If not cache, if yes use cached info.
+		$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
+		if (count($grep) == 0) {
+			$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
+			
+			if (mysqli_num_rows($q_builds) > 0) {
+				$buildsRow = mysqli_fetch_object($q_builds);
+				$commit = $buildsRow->commit;
+				$pr = $buildsRow->pr;
+				
+				$a_cache[$commit] = $pr;
+			} else {
+				$commit = $row->build_commit;
+				$pr = 0;	
+			}
+			
+		} else {
+			$commit = $grep[0];
+			$pr = $a_cache[$commit];
+			
+		}
+		
+		$a_results[$row->game_id] = array(
+		'game_id' => $row->game_id,
+		'game_title' => $row->game_title,
+		'status' => $row->status,
+		'thread_id' => $row->thread_id,
+		'last_edit' => $row->last_edit,
+		'commit' => $commit,
+		'pr' => $pr
+		);
+		
+	}
+	if (strlen($get['g']) <= 3) {
+		$stop = true;
+	}
+}
+
+if ($q_main && mysqli_num_rows($q_main) > 0 && !$stop) {
+	while ($row = mysqli_fetch_object($q_main)) {
+		
+		// Check if commit has been cached already. If not cache, if yes use cached info.
+		$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
+		if (count($grep) == 0) {
+			$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
+			
+			if (mysqli_num_rows($q_builds) > 0) {
+				$buildsRow = mysqli_fetch_object($q_builds);
+				$commit = $buildsRow->commit;
+				$pr = $buildsRow->pr;
+			
+				$a_cache[$commit] = $pr;
+			} else {
+				$commit = $row->build_commit;
+				$pr = 0;	
+			}
+			
+		} else {
+			$commit = $grep[0];
+			$pr = $a_cache[$commit];
+			
+		}
+		
+		$a_results[$row->game_id] = array(
+		'game_id' => $row->game_id,
+		'game_title' => $row->game_title,
+		'status' => $row->status,
+		'thread_id' => $row->thread_id,
+		'last_edit' => $row->last_edit,
+		'commit' => $commit,
+		'pr' => $pr
+		);
+		
 	}
 }
 
@@ -293,50 +400,36 @@ function compat_getTableHeaders() {
  * Table Content *
  *****************/
 function getTableContent() {
-	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get;
+	global $q_main, $l_title, $l_orig, $a_results;
 	
-	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $mainQuery2 && mysqli_num_rows($mainQuery2) > 0) {
-		while($row = mysqli_fetch_object($mainQuery2)) {
-			$s_tablecontent .= getTableContentRow($row);
-		}
-		// If used abbreviation is smaller than 3 characters then don't return normal results as they're probably a lot and unrelated
-		if (strlen($get['g']) <= 3) {
-			return $s_tablecontent;
-		}
-	}
-	
-	if ($mainQuery1) {
-		if (mysqli_num_rows($mainQuery1) > 0) {
+	if ($q_main) {
+		if (mysqli_num_rows($q_main) > 0) {
 			if ($l_title != "") {
 				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
-			}
-			while($row = mysqli_fetch_object($mainQuery1)) {
-				// prof_flag("Page: Display Table Content: +Row");
-				$s_tablecontent .= getTableContentRow($row);
-			}
+			} 
+		} else {
+			$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 		}
-	} else {
-		// Query generator fail error
-		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 	}
+	
+	foreach ($a_results as $key => $value) {
+		// prof_flag("Page: Display Table Content: Row - GameID");
+		$s = "<td>".getGameRegion($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_id'], $value['thread_id'])."</td>";
+		// prof_flag("Page: Display Table Content: Row - Game Title");
+		$s .= "<td>".getGameMedia($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_title'], $value['thread_id'])."</td>";
+		// prof_flag("Page: Display Table Content: Row - Status");
+		$s .= "<td>".getColoredStatus($value['status'])."</td>"; 
+		// prof_flag("Page: Display Table Content: Row - Last Updated");
+		$s .= "<td><a href=\"?d=".str_replace('-', '', $value['last_edit'])."\">".$value['last_edit']."</a>&nbsp;&nbsp;&nbsp;";
+
+		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";	
+		$s .= '</td>';	
+
+		$s_tablecontent .= "<tr>{$s}</tr>";
+	}
+
 	return $s_tablecontent;
-}
-
-
-/**********************
- * Table Content: Row *
- **********************/
-function getTableContentRow($row) {
-	// prof_flag("Page: Display Table Content: Row - GameID");
-	$s .= "<td>".getGameRegion($row->game_id)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>";
-	// prof_flag("Page: Display Table Content: Row - Game Title");
-	$s .= "<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>";
-	// prof_flag("Page: Display Table Content: Row - Status");
-	$s .= "<td>".getColoredStatus($row->status)."</td>"; 
-	// prof_flag("Page: Display Table Content: Row - Last Updated");
-	$s .= "<td><a href=\"?d=".str_replace('-', '', $row->last_edit)."\">".$row->last_edit."</a>&nbsp;&nbsp;&nbsp;(".getCommit($row->build_commit, $row->valid).")</td>";	
-	return "<tr>{$s}</tr>";
 }
 
 
@@ -368,8 +461,9 @@ gameID
   date
     yyyy-mm-dd
 */
+
 function APIv1() {
-	global $mainQuery1, $mainQuery2, $abbreviationQuery, $l_title, $l_orig, $get, $c_maintenance;
+	global $q_main, $c_maintenance, $a_results;
 	
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
@@ -385,44 +479,23 @@ function APIv1() {
 	$results = array();
 	$results['return_code'] = 0;
 	
-	if ($abbreviationQuery && mysqli_num_rows($abbreviationQuery) > 0 && $mainQuery2 && mysqli_num_rows($mainQuery2) > 0) {
-		
-		while($row = mysqli_fetch_object($mainQuery2)) {
-			$results['results'][$row->game_id] = array(
-			'title' => $row->game_title,
-			'status' => $row->status,
-			'date' => $row->last_edit,
-			'thread' => intval($row->thread_id));
-			if ($row->build_commit != 0 && $row->valid == 1) {
-				$results['results'][$row->game_id]['commit'] = $row->build_commit;
-			} else {
-				$results['results'][$row->game_id]['commit'] = 0;
-			}
+	foreach ($a_results as $key => $value) {
+		$results['results'][$value['game_id']] = array(
+		'title' => $value['game_title'],
+		'status' => $value['status'],
+		'date' => $value['last_edit'],
+		'thread' => intval($value['thread_id']));
+		if ($value['commit'] != 0 && $value['pr'] != 0) {
+			$results['results'][$value['game_id']]['commit'] = $value['commit'];
+		} else {
+			$results['results'][$value['game_id']]['commit'] = 0;
 		}
-		
-		// If used abbreviation is smaller than 3 characters then don't return normal results as they're probably a lot and unrelated
-		if (strlen($get['g']) <= 3) {
-			return $results;
-		}
-		
 	}
 	
-	if ($mainQuery1) {
-		if (mysqli_num_rows($mainQuery1) > 0) {
+	if ($q_main) {
+		if (mysqli_num_rows($q_main) > 0) {
 			if ($l_title != "") {
 				$results['return_code'] = 2; // No results found for {$l_orig}. Displaying results for {$l_title}.
-			}
-			while($row = mysqli_fetch_object($mainQuery1)) {
-				$results['results'][$row->game_id] = array(
-				'title' => $row->game_title,
-				'status' => $row->status,
-				'date' => $row->last_edit,
-				'thread' => intval($row->thread_id));
-				if ($row->build_commit != 0 && $row->valid == 1) {
-					$results['results'][$row->game_id]['commit'] = $row->build_commit;
-				} else {
-					$results['results'][$row->game_id]['commit'] = 0;
-				}
 			}
 		} else {
 			$results['return_code'] = 1;
@@ -430,7 +503,7 @@ function APIv1() {
 	} else {
 		$results['return_code'] = -1;
 	}
-	
+
 	return $results;
 }
 
