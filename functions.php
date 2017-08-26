@@ -166,48 +166,6 @@ function getThread($text, $tid) {
 
 
 /**
-  * getCommit
-  *
-  * Obtains commit URL for a commit by adding commit ID to the github commit URL prefix
-  * Returns commit ID wrapped around a hyperlink with BUILD CSS class
-  * for the commit or "Unknown" with NOBUILD CSS class if the commit ID is 0 (Unknown)
-  *
-  * @param string $cid CommitID
-  *
-  * @return string
-  */
-function getCommit($cid, $valid = 2) {
-	global $c_github, $c_unkcommit;
-	
-	if ($cid == "0") { return "<i>Unknown</i>"; }
-	
-	if (is_null($valid) || $valid == 2){
-		
-		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-		mysqli_set_charset($db, 'utf8');
-		
-		$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-		if (mysqli_num_rows($commitQuery) === 0) {
-			// Commit not in cache! Run recacher.
-			cacheCommits(false);
-			$commitQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '".mysqli_real_escape_string($db, $cid)."' LIMIT 1; ");
-		}
-
-		mysqli_close($db);
-		
-		$valid = mysqli_fetch_object($commitQuery)->valid;
-		
-	}
-	
-	if ($valid == 1) {
-		return "<a href=\"{$c_github}{$cid}\">".mb_substr($cid, 0, 8)."</a>";
-	} else {
-		return "<i>{$cid}</i>";
-	}
-}
-
-
-/**
   * getColoredStatus
   *
   * Obtains colored status using the color from configuration a_colors array
@@ -243,30 +201,6 @@ function getColoredStatus($sn) {
   */
 function isValid($str) {
     return !preg_match("/[^A-Za-z0-9.#&~; \/\'-]/", $str);
-}
-
-
-/**
-  * isValidCommit
-  *
-  * Checks if commit exists in master branch by checking HTTP Headers.
-  * Returns 1 if valid, 0 if invalid or 2 for internal error.
-  *
-  * @param string $commit Commit ID
-  *
-  * @return int (0,1,2)
-  */
-function isValidCommit($commit) {
-	global $c_github;
-	
-	@file_get_contents($c_github.$commit);
-
-	// HTTP/1.1 404 Not Found - Invalid commit
-	if (strpos($http_response_header[0], '404') !== false)     { return 0; } 
-	// HTTP/1.1 200 OK - Commit found
-	elseif (strpos($http_response_header[0], '200') !== false) { return 1; } 
-	
-	return 2; // Fallback for other error codes
 }
 
 
@@ -535,28 +469,6 @@ function countGames($db = null, $query, $count = 0) {
 	}
 	
 	return $scount;
-}
-
-
-// Converts HEX colors to RGB
-// Returns array with 0 = Red, 1 = Green, 2 = Blue
-function colorHEXtoRGB($color) {
-	
-	if (strlen($color) == 7) {
-		// If it starts by # we remove it and convert anyways
-		$color = substr($color, 1);
-	} elseif (strlen($color) != 6) {
-		// If it's not 7 or 6 characters then it's an invalid color
-		return array(0,0,0);
-	}
-	
-	$rgb = array(
-		$color[0].$color[1], // Red
-		$color[2].$color[3], // Green
-		$color[4].$color[5]  // Blue
-	);
-	
-	return array_map('hexdec', $rgb);
 }
 
 

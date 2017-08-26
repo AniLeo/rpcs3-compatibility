@@ -89,17 +89,16 @@ function getTestedContents() {
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT t1.game_id AS game_id, t1.game_title AS game_title, t1.thread_id AS thread_id, t1.last_edit AS last_edit, t1.build_commit AS build_commit, t2.valid AS valid
-	FROM ".db_table." AS t1
-	LEFT JOIN commit_cache AS t2 
-	ON t1.build_commit = t2.commit_id; ");
+	$query = mysqli_query($db, "SELECT game_id, game_title, thread_id, last_edit, pr  
+	FROM ".db_table." 
+	LEFT JOIN builds_windows
+	ON SUBSTR(commit,1,7) = SUBSTR(build_commit,1,7) ");
 	while($row = mysqli_fetch_object($query)) {
 		$a_games[$row->game_id] = array(
 		'title' => $row->game_title,
 		'thread' => $row->thread_id,
 		'last_edit' => $row->last_edit,
-		'commit' => $row->build_commit,
-		'valid' => $row->valid);
+		'pr' => $row->pr);
 	}
 	
 	mysqli_close($db);
@@ -154,8 +153,10 @@ function getTestedContents() {
 				".getThread($a_games[$gameID]['title'], $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\"style='color:{$color};'>
-				{$a_games[$gameID]['last_edit']}&nbsp;&nbsp;&nbsp;(".getCommit($a_games[$gameID]['commit'], $a_games[$gameID]['valid']).")
-				</div>
+				{$a_games[$gameID]['last_edit']}&nbsp;&nbsp;&nbsp;";
+				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$a_games[$gameID]['pr']}'>Pull #{$a_games[$gameID]['pr']}</a>)";
+				
+				echo "</div>
 			</div>";
 		}
 	}

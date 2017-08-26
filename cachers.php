@@ -22,48 +22,6 @@
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-/**
-  * cacheCommits
-  *
-  * Caches the validity of commits obtained by isValidCommit.
-  * This is required because validating takes too much time and kills page load times.
-  *
-  * @param bool $mode Recache mode (true = full / false = partial)
-  *
-  */
-function cacheCommits($mode) {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-
-	$commitQuery = mysqli_query($db, "SELECT t1.build_commit, t2.commit_id, t2.valid 
-	FROM ".db_table." AS t1 LEFT JOIN commit_cache AS t2 on t1.build_commit != t2.commit_id 
-	WHERE build_commit != '0' GROUP BY build_commit; ");
-
-	while($row = mysqli_fetch_object($commitQuery)) {
-		
-		$cid = mysqli_real_escape_string($db, $row->build_commit);
-		$checkQuery = mysqli_query($db, "SELECT * FROM commit_cache WHERE commit_id = '{$cid}' LIMIT 1; ");
-		$row2 = mysqli_fetch_object($checkQuery);
-		
-		// Partial recache: If value isn't cached, then cache it 
-		if (mysqli_num_rows($checkQuery) === 0) {
-			$valid = isValidCommit($row->build_commit);
-			mysqli_query($db, "INSERT INTO commit_cache (commit_id, valid) VALUES ('{$cid}', '{$valid}'); ");
-		} 
-		
-		// Full recache: Updates currently existent entries (commits don't dissappear, this option shouldn't be needed...)
-		elseif ($mode) {
-			$valid = isValidCommit($row->build_commit);
-			// If value is cached but differs on validation, update it	
-			if ($row2->valid != $valid) {
-				mysqli_query($db, "UPDATE commit_cache SET valid = '{$valid}' WHERE commit_id = '{$cid}' LIMIT 1; ");
-			}
-		}
-	}
-	mysqli_close($db);
-}
-
-
 function cacheThreadValidity($mode = false) {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
