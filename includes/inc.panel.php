@@ -39,12 +39,6 @@ TODO: User permissions system
 TODO: Log commands with run time and datetime
 */
 
-if ($get['a'] == 'updateCommitCache') {
-	$startA = getTime();
-	cacheCommits(false);
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
-}
 
 if ($get['a'] == 'updateBuildCache') {
 	$startA = getTime();
@@ -81,18 +75,12 @@ if ($get['a'] == 'updateRoadmapCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on roadmap cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
-if ($get['a'] == 'updateStatusModuleCount') {
+if ($get['a'] == 'updateStatusModule') {
 	$startA = getTime();
 	cacheStatusModule();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on count status module (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateStatusModuleNoCount') {
-	$startA = getTime();
 	cacheStatusModule(false);
 	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on nocount status module(".round(($finishA - $startA), 4)."s).</p>";
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status modules (".round(($finishA - $startA), 4)."s).</p>";
 }
 
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 

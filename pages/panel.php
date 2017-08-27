@@ -31,25 +31,18 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					<?php echo getMenu(true, true, true, true, false); ?>
 				</div>
 			
-				<div id='featured-tx2-block' class="compat-desc">
-					<p style="font-size: 12px;">
-						<a href="?a=updateCommitCache">Update Commit Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateBuildCache">Update Build Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateInitialsCache">Update Initials Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateLibraryCache">Update Library Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateThreadsCache">Update Threads Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateRoadmapCache">Update Roadmap Cache</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateStatusModuleCount">Update Status Module [Count]</a>
-						&nbsp;•&nbsp;
-						<a href="?a=updateStatusModuleNoCount">Update Status Module [No Count]</a>
-					</p>
-					
+				<div id='debug-left'>
+					<ul>
+					  <li><a href="?a=updateBuildCache">Update Build Cache</a></li>
+					  <li><a href="?a=updateInitialsCache">Update Initials Cache</a></li>
+					  <li><a href="?a=updateLibraryCache">Update Library Cache</a></li>
+					  <li><a href="?a=updateThreadsCache">Update Threads Cache</a></li>
+					  <li><a href="?a=updateStatusModuleCount">Update Status Module</a></li>
+					  <li><a href="?a=updateRoadmapCache">Update Roadmap Cache</a></li>
+					</ul> 
+				</div>
+				
+				<div id='debug-right'>
 					<form action="?a=generatePassword" method="post">
 						<p style="font-size: 12px;">
 							<b>Generate secure password:</b>&nbsp;
@@ -57,7 +50,6 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 							<br>
 						</p>
 					</form>
-					
 					<?php checkInvalidThreads(); ?>
 				</div>
 				

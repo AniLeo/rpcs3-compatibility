@@ -544,3 +544,36 @@
 	color:#fff;
 	background: #06c;
 }
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+li a {
+	font-size: 12px;
+    display: block;
+    color: #000;
+    padding: 4px 8px;
+    text-decoration: none;
+	text-align: center;
+}
+li a:hover {
+    background-color: #555;
+    color: white;
+}
+#debug-left {
+	font-family: arial;
+	width: 18%;
+	float: left;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+#debug-right {
+	font-family: arial;
+	width: 80%;
+	float: right;
+	padding-top: 20px;
+}
