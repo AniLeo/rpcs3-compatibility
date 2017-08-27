@@ -31,7 +31,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					<?php echo getMenu(true, true, true, true, false); ?>
 				</div>
 			
-				<div id='debug-left'>
+				<div id='debug-left' class='debug-main'>
 					<ul>
 					  <li><a href="?a=updateBuildCache">Update Build Cache</a></li>
 					  <li><a href="?a=updateInitialsCache">Update Initials Cache</a></li>
@@ -42,7 +42,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					</ul> 
 				</div>
 				
-				<div id='debug-right'>
+				<div id='debug-right' class='debug-main'>
 					<form action="?a=generatePassword" method="post">
 						<p style="font-size: 12px;">
 							<b>Generate secure password:</b>&nbsp;

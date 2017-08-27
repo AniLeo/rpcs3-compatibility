@@ -564,16 +564,16 @@ li a:hover {
     background-color: #555;
     color: white;
 }
-#debug-left {
+.debug-main {
 	font-family: arial;
-	width: 18%;
-	float: left;
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
+#debug-left {
+	width: 18%;
+	float: left;
+}
 #debug-right {
-	font-family: arial;
 	width: 80%;
 	float: right;
-	padding-top: 20px;
 }

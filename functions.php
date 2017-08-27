@@ -706,29 +706,6 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 }
 
 
-// If gameID isn't empty then check thread title to see if GameID is in it.
-// Finds wrongly assigned threads.
-function isValidThread($tid, $gameID = '') {
-	$fp = @file_get_contents("http://www.emunewz.net/forum/archive/index.php?thread-{$tid}.html");
-
-	// HTTP/1.1 404 Not Found - Invalid
-	if (strpos($http_response_header[0], '404') !== false) { return 0; } 
-	// HTTP/1.1 200 OK - Found
-	elseif (strpos($http_response_header[0], '200') !== false) { 
-		$title = getPageTitle($fp);
-		if ($title == '') {
-			return -2;
-		}
-		if ($gameID != '' && strpos($title, $gameID) === false) {
-			return 2;
-		}
-		return 1; 
-	} 
-	
-	return -1; // Fallback for other error codes
-}
-
-
 // Based on https://stackoverflow.com/a/399357 
 function getPageTitle($fp) {
     if (!$fp) { 

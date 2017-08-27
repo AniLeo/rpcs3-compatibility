@@ -98,22 +98,26 @@ function checkInvalidThreads() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 
-	$q_invalidThreads = mysqli_query($db, "SELECT t1.game_id, t1.game_title, t1.thread_id, t2.valid FROM rpcs3 
-	AS t1 LEFT JOIN cache_threads AS t2 
-	ON t1.thread_id = t2.tid WHERE valid != 1; ");
+	$q_invalidThreads = mysqli_query($db, "SELECT game_id, game_title, thread_id, tid, subject
+	FROM rpcs3_compatibility.rpcs3 AS t1
+	LEFT JOIN rpcs3_forums.mybb_threads AS t2 
+	ON t1.thread_id = t2.tid
+	WHERE t2.subject NOT LIKE CONCAT('%',game_id,'%') OR t2.subject IS null; ");
 
 	if (mysqli_num_rows($q_invalidThreads) > 0) {
-		echo "<p class='compat-tvalidity-title color-red'><b>Attention required! Invalid threads detected.</b></p>";
+		echo "<p class='compat-tvalidity-title color-red'><b>Not Naisu: Attention required! Invalid threads detected.</b></p>";
 		
 		echo "<p class='compat-tvalidity-list'>";
 		while ($row = mysqli_fetch_object($q_invalidThreads)) {
-			if ($row->valid == -1 || $row->valid == -2) {
-				echo "Thread ".getThread($row->thread_id, $row->thread_id)." failed caching ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
-			} elseif ($row->valid == 2) {
-				echo "Thread ".getThread($row->thread_id, $row->thread_id)." is incorrect   ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+			if (is_null($row->subject)) {
+				echo "Thread ".getThread($row->thread_id, $row->thread_id)." doesn't exist.<br>";
+				echo "- Compat: {$row->game_title} [{$row->game_id}] <br>";
 			} else {
-				echo "Thread ".getThread($row->thread_id, $row->thread_id)." doesn't exist  ({$row->valid}) - [{$row->game_id}] {$row->game_title}.<br>";
+				echo "Thread ".getThread($row->thread_id, $row->thread_id)." is incorrect.<br>";
+				echo "- Compat: {$row->game_title} [{$row->game_id}]<br>";
+				echo "- Forums: {$row->subject}<br>";
 			}
+			echo "<br>";
 		}
 		echo "</p>";
 	} else {

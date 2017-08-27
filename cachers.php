@@ -22,39 +22,6 @@
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-function cacheThreadValidity($mode = false) {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	$threadCommand = "SELECT t1.game_id, t1.thread_id, t2.tid, t2.valid 
-	FROM ".db_table." AS t1 
-	LEFT JOIN cache_threads AS t2 
-	ON t1.thread_id = t2.tid ";
-	
-	// Partial recache: Only check for non-valid or uncached values
-	if (!$mode) {
-		$threadCommand .= " WHERE valid IS null OR valid != 1 ";
-	} // else: Full recache: Check all listed threads
-	
-	$threadQuery = mysqli_query($db, $threadCommand);
-	
-	while ($row = mysqli_fetch_object($threadQuery)) {
-		
-		$tid = mysqli_real_escape_string($db, $row->thread_id);
-		$checkQuery = mysqli_query($db, "SELECT * FROM cache_threads WHERE tid = '{$tid}' LIMIT 1; ");		
-		$valid = isValidThread($tid, $row->game_id);
-		
-		if (mysqli_num_rows($checkQuery) === 0) {
-			mysqli_query($db, "INSERT INTO cache_threads (tid, valid) VALUES ('{$tid}', '{$valid}'); ");
-		} elseif ($row->valid != $valid) {
-			mysqli_query($db, "UPDATE cache_threads SET valid = '{$valid}' WHERE (tid = '{$tid}'); ");
-		}
-	
-	}
-	mysqli_close($db);
-}
-
-
 function cacheWindowsBuilds($full = false){
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
