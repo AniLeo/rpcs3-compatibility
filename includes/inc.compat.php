@@ -155,7 +155,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			
 			// Re-run the main query
 			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
-			FROM ".db_table."
+			FROM ".db_table." 
 			WHERE {$genquery} 
 			{$a_order[$get['o']]} 
 			LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
@@ -409,8 +409,10 @@ function getTableContent() {
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			} 
 		} else {
-			$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+			$s_tablecontent .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
 		}
+	} else {
+		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 	}
 	
 	foreach ($a_results as $key => $value) {
