@@ -207,7 +207,7 @@ $stop = false;
 if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_rows($q_main2) == 0) {
 	while ($row = mysqli_fetch_object($q_main2)) {
 		
-		if ((string)$row->build_commit == '0') {
+		if ($row->build_commit == '0') {
 			$commit = $row->build_commit;
 			$pr = 0;	
 		} else {
@@ -256,7 +256,7 @@ if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_r
 if ($q_main && mysqli_num_rows($q_main) > 0 && !$stop) {
 	while ($row = mysqli_fetch_object($q_main)) {
 		
-		if ((string)$row->build_commit == '0') {
+		if ($row->build_commit == '0') {
 			$commit = $row->build_commit;
 			$pr = 0;	
 		} else {
@@ -500,12 +500,10 @@ function APIv1() {
 		'title' => $value['game_title'],
 		'status' => $value['status'],
 		'date' => $value['last_edit'],
-		'thread' => intval($value['thread_id']));
-		if ($value['commit'] != 0 && $value['pr'] != 0) {
-			$results['results'][$value['game_id']]['commit'] = $value['commit'];
-		} else {
-			$results['results'][$value['game_id']]['commit'] = 0;
-		}
+		'thread' => intval($value['thread_id']),
+		'commit' => $value['commit'],
+		'pr' => $value['pr']
+		);
 	}
 	
 	if ($q_main) {
