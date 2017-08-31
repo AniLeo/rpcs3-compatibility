@@ -207,26 +207,34 @@ $stop = false;
 if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_rows($q_main2) == 0) {
 	while ($row = mysqli_fetch_object($q_main2)) {
 		
-		// Check if commit has been cached already. If not cache, if yes use cached info.
-		$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
-		if (count($grep) == 0) {
-			$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
-			
-			if (mysqli_num_rows($q_builds) > 0) {
-				$buildsRow = mysqli_fetch_object($q_builds);
-				$commit = $buildsRow->commit;
-				$pr = $buildsRow->pr;
-				
-				$a_cache[$commit] = $pr;
-			} else {
-				$commit = $row->build_commit;
-				$pr = 0;	
-			}
-			
+		if ((string)$row->build_commit == '0') {
+			$commit = $row->build_commit;
+			$pr = 0;	
 		} else {
-			$commit = $grep[0];
-			$pr = $a_cache[$commit];
-			
+			// Check if commit has been cached already. If not cache, if yes use cached info.
+			$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
+			if (count($grep) == 0) {
+				$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
+				
+				if (mysqli_num_rows($q_builds) > 0) {
+					$buildsRow = mysqli_fetch_object($q_builds);
+					$commit = $buildsRow->commit;
+					$pr = $buildsRow->pr;
+					
+					$a_cache[$commit] = $pr;
+				} else {
+					$commit = $row->build_commit;
+					$pr = 0;	
+				}
+				
+			} else {
+				// For some reason, from testing key can be 0, 1 or 2 
+				foreach ($grep as $key => $value) {	
+					$commit = $value;
+					break;
+				}
+				$pr = $a_cache[$commit];
+			}
 		}
 		
 		$a_results[$row->game_id] = array(
@@ -248,26 +256,32 @@ if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_r
 if ($q_main && mysqli_num_rows($q_main) > 0 && !$stop) {
 	while ($row = mysqli_fetch_object($q_main)) {
 		
-		// Check if commit has been cached already. If not cache, if yes use cached info.
-		$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
-		if (count($grep) == 0) {
-			$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
-			
-			if (mysqli_num_rows($q_builds) > 0) {
-				$buildsRow = mysqli_fetch_object($q_builds);
-				$commit = $buildsRow->commit;
-				$pr = $buildsRow->pr;
-			
-				$a_cache[$commit] = $pr;
-			} else {
-				$commit = $row->build_commit;
-				$pr = 0;	
-			}
-			
+		if ((string)$row->build_commit == '0') {
+			$commit = $row->build_commit;
+			$pr = 0;	
 		} else {
-			$commit = $grep[0];
-			$pr = $a_cache[$commit];
-			
+			// Check if commit has been cached already. If not cache, if yes use cached info.
+			$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
+			if (count($grep) == 0) {
+				$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
+				if (mysqli_num_rows($q_builds) > 0) {
+					$buildsRow = mysqli_fetch_object($q_builds);
+					$commit = $buildsRow->commit;
+					$pr = $buildsRow->pr;
+					$a_cache[$commit] = $pr;
+				} else {
+					$commit = $row->build_commit;
+					$pr = 0;	
+				}
+				
+			} else {
+				// For some reason, from testing key can be 0, 1 or 2 
+				foreach ($grep as $key => $value) {	
+					$commit = $value;
+					break;
+				}
+				$pr = $a_cache[$commit];
+			}
 		}
 		
 		$a_results[$row->game_id] = array(
