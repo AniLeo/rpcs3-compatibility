@@ -50,11 +50,11 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 						<?php if ($get['f'] == 'e') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'h') { echo'<b>'; } ?>
-						<a href='?l&f=h&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Southern Asia</a>
+						<a href='?l&f=h&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Hong Kong</a>
 						<?php if ($get['f'] == 'h') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'k') { echo'<b>'; } ?>
-						<a href='?l&f=k&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Hong Kong</a>
+						<a href='?l&f=k&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Korea</a>
 						<?php if ($get['f'] == 'k') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'j') { echo'<b>'; } ?>

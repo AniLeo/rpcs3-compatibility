@@ -90,8 +90,8 @@ $a_color = array(
 $a_flags = array(
 "A" => "/img/icons/compat/CN.png", // Asia
 "E" => "/img/icons/compat/EU.png", // Europe
-"H" => "/img/icons/compat/CN.png", // Southern Asia
-"K" => "/img/icons/compat/HK.png", // Hong Kong
+"H" => "/img/icons/compat/HK.png", // Hong Kong
+"K" => "/img/icons/compat/KR.png", // Korea
 "J" => "/img/icons/compat/JP.png", // Japan
 "U" => "/img/icons/compat/US.png"  // USA
 );
