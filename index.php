@@ -52,7 +52,7 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 	<div id="header-con-head">
 		<div id='header-img-head' class="dynamic-banner">
 		</div>
-		<div id='header-con-overlay'>
+		<div id='header-con-overlay' class="lightmode-header">
 		</div>
 		<div id='header-con-body'>
 			<div id='header-tx1-body'>

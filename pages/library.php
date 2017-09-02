@@ -23,7 +23,7 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 <div id='page-con-container'>
 	<div id='page-in-container'>
 	<!-- featured-con-block -->
-		<div id='featured-con-block' style='padding-bottom:12px;'>
+		<div id='featured-con-block' class="lightmode-block" style='padding-bottom:12px;'>
 		
 			<!-- featured-wrp-block -->
 			<div id='featured-wrp-block'>
@@ -50,11 +50,11 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 						<?php if ($get['f'] == 'e') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'h') { echo'<b>'; } ?>
-						<a href='?l&f=h&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Hong Kong</a>
+						<a href='?l&f=h&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Southern Asia</a>
 						<?php if ($get['f'] == 'h') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'k') { echo'<b>'; } ?>
-						<a href='?l&f=k&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Korea</a>
+						<a href='?l&f=k&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Hong Kong</a>
 						<?php if ($get['f'] == 'k') { echo'</b>'; } ?>
 						•
 						<?php if ($get['f'] == 'j') { echo'<b>'; } ?>
