@@ -115,9 +115,10 @@ $a_histdates = array(
 	'2017_04' => array(array('y' => 2017, 'm' => 'March', 'd' => '30'), array(y => 2017, 'm' => 'April', 'd' => '30')),
 	'2017_05' => array(array('y' => 2017, 'm' => 'May',   'd' => '1'),  array(y => 2017, 'm' => 'May',   'd' => '31')),
 	'2017_06' => array(array('y' => 2017, 'm' => 'June',  'd' => '1'),  array(y => 2017, 'm' => 'June',  'd' => '30')),
-	'2017_07' => array(array('y' => 2017, 'm' => 'July',  'd' => '1'),  array(y => 2017, 'm' => 'July',  'd' => '31'))
+	'2017_07' => array(array('y' => 2017, 'm' => 'July',  'd' => '1'),  array(y => 2017, 'm' => 'July',  'd' => '31')),
+	'2017_08' => array(array('y' => 2017, 'm' => 'August',  'd' => '1'),  array(y => 2017, 'm' => 'September',  'd' => '1'))
 );
 
 // Current month
-$a_currenthist = array('2017_08', 'August 1st, 2017');
+$a_currenthist = array('2017_09', 'September 2nd, 2017');
 ?>
