@@ -555,12 +555,12 @@ function getFooter($start) {
 	
 	// Finish: Microtime after the page loaded
 	$finish = getTime();
-	$total_time = round(($finish - $start), 4);
+	$total_time = round(($finish - $start)*1000,2);
 	
 	$s = "<p>Compatibility list developed and mantained by 
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
-	Page loaded in {$total_time} seconds</p>";
+	Page loaded in {$total_time}ms</p>";
 	if ($get['w'] && $c_profiler && !empty($prof_desc)) {
 		$s .= "<p style='line-height:20px; padding-bottom:15px;'><b>{$prof_desc}</b><br>".prof_print()."</p>";
 	}
