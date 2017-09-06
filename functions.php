@@ -200,7 +200,7 @@ function getColoredStatus($sn) {
   * @return bool
   */
 function isValid($str) {
-    return !preg_match("/[^A-Za-z0-9.#&~; \/\'-]/", $str);
+    return !preg_match("/[^A-Za-z0-9.#&~;: \/\'-]/", $str);
 }
 
 
@@ -768,6 +768,17 @@ function getDateDiff($datetime) {
 	}
 	
 	return $diff;
+}
+
+
+// From https://stackoverflow.com/a/9826656
+function get_string_between($string, $start, $end){
+    $string = ' ' . $string;
+    $ini = strpos($string, $start);
+    if ($ini == 0) return '';
+    $ini += strlen($start);
+    $len = strpos($string, $end, $ini) - $ini;
+    return substr($string, $ini, $len);
 }
 
 ?>
