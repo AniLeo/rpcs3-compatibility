@@ -23,5 +23,3 @@ if(!@include_once(__DIR__.'/../cachers.php')) throw new Exception("Compat: cache
 
 // Running every 5 minutes
 cacheWindowsBuilds();
-
-?>

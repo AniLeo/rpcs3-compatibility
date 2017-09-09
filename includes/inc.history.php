@@ -260,5 +260,3 @@ function getHistoryRSS(){
 	
     return $rssfeed;
 }
-
-?>

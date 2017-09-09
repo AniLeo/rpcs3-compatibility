@@ -333,5 +333,3 @@ function cacheStatusModule($count = true) {
 		fclose($f_status);
 	}
 }
-
-?>

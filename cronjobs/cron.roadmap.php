@@ -23,5 +23,3 @@ if(!@include_once(__DIR__.'/../utils.php')) throw new Exception("Compat: utils.p
 
 // 2017.06.23 - Cache Roadmap | Running every 30 minutes
 cacheRoadmap();
-
-?>

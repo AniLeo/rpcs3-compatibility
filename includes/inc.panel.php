@@ -126,4 +126,3 @@ function checkInvalidThreads() {
 
 	mysqli_close($db);
 }
-?>

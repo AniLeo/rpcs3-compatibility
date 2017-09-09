@@ -66,6 +66,3 @@ function cacheRoadmap() {
 		fclose($file);
 	}
 }
-
-
-?>

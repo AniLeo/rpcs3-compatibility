@@ -121,4 +121,3 @@ $a_histdates = array(
 
 // Current month
 $a_currenthist = array('2017_09', 'September 2nd, 2017');
-?>

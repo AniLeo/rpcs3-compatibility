@@ -160,5 +160,3 @@ function getBuildsRSS() {
 			</channel>
 	</rss>";
 }
-
-?>

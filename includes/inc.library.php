@@ -178,6 +178,3 @@ function getGames($tested) {
 	if ($tested) { $file = 'tested.txt'; } else { $file = 'untested.txt'; } 
 	return fgets(fopen(__DIR__."/../{$file}", 'r'));
 }
-
-
-?>
