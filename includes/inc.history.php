@@ -38,7 +38,7 @@ function getHistoryDescription() {
 		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
 	} else {
 		$v = $a_histdates[$get['h1']];
-		$s_desc .= "from <b>{$v[0][m]} {$v[0][d]}, {$v[0][y]}</b> to <b>{$v[1][m]} {$v[1][d]}, {$v[1][y]}</b>.";
+		$s_desc .= "from <b>{$v[0]['m']} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$v[1]['m']} {$v[1]['d']}, {$v[1]['y']}</b>.";
 	}
 
 	return "<p id='compat-history-description'>{$s_desc}</p>";
@@ -54,7 +54,7 @@ function getHistoryMonths() {
 	$keys = array_keys($a_histdates);
 	
 	foreach(array_slice($keys,1) as $k => $v) {
-		$m = "<a href=\"?h={$v}\">{$a_histdates[$v][1][m]} {$a_histdates[$v][1][y]}</a>";
+		$m = "<a href=\"?h={$v}\">{$a_histdates[$v][1]['m']} {$a_histdates[$v][1]['y']}</a>";
 		
 		if ($get['h1'] == $v) { $s_months .= highlightBold($m); } 
 		else                  { $s_months .= $m; }
@@ -223,7 +223,7 @@ function getHistoryRSS(){
 		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
 	
-	$url = "https://{$_SERVER[HTTP_HOST]}{$_SERVER[REQUEST_URI]}";
+	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	$url = str_replace('&', '&amp;', $url);
 	
     $rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
