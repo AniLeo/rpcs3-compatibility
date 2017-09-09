@@ -123,7 +123,7 @@ function getBuildsRSS() {
 	$buildsQuery = mysqli_query($db, "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ");
 	
 	if (!$buildsQuery) {
-		return "An error occoured. Please try again. If the issue persists contact RPCS3 team.";
+		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
 	
 	$url = "https://{$_SERVER[HTTP_HOST]}{$_SERVER[REQUEST_URI]}";

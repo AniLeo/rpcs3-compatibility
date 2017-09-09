@@ -22,7 +22,7 @@
 if(!@include_once(__DIR__.'/../cachers.php')) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php"); 
 
 // This caches number of tested/untested games. Shouldn't be needed because ps3tdb.txt is manually updated.
-// Runs once a day, just incase recaching is forgotten after one updates ps3tdb.txt.
+// Runs once a day, just in case recaching is forgotten after one updates ps3tdb.txt.
 cacheLibraryStatistics();
 
 ?>
