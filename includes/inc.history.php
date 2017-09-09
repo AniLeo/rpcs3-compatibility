@@ -220,7 +220,7 @@ function getHistoryRSS(){
 	$rssQuery = mysqli_query($db, $rssCmd);
 	
 	if (!$rssQuery) {
-		return "An error occoured. Please try again. If the issue persists contact RPCS3 team.";
+		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
 	
 	$url = "https://{$_SERVER[HTTP_HOST]}{$_SERVER[REQUEST_URI]}";

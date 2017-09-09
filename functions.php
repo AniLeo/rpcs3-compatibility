@@ -57,7 +57,7 @@ function getGameMedia($gid, $url = true, $class = 'compat-icon-media', $extra = 
 	// Get the page we're on so we can reset back to the correct page
 	$ex = $extra != '' ? substr($extra, 0, 1) : '';
 	
-	// Allow for filter reseting by clicking the flag again
+	// Allow for filter resetting by clicking the flag again
 	if ($get['t'] == strtolower($l) && $url) {
 		return "<a href=\"?{$ex}\">{$img}</a>";
 	}
@@ -100,7 +100,7 @@ function getGameRegion($gid, $url = true, $extra = '') {
 		$ex = substr($extra, 0, 1);
 	} else { $ex = ''; }
 	
-	// Allow for filter reseting by clicking the flag again
+	// Allow for filter resetting by clicking the flag again
 	if ($get['f'] == strtolower($l) && $url) {
 		return "<a href=\"?{$ex}\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
@@ -625,7 +625,7 @@ function generateStatusModule($getCount = true) {
 	// Get games count per status
 	$count = countGames()[0];
 	
-	// Pretty output for readibility
+	// Pretty output for readability
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) { 
 	
 		$output .= "<div class='compat-status-main'>\n";

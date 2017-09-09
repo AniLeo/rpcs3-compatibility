@@ -153,7 +153,7 @@ function cacheWindowsBuilds($full = false){
 						}						
 					}
 					
-					// If listed build is failed/unkown, force using old method again
+					// If listed build is failed/unknown, force using old method again
 					if ($status == "unknown" || $status == "Failed") {
 						$start = "<a class=\"status-actions\" href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
 						$end = "\">Details</a>";
@@ -166,7 +166,7 @@ function cacheWindowsBuilds($full = false){
 						$status = "Succeeded";
 					}
 
-					// Only caches if the post-merge build has been successefully built.
+					// Only caches if the post-merge build has been successfully built.
 					if ($status == "Succeeded") {
 						$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
 						VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
