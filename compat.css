@@ -26,7 +26,7 @@
     left: 32px;
     width: 600px;
     height: 24px;
-    color: #5e5e5e;
+    color: #455971;
 }
 
 .compat-status-text p {
@@ -105,7 +105,7 @@
 }
 
 #compat-author p {
-    font-family: arial;
+    font-family: tahoma;
     font-size: 12px;
     line-height: 40px;
     width: 100%;
@@ -161,7 +161,7 @@
 .divTableHeading {
     font-weight: bold;
     display: table-header-group;
-    color: #5e5e5e;
+    color: #455971;
     background-color: #fff;
 }
 
@@ -171,6 +171,10 @@
 
 .divTableRow {
     display: table-row;
+}
+
+.divTableRow:nth-child(2n+1) {
+    background: rgba(122,179,255,0.05);
 }
 
 .divTableRow:hover {
@@ -227,7 +231,7 @@
     height: 100%;
     cursor: pointer;
     text-align: center;
-    color: #5e5e5e;
+    color: #455971;
 }
 
 .compat-con-container {
@@ -323,7 +327,7 @@ input:focus {
 input {
     height: 100%;
     padding-left: 24px;
-    color: #5e5e5e;
+    color: #455971;
     border: none;
 }
 
@@ -380,7 +384,7 @@ input {
     margin-top: -15px;
     margin-left: 24px;
     text-align: left;
-    color: #5e5e5e;
+    color: #455971;
 }
 
 #compat-hdr-left2 {
@@ -392,7 +396,7 @@ input {
     margin-top: -20px;
     margin-left: 24px;
     text-align: left;
-    color: #5e5e5e;
+    color: #455971;
 }
 
 #compat-hdr-right {
@@ -404,7 +408,7 @@ input {
     margin-top: -36px;
     margin-right: 20px;
     text-align: right;
-    color: #5e5e5e;
+    color: #455971;
 }
 
 #compat-hdr-right a {
