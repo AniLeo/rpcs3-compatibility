@@ -520,5 +520,3 @@ function APIv1() {
 
 	return $results;
 }
-
-?>
