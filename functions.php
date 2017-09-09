@@ -219,7 +219,7 @@ function highlightBold($str) {
 
 
 function obtainGet($db = null) {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_admin, $a_media;
+	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
 	
 	// Start new $get array
 	$get = array();
@@ -551,7 +551,7 @@ function getTableHeaders($headers, $extra = '') {
 
 
 function getFooter($start) {
-	global $prof_timing, $prof_names, $prof_desc, $c_profiler, $get;
+	global $prof_desc, $c_profiler, $get;
 	
 	// Finish: Microtime after the page loaded
 	$finish = getTime();

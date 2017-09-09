@@ -65,7 +65,7 @@ function builds_getTableHeaders() {
 
 
 function builds_getTableContent() {
-	global $get, $c_appveyor, $a_order, $pages, $currentPage;
+	global $get, $c_appveyor, $a_order, $currentPage;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -108,7 +108,7 @@ function builds_getTableContent() {
 
 
 function builds_getPagesCounter() {
-	global $get, $pages, $currentPage;
+	global $pages, $currentPage;
 	
 	return getPagesCounter($pages, $currentPage, "b&");
 }
