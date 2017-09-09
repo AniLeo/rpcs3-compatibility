@@ -77,7 +77,7 @@ function getResultsPerPage() {
 
 
 function getTestedContents() {
-	global $get, $pages, $currentPage, $a_filter, $a_db;
+	global $get, $pages, $currentPage, $a_db;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
