@@ -126,7 +126,7 @@ function getBuildsRSS() {
 		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
 	
-	$url = "https://{$_SERVER[HTTP_HOST]}{$_SERVER[REQUEST_URI]}";
+	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	$url = str_replace('&', '&amp;', $url);
 	
 	if (mysqli_num_rows($buildsQuery) > 0) {
