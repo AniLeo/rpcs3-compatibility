@@ -32,8 +32,8 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   *
   * @param string $gid   GameID, 9 character ID that identifies a game
   * @param bool   $url   Whether to return Game Media as a clickable(1) or non-clickable(0) flag
-  * @param class  $class CSS classes for returned image
-  * @param extra  $extra Extra params for clickable URL (combined search)
+  * @param string $class CSS classes for returned image
+  * @param string $extra Extra params for clickable URL (combined search)
   *
   * @return string
   */
@@ -82,6 +82,7 @@ function getGameMedia($gid, $url = true, $class = 'compat-icon-media', $extra = 
   *
   * @param string $gid GameID: 9 character ID that identifies a game
   * @param bool   $url Whether to return Game Region as a clickable(1) or non-clickable(0) flag
+  * @param string $extra
   *
   * @return string
   */
