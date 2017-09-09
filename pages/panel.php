@@ -23,7 +23,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 <div id="page-con-container">
 	<div id="page-in-container">
 		
-		<div id='featured-con-block'>
+		<div id='featured-con-block' class="lightmode-block">
 			<div id='featured-wrp-block'>
 			
 				<div id='featured-tx1-block' class="compat-title">
@@ -36,9 +36,10 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					  <li><a href="?a=updateBuildCache">Update Build Cache</a></li>
 					  <li><a href="?a=updateInitialsCache">Update Initials Cache</a></li>
 					  <li><a href="?a=updateLibraryCache">Update Library Cache</a></li>
-					  <li><a href="?a=updateThreadsCache">Update Threads Cache</a></li>
-					  <li><a href="?a=updateStatusModuleCount">Update Status Module</a></li>
+					  <li><a href="?a=updateStatusModule">Update Status Module</a></li>
 					  <li><a href="?a=updateRoadmapCache">Update Roadmap Cache</a></li>
+					  <li><a href="?a=compareThreads">Compare Threads</a></li>
+					  <li><a href="?a=updateCompatibility">Update Compatibility</a></li>
 					</ul> 
 				</div>
 				
@@ -50,7 +51,15 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 							<br>
 						</p>
 					</form>
-					<?php checkInvalidThreads(); ?>
+					<?php 
+						checkInvalidThreads(); 
+						if ($get['a'] == 'compareThreads') {
+							compareThreads(); 
+						}
+						if ($get['a'] == 'updateCompatibility') {
+							compareThreads(true); 
+						}
+					?>
 				</div>
 				
 			</div>
