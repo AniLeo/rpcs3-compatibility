@@ -400,7 +400,7 @@ function generateQuery($get, $db = null) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($db = null, $query, $count = 0) {
+function countGames($db = null, $query = '', $count = 0) {
 	global $get, $a_title;
 	
 	if ($db == null) {
