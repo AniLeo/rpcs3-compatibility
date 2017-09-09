@@ -35,7 +35,7 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 					<p>
 						The list of the whole PS3's game library known to mankind can be found at <a target='_blank' href='http://www.gametdb.com/PS3/List'>GameTDB</a>.
 						<br>
-						There are currently <font color='#27ae60'><b><?php echo countGames(null, 'all'); ?></b> tested Game IDs (<b><?php echo getGames(true); ?></b> listed here) </font> and <font color='#e74c3c'><b><?php echo getGames(false); ?></b> untested Game IDs</font>.
+						There are currently <span style="color: #27ae60;"><b><?php echo countGames(null, 'all'); ?></b> tested Game IDs (<b><?php echo getGames(true); ?></b> listed here) </span> and <span style="color: #e74c3c;"><b><?php echo getGames(false); ?></b> untested Game IDs</span>.
 						<br>
 						<i>Keep in mind this list doesn't have some of the Game IDs tested so far in our compatibility list.</i>
 						<br>
