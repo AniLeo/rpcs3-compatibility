@@ -106,22 +106,34 @@ function cacheWindowsBuilds($full = false){
 					$end = "<div class=\"commit-links-cell table-list-cell\">";
 					$content_commit = explode($end, explode($start, $content_commit)[1])[0];
 					
-					$type = "unknown";
+					// Section that contains AppVeyor data that we want
+					$start1 = "\"AppVeyor CI (@appveyor) generated this status.\">";
+					$end1 = "</svg>";
+					$type = "pr_alt_nocheck"; // Commit doesn't contain any checks
 					
 					if (strpos($content_commit, '<a href="http://www.appveyor.com" class="d-inline-block tooltipped tooltipped-e muted-link mr-2" aria-label="AppVeyor CI (@appveyor) generated this status.">') !== false) {
-						// Section that contains AppVeyor data that we want
-						$start = "\"AppVeyor CI (@appveyor) generated this status.\">";
-						$end = "</svg>";
-						$appveyor = explode($end, explode($start, $content_commit)[1])[0]; 
+						
+						$appveyor = explode($end1, explode($start1, $content_commit)[1])[0]; 
 						
 						// Get build type
-						if (strpos($appveyor, 'branch') !== false) {
-							$type = "branch"; // Rebuilt on master after merge
-						} elseif (strpos($appveyor, 'pr') !== false) {
-							$type = "pr";     // Last pull request artifact before merge
-						}
+						if (strpos($appveyor, 'branch') !== false) { $type = "branch"; } // Rebuilt on master after merge
+						elseif (strpos($appveyor, 'pr') !== false) { $type = "pr"; }     // Last pull request artifact before merge
+						
 					} else {
-						$type = "pr_alt_nocheck"; // Commit doesn't contain any checks
+						sleep(10); // It probably tried to recache the second it was merged and it caught the limbo of nocheck
+
+						// Retry
+						$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
+						$content_commit = explode($end, explode($start, $content_commit)[1])[0];
+						
+						if (strpos($content_commit, '<a href="http://www.appveyor.com" class="d-inline-block tooltipped tooltipped-e muted-link mr-2" aria-label="AppVeyor CI (@appveyor) generated this status.">') !== false) {
+							
+							$appveyor = explode($end1, explode($start1, $content_commit)[1])[0]; 
+						
+							// Get build type
+							if (strpos($appveyor, 'branch') !== false) { $type = "branch"; } // Rebuilt on master after merge
+							elseif (strpos($appveyor, 'pr') !== false) { $type = "pr"; }     // Last pull request artifact before merge
+						}
 					}
 					
 					$status = "unknown";
