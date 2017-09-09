@@ -326,7 +326,7 @@ function getSortBy() {
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
 		$s_sortby .= "<a title='$a_desc[$i]' href=\"?"; 
-		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true, false);
+		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true);
 		$s_sortby .= "s=$i\">"; 
 		
 		$temp = "$a_title[$i]&nbsp;({$scount[1][$i]})";
