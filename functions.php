@@ -239,7 +239,9 @@ function obtainGet($db = null) {
 	$get['t'] = '';
 	$get['h'] = '';
 	$get['h1'] = db_table;
-	$get['h2'] = end((array_keys($a_histdates))); 
+	end($a_histdates);              // Move internal pointer to the end of the array
+	$get['h2'] = key($a_histdates); // Get key pointed to by internal pointer
+	reset($a_histdates);            // Reset internal pointer
 	$get['m'] = ''; 
 	
 	// PS3 Games List
