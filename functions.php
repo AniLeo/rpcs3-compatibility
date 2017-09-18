@@ -406,16 +406,14 @@ function countGames($db = null, $query = '', $count = 0) {
 	global $get, $a_title;
 	
 	if ($db == null) {
-		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		$db = @mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		if (!$db) { 
+			return 0; // If there's no database connection, return 0 games
+		}
 		mysqli_set_charset($db, 'utf8');
 		$close = true;
 	} else {
 		$close = false;
-	}
-	
-	// Failed database connection, return 0 games
-	if (!$db) {
-		return 0;
 	}
 	
 	if ($query == 'all') {
@@ -660,7 +658,10 @@ function isWhitelisted($db = null) {
 	global $c_cloudflare;
 	
 	if ($db == null) {
-		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		$db = @mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+		if (!$db) {
+			return false; // If there's no database connection, just assume user isn't whitelisted
+		}
 		mysqli_set_charset($db, 'utf8');
 		$close = true;
 	} else {
