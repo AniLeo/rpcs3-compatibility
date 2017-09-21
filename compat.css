@@ -105,7 +105,7 @@
 }
 
 #compat-author p {
-    font-family: tahoma;
+    font-family: arial;
     font-size: 12px;
     line-height: 40px;
     width: 100%;
@@ -121,7 +121,7 @@
 }
 
 .compat-tvalidity-title {
-    font-family: tahoma;
+    font-family: arial;
     font-size: 13px;
     padding-top: 15px;
 }
@@ -135,7 +135,7 @@
 }
 
 .compat-tvalidity-list {
-    font-family: tahoma;
+    font-family: arial;
     font-size: 12px;
     color: #e74c3c;
 }
