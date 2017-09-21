@@ -636,28 +636,6 @@ input {
     background: #3198ff;
 }
 
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    background-color: #f1f1f1;
-}
-
-li a {
-    font-size: 12px;
-    display: block;
-    color: #000;
-    padding: 4px 8px;
-    text-decoration: none;
-    text-align: center;
-}
-
-li a:hover {
-    background-color: #555;
-    color: white;
-}
-
 .debug-main {
     font-family: arial;
     padding-top: 20px;
@@ -672,4 +650,25 @@ li a:hover {
 #debug-right {
     width: 80%;
     float: right;
+}
+
+#debug-left ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+
+#debug-left li a {
+    font-size: 12px;
+    display: block;
+    padding: 4px 8px;
+    text-decoration: none;
+    text-align: center;
+}
+
+#debug-left li a:hover {
+    background-color: #555;
+    color: white;
 }
