@@ -31,7 +31,8 @@ function cacheWindowsBuilds($full = false){
 	
 	if (!$full) {
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
-		$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+		// Note: If master builds are disabled we need to remove WHERE type = 'branch'
+		$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows WHERE type = 'branch' ORDER BY merge_datetime DESC LIMIT 1;");
 		$row = mysqli_fetch_object($mergeDateQuery);
 		
 		$merge_datetime = date_create($row->merge_datetime);
@@ -102,7 +103,7 @@ function cacheWindowsBuilds($full = false){
 					$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
 					
 					// Get first commit data only
-					$start = "<div class=\"commit-meta commit-author-section\">";
+					$start = "<div class=\"commit-meta commit-author-section";
 					$end = "<div class=\"commit-links-cell table-list-cell\">";
 					$content_commit = explode($end, explode($start, $content_commit)[1])[0];
 					
@@ -179,9 +180,21 @@ function cacheWindowsBuilds($full = false){
 					}
 
 					// Only caches if the post-merge build has been successfully built.
+					
 					if ($status == "Succeeded") {
-						$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
-						VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
+							$cachePRQuery = mysqli_query($db, " UPDATE `builds_windows` SET 
+							`commit` = '".mysqli_real_escape_string($db, $commit)."', 
+							`type` = '{$type}', 
+							`author` = '".mysqli_real_escape_string($db, $author)."', 
+							`start_datetime` = '{$start_datetime}',
+							`merge_datetime` = '{$merge_datetime}', 
+							`appveyor` = '{$build}' 
+							WHERE `pr` = '{$pr}' LIMIT 1;");
+						} else {
+							$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
+							VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+						}
 					} else {
 						// If Building then we wait for the next script run...
 					}
