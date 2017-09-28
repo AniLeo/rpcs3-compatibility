@@ -203,7 +203,10 @@
     margin-right: 3px;
     padding: 4px 4px;
     text-align: left;
-    border-radius: 100%;
+}
+.compat-icon-media:hover {
+    background: rgba(49, 152, 255, .3);
+    border-radius:100%;
 }
 
 .icon-library {

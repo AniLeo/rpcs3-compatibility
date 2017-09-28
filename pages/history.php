@@ -23,7 +23,7 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 <div id='page-con-container'>
 	<div id='page-in-container'>
 	<!-- featured-con-block -->
-		<div id='featured-con-block' class="lightmode-block">
+		<div id='featured-con-block' class="darkmode-block">
 		
 			<!-- featured-wrp-block -->
 			<div id='featured-wrp-block' style='padding-bottom:1px'>

@@ -23,7 +23,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 <div id="page-con-container">
 	<div id="page-in-container">
 		<!--End -->
-		<div id='featured-con-block' class="lightmode-block">
+		<div id='featured-con-block' class="darkmode-block">
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
 					<p id='title1'>RPCS3 Compatibility List</p>

@@ -23,7 +23,7 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 <div id='page-con-container'>
 	<div id='page-in-container'>
 	<!-- featured-con-block -->
-		<div id='featured-con-block' class="lightmode-block" style='padding-bottom:12px;'>
+		<div id='featured-con-block' class="darkmode-block" style='padding-bottom:12px;'>
 		
 			<!-- featured-wrp-block -->
 			<div id='featured-wrp-block'>
