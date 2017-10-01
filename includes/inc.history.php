@@ -34,10 +34,10 @@ function getHistoryDescription() {
 	
 	$s_desc .= "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
-	if ($get['h1'] == db_table) {
+	if ($get['h'] == $a_currenthist[0]) {
 		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
 	} else {
-		$v = $a_histdates[$get['h1']];
+		$v = $a_histdates[$get['h']];
 		$s_desc .= "from <b>{$v[0]['m']} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$v[1]['m']} {$v[1]['d']}, {$v[1]['y']}</b>.";
 	}
 
@@ -46,7 +46,7 @@ function getHistoryDescription() {
 
 
 function getHistoryMonths() {
-	global $get, $a_histdates;
+	global $get, $a_histdates, $a_currenthist;
 	
 	$s_months .= "<strong>Month:&nbsp;</strong>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
@@ -56,24 +56,24 @@ function getHistoryMonths() {
 	foreach(array_slice($keys,1) as $k => $v) {
 		$m = "<a href=\"?h={$v}\">{$a_histdates[$v][1]['m']} {$a_histdates[$v][1]['y']}</a>";
 		
-		if ($get['h1'] == $v) { $s_months .= highlightBold($m); } 
-		else                  { $s_months .= $m; }
+		if ($get['h'] == $v) { $s_months .= highlightBold($m); } 
+		else                 { $s_months .= $m; }
 		$s_months .= $spacer;
 	}
 	
-	$m = "<a href=\"?h\">September 2017</a>";
-	if ($get['h1'] == db_table)        { $s_months .= highlightBold($m); } 
-	else                               { $s_months .= $m; }	
+	$m = "<a href=\"?h\">October 2017</a>";
+	if ($get['h'] == $a_currenthist[0]) { $s_months .= highlightBold($m); } 
+	else                                { $s_months .= $m; }	
 	
 	return "<p id='compat-history-months'>{$s_months}</p>";
 }
 
 
 function getHistoryOptions() {
-	global $get;
+	global $get, $a_currenthist;
 	
-	if ($get['h1'] != "" && $get['h1'] != db_table) { $h = "={$get['h1']}"; } 
-	else                                            { $h = ""; }
+	if ($get['h'] != $a_currenthist[0]) { $h = "={$get['h']}"; } 
+	else                                { $h = ""; }
 	
 	$o1 = "<a href=\"?h{$h}\">Show all entries</a>";
 	$o2 = "<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>";
@@ -119,22 +119,29 @@ function getHistoryHeaders($full = true) {
 }
 
 
-// Compatibility History: Pulls information from backup and compares with current database
 function getHistoryContent() {
-	global $get; 
+	global $get, $a_histdates, $a_currenthist;
 	
-	// Establish MySQL connection to be used for history
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
+	$month1 = monthNameToNumber($a_histdates[$get['h']][0][m]);
+	$month2 = monthNameToNumber($a_histdates[$get['h']][1][m]);
+	
+	if ($get['h'] == $a_currenthist[0]) {
+		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
+	} else {
+		$dateQuery = " AND new_date BETWEEN 
+		CAST('{$a_histdates[$get['h']][0][y]}-{$month1}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1][y]}-{$month2}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
+	}
+	
 	if ($get['m'] == "c" || $get['m'] == "") {
-		$cQuery = mysqli_query($db, 
-		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$get['h1']} AS t1
-		LEFT JOIN {$get['h2']} AS t2
-		ON t1.game_id=t2.game_id
-		WHERE t1.status != t2.status 
-		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
+		$cQuery = mysqli_query($db, "SELECT * FROM game_history 
+		LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id 
+		WHERE old_status IS NOT NULL 
+		{$dateQuery} 
+		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
 	
 		if (!$cQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
@@ -147,8 +154,8 @@ function getHistoryContent() {
 
 			while($row = mysqli_fetch_object($cQuery)) {
 				$s_content .= "<tr>
-				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
-				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
+				<td>".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
+				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
 				<td>{$row->new_date}</td>
 				<td>".getColoredStatus($row->old_status)."</td>
@@ -160,13 +167,11 @@ function getHistoryContent() {
 	}
 	
 	if ($get['m'] == "n" || $get['m'] == "") {
-		$nQuery = mysqli_query($db, 
-		"SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-		FROM {$get['h1']} AS t1
-		LEFT JOIN {$get['h2']} AS t2
-		ON t1.game_id=t2.game_id
-		WHERE t2.status IS NULL
-		ORDER BY new_status ASC, -old_status DESC, title ASC; ");
+		$nQuery = mysqli_query($db, "SELECT * FROM game_history 
+		LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id 
+		WHERE old_status IS NULL 
+		{$dateQuery} 
+		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
 		
 		if (!$nQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
@@ -180,8 +185,8 @@ function getHistoryContent() {
 			
 			while($row = mysqli_fetch_object($nQuery)) {
 				$s_content .= "<tr>
-				<td>".getGameRegion($row->gid, false)."&nbsp;&nbsp;".getThread($row->gid, $row->tid)."</td>
-				<td>".getGameMedia($row->gid)."&nbsp;&nbsp;".getThread($row->title, $row->tid)."</td>
+				<td>".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
+				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
 				<td>".getColoredStatus($row->new_status)."</td>
 				<td>{$row->new_date}</td>
 				</tr>";	
@@ -198,24 +203,31 @@ function getHistoryContent() {
 
 
 function getHistoryRSS(){
-	global $c_forum, $get;
+	global $c_forum, $get, $a_currenthist;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$rssCmd = "
-	SELECT t1.game_id AS gid, t1.game_title AS title, t1.thread_id AS tid, t1.status AS new_status, t2.status AS old_status, t1.last_edit AS new_date, t2.last_edit AS old_date
-	FROM {$get['h1']} AS t1
-	LEFT JOIN {$get['h2']} AS t2
-	ON t1.game_id=t2.game_id ";
-	if ($get['m'] == "c") {
-		$rssCmd .= " WHERE t1.status != t2.status ";
-	} elseif ($get['m'] == "n") {
-		$rssCmd .= " WHERE t2.status IS NULL ";
+	$month1 = monthNameToNumber($a_histdates[$get['h']][0][m]);
+	$month2 = monthNameToNumber($a_histdates[$get['h']][1][m]);
+	
+	if ($get['h'] == $a_currenthist[0]) {
+		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
 	} else {
-		$rssCmd .= " WHERE t1.status != t2.status OR t2.status IS NULL ";
+		$dateQuery = " AND new_date BETWEEN 
+		CAST('{$a_histdates[$get['h']][0][y]}-{$month1}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1][y]}-{$month2}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
 	}
-	$rssCmd .= "ORDER BY new_date DESC, new_status ASC, -old_status DESC, title ASC; ";
+	
+	$rssCmd = "SELECT * FROM game_history LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id ";
+	if ($get['m'] == "c") {
+		$rssCmd .= " WHERE old_status IS NOT NULL ";
+	} elseif ($get['m'] == "n") {
+		$rssCmd .= " WHERE old_status IS NULL ";
+	} else {
+		$rssCmd .= " WHERE rpcs3.game_id IS NOT NULL ";
+	}
+	$rssCmd .= " {$dateQuery} ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
 	
 	$rssQuery = mysqli_query($db, $rssCmd);
 	
@@ -238,9 +250,9 @@ function getHistoryRSS(){
     while($row = mysqli_fetch_object($rssQuery)) {
  
         $rssfeed .= "<item>
-					<title><![CDATA[{$row->gid} - {$row->title}]]></title>
-					<link>{$c_forum}{$row->tid}</link>
-					<guid>{$c_forum}{$row->tid}</guid>";
+					<title><![CDATA[{$row->game_id} - {$row->game_title}]]></title>
+					<link>{$c_forum}{$row->thread_id}</link>
+					<guid>{$c_forum}{$row->thread_id}</guid>";
 		
 		if ($row->old_status !== NULL) {
 			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";

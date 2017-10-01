@@ -84,7 +84,8 @@ $currentPage = getCurrentPage($pages);
 prof_flag("Inc: Execute Main Query");
 
 $c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
-FROM ".db_table." ";
+FROM ".db_table." 
+LEFT JOIN game_status ON parent_id = id ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
@@ -119,7 +120,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			$scount = countGames($db, $partTwo, $scount[0]);
 		}
 		
-		$partOne = "SELECT * FROM ".db_table." WHERE ";
+		$partOne = "SELECT * FROM ".db_table." LEFT JOIN game_status ON parent_id = id WHERE ";
 		if ($get['s'] != 0) {
 			$partOne .= " status = {$get['s']} AND ";
 		}
@@ -156,6 +157,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			// Re-run the main query
 			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
 			FROM ".db_table." 
+			LEFT JOIN game_status ON parent_id = id 
 			WHERE {$genquery} 
 			{$a_order[$get['o']]} 
 			LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";

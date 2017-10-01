@@ -146,10 +146,12 @@ function compareThreads($update = false) {
 		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
 	}
 	
-	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_edit 
+	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_edit, parent_id
 	FROM rpcs3_forums.mybb_threads 
 	LEFT JOIN rpcs3_compatibility.rpcs3 
 	ON tid = thread_id 
+	LEFT JOIN game_status
+	ON rpcs3.parent_id = game_status.id
 	WHERE fid > 4 && fid < 10 && closed NOT like '%moved%'
 	&& lastpost > {$timestamp} 
 	ORDER BY game_id;");
@@ -158,6 +160,8 @@ function compareThreads($update = false) {
 	$a_games = array();
 	
 	echo "<p style='padding-top:10px; font-size:12px;'>";
+	
+	$parent_id = mysqli_fetch_object(mysqli_query($db, "SELECT parent_id FROM rpcs3 ORDER BY parent_id DESC LIMIT 1;"))->parent_id;
 	
 	while ($row = mysqli_fetch_object($q_threads)) {
 		$sid = $row->fid - 4;
@@ -189,13 +193,17 @@ function compareThreads($update = false) {
 					if (array_key_exists($gid, $a_games)) {
 						echo "Error! {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread.<br>";
 					} else {
+
+						$parent_id++;
+						
 						$a_games[$row->tid] = array(
 						'game_id' => $gid, 
 						'game_title' => $title, 
 						'status' => array_search($row->fid, $a_status),
 						'commit' => 0,
 						'last_edit' => date('Y-m-d', $row->lastpost),
-						'action' => 'new'
+						'action' => 'new',
+						'parent_id' => $parent_id
 						);
 					}
 					
@@ -212,7 +220,10 @@ function compareThreads($update = false) {
 			'status' => array_search($row->fid, $a_status),
 			'commit' => 0,
 			'last_edit' => date('Y-m-d', $row->lastpost),
-			'action' => 'mov'
+			'action' => 'mov',
+			'old_date' => $row->last_edit,
+			'old_status' => $row->status,
+			'parent_id' => $row->parent_id
 			);
 		}
 	}
@@ -221,6 +232,8 @@ function compareThreads($update = false) {
 	FROM rpcs3_forums.mybb_posts 
 	LEFT JOIN rpcs3_compatibility.rpcs3
 	ON tid = thread_id 
+	LEFT JOIN game_status
+	ON rpcs3.parent_id = game_status.id 
 	WHERE fid > 4 && fid < 10 
 	&& dateline > {$timestamp}
 	ORDER by tid, pid DESC;");
@@ -249,7 +262,7 @@ function compareThreads($update = false) {
 				
 			}
 		
-			if ($found[$row->tid] === 0) 
+			if ($found[$row->tid] == 0) 
 			{
 				echo "<b>{$a_games[$row->tid]['game_id']}</b>: Commit not found (tid:".getThread($row->tid, $row->tid).")<br>";
 				$found[$row->tid] = 1; // Log only once per thread
@@ -265,20 +278,41 @@ function compareThreads($update = false) {
 		
 			// No need to escape all params but meh
 			if ($a_games[$key]['action'] == 'new') {
-				mysqli_query($db, "INSERT INTO `rpcs3` (`game_id`, `game_title`, `build_commit`, `thread_id`, `status`, `last_edit`) VALUES (
+				mysqli_query($db, "INSERT INTO `rpcs3` (`game_id`, `game_title`, `build_commit`, `thread_id`, `parent_id`, `last_edit`) VALUES (
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_title'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
 				'{$key}', 
-				'{$a_games[$key]['status']}', 
+				'{$a_games[$key]['parent_id']}', 
 				'{$a_games[$key]['last_edit']}'
 				);");
+				
+				mysqli_query($db, "INSERT INTO game_status (id, status) VALUES ({$a_games[$key]['parent_id']}, '{$a_games[$key]['status']}'); ");
+				
+				// Log change to game_history
+				mysqli_query($db, "INSERT INTO game_history (game_id, new_status, new_date) VALUES (
+				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
+				'{$a_games[$key]['status']}', 
+				'{$a_games[$key]['last_edit']}'
+				); ");
+				
 			} elseif ($a_games[$key]['action'] == 'mov') {
 				mysqli_query($db, "UPDATE `rpcs3` SET 
 				`build_commit`='".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
-				`status`='{$a_games[$key]['status']}', 
 				`last_edit`='{$a_games[$key]['last_edit']}' 
 				WHERE (`game_id`='{$a_games[$key]['game_id']}'); ");
+				
+				mysqli_query($db, "UPDATE game_status SET status = '{$a_games[$key]['status']}' WHERE id = {$a_games[$key]['parent_id']}; ");
+				
+				// Log change to game_history
+				mysqli_query($db, "INSERT INTO game_history (game_id, old_status, old_date, new_status, new_date) VALUES (
+				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
+				'{$a_games[$key]['old_status']}', 
+				'{$a_games[$key]['old_date']}',
+				'{$a_games[$key]['status']}', 
+				'{$a_games[$key]['last_edit']}'
+				); ");
+				
 			}
 		
 		}

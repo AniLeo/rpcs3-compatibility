@@ -237,11 +237,7 @@ function obtainGet($db = null) {
 	$get['d'] = '';
 	$get['f'] = '';
 	$get['t'] = '';
-	$get['h'] = '';
-	$get['h1'] = db_table;
-	end($a_histdates);              // Move internal pointer to the end of the array
-	$get['h2'] = key($a_histdates); // Get key pointed to by internal pointer
-	reset($a_histdates);            // Reset internal pointer
+	$get['h'] = $a_currenthist[0];
 	$get['m'] = ''; 
 	
 	// PS3 Games List
@@ -298,14 +294,8 @@ function obtainGet($db = null) {
 	}
 	
 	// History
-	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
-		$keys = array_keys($a_histdates);
-		$index = array_search($_GET['h'], $keys);
-		
-		if ($index >= 0 && $a_currenthist[0] != $_GET['h']) { 
-			$get['h1'] = $_GET['h'];
-			$get['h2'] = $keys[$index-1]; 
-		}
+	if (isset($_GET['h']) && $_GET['h'] != '2017_02' && array_key_exists($_GET['h'], $a_histdates)) {
+		$get['h'] = $_GET['h'];
 	}
 	
 	// History mode
@@ -417,15 +407,16 @@ function countGames($db = null, $query = '', $count = 0) {
 	}
 	
 	if ($query == 'all') {
-		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM ".db_table))->c;
+		// Unique game count
+		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM game_status"))->c;
 	}
 	
 	if ($query == '') {
 		// Empty query or general query with order only, all games returned
-		$gen = "SELECT status, count(*) AS c FROM ".db_table." GROUP BY status;";
+		$gen = "SELECT status, count(*) AS c FROM game_status GROUP BY status;";
 	} else {
 		// Query defined, return count of games with searched parameters
-		$gen = "SELECT status, count(*) AS c FROM ".db_table." WHERE ({$query}) GROUP BY status;";
+		$gen = "SELECT status, count(*) AS c FROM ".db_table." LEFT JOIN game_status ON parent_id = id WHERE ({$query}) GROUP BY status;";
 	}
 
 	$q_gen = mysqli_query($db, $gen);
@@ -782,4 +773,22 @@ function get_string_between($string, $start, $end){
     $ini += strlen($start);
     $len = strpos($string, $end, $ini) - $ini;
     return substr($string, $ini, $len);
+}
+
+
+function monthNameToNumber($name) {
+	
+	if ($name == 'January')   { return 1; }
+	if ($name == 'February')  { return 2; }
+	if ($name == 'March')     { return 3; }
+	if ($name == 'April')     { return 4; }
+	if ($name == 'May')       { return 5; }
+	if ($name == 'June')      { return 6; }
+	if ($name == 'July')      { return 7; }
+	if ($name == 'August')    { return 8; }
+	if ($name == 'September') { return 9; }
+	if ($name == 'October')   { return 10; }
+	if ($name == 'November')  { return 11; }
+	if ($name == 'December')  { return 12; }
+
 }
