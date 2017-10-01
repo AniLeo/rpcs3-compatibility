@@ -138,7 +138,7 @@ function getHistoryContent() {
 	
 	if ($get['m'] == "c" || $get['m'] == "") {
 		$cQuery = mysqli_query($db, "SELECT * FROM game_history 
-		LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id 
+		LEFT JOIN game_list ON game_history.game_id = game_list.game_id 
 		WHERE old_status IS NOT NULL 
 		{$dateQuery} 
 		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
@@ -168,7 +168,7 @@ function getHistoryContent() {
 	
 	if ($get['m'] == "n" || $get['m'] == "") {
 		$nQuery = mysqli_query($db, "SELECT * FROM game_history 
-		LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id 
+		LEFT JOIN game_list ON game_history.game_id = game_list.game_id 
 		WHERE old_status IS NULL 
 		{$dateQuery} 
 		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
@@ -219,13 +219,13 @@ function getHistoryRSS(){
 		AND CAST('{$a_histdates[$get['h']][1][y]}-{$month2}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
 	}
 	
-	$rssCmd = "SELECT * FROM game_history LEFT JOIN rpcs3 ON game_history.game_id = rpcs3.game_id ";
+	$rssCmd = "SELECT * FROM game_history LEFT JOIN game_list ON game_history.game_id = game_list.game_id ";
 	if ($get['m'] == "c") {
 		$rssCmd .= " WHERE old_status IS NOT NULL ";
 	} elseif ($get['m'] == "n") {
 		$rssCmd .= " WHERE old_status IS NULL ";
 	} else {
-		$rssCmd .= " WHERE rpcs3.game_id IS NOT NULL ";
+		$rssCmd .= " WHERE game_list.game_id IS NOT NULL ";
 	}
 	$rssCmd .= " {$dateQuery} ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
 	

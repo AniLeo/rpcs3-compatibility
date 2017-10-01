@@ -1,8 +1,8 @@
 -- ----------------------------
--- Table structure for rpcs3
+-- Table structure for game_list
 -- ----------------------------
-DROP TABLE IF EXISTS `rpcs3`;
-CREATE TABLE `rpcs3` (
+DROP TABLE IF EXISTS `game_list`;
+CREATE TABLE `game_list` (
   `game_id` varchar(9) CHARACTER SET utf8 NOT NULL,
   `game_title` varchar(255) CHARACTER SET utf8 NOT NULL,
   `parent_id` int(11) NOT NULL,

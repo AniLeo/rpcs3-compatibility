@@ -416,7 +416,7 @@ function countGames($db = null, $query = '', $count = 0) {
 		$gen = "SELECT status, count(*) AS c FROM game_status GROUP BY status;";
 	} else {
 		// Query defined, return count of games with searched parameters
-		$gen = "SELECT status, count(*) AS c FROM ".db_table." LEFT JOIN game_status ON parent_id = id WHERE ({$query}) GROUP BY status;";
+		$gen = "SELECT status, count(*) AS c FROM game_list LEFT JOIN game_status ON parent_id = id WHERE ({$query}) GROUP BY status;";
 	}
 
 	$q_gen = mysqli_query($db, $gen);

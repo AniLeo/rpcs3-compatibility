@@ -25,7 +25,6 @@ define('db_port', 'PORT');
 define('db_user', 'USERNAME');
 define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
-define('db_table', 'TABLE_NAME');
 
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3/commit/';

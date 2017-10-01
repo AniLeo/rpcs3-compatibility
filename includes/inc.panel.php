@@ -92,7 +92,7 @@ function checkInvalidThreads() {
 	mysqli_set_charset($db, 'utf8');
 
 	$q_invalidThreads = mysqli_query($db, "SELECT game_id, game_title, thread_id, tid, subject
-	FROM rpcs3_compatibility.rpcs3 AS t1
+	FROM rpcs3_compatibility.game_list AS t1
 	LEFT JOIN rpcs3_forums.mybb_threads AS t2 
 	ON t1.thread_id = t2.tid
 	WHERE t2.subject NOT LIKE CONCAT('%',game_id,'%') OR t2.subject IS null; ");
@@ -148,10 +148,10 @@ function compareThreads($update = false) {
 	
 	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_edit, parent_id
 	FROM rpcs3_forums.mybb_threads 
-	LEFT JOIN rpcs3_compatibility.rpcs3 
+	LEFT JOIN rpcs3_compatibility.game_list 
 	ON tid = thread_id 
 	LEFT JOIN game_status
-	ON rpcs3.parent_id = game_status.id
+	ON game_list.parent_id = game_status.id
 	WHERE fid > 4 && fid < 10 && closed NOT like '%moved%'
 	&& lastpost > {$timestamp} 
 	ORDER BY game_id;");
@@ -161,7 +161,7 @@ function compareThreads($update = false) {
 	
 	echo "<p style='padding-top:10px; font-size:12px;'>";
 	
-	$parent_id = mysqli_fetch_object(mysqli_query($db, "SELECT parent_id FROM rpcs3 ORDER BY parent_id DESC LIMIT 1;"))->parent_id;
+	$parent_id = mysqli_fetch_object(mysqli_query($db, "SELECT parent_id FROM game_list ORDER BY parent_id DESC LIMIT 1;"))->parent_id;
 	
 	while ($row = mysqli_fetch_object($q_threads)) {
 		$sid = $row->fid - 4;
@@ -176,7 +176,7 @@ function compareThreads($update = false) {
 				$title = $bodytag = str_replace(" [{$gid}]", "", "{$row->subject}");
 				
 				// Check if there's an existing thread already, if so, flag as duplicated for manual correction.
-				$duplicate = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_id = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
+				$duplicate = mysqli_query($db, "SELECT * FROM game_list WHERE game_id = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
 				if (mysqli_num_rows($duplicate) === 1) {
 					$duplicateRow = mysqli_fetch_object($duplicate);
 					echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($duplicateRow->thread_id, $duplicateRow->thread_id).").</span><br>";
@@ -230,10 +230,10 @@ function compareThreads($update = false) {
 	
 	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_edit 
 	FROM rpcs3_forums.mybb_posts 
-	LEFT JOIN rpcs3_compatibility.rpcs3
+	LEFT JOIN rpcs3_compatibility.game_list
 	ON tid = thread_id 
 	LEFT JOIN game_status
-	ON rpcs3.parent_id = game_status.id 
+	ON game_list.parent_id = game_status.id 
 	WHERE fid > 4 && fid < 10 
 	&& dateline > {$timestamp}
 	ORDER by tid, pid DESC;");
@@ -278,7 +278,7 @@ function compareThreads($update = false) {
 		
 			// No need to escape all params but meh
 			if ($a_games[$key]['action'] == 'new') {
-				mysqli_query($db, "INSERT INTO `rpcs3` (`game_id`, `game_title`, `build_commit`, `thread_id`, `parent_id`, `last_edit`) VALUES (
+				mysqli_query($db, "INSERT INTO `game_list` (`game_id`, `game_title`, `build_commit`, `thread_id`, `parent_id`, `last_edit`) VALUES (
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_title'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
@@ -297,7 +297,7 @@ function compareThreads($update = false) {
 				); ");
 				
 			} elseif ($a_games[$key]['action'] == 'mov') {
-				mysqli_query($db, "UPDATE `rpcs3` SET 
+				mysqli_query($db, "UPDATE `game_list` SET 
 				`build_commit`='".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
 				`last_edit`='{$a_games[$key]['last_edit']}' 
 				WHERE (`game_id`='{$a_games[$key]['game_id']}'); ");

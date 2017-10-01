@@ -90,7 +90,7 @@ function getTestedContents() {
 	// Get all games in the database (ID + Title)
 	$a_games = array();
 	$query = mysqli_query($db, "SELECT game_id, game_title, thread_id, last_edit, pr  
-	FROM ".db_table." 
+	FROM game_list 
 	LEFT JOIN builds_windows
 	ON SUBSTR(commit,1,7) = SUBSTR(build_commit,1,7) ");
 	while($row = mysqli_fetch_object($query)) {

@@ -84,7 +84,7 @@ $currentPage = getCurrentPage($pages);
 prof_flag("Inc: Execute Main Query");
 
 $c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
-FROM ".db_table." 
+FROM game_list 
 LEFT JOIN game_status ON parent_id = id ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
@@ -120,7 +120,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			$scount = countGames($db, $partTwo, $scount[0]);
 		}
 		
-		$partOne = "SELECT * FROM ".db_table." LEFT JOIN game_status ON parent_id = id WHERE ";
+		$partOne = "SELECT * FROM game_list LEFT JOIN game_status ON parent_id = id WHERE ";
 		if ($get['s'] != 0) {
 			$partOne .= " status = {$get['s']} AND ";
 		}
@@ -129,7 +129,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 	}
 	
 	// If results not found then apply levenshtein to get the closest result
-	$levCheck = mysqli_query($db, "SELECT * FROM ".db_table." WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
+	$levCheck = mysqli_query($db, "SELECT * FROM game_list WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 	
 	if ($levCheck && mysqli_num_rows($levCheck) == 0 && $q_initials && mysqli_num_rows($q_initials) == 0) {
 		$l_title = "";
@@ -139,7 +139,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 		if ($q_main && mysqli_num_rows($q_main) == 0) {
 			
 			// Select all database entries
-			$sqlCmd2 = "SELECT * FROM ".db_table."; ";
+			$sqlCmd2 = "SELECT * FROM game_list; ";
 			$q_main2 = mysqli_query($db, $sqlCmd2);
 			
 			// Calculate proximity for each database entry
@@ -156,7 +156,7 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			
 			// Re-run the main query
 			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
-			FROM ".db_table." 
+			FROM game_list 
 			LEFT JOIN game_status ON parent_id = id 
 			WHERE {$genquery} 
 			{$a_order[$get['o']]} 

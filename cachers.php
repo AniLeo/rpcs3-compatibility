@@ -213,7 +213,7 @@ function cacheInitials() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 
-	$theQuery = mysqli_query($db, "SELECT game_title FROM ".db_table.";");
+	$theQuery = mysqli_query($db, "SELECT game_title FROM game_list;");
 
 	while($row = mysqli_fetch_object($theQuery)) {
 		
@@ -307,7 +307,7 @@ function cacheLibraryStatistics() {
 
 	// Get all games in the database (ID + Title)
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT * FROM rpcs3; ");
+	$query = mysqli_query($db, "SELECT * FROM game_list; ");
 	
 	while($row = mysqli_fetch_object($query)) {
 		$a_games[] = $row->game_id;
