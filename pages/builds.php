@@ -49,7 +49,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			-->
 		</div>
 		
-		<table class='compat-con-container'>
+		<table class='builds-table'>
 			<?php 
 				echo builds_getTableHeaders();
 				echo builds_getTableContent(); 

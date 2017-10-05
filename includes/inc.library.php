@@ -111,7 +111,7 @@ function getTestedContents() {
 		$end = $get['r']*$currentPage;
 	}
 	
-	echo "<div class=\"divTable compat-library-table\">
+	echo "<div class=\"divTable library-table\">
 	<div class=\"divTableHeading\">
 		<div class=\"divTableHead\">ID</div>
 		<div class=\"divTableHead\">Title</div>

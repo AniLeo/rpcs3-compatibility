@@ -640,7 +640,7 @@ function generateStatusModule($getCount = true) {
 		$output .= "</div>\n";
 	}
 	
-	return "<div class='compat-con-container'>\n{$output}</div>";
+	return "<div class='compat-status-container'>\n{$output}</div>";
 }
 
 

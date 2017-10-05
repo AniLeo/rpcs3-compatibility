@@ -73,7 +73,6 @@
     right: 0;
     width: 100%;
     height: 100%;
-    font-weight: bold;
 }
 
 .compat-search-character:hover {
@@ -148,6 +147,7 @@
     background-color: #ecf0f1;
 }
 
+
 .divTable {
     font-family: arial;
     font-size: 12px;
@@ -188,9 +188,8 @@
     padding-left: 24px;
 }
 
-.compat-library-table {
-    margin-top: 14px;
-    margin-bottom: 14px;
+.library-table {
+	
 }
 
 .compat-icon-media {
@@ -238,50 +237,70 @@
     color: #455971;
 }
 
-.compat-con-container {
-    margin-top: 16px;
+.compat-table {
+    margin-top: 14px;
     margin-bottom: 14px;
+	overflow: hidden;
+    background: #fff;
 }
 
-.compat-con-container tr:hover {
+.compat-table tr:hover {
     background: rgba(0,102,204,.1);
 }
 
-.compat-con-container td {
+.compat-table td {
     line-height: 33px;
     height: 33px;
     padding-left: 30px;
 }
 
-.compat-con-container th {
+.compat-table th {
     padding-left: 30px;
 }
 
-.compat-con-container {
-    overflow: hidden;
+.builds-table {
+    margin-top: 14px;
+    margin-bottom: 14px;
+	overflow: hidden;
     background: #fff;
-    padding-bottom: 5px;
-    padding-top: 20px;
+}
+
+.builds-table tr:hover {
+    background: rgba(0,102,204,.1);
+}
+
+.builds-table td {
+    line-height: 33px;
+    height: 33px;
+    padding-left: 30px;
+}
+
+.builds-table th {
+    padding-left: 30px;
+}
+
+.compat-status-container {
+    overflow: hidden;
+	margin-top: 16px;
+    margin-bottom: 14px;
+	padding-top: 12px;
     border-top: 1px solid rgba(0,0,0,.05);
 }
 
-.compat-hist-container {
+.history-table {
     margin-top: 14px;
     margin-bottom: 14px;
+	overflow: hidden;
+    background: #fff;
 }
 
-.compat-hist-container tr:hover {
+.history-table tr:hover {
     background-color: rgba(0,102,204,.1);
 }
 
-.compat-hist-container td {
+.history-table td {
     line-height: 33px;
     height: 33px;
-}
-
-.compat-hist-container {
-    overflow: hidden;
-    background: #fff;
 }
 
 #title1 {
@@ -298,7 +317,7 @@
 #compat-con-searchbox {
     position: relative;
     width: 100%;
-    height: 60px;
+    height: 40px;
     background-color: rgba(122,179,255,0.1);
 }
 
@@ -614,7 +633,12 @@ input {
         color: #000!important;
     }
 
-    .compat-con-container {
+    .compat-table {
+        margin-top: 36px;
+        margin-bottom: 14px;
+    }
+	
+	.builds-table {
         margin-top: 36px;
         margin-bottom: 14px;
     }
@@ -661,7 +685,7 @@ input {
     margin: 0;
     padding: 0;
     width: 100%;
-    background-color: #f1f1f1;
+	line-height: 26px;
 }
 
 #debug-left li a {
@@ -670,6 +694,7 @@ input {
     padding: 4px 8px;
     text-decoration: none;
     text-align: center;
+	background-color: #f2f2f2;
 }
 
 #debug-left li a:hover {

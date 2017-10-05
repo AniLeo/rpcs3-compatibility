@@ -83,7 +83,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<!--End -->
 		</div>
 		
-		<table class='compat-con-container'>
+		<table class='compat-table'>
 			<?php 
 				if ($scount[0][0] > 0) { 
 					prof_flag("Page: Display Table Headers");
