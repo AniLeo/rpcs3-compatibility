@@ -24,6 +24,8 @@ CREATE TABLE `builds_windows` (
   `merge_datetime` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `appveyor` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
+  `buildjob` varchar(255) DEFAULT NULL,
+  `filename` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`pr`,`commit`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

@@ -182,6 +182,10 @@ function cacheWindowsBuilds($full = false){
 					// Only caches if the post-merge build has been successfully built.
 					
 					if ($status == "Succeeded") {
+						
+						// 0 - JobID, 1 - Filename
+						$data = getAppVeyorData($build);
+						
 						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
 							$cachePRQuery = mysqli_query($db, " UPDATE `builds_windows` SET 
 							`commit` = '".mysqli_real_escape_string($db, $commit)."', 
@@ -189,11 +193,13 @@ function cacheWindowsBuilds($full = false){
 							`author` = '".mysqli_real_escape_string($db, $author)."', 
 							`start_datetime` = '{$start_datetime}',
 							`merge_datetime` = '{$merge_datetime}', 
-							`appveyor` = '{$build}' 
+							`appveyor` = '{$build}', 
+							`buildjob` = '{$data[0]}', 
+							`filename` = '{$data[1]}' 
 							WHERE `pr` = '{$pr}' LIMIT 1;");
 						} else {
-							$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`) 
-							VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}'); ");
+							$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`) 
+							VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '{$data[0]}', '{$data[1]}'); ");
 						}
 					} else {
 						// If Building then we wait for the next script run...

@@ -779,3 +779,28 @@ function get_string_between($string, $start, $end){
 function monthNumberToName($month) {
 	return DateTime::createFromFormat('!m', $month)->format('F');
 }
+
+
+function getJSON($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($result);
+}
+
+
+function getAppVeyorData($build) {
+    $build_url = "https://ci.appveyor.com/api/projects/rpcs3/rpcs3/build/{$build}";
+    $build_json = getJSON($build_url);
+	
+    $artifacts_url = "https://ci.appveyor.com/api/buildjobs/{$build_json->build->jobs[0]->jobId}/artifacts";
+    $artifacts_json = getJSON($artifacts_url);
+	
+	$jobID = $build_json->build->jobs[0]->jobId;
+	$filename = $artifacts_json[0]->fileName;
+	
+	return array($jobID, $filename);
+}

@@ -26,6 +26,8 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 /* Utilities for the main website */
 
 function getLatestWindowsBuild() {
+	global $c_appveyor;
+	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
@@ -34,7 +36,14 @@ function getLatestWindowsBuild() {
 
 	mysqli_close($db);
 	
-	return array($row->appveyor, date_format(date_create($row->merge_datetime), "Y-m-d"));
+	$win = array($row->appveyor, date_format(date_create($row->merge_datetime), "Y-m-d"));
+	
+	$commit = substr($row->commit, 0, 7);
+	$ver = "v{$win[0]} ({$commit}) Alpha [{$win[1]}]";
+	$url = "https://ci.appveyor.com/api/buildjobs/{$row->buildjob}/artifacts/{$row->filename}";
+
+	// 0 - URL, 1 - Version Name
+	return array($url, $ver);
 }
 
 
@@ -47,7 +56,14 @@ function getLatestLinuxBuild() {
 
 	mysqli_close($db);
 	
-	return array($row->buildname, date_format(date_create($row->datetime), "Y-m-d"));
+	$linux = array($row->buildname, date_format(date_create($row->datetime), "Y-m-d"));
+	
+	$ver = explode("-", substr($linux[0], 6), 2)[0]; // Extract everything after rpcs3- until next - appears for version indicator
+	$name = $ver.substr($linux[0], 23)." [{$linux[1]}]"; // Display formatted filename
+	$url = "https://rpcs3.net/cdn/builds/{$linux[0]}"; // Direct link to AppImage
+	
+	// 0 - URL, 1 - Version Name
+	return array($url, $name);
 }
 
 
