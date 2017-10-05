@@ -38,7 +38,9 @@ function getHistoryDescription() {
 		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
 	} else {
 		$v = $a_histdates[$get['h']];
-		$s_desc .= "from <b>{$v[0]['m']} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$v[1]['m']} {$v[1]['d']}, {$v[1]['y']}</b>.";
+		$m1 = monthNumberToName($v[0]['m']);
+		$m2 = monthNumberToName($v[1]['m']);
+		$s_desc .= "from <b>{$m1} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$m2} {$v[1]['d']}, {$v[1]['y']}</b>.";
 	}
 
 	return "<p id='compat-history-description'>{$s_desc}</p>";
@@ -51,17 +53,24 @@ function getHistoryMonths() {
 	$s_months .= "<strong>Month:&nbsp;</strong>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 	
-	$keys = array_keys($a_histdates);
-	
-	foreach(array_slice($keys,1) as $k => $v) {
-		$m = "<a href=\"?h={$v}\">{$a_histdates[$v][1]['m']} {$a_histdates[$v][1]['y']}</a>";
+	foreach($a_histdates as $k => $v) {
 		
-		if ($get['h'] == $v) { $s_months .= highlightBold($m); } 
+		$month = monthNumberToName(substr($k, -2));
+		$year  = substr($k, 0, 4);
+		
+		$m = "<a href=\"?h={$k}\">{$month} {$year}</a>";
+		
+		if ($get['h'] == $k) { $s_months .= highlightBold($m); } 
 		else                 { $s_months .= $m; }
 		$s_months .= $spacer;
+	
 	}
 	
-	$m = "<a href=\"?h\">October 2017</a>";
+	$month = monthNumberToName(substr($a_currenthist[0], -2));
+	$year = substr($a_currenthist[0], 0, 4);
+	
+	$m = "<a href=\"?h\">{$month} {$year}</a>";
+	
 	if ($get['h'] == $a_currenthist[0]) { $s_months .= highlightBold($m); } 
 	else                                { $s_months .= $m; }	
 	
@@ -125,15 +134,12 @@ function getHistoryContent() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$month1 = monthNameToNumber($a_histdates[$get['h']][0][m]);
-	$month2 = monthNameToNumber($a_histdates[$get['h']][1][m]);
-	
 	if ($get['h'] == $a_currenthist[0]) {
 		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
 	} else {
 		$dateQuery = " AND new_date BETWEEN 
-		CAST('{$a_histdates[$get['h']][0][y]}-{$month1}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
-		AND CAST('{$a_histdates[$get['h']][1][y]}-{$month2}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
+		CAST('{$a_histdates[$get['h']][0][y]}-{$a_histdates[$get['h']][0][m]}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1][y]}-{$a_histdates[$get['h']][1][m]}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
 	}
 	
 	if ($get['m'] == "c" || $get['m'] == "") {
@@ -208,15 +214,12 @@ function getHistoryRSS(){
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$month1 = monthNameToNumber($a_histdates[$get['h']][0][m]);
-	$month2 = monthNameToNumber($a_histdates[$get['h']][1][m]);
-	
 	if ($get['h'] == $a_currenthist[0]) {
 		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
 	} else {
 		$dateQuery = " AND new_date BETWEEN 
-		CAST('{$a_histdates[$get['h']][0][y]}-{$month1}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
-		AND CAST('{$a_histdates[$get['h']][1][y]}-{$month2}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
+		CAST('{$a_histdates[$get['h']][0][y]}-{$a_histdates[$get['h']][0][m]}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1][y]}-{$a_histdates[$get['h']][1][m]}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
 	}
 	
 	$rssCmd = "SELECT * FROM game_history LEFT JOIN game_list ON game_history.game_id = game_list.game_id ";

@@ -294,7 +294,7 @@ function obtainGet($db = null) {
 	}
 	
 	// History
-	if (isset($_GET['h']) && $_GET['h'] != '2017_02' && array_key_exists($_GET['h'], $a_histdates)) {
+	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
 		$get['h'] = $_GET['h'];
 	}
 	
@@ -776,19 +776,6 @@ function get_string_between($string, $start, $end){
 }
 
 
-function monthNameToNumber($name) {
-	
-	if ($name == 'January')   { return 1; }
-	if ($name == 'February')  { return 2; }
-	if ($name == 'March')     { return 3; }
-	if ($name == 'April')     { return 4; }
-	if ($name == 'May')       { return 5; }
-	if ($name == 'June')      { return 6; }
-	if ($name == 'July')      { return 7; }
-	if ($name == 'August')    { return 8; }
-	if ($name == 'September') { return 9; }
-	if ($name == 'October')   { return 10; }
-	if ($name == 'November')  { return 11; }
-	if ($name == 'December')  { return 12; }
-
+function monthNumberToName($month) {
+	return DateTime::createFromFormat('!m', $month)->format('F');
 }

@@ -109,14 +109,13 @@ $a_filter = array(
 
 // Dates for history backups
 $a_histdates = array(
-	'2017_02' => '',
-	'2017_03' => array(array('y' => 2017, 'm' => 'March', 'd' => '1'),  array('y' => 2017, 'm' => 'March', 'd' => '29')),
-	'2017_04' => array(array('y' => 2017, 'm' => 'March', 'd' => '30'), array('y' => 2017, 'm' => 'April', 'd' => '30')),
-	'2017_05' => array(array('y' => 2017, 'm' => 'May',   'd' => '1'),  array('y' => 2017, 'm' => 'May',   'd' => '31')),
-	'2017_06' => array(array('y' => 2017, 'm' => 'June',  'd' => '1'),  array('y' => 2017, 'm' => 'June',  'd' => '30')),
-	'2017_07' => array(array('y' => 2017, 'm' => 'July',  'd' => '1'),  array('y' => 2017, 'm' => 'July',  'd' => '31')),
-	'2017_08' => array(array('y' => 2017, 'm' => 'August',  'd' => '1'),  array('y' => 2017, 'm' => 'August',  'd' => '31')), // TODO: September 2
-	'2017_09' => array(array('y' => 2017, 'm' => 'September',  'd' => '2'),  array('y' => 2017, 'm' => 'September',  'd' => '30'))
+	'2017_03' => array(array('y' => 2017, 'm' => 3,  'd' => 01),  array('y' => 2017, 'm' => 3,  'd' => 29)),
+	'2017_04' => array(array('y' => 2017, 'm' => 3,  'd' => 30),  array('y' => 2017, 'm' => 4,  'd' => 30)),
+	'2017_05' => array(array('y' => 2017, 'm' => 5,  'd' => 01),  array('y' => 2017, 'm' => 5,  'd' => 31)),
+	'2017_06' => array(array('y' => 2017, 'm' => 6,  'd' => 01),  array('y' => 2017, 'm' => 6,  'd' => 30)),
+	'2017_07' => array(array('y' => 2017, 'm' => 7,  'd' => 01),  array('y' => 2017, 'm' => 7,  'd' => 31)),
+	'2017_08' => array(array('y' => 2017, 'm' => 8,  'd' => 01),  array('y' => 2017, 'm' => 9,  'd' => 01)), 
+	'2017_09' => array(array('y' => 2017, 'm' => 9,  'd' => 02),  array('y' => 2017, 'm' => 9,  'd' => 30))
 );
 
 // Current month
