@@ -204,9 +204,10 @@
     padding: 4px 4px;
     text-align: left;
 }
+
 .compat-icon-media:hover {
-    background: rgba(49, 152, 255, .3);
-    border-radius:100%;
+    background: rgba(49,152,255,.3);
+    border-radius: 100%;
 }
 
 .icon-library {
@@ -243,7 +244,7 @@
 }
 
 .compat-con-container tr:hover {
-    background-color: rgba(0,102,204,.1);
+    background: rgba(0,102,204,.1);
 }
 
 .compat-con-container td {
