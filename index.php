@@ -35,10 +35,18 @@ if (isset($_GET['rss'])) {
 	
 	// API: v1
 	if ($_GET['api'] == 'v1') {
-		if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
-		$results = APIv1();
+		
+		if (isset($_GET['export'])) {
+			if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
+			$results = exportDatabase();
+		} else {
+			if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
+			$results = APIv1();
+		}
+		
 		header('Content-Type: application/json');
 		echo json_encode($results, JSON_PRETTY_PRINT);
+		
 	}
 	
 } else {
