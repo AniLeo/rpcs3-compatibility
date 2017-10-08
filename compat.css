@@ -632,16 +632,12 @@ input {
         text-align: center!important;
         color: #000!important;
     }
-
-    .compat-table {
-        margin-top: 36px;
-        margin-bottom: 14px;
-    }
 	
-	.builds-table {
+	.compat-status-container {
         margin-top: 36px;
         margin-bottom: 14px;
     }
+
 }
 
 .div-pagecounter {
