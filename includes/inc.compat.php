@@ -376,7 +376,7 @@ function getCharSearch() {
 	$a_chars[""] = "All";
 	$a_chars["09"] = "0-9";
 	foreach (range('a', 'z') as $i) {
-		$a_chars[$i] = strtoUpper($i);
+		$a_chars[$i] = strtoupper($i);
 	}
 	$a_chars["sym"] = "#";
 	
