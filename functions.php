@@ -672,7 +672,7 @@ function isWhitelisted($db = null) {
 		mysqli_close($db);
 	}
 	
-	return mysqli_num_rows($ipQuery) === 1 ? true : false;
+	return mysqli_num_rows($ipQuery) === 1;
 }
 
 
