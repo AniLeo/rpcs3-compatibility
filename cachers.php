@@ -84,11 +84,6 @@ function cacheWindowsBuilds($full = false){
 					// Content for the current PR
 					$content_pr = file_get_contents("https://github.com/RPCS3/rpcs3/pull/{$pr}");
 					
-					// Author
-					$start = " class=\"author\">";
-					$end = "</a>";
-					$author = explode($end, explode($start, $content_pr)[1])[0]; 
-					
 					// Merge Datetime
 					$e_datetime = explode("<relative-time datetime=\"", $content_pr);
 					$merge_datetime = explode("\"", $e_datetime[1])[0];
@@ -183,14 +178,14 @@ function cacheWindowsBuilds($full = false){
 					
 					if ($status == "Succeeded") {
 						
-						// 0 - JobID, 1 - Filename
+						// 0 - JobID, 1 - Filename, 2 - Author
 						$data = getAppVeyorData($build);
 						
 						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
 							$cachePRQuery = mysqli_query($db, " UPDATE `builds_windows` SET 
 							`commit` = '".mysqli_real_escape_string($db, $commit)."', 
 							`type` = '{$type}', 
-							`author` = '".mysqli_real_escape_string($db, $author)."', 
+							`author` = '".mysqli_real_escape_string($db, $data[2])."', 
 							`start_datetime` = '{$start_datetime}',
 							`merge_datetime` = '{$merge_datetime}', 
 							`appveyor` = '{$build}', 
@@ -199,7 +194,7 @@ function cacheWindowsBuilds($full = false){
 							WHERE `pr` = '{$pr}' LIMIT 1;");
 						} else {
 							$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`) 
-							VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '{$data[0]}', '{$data[1]}'); ");
+							VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[2])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '{$data[0]}', '{$data[1]}'); ");
 						}
 					} else {
 						// If Building then we wait for the next script run...

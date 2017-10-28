@@ -801,6 +801,7 @@ function getAppVeyorData($build) {
 	
 	$jobID = $build_json->build->jobs[0]->jobId;
 	$filename = $artifacts_json[0]->fileName;
+	$author = $build_json->build->authorUsername;
 	
-	return array($jobID, $filename);
+	return array($jobID, $filename, $author);
 }
