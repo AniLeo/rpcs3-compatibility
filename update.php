@@ -34,7 +34,7 @@ function checkForUpdates($commit) {
 	}
 	
 	// If commit length is smaller than 7 chars
-	if (strlen($commit) < 7) {
+	if (!ctype_alnum($commit) || strlen($commit) < 7) {
 		$results['return_code'] = -3;
 		return $results;
 	}
@@ -103,7 +103,7 @@ return_code
    0 - No newer build found
    1 - Newer build found
 */
-if (isset($_GET['c']) && ctype_alnum($_GET['c'])) {
+if (isset($_GET['c'])) {
 	header('Content-Type: application/json');
 	echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
 }
