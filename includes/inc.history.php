@@ -155,20 +155,21 @@ function getHistoryContent() {
 			$s_content .= "<p class=\"compat-tx1-criteria\">No updates to previously existing entries were reported and/or reviewed yet.</p>";
 		} else {
 			
-			$s_content .= "<table class='history-table'>";
+			$s_content .= "<div class='divTable history-table'>";
 			$s_content .= getHistoryHeaders();
 
+			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($cQuery)) {
-				$s_content .= "<tr>
-				<td>".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
-				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
-				<td>".getColoredStatus($row->new_status)."</td>
-				<td>{$row->new_date}</td>
-				<td>".getColoredStatus($row->old_status)."</td>
-				<td>{$row->old_date}</td>
-				</tr>";	
+				$s_content .= "<div class='divTableRow'>
+				<div class=\"divTableCell\">".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</div>
+				<div class=\"divTableCell\">".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</div>
+				<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
+				<div class=\"divTableCell\">{$row->new_date}</div>
+				<div class=\"divTableCell\">".getColoredStatus($row->old_status)."</div>
+				<div class=\"divTableCell\">{$row->old_date}</div>
+				</div>";	
 			}
-			$s_content .= "</table><br>";
+			$s_content .= "</div></div><br>";
 		}
 	}
 	
@@ -186,18 +187,19 @@ function getHistoryContent() {
 		} else {
 			
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";
-			$s_content .= "<table class='history-table'>";
+			$s_content .= "<div class='divTable history-table'>";
 			$s_content .= getHistoryHeaders(false);
 			
+			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($nQuery)) {
-				$s_content .= "<tr>
-				<td>".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</td>
-				<td>".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</td>
-				<td>".getColoredStatus($row->new_status)."</td>
-				<td>{$row->new_date}</td>
-				</tr>";	
+				$s_content .= "<div class='divTableRow'>
+				<div class=\"divTableCell\">".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</div>
+				<div class=\"divTableCell\">".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</div>
+				<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
+				<div class=\"divTableCell\">{$row->new_date}</div>
+				</div>";	
 			}
-			$s_content .= "</table><br>";
+			$s_content .= "</div></div><br>";
 		}
 	}
 	

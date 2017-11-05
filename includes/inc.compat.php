@@ -395,6 +395,27 @@ function getCharSearch() {
 }
 
 
+function compat_getTableMessages() {
+	global $q_main, $l_title, $l_orig;
+	
+	if ($q_main) {
+		if (mysqli_num_rows($q_main) > 0) {
+			if ($l_title != "") {
+				$s_message .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
+				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
+			} 
+		} else {
+			$s_message .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
+		}
+	} else {
+		$s_message .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+	}
+	
+	return $s_message;
+	
+}
+
+
 /*****************
  * Table Headers *
  *****************/
@@ -415,39 +436,26 @@ function compat_getTableHeaders() {
 /*****************
  * Table Content *
  *****************/
-function getTableContent() {
+function compat_getTableContent() {
 	global $q_main, $l_title, $l_orig, $a_results;
-	
-	if ($q_main) {
-		if (mysqli_num_rows($q_main) > 0) {
-			if ($l_title != "") {
-				$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
-				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
-			} 
-		} else {
-			$s_tablecontent .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
-		}
-	} else {
-		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-	}
-	
+
 	foreach ($a_results as $key => $value) {
 		// prof_flag("Page: Display Table Content: Row - GameID");
-		$s = "<td>".getGameRegion($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_id'], $value['thread_id'])."</td>";
+		$s = "<div class=\"divTableCell\">".getGameRegion($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_id'], $value['thread_id'])."</div>";
 		// prof_flag("Page: Display Table Content: Row - Game Title");
-		$s .= "<td>".getGameMedia($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_title'], $value['thread_id'])."</td>";
+		$s .= "<div class=\"divTableCell\">".getGameMedia($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_title'], $value['thread_id'])."</div>";
 		// prof_flag("Page: Display Table Content: Row - Status");
-		$s .= "<td>".getColoredStatus($value['status'])."</td>"; 
+		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>"; 
 		// prof_flag("Page: Display Table Content: Row - Last Updated");
-		$s .= "<td><a href=\"?d=".str_replace('-', '', $value['last_edit'])."\">".$value['last_edit']."</a>&nbsp;&nbsp;&nbsp;";
+		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_edit'])."\">".$value['last_edit']."</a>&nbsp;&nbsp;&nbsp;";
 
 		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";	
-		$s .= '</td>';	
+		$s .= '</div>';	
 
-		$s_tablecontent .= "<tr>{$s}</tr>";
+		$s_tablecontent .= "<div class=\"divTableRow\">{$s}</div>";
 	}
 
-	return $s_tablecontent;
+	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
 }
 
 

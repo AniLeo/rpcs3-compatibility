@@ -528,16 +528,18 @@ function getPagesCounter($pages, $currentPage, $extra) {
 
 function getTableHeaders($headers, $extra = '') {
 	global $get;
-	$s_tableheaders .= "<tr>";	
-	foreach ($headers as $k => $v) { 
-		if     ($v == 0)              { $s_tableheaders .= "<th>{$k}</th>"; }
-		elseif ($get['o'] == "{$v}a") { $s_tableheaders .= "<th><a href =\"?{$extra}o={$v}d\">{$k} &nbsp; &#8593;</a></th>"; }
-		elseif ($get['o'] == "{$v}d") { $s_tableheaders .= "<th><a href =\"?{$extra}\">{$k} &nbsp; &#8595;</a></th>"; }
-		else                          { $s_tableheaders .= "<th><a href =\"?{$extra}o={$v}a\">{$k}</a></th>"; } 
-	}
-	$s_tableheaders .= "</tr>";
 	
-	return $s_tableheaders;
+	$tableHead_open  = "<div class=\"divTableHead\">";
+	$tableHead_close = "</div>";
+	
+	foreach ($headers as $k => $v) { 
+		if     ($v == 0)              { $s_tableheaders .= "{$tableHead_open}{$k}{$tableHead_close}"; }
+		elseif ($get['o'] == "{$v}a") { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}o={$v}d\">{$k} &nbsp; &#8593;</a>{$tableHead_close}"; }
+		elseif ($get['o'] == "{$v}d") { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}\">{$k} &nbsp; &#8595;</a>{$tableHead_close}"; }
+		else                          { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}o={$v}a\">{$k}</a>{$tableHead_close}"; } 
+	}
+	
+	return "<div class=\"divTableHeading\">{$s_tableheaders}</div>";
 }
 
 

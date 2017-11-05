@@ -53,6 +53,36 @@ $currentPage = getCurrentPage($pages);
 mysqli_close($db);
 
 
+// TODO: Cleanup
+// TODO: Costum results per page
+// TODO: No listing builds with experimental warning 13/14-08/2017 and up + branch only
+
+
+// Main query
+$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+mysqli_set_charset($db, 'utf8');
+
+$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
+$buildsQuery = mysqli_query($db, $buildsCommand);
+
+mysqli_close($db);
+
+
+function builds_getTableMessages() {
+	global $buildsQuery;
+	
+	if (!$buildsQuery) {
+		// Query generator fail error
+		$s_messages .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+	} elseif (mysqli_num_rows($buildsQuery) === 0) {
+		$s_messages .= "<p class=\"compat-tx1-criteria\">No builds are listed yet.</p>";
+	} 
+	
+	return $s_messages;
+	
+}
+
+
 function builds_getTableHeaders() {
 	$headers = array(
 		'Pull Request' => 1,
@@ -65,45 +95,28 @@ function builds_getTableHeaders() {
 
 
 function builds_getTableContent() {
-	global $get, $c_appveyor, $a_order, $currentPage;
+	global $get, $c_appveyor, $a_order, $currentPage, $buildsQuery;
 	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
-	// TODO: Costum results per page
-	// TODO: No listing builds with experimental warning 13/14-08/2017 and up + branch only
-	$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
-	$buildsQuery = mysqli_query($db, $buildsCommand);
-	
-	if ($buildsQuery) {
-		if (mysqli_num_rows($buildsQuery) === 0) {
-			$s_tablecontent .= "<p class=\"compat-tx1-criteria\">No builds are listed yet.</p>";
-		} else {
-			while ($row = mysqli_fetch_object($buildsQuery)) { 
-			
-				$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
-				$diff = getDateDiff($row->merge_datetime);
+	if (mysqli_num_rows($buildsQuery) > 0) {
+		while ($row = mysqli_fetch_object($buildsQuery)) { 
 		
-				$s_tablecontent .= "<tr>
-				<td><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15' height='15' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></td>
-				<td><a href=\"https://github.com/{$row->author}\">{$row->author}</a></td>
-				<td>{$diff} ({$fulldate})</td>";
-				if ($row->appveyor != "0") { 
-					$s_tablecontent .= "<td><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></td>";
-				} else {
-					$s_tablecontent .= "<td><i>None</i></td>";
-				}
-				$s_tablecontent .= "</tr>";
-			}
-		}
-	} else {
-		// Query generator fail error
-		$s_tablecontent .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-	}
-
-	mysqli_close($db);
+			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
+			$diff = getDateDiff($row->merge_datetime);
 	
-	return $s_tablecontent;
+			$s_tablecontent .= "<div class=\"divTableRow\">
+			<div class=\"divTableCell\"><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15' height='15' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
+			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>
+			<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
+			if ($row->appveyor != "0") { 
+				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></div>";
+			} else {
+				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
+			}
+			$s_tablecontent .= "</div>";
+		}
+	}
+	
+	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
 }
 
 

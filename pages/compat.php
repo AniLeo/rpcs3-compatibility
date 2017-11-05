@@ -83,16 +83,17 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<!--End -->
 		</div>
 		
-		<table class='compat-table'>
+		<?php echo compat_getTableMessages(); ?>
+		<div class="divTable compat-table">
 			<?php 
 				if ($scount[0][0] > 0) { 
 					prof_flag("Page: Display Table Headers");
 					echo compat_getTableHeaders(); 
 				} 
 				prof_flag("Page: Display Table Content");
-				echo getTableContent(); 
+				echo compat_getTableContent(); 
 			?>
-		</table>
+		</div>
 		<!--End -->
 		<?php prof_flag("Page: Pages Counter"); ?>
 		<div id="compat-con-pages">

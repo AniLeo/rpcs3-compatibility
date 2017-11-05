@@ -151,11 +151,12 @@
 .divTable {
     font-family: arial;
     font-size: 12px;
-    line-height: 28px;
+    line-height: 31px;
     display: table;
     overflow: hidden;
     width: 100%;
     background: #fff;
+	color: #455971;
 }
 
 .divTableHeading {
@@ -163,6 +164,10 @@
     display: table-header-group;
     color: #455971;
     background-color: #fff;
+}
+
+.divTableHeading,.divTableBody {
+	padding-left: 10px;
 }
 
 .divTableBody {
@@ -185,11 +190,7 @@
     display: table-cell;
     padding-top: 2px;
     padding-bottom: 2px;
-    padding-left: 24px;
-}
-
-.library-table {
-	
+    padding-left: 30px;
 }
 
 .compat-icon-media {
@@ -198,7 +199,7 @@
     float: left;
     width: 18px;
     height: 18px;
-    margin-top: 3px;
+    margin-top: 2px;
     margin-right: 3px;
     padding: 4px 4px;
     text-align: left;
@@ -237,70 +238,12 @@
     color: #455971;
 }
 
-.compat-table {
-    margin-top: 14px;
-    margin-bottom: 14px;
-	overflow: hidden;
-    background: #fff;
-}
-
-.compat-table tr:hover {
-    background: rgba(0,102,204,.1);
-}
-
-.compat-table td {
-    line-height: 33px;
-    height: 33px;
-    padding-left: 30px;
-}
-
-.compat-table th {
-    padding-left: 30px;
-}
-
-.builds-table {
-    margin-top: 14px;
-    margin-bottom: 14px;
-	overflow: hidden;
-    background: #fff;
-}
-
-.builds-table tr:hover {
-    background: rgba(0,102,204,.1);
-}
-
-.builds-table td {
-    line-height: 33px;
-    height: 33px;
-    padding-left: 30px;
-}
-
-.builds-table th {
-    padding-left: 30px;
-}
-
 .compat-status-container {
     overflow: hidden;
 	margin-top: 16px;
     margin-bottom: 14px;
 	padding-top: 12px;
     border-top: 1px solid rgba(0,0,0,.05);
-}
-
-.history-table {
-    margin-top: 14px;
-    margin-bottom: 14px;
-	overflow: hidden;
-    background: #fff;
-}
-
-.history-table tr:hover {
-    background-color: rgba(0,102,204,.1);
-}
-
-.history-table td {
-    line-height: 33px;
-    height: 33px;
 }
 
 #title1 {

@@ -49,12 +49,13 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			-->
 		</div>
 		
-		<table class='builds-table'>
+		<?php echo builds_getTableMessages(); ?>
+		<div class='divTable builds-table'>
 			<?php 
 				echo builds_getTableHeaders();
 				echo builds_getTableContent(); 
 			?>
-		</table>
+		</div>
 		
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
