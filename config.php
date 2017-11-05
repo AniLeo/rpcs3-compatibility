@@ -36,8 +36,6 @@ $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
 $c_cloudflare = true; // Use cloudflare
 
-// Background color for unknown commit div
-$c_unkcommit = 'ffd700';
 
 // Results per page
 if (isset($_GET['l'])) {
@@ -70,10 +68,10 @@ $a_title = array(
 $a_desc = array(
 'Show games from all statuses',
 'Games that can be properly played from start to finish',
-'Games that go somewhere but not far enough to be considered playable',
-'Games that only display some screens',
-'Games that display a black screen with an active framerate',
-'Games that show nothing'
+'Games that either can\'t be finished, have serious glitches or have insufficient performance',
+'Games that display image but don\'t make it past the menus',
+'Games that display a black screen with an framerate on the window\'s title',
+'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
 );
 
 // Status colors 

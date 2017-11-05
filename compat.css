@@ -24,7 +24,7 @@
     line-height: 24px;
     position: relative;
     left: 32px;
-    width: 600px;
+    width: 750px;
     height: 24px;
     color: #455971;
 }
@@ -202,7 +202,17 @@
     margin-top: 2px;
     margin-right: 3px;
     padding: 4px 4px;
-    text-align: left;
+}
+
+.builds-icon {
+    position: relative;
+    z-index: 1;
+    float: left;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    margin-right: 3px;
+    padding: 4px 0px 4px 0px;
 }
 
 .compat-icon-media:hover {
@@ -633,7 +643,6 @@ input {
     padding: 4px 8px;
     text-decoration: none;
     text-align: center;
-	background-color: #f2f2f2;
 }
 
 #debug-left li a:hover {

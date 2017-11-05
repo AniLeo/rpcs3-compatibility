@@ -104,11 +104,11 @@ function builds_getTableContent() {
 			$diff = getDateDiff($row->merge_datetime);
 	
 			$s_tablecontent .= "<div class=\"divTableRow\">
-			<div class=\"divTableCell\"><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img width='15' height='15' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
+			<div class=\"divTableCell\"><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
 			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>
 			<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
 			if ($row->appveyor != "0") { 
-				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img width='15' height='15' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></div>";
+				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
 			}
