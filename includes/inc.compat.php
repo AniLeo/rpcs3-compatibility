@@ -96,7 +96,7 @@ $q_main = mysqli_query($db, $c_main);
 prof_flag("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
-if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4, 5)))) {
+if ($get['g'] != '' && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
 	
 	// Initials
 	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
@@ -140,10 +140,10 @@ if ($get['g'] != '' && strlen($get['g'] != 9 && !is_numeric(substr($get['g'], 4,
 			
 			// Select all database entries
 			$sqlCmd2 = "SELECT * FROM game_list; ";
-			$q_main2 = mysqli_query($db, $sqlCmd2);
+			$q_lev = mysqli_query($db, $sqlCmd2);
 			
 			// Calculate proximity for each database entry
-			while($row = mysqli_fetch_object($q_main2)) {
+			while($row = mysqli_fetch_object($q_lev)) {
 				$lev = levenshtein($get['g'], $row->game_title);
 				
 				if ($lev <= $l_dist || $l_dist < 0) {
@@ -206,7 +206,7 @@ $stop = false;
 
 
 // TODO: Refator cache
-if ($q_initials && $q_main2 && mysqli_num_rows($q_initials) == 0 && mysqli_num_rows($q_main2) == 0) {
+if ($q_initials && mysqli_num_rows($q_initials) > 0 && $q_main2 && mysqli_num_rows($q_main2) > 0) {
 	while ($row = mysqli_fetch_object($q_main2)) {
 		
 		if ($row->build_commit == '0') {
@@ -404,7 +404,7 @@ function compat_getTableMessages() {
 				$s_message .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
 			} 
-		} else {
+		} elseif (strlen($get['g'] == 9 && is_numeric(substr($get['g'], 4, 5))))  {
 			$s_message .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
 		}
 	} else {
