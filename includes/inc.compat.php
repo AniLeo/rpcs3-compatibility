@@ -96,7 +96,7 @@ $q_main = mysqli_query($db, $c_main);
 prof_flag("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
-if ($get['g'] != '' && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
+if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
 	
 	// Initials
 	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
@@ -116,7 +116,7 @@ if ($get['g'] != '' && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 
 		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
 		
-		if (strlen($get['g']) > 3) {
+		if (strlen($get['g']) >= 3) {
 			$scount = countGames($db, $partTwo, $scount[0]);
 		}
 		
@@ -250,7 +250,7 @@ if ($q_initials && mysqli_num_rows($q_initials) > 0 && $q_main2 && mysqli_num_ro
 		);
 		
 	}
-	if (strlen($get['g']) <= 3) {
+	if (strlen($get['g']) < 3) {
 		$stop = true;
 	}
 }
