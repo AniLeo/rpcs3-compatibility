@@ -807,3 +807,54 @@ function getAppVeyorData($build) {
 	
 	return array($jobID, $filename, $author);
 }
+
+
+function storeResults(&$a_results, $query, &$a_cache, &$db) {
+	
+	while ($row = mysqli_fetch_object($query)) {
+		
+		if ($row->build_commit == '0') {
+			$commit = $row->build_commit;
+			$pr = 0;	
+		} else {
+			// Check if commit has been cached already. If not cache, if yes use cached info.
+			$grep = (preg_grep("/^{$row->build_commit}/", array_keys($a_cache)));
+			if (count($grep) == 0) {
+				$q_builds = mysqli_query($db, "SELECT * FROM builds_windows WHERE commit LIKE '{$row->build_commit}%' LIMIT 1; ");
+				
+				if (mysqli_num_rows($q_builds) > 0) {
+					$buildsRow = mysqli_fetch_object($q_builds);
+					$commit = $buildsRow->commit;
+					$pr = $buildsRow->pr;
+					
+					$a_cache[$commit] = $pr;
+				} else {
+					$commit = $row->build_commit;
+					$pr = 0;	
+				}
+				
+			} else {
+				// For some reason, from testing key can be 0, 1 or 2 
+				foreach ($grep as $key => $value) {	
+					$commit = $value;
+					break;
+				}
+				$pr = $a_cache[$commit];
+			}
+		}
+		
+		$a_results[$row->game_id] = array(
+		'game_id' => $row->game_id,
+		'game_title' => $row->game_title,
+		'status' => $row->status,
+		'thread_id' => $row->thread_id,
+		'last_edit' => $row->last_edit,
+		'commit' => $commit,
+		'pr' => $pr
+		);
+		
+	}
+	
+	return true;
+	
+}
