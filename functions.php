@@ -392,7 +392,7 @@ function generateQuery($get, $db = null) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($db = null, $query = '', $count = 0) {
+function countGames($db = null, $query = '') {
 	global $get, $a_title;
 	
 	if ($db == null) {
@@ -441,11 +441,6 @@ function countGames($db = null, $query = '', $count = 0) {
 		// Add count from status to the array
 		$scount[1][$id] = $row->c;
 		
-		// Add extra counts if existing
-		if ($count[0] > 0) {
-			$scount[1][$id] += $count[$id];
-		}
-	
 		// Instead of querying the database once more add all the previous counts to get the total count
 		$scount[1][0] += $scount[1][$id];
 	}

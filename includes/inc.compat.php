@@ -116,8 +116,9 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
 		
+		// If the search params are big enough, add count of games found via initials to main count
 		if (strlen($get['g']) >= 3) {
-			$scount = countGames($db, $partTwo, $scount[0]);
+			$scount += $scount2;
 		}
 		
 		$partOne = "SELECT * FROM game_list LEFT JOIN game_status ON parent_id = id WHERE ";
