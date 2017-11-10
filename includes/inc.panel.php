@@ -228,6 +228,7 @@ function compareThreads($update = false) {
 		}
 	}
 	
+	// TODO: Dynamic timestamp, check all new posts since entry's last_edit
 	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_edit 
 	FROM rpcs3_forums.mybb_posts 
 	LEFT JOIN rpcs3_compatibility.game_list
@@ -262,8 +263,7 @@ function compareThreads($update = false) {
 				
 			}
 		
-			if ($found[$row->tid] == 0) 
-			{
+			if ($found[$row->tid] == 0) {
 				echo "<b>{$a_games[$row->tid]['game_id']}</b>: Commit not found (tid:".getThread($row->tid, $row->tid).")<br>";
 				$found[$row->tid] = 1; // Log only once per thread
 			}

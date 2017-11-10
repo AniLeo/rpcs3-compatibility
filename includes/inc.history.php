@@ -236,6 +236,8 @@ function getHistoryRSS(){
 	
 	$rssQuery = mysqli_query($db, $rssCmd);
 	
+	mysqli_close($db);
+	
 	if (!$rssQuery) {
 		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
@@ -272,8 +274,6 @@ function getHistoryRSS(){
     $rssfeed .= "</channel>
 				</rss>";
 				
-	// Close MySQL connection again since it won't be required
-	mysqli_close($db);
 	
     return $rssfeed;
 }

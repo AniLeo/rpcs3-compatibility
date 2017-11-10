@@ -79,13 +79,13 @@ function getResultsPerPage() {
 function getTestedContents() {
 	global $get, $pages, $currentPage, $a_db;
 	
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-	
 	if (!$a_db) {
 		echo "<p class=\"compat-tx1-criteria\">There are no games present in the selected categories.</p>";
 		return;
 	}
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
@@ -103,13 +103,8 @@ function getTestedContents() {
 	
 	mysqli_close($db);
 	
-	
 	$start = $get['r']*$currentPage-$get['r']+1;
-	if ($pages == $currentPage) {
-		$end = max(array_keys($a_db));
-	} else {
-		$end = $get['r']*$currentPage;
-	}
+	$end = ($pages == $currentPage) ? max(array_keys($a_db)) : $get['r']*$currentPage;
 	
 	echo "<div class=\"divTable library-table\">
 	<div class=\"divTableHeading\">
@@ -137,11 +132,10 @@ function getTestedContents() {
 				<div class=\"divTableCell\"  style='color:#e74c3c;'>Untested</div>
 			</div>";
 		} else {
-			if (time() - strtotime($a_games[$gameID]['last_edit']) > 60*60*24*30*6) {
-				$color = '#f39c12';
-			} else {
-				$color = '#27ae60';
-			}
+			
+			// If the game hasn't been tested for more than 6 months color = yellow, otherwise color = green
+			$color = (time() - strtotime($a_games[$gameID]['last_edit']) > 60*60*24*30*6) ? '#f39c12' : '#27ae60';
+
 			echo "
 			<div class=\"divTableRow\">
 				<div class=\"divTableCell\" style='color:{$color};'>"
@@ -175,6 +169,6 @@ function tested_getPagesCounter() {
 
 
 function getGames($tested) {
-	if ($tested) { $file = 'tested.txt'; } else { $file = 'untested.txt'; } 
+	$file = $tested ? 'tested.txt' : 'untested.txt';
 	return fgets(fopen(__DIR__."/../{$file}", 'r'));
 }

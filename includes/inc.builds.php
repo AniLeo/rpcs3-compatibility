@@ -135,6 +135,8 @@ function getBuildsRSS() {
 	
 	$buildsQuery = mysqli_query($db, "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ");
 	
+	mysqli_close($db);
+	
 	if (!$buildsQuery) {
 		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
 	}
@@ -158,9 +160,7 @@ function getBuildsRSS() {
 						";
 		}
 	}
-	
-	mysqli_close($db);
-	
+
 	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
 		<channel>

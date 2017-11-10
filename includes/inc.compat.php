@@ -214,8 +214,7 @@ prof_flag("--- / ---");
  *   Results per Page          *
  *******************************/
 if (in_array($get['r'], $a_pageresults)) {
-	if ($get['r'] == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
-	else { $g_pageresults = "r={$get['rID']}&"; }
+	$g_pageresults = ($get['r'] == $a_pageresults[$c_pageresults]) ? '' : "r={$get['rID']}&";
 }
 
 
@@ -227,15 +226,14 @@ function getSortBy() {
 
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
-		$s_sortby .= "<a title='$a_desc[$i]' href=\"?"; 
+		$s_sortby .= "<a title='{$a_desc[$i]}' href=\"?"; 
 		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true);
-		$s_sortby .= "s=$i\">"; 
+		$s_sortby .= "s={$i}\">"; 
 		
-		$temp = "$a_title[$i]&nbsp;({$scount[1][$i]})";
+		$temp = "{$a_title[$i]}&nbsp;({$scount[1][$i]})";
 		
 		// If the current selected status, highlight with bold
-		if ($get['s'] == $i) { $s_sortby .= highlightBold($temp); }
-		else { $s_sortby .= $temp; }
+		$s_sortby .= ($get['s'] == $i) ? highlightBold($temp) : $temp;
 
 		$s_sortby .= "</a>"; 
 	}
@@ -252,16 +250,15 @@ function getResultsPerPage() {
 	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
 		$s_pageresults .= combinedSearch(false, true, true, true, true, true, true, true);
-		$s_pageresults .= "r=$i\">"; 
+		$s_pageresults .= "r={$i}\">"; 
 		
 		// If the current selected status, highlight with bold
-		if ($get['r'] == $a_pageresults[$i]) { $s_pageresults .= highlightBold($a_pageresults[$i]);} 
-		else { $s_pageresults .= $a_pageresults[$i]; }
+		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightBold($a_pageresults[$i]) : $a_pageresults[$i];
 
 		$s_pageresults .= "</a>";
 		
 		// If not the last value then add a separator for the next value
-		if ($i < max(array_keys($a_pageresults))) {$s_pageresults .= "&nbsp;•&nbsp;";} 
+		if ($i < max(array_keys($a_pageresults))) { $s_pageresults .= "&nbsp;•&nbsp;"; } 
 	}
 	return $s_pageresults;
 }
@@ -286,8 +283,7 @@ function getCharSearch() {
 	
 	foreach ($a_chars as $key => $value) { 
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>"; 
-		if ($get['c'] == $key) { $s_charsearch .= highlightBold($value); }
-		else { $s_charsearch .= $value; }
+		$s_charsearch .= ($get['c'] == $key) ? highlightBold($value) : $value;
 		$s_charsearch .= "</div></a></td>"; 
 	}
 	
