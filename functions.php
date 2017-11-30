@@ -545,7 +545,7 @@ function getFooter($start) {
 	$finish = getTime();
 	$total_time = round(($finish - $start)*1000,2);
 	
-	$s = "<p>Compatibility list developed and mantained by 
+	$s = "<p>Compatibility list developed and maintained by 
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms</p>";
