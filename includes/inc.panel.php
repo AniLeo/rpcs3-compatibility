@@ -137,7 +137,7 @@ function compareThreads($update = false) {
 	
 	// Timestamp of last list update
 	// 1498867200 - 1st July 2017
-	$timestamp = '1498867200'; // 1503864000
+	$timestamp = '1509494400'; // 1509494400
 
 	// Cache commits
 	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
@@ -326,4 +326,119 @@ function compareThreads($update = false) {
 	echo "</p>";
 	
 	mysqli_close($db);
+}
+
+
+// WIP
+function getNewTests() {
+	
+	global $a_color, $a_title;
+	
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$a_status = array(
+	'Playable' => 5,
+	'Ingame' => 6,
+	'Intro' => 7,
+	'Loadable' => 8,
+	'Nothing' => 9
+	);
+
+	// Cache commits
+	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
+	$a_commits = array();
+	while ($row = mysqli_fetch_object($q_commits)) {
+		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
+	}
+	
+	$q_threads = mysqli_query($db, "SELECT *
+	FROM rpcs3_compatibility.game_list 
+	LEFT JOIN game_status ON parent_id = id 
+	WHERE status = 'Playable';"); // Playable only
+	
+	// Cache games
+	$a_games = array();
+	
+	while ($row = mysqli_fetch_object($q_threads)) {
+		$a_games[$row->thread_id] = array(
+		'game_id' => $row->game_id, 
+		'game_title' => $row->game_title, 
+		'status' => $row->status,
+		'currentCommit' => $row->build_commit,
+		'currentDate' => date('Y-m-d',  strtotime($row->last_edit)),
+		'newCommit' => $row->build_commit,
+		'newDate' => date('Y-m-d', strtotime($row->last_edit)),
+		'parent_id' => $parent_id
+		);
+	}
+
+	// Manually locked to Playable games
+	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_edit 
+	FROM rpcs3_forums.mybb_posts 
+	LEFT JOIN rpcs3_compatibility.game_list
+	ON tid = thread_id 
+	LEFT JOIN game_status
+	ON game_list.parent_id = game_status.id 
+	WHERE fid = 5
+	ORDER by tid, pid DESC;");
+	
+	$found = array();
+	
+	echo "<p style='padding-top:10px; font-size:12px;'>";
+	
+	while ($row = mysqli_fetch_object($q_posts)) {
+		
+		if (isset($a_games[$row->tid])) {
+	
+			if (!array_key_exists($row->tid, $found)) {
+				$found[$row->tid] = 0;
+			}
+	
+			if ($found[$row->tid] == 0) { 
+			
+				foreach ($a_commits as $commit => $date) {		
+				
+					// Note: If commit is an int and not a string and one doesn't cast it then it breaks it
+					if (stripos($row->message, (string)$commit) !== false) {
+						
+						$newDate = date('Y-m-d', $row->dateline);
+						
+						// If new date is after the current one and the commits are different
+						if ( $newDate > $a_games[$row->tid]['currentDate'] && substr($a_games[$row->tid]['currentCommit'], 0, 7) != substr((string)$commit, 0, 7)) {
+							
+							$a_games[$row->tid]['newCommit'] = $commit;
+							$a_games[$row->tid]['newDate'] = $newDate;
+							echo "<b>{$a_games[$row->tid]['game_id']}</b>: Commit found: &nbsp;&nbsp;&nbsp; {$commit} (".date('Y-m-d', strtotime($date))." | {$newDate} | {$a_games[$row->tid]['currentDate']}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html#pid{$row->pid}'>{$row->pid}</a>)<br>";
+							$found[$row->tid] = 1;
+							break;
+							
+						}
+					
+					}
+				
+				}
+				
+			} elseif (stripos($row->message, (string)$a_games[$row->tid]['newCommit']) !== false) {
+				
+				// Discards useless quote duplicates: If commit belongs to an older post, set date to that post's
+				$newDate = date('Y-m-d', $row->dateline);
+				$a_games[$row->tid]['newDate'] = $newDate;
+				echo "<b>{$a_games[$row->tid]['game_id']}</b>: Older date found: {$a_games[$row->tid]['newCommit']} ({$newDate} | {$a_games[$row->tid]['currentDate']}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html#pid{$row->pid}'>{$row->pid}</a>)<br>";
+				
+			}
+			
+		}
+		
+	}
+	
+	/*
+	echo "<br>";
+	highlight_string("<?php\n\$data =\n".var_export($a_games, true).";\n?>");
+	*/
+	
+	echo "</p>";
+	
+	mysqli_close($db);	
+	
 }
