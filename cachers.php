@@ -76,7 +76,7 @@ function cacheWindowsBuilds($full = false){
 				
 				// No need to escape here, we break before if it's not numeric only
 				$PRQuery = mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ");
-				array_push($a_PR, $pr);
+				$a_PR[]  = $pr;
 				
 				// If PR isn't cached, then just DO IT!
 				if (mysqli_num_rows($PRQuery) === 0) {
