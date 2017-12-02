@@ -138,8 +138,8 @@ function getHistoryContent() {
 		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
 	} else {
 		$dateQuery = " AND new_date BETWEEN 
-		CAST('{$a_histdates[$get['h']][0][y]}-{$a_histdates[$get['h']][0][m]}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
-		AND CAST('{$a_histdates[$get['h']][1][y]}-{$a_histdates[$get['h']][1][m]}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
+		CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 	
 	if ($get['m'] == "c" || $get['m'] == "") {
@@ -220,8 +220,8 @@ function getHistoryRSS(){
 		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
 	} else {
 		$dateQuery = " AND new_date BETWEEN 
-		CAST('{$a_histdates[$get['h']][0][y]}-{$a_histdates[$get['h']][0][m]}-{$a_histdates[$get['h']][0][d]}' AS DATE) 
-		AND CAST('{$a_histdates[$get['h']][1][y]}-{$a_histdates[$get['h']][1][m]}-{$a_histdates[$get['h']][1][d]}' AS DATE) ";
+		CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE) 
+		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 	
 	$rssCmd = "SELECT * FROM game_history LEFT JOIN game_list ON game_history.game_id = game_list.game_id ";
