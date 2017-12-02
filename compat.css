@@ -212,7 +212,7 @@
     height: 16px;
     margin-top: 3px;
     margin-right: 3px;
-    padding: 4px 0px 4px 0px;
+    padding: 4px 0;
 }
 
 .compat-icon-media:hover {
