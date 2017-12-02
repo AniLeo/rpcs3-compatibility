@@ -407,7 +407,7 @@ function APIv1() {
 		'title' => $value['game_title'],
 		'status' => $value['status'],
 		'date' => $value['last_edit'],
-		'thread' => intval($value['thread_id']),
+		'thread' => (int) $value['thread_id'],
 		'commit' => $value['commit'],
 		'pr' => $value['pr']
 		);

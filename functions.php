@@ -590,7 +590,7 @@ function getMenu($c, $h, $b, $l, $a) {
 // Get current page user is on
 function getCurrentPage($pages) {
 	if (isset($_GET['p'])) {
-		$currentPage = intval($_GET['p']);
+		$currentPage = (int) $_GET['p'];
 		if ($currentPage > $pages) { $currentPage = 1; }		
 	} else { $currentPage = 1; }
 	
