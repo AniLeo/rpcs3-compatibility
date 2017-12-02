@@ -128,16 +128,16 @@ function getGameRegion($gid, $url = true, $extra = '') {
 function getGameType($gid) {
 	// Physical
 	if (substr($gid, 0, 1) == "B" || substr($gid, 0, 1) == "X") {
-		if     (substr($gid, 3, 1) == "D")  { return "Demo"; }             // Demo
-		elseif (substr($gid, 3, 1) == "M")  { return "Malayan Release"; }  // Malayan Release
-		elseif (substr($gid, 3, 1) == "S")  { return "Retail Release"; }   // Retail Release
+		if (substr($gid, 3, 1) == "D")  { return "Demo"; }             // Demo
+		if (substr($gid, 3, 1) == "M")  { return "Malayan Release"; }  // Malayan Release
+		if (substr($gid, 3, 1) == "S")  { return "Retail Release"; }   // Retail Release
 	}
 	// Digital
 	if (substr($gid, 0, 1) == "N") {
-		if     (substr($gid, 3, 1) == "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
-		elseif (substr($gid, 3, 1) == "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
-		elseif (substr($gid, 3, 1) == "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
-		elseif (substr($gid, 3, 1) == "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
+		if (substr($gid, 3, 1) == "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
+		if (substr($gid, 3, 1) == "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
+		if (substr($gid, 3, 1) == "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
+		if (substr($gid, 3, 1) == "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
 	}
 
     // We don't care about the other types as they won't be listed
