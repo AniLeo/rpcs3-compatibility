@@ -114,8 +114,9 @@ $a_histdates = array(
 	'2017_07' => array(array('y' => 2017, 'm' => 7,  'd' => 01),  array('y' => 2017, 'm' => 7,  'd' => 31)),
 	'2017_08' => array(array('y' => 2017, 'm' => 8,  'd' => 01),  array('y' => 2017, 'm' => 9,  'd' => 01)), 
 	'2017_09' => array(array('y' => 2017, 'm' => 9,  'd' => 02),  array('y' => 2017, 'm' => 9,  'd' => 30)),
-	'2017_10' => array(array('y' => 2017, 'm' => 10, 'd' => 01),  array('y' => 2017, 'm' => 11,  'd' => 02))
+	'2017_10' => array(array('y' => 2017, 'm' => 10, 'd' => 01),  array('y' => 2017, 'm' => 11,  'd' => 02)),
+	'2017_11' => array(array('y' => 2017, 'm' => 10, 'd' => 03),  array('y' => 2017, 'm' => 11,  'd' => 30))
 );
 
 // Current month
-$a_currenthist = array('2017_11', 'November 3rd, 2017', '2017-11-03');
+$a_currenthist = array('2017_12', 'December 1st, 2017', '2017-12-01');
