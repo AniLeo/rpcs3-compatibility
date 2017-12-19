@@ -57,16 +57,6 @@
     border-radius: 4px;
 }
 
-@media screen and (max-width: 880px) {
-    .compat-status-progressbar {
-        width:400px;
-        opacity: .5;
-        border: 0;
-        background-color: transparent;
-        direction: rtl;
-    }
-}
-
 .compat-search-character {
     position: absolute;
     top: 0;
@@ -100,7 +90,7 @@
     width: 100%;
     margin-bottom: 20px;
     color: #fff;
-    background: linear-gradient(to right,rgba(166,0,217,.9),rgba(0,196,255,.9));
+    background: #4c5bd7;
 }
 
 #compat-author p {
@@ -147,7 +137,6 @@
     background-color: #ecf0f1;
 }
 
-
 .divTable {
     font-family: arial;
     font-size: 12px;
@@ -156,7 +145,7 @@
     overflow: hidden;
     width: 100%;
     background: #fff;
-	color: #455971;
+    color: #455971;
 }
 
 .divTableHeading {
@@ -167,7 +156,7 @@
 }
 
 .divTableHeading,.divTableBody {
-	padding-left: 10px;
+    padding-left: 10px;
 }
 
 .divTableBody {
@@ -250,9 +239,9 @@
 
 .compat-status-container {
     overflow: hidden;
-	margin-top: 16px;
+    margin-top: 16px;
     margin-bottom: 14px;
-	padding-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid rgba(0,0,0,.05);
 }
 
@@ -575,7 +564,7 @@ input {
 
     #compat-hdr-right {
         font-family: arial!important;
-        font-size: 12px!important;
+        font-size: 11px!important;
         line-height: 44px!important;
         float: right!important;
         width: 100%!important;
@@ -584,13 +573,38 @@ input {
         margin-bottom: 3px!important;
         text-align: center!important;
         color: #000!important;
-    }
-	
-	.compat-status-container {
-        margin-top: 36px;
-        margin-bottom: 14px;
+        padding-top: 4px!important;
     }
 
+    .compat-status-progressbar {
+        width: 400px;
+        opacity: .3;
+        border: 0;
+        background-color: transparent;
+        direction: rtl;
+    }
+
+    .compat-status-container {
+        margin-top: 32px;
+        margin-bottom: 14px;
+        padding-top: 0px;
+    }
+
+    .compat-status-text {
+        font-size: 12px!important;
+    }
+
+    #title2 {
+        font-size: 12px!important;
+    }
+
+    #featured-tx2-block {
+        font-size: 12px!important;
+    }
+
+    #page-con-container {
+        margin: auto 20px!important;
+    }
 }
 
 .div-pagecounter {
@@ -634,7 +648,7 @@ input {
     margin: 0;
     padding: 0;
     width: 100%;
-	line-height: 26px;
+    line-height: 26px;
 }
 
 #debug-left li a {
