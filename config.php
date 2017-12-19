@@ -70,7 +70,7 @@ $a_desc = array(
 'Games that can be properly played from start to finish',
 'Games that either can\'t be finished, have serious glitches or have insufficient performance',
 'Games that display image but don\'t make it past the menus',
-'Games that display a black screen with an framerate on the window\'s title',
+'Games that display a black screen with a framerate on the window\'s title',
 'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
 );
 
