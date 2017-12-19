@@ -211,7 +211,7 @@ function getHistoryContent() {
 
 
 function getHistoryRSS(){
-	global $c_forum, $get, $a_currenthist;
+	global $c_forum, $get, $a_histdates, $a_currenthist;
 	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
