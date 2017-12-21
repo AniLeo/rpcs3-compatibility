@@ -146,7 +146,7 @@ function compareThreads($update = false) {
 		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
 	}
 	
-	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_update, parent_id
+	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_update 
 	FROM rpcs3_forums.mybb_threads 
 	LEFT JOIN rpcs3_compatibility.game_list 
 	ON tid = thread_id 
