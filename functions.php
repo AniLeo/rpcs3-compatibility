@@ -370,7 +370,7 @@ function generateQuery($get, $db = null) {
 	if ($get['d'] != '') {
 		if ($and) { $genquery .= " AND "; }
 		$s_d = mysqli_real_escape_string($db, $get['d']);
-		$genquery .= " last_edit = '{$s_d}' "; 
+		$genquery .= " last_update = '{$s_d}' "; 
 		$and = true;
 	}
 		
@@ -408,15 +408,15 @@ function countGames($db = null, $query = '') {
 	
 	if ($query == 'all') {
 		// Unique game count
-		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM game_status"))->c;
+		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM game_list"))->c;
 	}
 	
 	if ($query == '') {
 		// Empty query or general query with order only, all games returned
-		$gen = "SELECT status, count(*) AS c FROM game_status GROUP BY status;";
+		$gen = "SELECT status, count(*) AS c FROM game_list GROUP BY status;";
 	} else {
 		// Query defined, return count of games with searched parameters
-		$gen = "SELECT status, count(*) AS c FROM game_list LEFT JOIN game_status ON parent_id = id WHERE ({$query}) GROUP BY status;";
+		$gen = "SELECT status, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;";
 	}
 
 	$q_gen = mysqli_query($db, $gen);
@@ -655,7 +655,7 @@ function isWhitelisted($db = null) {
 	} else {
 		$close = false;
 	}
-	
+		
 	if ($c_cloudflare) {
 		$ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
 	} else {
@@ -664,7 +664,7 @@ function isWhitelisted($db = null) {
 	
 	// Page calculation according to the user's search
 	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $ip)."' LIMIT 1; ");
-	
+		
 	if ($close) {
 		mysqli_close($db);
 	}
@@ -843,7 +843,7 @@ function storeResults(&$a_results, $query, &$a_cache, &$db) {
 		'game_title' => $row->game_title,
 		'status' => $row->status,
 		'thread_id' => $row->thread_id,
-		'last_edit' => $row->last_edit,
+		'last_update' => $row->last_update,
 		'commit' => $commit,
 		'pr' => $pr
 		);

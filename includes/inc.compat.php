@@ -41,8 +41,8 @@ $a_order = array(
 '2d' => 'ORDER BY game_title DESC',
 '3a' => 'ORDER BY status ASC',
 '3d' => 'ORDER BY status DESC',
-'4a' => 'ORDER BY last_edit ASC',
-'4d' => 'ORDER BY last_edit DESC'
+'4a' => 'ORDER BY last_update ASC',
+'4d' => 'ORDER BY last_update DESC'
 );
 
 
@@ -83,9 +83,8 @@ $currentPage = getCurrentPage($pages);
 // Run the main query 
 prof_flag("Inc: Execute Main Query");
 
-$c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
-FROM game_list 
-LEFT JOIN game_status ON parent_id = id ";
+$c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_update
+FROM game_list ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
@@ -121,7 +120,7 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 			$scount += $scount2;
 		}
 		
-		$partOne = "SELECT * FROM game_list LEFT JOIN game_status ON parent_id = id WHERE ";
+		$partOne = "SELECT * FROM game_list WHERE ";
 		if ($get['s'] != 0) {
 			$partOne .= " status = {$get['s']} AND ";
 		}
@@ -156,9 +155,8 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
 			
 			// Re-run the main query
-			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_edit
+			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_update
 			FROM game_list 
-			LEFT JOIN game_status ON parent_id = id 
 			WHERE {$genquery} 
 			{$a_order[$get['o']]} 
 			LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
@@ -344,7 +342,7 @@ function compat_getTableContent() {
 		// prof_flag("Page: Display Table Content: Row - Status");
 		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>"; 
 		// prof_flag("Page: Display Table Content: Row - Last Updated");
-		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_edit'])."\">".$value['last_edit']."</a>&nbsp;&nbsp;&nbsp;";
+		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_update'])."\">".$value['last_update']."</a>&nbsp;&nbsp;&nbsp;";
 
 		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";	
 		$s .= '</div>';	
@@ -406,7 +404,7 @@ function APIv1() {
 		$results['results'][$value['game_id']] = array(
 		'title' => $value['game_title'],
 		'status' => $value['status'],
-		'date' => $value['last_edit'],
+		'date' => $value['last_update'],
 		'thread' => (int) $value['thread_id'],
 		'commit' => $value['commit'],
 		'pr' => $value['pr']

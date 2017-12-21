@@ -29,8 +29,8 @@ function exportDatabase() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$q_export = mysqli_query($db, "SELECT game_id, status, last_edit 
-	FROM game_list LEFT JOIN game_status ON parent_id = id 
+	$q_export = mysqli_query($db, "SELECT game_id, status, last_update 
+	FROM game_list 
 	ORDER BY game_id ASC; ");
 	
 	if (!$q_export || mysqli_num_rows($q_export) === 0) {
@@ -49,7 +49,7 @@ function exportDatabase() {
 		
 		$results['results'][$row->game_id] = array(
 		'status' => $row->status,
-		'date' => $row->last_edit
+		'date' => $row->last_update
 		);
 		
 	}

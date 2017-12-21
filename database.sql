@@ -5,10 +5,10 @@ DROP TABLE IF EXISTS `game_list`;
 CREATE TABLE `game_list` (
   `game_id` varchar(9) CHARACTER SET utf8 NOT NULL,
   `game_title` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `parent_id` int(11) NOT NULL,
   `thread_id` int(11) NOT NULL,
   `build_commit` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `last_edit` date NOT NULL DEFAULT '0000-00-00',
+  `last_update` date NOT NULL DEFAULT '0000-00-00',
+  `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   PRIMARY KEY (`game_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -61,13 +61,3 @@ CREATE TABLE `game_history` (
   `new_date` date NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3386 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Table structure for game_status
--- ----------------------------
-DROP TABLE IF EXISTS `game_status`;
-CREATE TABLE `game_status` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2840 DEFAULT CHARSET=utf8;

@@ -146,12 +146,10 @@ function compareThreads($update = false) {
 		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
 	}
 	
-	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_edit, parent_id
+	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_id, game_title, build_commit, thread_id, status, last_update, parent_id
 	FROM rpcs3_forums.mybb_threads 
 	LEFT JOIN rpcs3_compatibility.game_list 
 	ON tid = thread_id 
-	LEFT JOIN game_status
-	ON game_list.parent_id = game_status.id
 	WHERE fid > 4 && fid < 10 && closed NOT like '%moved%'
 	&& lastpost > {$timestamp} 
 	ORDER BY game_id;");
@@ -201,7 +199,7 @@ function compareThreads($update = false) {
 						'game_title' => $title, 
 						'status' => array_search($row->fid, $a_status),
 						'commit' => 0,
-						'last_edit' => date('Y-m-d', $row->lastpost),
+						'last_update' => date('Y-m-d', $row->lastpost),
 						'action' => 'new',
 						'parent_id' => $parent_id
 						);
@@ -219,22 +217,20 @@ function compareThreads($update = false) {
 			'game_title' => $row->game_title,
 			'status' => array_search($row->fid, $a_status),
 			'commit' => 0,
-			'last_edit' => date('Y-m-d', $row->lastpost),
+			'last_update' => date('Y-m-d', $row->lastpost),
 			'action' => 'mov',
-			'old_date' => $row->last_edit,
+			'old_date' => $row->last_update,
 			'old_status' => $row->status,
 			'parent_id' => $row->parent_id
 			);
 		}
 	}
 	
-	// TODO: Dynamic timestamp, check all new posts since entry's last_edit
-	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_edit 
+	// TODO: Dynamic timestamp, check all new posts since entry's last_update
+	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_update 
 	FROM rpcs3_forums.mybb_posts 
 	LEFT JOIN rpcs3_compatibility.game_list
 	ON tid = thread_id 
-	LEFT JOIN game_status
-	ON game_list.parent_id = game_status.id 
 	WHERE fid > 4 && fid < 10 
 	&& dateline > {$timestamp}
 	ORDER by tid, pid DESC;");
@@ -255,7 +251,7 @@ function compareThreads($update = false) {
 				// Note: If commit is an int and not a string and one doesn't cast it then it breaks it
 				if (stripos($row->message, (string)$commit) !== false) {
 					$a_games[$row->tid]['commit'] = $commit;
-					$a_games[$row->tid]['last_edit'] = date('Y-m-d', $row->dateline);
+					$a_games[$row->tid]['last_update'] = date('Y-m-d', $row->dateline);
 					echo "<b>{$a_games[$row->tid]['game_id']}</b>: Commit found: {$commit} ({$date}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
 					$found[$row->tid] = 1;
 					break;
@@ -278,31 +274,29 @@ function compareThreads($update = false) {
 		
 			// No need to escape all params but meh
 			if ($a_games[$key]['action'] == 'new') {
-				mysqli_query($db, "INSERT INTO `game_list` (`game_id`, `game_title`, `build_commit`, `thread_id`, `parent_id`, `last_edit`) VALUES (
+				mysqli_query($db, "INSERT INTO `game_list` (`game_id`, `game_title`, `build_commit`, `thread_id`, `parent_id`, `last_update`, `status`) VALUES (
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_title'])."', 
 				'".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
 				'{$key}', 
 				'{$a_games[$key]['parent_id']}', 
-				'{$a_games[$key]['last_edit']}'
+				'{$a_games[$key]['last_update']}',
+				'{$a_games[$key]['status']}'
 				);");
-				
-				mysqli_query($db, "INSERT INTO game_status (id, status) VALUES ({$a_games[$key]['parent_id']}, '{$a_games[$key]['status']}'); ");
 				
 				// Log change to game_history
 				mysqli_query($db, "INSERT INTO game_history (game_id, new_status, new_date) VALUES (
 				'".mysqli_real_escape_string($db, $a_games[$key]['game_id'])."', 
 				'{$a_games[$key]['status']}', 
-				'{$a_games[$key]['last_edit']}'
+				'{$a_games[$key]['last_update']}'
 				); ");
 				
 			} elseif ($a_games[$key]['action'] == 'mov') {
 				mysqli_query($db, "UPDATE `game_list` SET 
 				`build_commit`='".mysqli_real_escape_string($db, $a_games[$key]['commit'])."', 
-				`last_edit`='{$a_games[$key]['last_edit']}' 
+				`last_update`='{$a_games[$key]['last_update']}', 
+				`status`='{$a_games[$key]['status']}' 
 				WHERE (`game_id`='{$a_games[$key]['game_id']}'); ");
-				
-				mysqli_query($db, "UPDATE game_status SET status = '{$a_games[$key]['status']}' WHERE id = {$a_games[$key]['parent_id']}; ");
 				
 				// Log change to game_history
 				mysqli_query($db, "INSERT INTO game_history (game_id, old_status, old_date, new_status, new_date) VALUES (
@@ -310,7 +304,7 @@ function compareThreads($update = false) {
 				'{$a_games[$key]['old_status']}', 
 				'{$a_games[$key]['old_date']}',
 				'{$a_games[$key]['status']}', 
-				'{$a_games[$key]['last_edit']}'
+				'{$a_games[$key]['last_update']}'
 				); ");
 				
 			}
@@ -354,7 +348,6 @@ function getNewTests() {
 	
 	$q_threads = mysqli_query($db, "SELECT *
 	FROM rpcs3_compatibility.game_list 
-	LEFT JOIN game_status ON parent_id = id 
 	WHERE status = 'Playable';"); // Playable only
 	
 	// Cache games
@@ -366,20 +359,18 @@ function getNewTests() {
 		'game_title' => $row->game_title, 
 		'status' => $row->status,
 		'currentCommit' => $row->build_commit,
-		'currentDate' => date('Y-m-d',  strtotime($row->last_edit)),
+		'currentDate' => date('Y-m-d',  strtotime($row->last_update)),
 		'newCommit' => $row->build_commit,
-		'newDate' => date('Y-m-d', strtotime($row->last_edit)),
+		'newDate' => date('Y-m-d', strtotime($row->last_update)),
 		'parent_id' => $parent_id
 		);
 	}
 
 	// Manually locked to Playable games
-	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_edit 
+	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_update 
 	FROM rpcs3_forums.mybb_posts 
 	LEFT JOIN rpcs3_compatibility.game_list
 	ON tid = thread_id 
-	LEFT JOIN game_status
-	ON game_list.parent_id = game_status.id 
 	WHERE fid = 5
 	ORDER by tid, pid DESC;");
 	

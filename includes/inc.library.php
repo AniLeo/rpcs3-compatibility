@@ -89,7 +89,7 @@ function getTestedContents() {
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT game_id, game_title, thread_id, last_edit, pr  
+	$query = mysqli_query($db, "SELECT game_id, game_title, thread_id, last_update, pr  
 	FROM game_list 
 	LEFT JOIN builds_windows
 	ON SUBSTR(commit,1,7) = SUBSTR(build_commit,1,7) ");
@@ -97,7 +97,7 @@ function getTestedContents() {
 		$a_games[$row->game_id] = array(
 		'title' => $row->game_title,
 		'thread' => $row->thread_id,
-		'last_edit' => $row->last_edit,
+		'last_update' => $row->last_update,
 		'pr' => $row->pr);
 	}
 	
@@ -134,7 +134,7 @@ function getTestedContents() {
 		} else {
 			
 			// If the game hasn't been tested for more than 6 months color = yellow, otherwise color = green
-			$color = (time() - strtotime($a_games[$gameID]['last_edit']) > 60*60*24*30*6) ? '#f39c12' : '#27ae60';
+			$color = (time() - strtotime($a_games[$gameID]['last_update']) > 60*60*24*30*6) ? '#f39c12' : '#27ae60';
 
 			echo "
 			<div class=\"divTableRow\">
@@ -147,7 +147,7 @@ function getTestedContents() {
 				".getThread($a_games[$gameID]['title'], $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\"style='color:{$color};'>
-				{$a_games[$gameID]['last_edit']}&nbsp;&nbsp;&nbsp;";
+				{$a_games[$gameID]['last_update']}&nbsp;&nbsp;&nbsp;";
 				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$a_games[$gameID]['pr']}'>Pull #{$a_games[$gameID]['pr']}</a>)";
 				
 				echo "</div>
