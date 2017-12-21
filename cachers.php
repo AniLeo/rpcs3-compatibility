@@ -38,24 +38,32 @@ function cacheWindowsBuilds($full = false){
 		$merge_datetime = date_create($row->merge_datetime);
 		date_sub($merge_datetime, date_interval_create_from_date_string('1 day'));
 		$date = date_format($merge_datetime, 'Y-m-d');
-		$last_page = 1;
 	}	
 	
 	if ($full) {
 		// Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
 		$date = '2015-08-10';
-		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Acreated-asc%20merged%3A%3E{$date}");
-		$step_1 = explode("<span class=\"gap\">&hellip;</span>", $content);
-		$step_2 = explode("<a class=\"next_page\" rel=\"next\"" , $step_1[1]);
-		$step_3 = explode(">" , $step_2[0]);
-		$step_4 = explode("</a" , $step_3[3]);
-		$last_page = $step_4[0];
 	}
-
+	
+	// Get number of PRs
+	$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Amerged-asc%20merged%3A%3E{$date}");
+	$step_1 = explode("<div class=\"table-list-header-toggle states float-left pl-3\">", $content);
+	$step_2 = explode("</div>" , $step_1[1]);
+	$step_3 = explode("</svg>" , $step_2[0]);
+	$step_4 = explode(" Total" , $step_3[1]);
+	$PRs = $step_4[0];
+	
+	if ($PRs == 0) {
+		// No PRs to cache, end here
+		return;
+	}
+	
+	$pages = (int)(($PRs / 25)+1);
+	
 	$a_PR = array();
 	
 	// Loop through all pages and get PR information
-	for ($i=1; $i<=$last_page; $i++) {
+	for ($i=1; $i<=$pages; $i++) {
 		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Acreated-asc+merged%3A%3E{$date}&utf8=%E2%9C%93");
 		
 		$step_1 = explode("\" class=\"link-gray-dark no-underline h4 js-navigation-open\">", $content);
