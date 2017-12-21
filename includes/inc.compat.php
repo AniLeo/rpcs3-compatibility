@@ -115,9 +115,13 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
 		
-		// If the search params are big enough, add count of games found via initials to main count
+		// If we're going to use the results, add count of games found here to main count
 		if (strlen($get['g']) >= 3) {
-			$scount += $scount2;
+			for ($x = 0; $x <= 1; $x++) {
+				for ($y = 0; $y <= 5; $y++) {
+					$scount[$x][$y] += $scount2[$x][$y];
+				}
+			}
 		}
 		
 		$partOne = "SELECT * FROM game_list WHERE ";
