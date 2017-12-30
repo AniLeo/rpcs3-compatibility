@@ -35,14 +35,14 @@ $prof_desc = "Debug mode: Profiling compat";
 // Order queries
 $a_order = array(
 '' => 'ORDER BY status ASC, game_title ASC',
-'1a' => 'ORDER BY game_id ASC',
-'1d' => 'ORDER BY game_id DESC',
+'1a' => '',
+'1d' => '',
 '2a' => 'ORDER BY game_title ASC',
 '2d' => 'ORDER BY game_title DESC',
-'3a' => 'ORDER BY status ASC',
-'3d' => 'ORDER BY status DESC',
-'4a' => 'ORDER BY last_update ASC',
-'4d' => 'ORDER BY last_update DESC'
+'3a' => 'ORDER BY status ASC, game_title ASC',
+'3d' => 'ORDER BY status DESC, game_title ASC',
+'4a' => 'ORDER BY last_update ASC, game_title ASC',
+'4d' => 'ORDER BY last_update DESC, game_title ASC'
 );
 
 
@@ -83,7 +83,7 @@ $currentPage = getCurrentPage($pages);
 // Run the main query 
 prof_flag("Inc: Execute Main Query");
 
-$c_main .= "SELECT game_id, game_title, thread_id, status, build_commit, last_update
+$c_main .= "SELECT *
 FROM game_list ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
@@ -116,7 +116,9 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 		$currentPage = getCurrentPage($pages);
 		
 		// If we're going to use the results, add count of games found here to main count
-		if (strlen($get['g']) >= 3) {
+		// HACK: Check if result isn't numeric to exclude duplicate results
+		// TODO: Handle duplicate results properly
+		if (strlen($get['g']) >= 3 && !is_numeric($get['g'])) {
 			for ($x = 0; $x <= 1; $x++) {
 				for ($y = 0; $y <= 5; $y++) {
 					$scount[$x][$y] += $scount2[$x][$y];
@@ -159,7 +161,7 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
 			
 			// Re-run the main query
-			$sqlCmd = "SELECT game_id, game_title, thread_id, status, build_commit, last_update
+			$sqlCmd = "SELECT *
 			FROM game_list 
 			WHERE {$genquery} 
 			{$a_order[$get['o']]} 
@@ -230,7 +232,7 @@ function getSortBy() {
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
 		$s_sortby .= "<a title='{$a_desc[$i]}' href=\"?"; 
-		$s_sortby .= combinedSearch(true, false, true, true, true, true, true, true);
+		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
 		$s_sortby .= "s={$i}\">"; 
 		
 		$temp = "{$a_title[$i]}&nbsp;({$scount[1][$i]})";
@@ -252,7 +254,7 @@ function getResultsPerPage() {
 	
 	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) { 
 		$s_pageresults .= "<a href=\"?"; 
-		$s_pageresults .= combinedSearch(false, true, true, true, true, true, true, true);
+		$s_pageresults .= combinedSearch(false, true, true, true, false, true, true, true);
 		$s_pageresults .= "r={$i}\">"; 
 		
 		// If the current selected status, highlight with bold
@@ -282,7 +284,7 @@ function getCharSearch() {
 	
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
-	$common .= combinedSearch(true, true, false, false, true, true, true, false);
+	$common .= combinedSearch(true, true, false, false, false, true, true, false);
 	
 	foreach ($a_chars as $key => $value) { 
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>"; 
@@ -319,10 +321,10 @@ function compat_getTableMessages() {
  * Table Headers *
  *****************/
 function compat_getTableHeaders() {
-	$extra = combinedSearch(true, true, true, true, true, true, true, false);
+	$extra = combinedSearch(true, true, true, true, false, true, true, false);
 	
 	$headers = array(
-		'Game ID' => 1,
+		'Game Regions + IDs' => 0,
 		'Game Title' => 2,
 		'Status' => 3,
 		'Last Test' => 4
@@ -339,10 +341,63 @@ function compat_getTableContent() {
 	global $q_main, $l_title, $l_orig, $a_results;
 
 	foreach ($a_results as $key => $value) {
+		
+		$media = '';
+		$multiple = false;
+		
 		// prof_flag("Page: Display Table Content: Row - GameID");
-		$s = "<div class=\"divTableCell\">".getGameRegion($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_id'], $value['thread_id'])."</div>";
+		$s = "<div class=\"divTableCell\">";
+		if (array_key_exists('gid_EU', $value)) {
+			$s .= getThread(getGameRegion($value['gid_EU'], false), $value['tid_EU'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_EU'], $value['tid_EU']);
+			$media = getGameMedia($value['gid_EU']);
+			$multiple = true;
+		}
+		if (array_key_exists('gid_US', $value)) {
+			if ($multiple) { $s .= '<br>'; }
+			$s .= getThread(getGameRegion($value['gid_US'], false), $value['tid_US'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_US'], $value['tid_US']);
+			$media = getGameMedia($value['gid_US']);
+			$multiple = true;
+		}
+		if (array_key_exists('gid_JP', $value)) {
+			if ($multiple) { $s .= '<br>'; }
+			$s .= getThread(getGameRegion($value['gid_JP'], false), $value['tid_JP'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_JP'], $value['tid_JP']);
+			$media = getGameMedia($value['gid_JP']);
+			$multiple = true;
+		}
+		if (array_key_exists('gid_AS', $value)) {
+			if ($multiple) { $s .= '<br>'; }
+			$s .= getThread(getGameRegion($value['gid_AS'], false), $value['tid_AS'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_AS'], $value['tid_AS']);
+			$media = getGameMedia($value['gid_AS']);
+			$multiple = true;
+		}
+		if (array_key_exists('gid_KR', $value)) {
+			if ($multiple) { $s .= '<br>'; }
+			$s .= getThread(getGameRegion($value['gid_KR'], false), $value['tid_KR'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_KR'], $value['tid_KR']);
+			$media = getGameMedia($value['gid_KR']);
+			$multiple = true;
+		}
+		if (array_key_exists('gid_HK', $value)) {
+			if ($multiple) { $s .= '<br>'; }
+			$s .= getThread(getGameRegion($value['gid_HK'], false), $value['tid_HK'])."&nbsp;&nbsp;";
+			$s .= getThread($value['gid_HK'], $value['tid_HK']);
+			$media = getGameMedia($value['gid_HK']);
+			$multiple = true;
+		}
+		$s .= "</div>";
+		
 		// prof_flag("Page: Display Table Content: Row - Game Title");
-		$s .= "<div class=\"divTableCell\">".getGameMedia($value['game_id'])."&nbsp;&nbsp;".getThread($value['game_title'], $value['thread_id'])."</div>";
+		$s .= "<div class=\"divTableCell\">";
+		$s .= "{$media}&nbsp;&nbsp;{$value['game_title']}";
+		if (array_key_exists('alternative_title', $value)) {
+			$s .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$value['alternative_title']})";
+		}
+		$s .= "</div>";
+		
 		// prof_flag("Page: Display Table Content: Row - Status");
 		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>"; 
 		// prof_flag("Page: Display Table Content: Row - Last Updated");
@@ -364,7 +419,7 @@ function compat_getTableContent() {
 function compat_getPagesCounter() {
 	global $pages, $currentPage;
 	
-	$extra = combinedSearch(true, true, true, true, true, true, true, true);
+	$extra = combinedSearch(true, true, true, true, false, true, true, true);
 	
 	return getPagesCounter($pages, $currentPage, $extra);
 }
@@ -405,14 +460,68 @@ function APIv1() {
 	$results['return_code'] = 0;
 	
 	foreach ($a_results as $key => $value) {
-		$results['results'][$value['game_id']] = array(
-		'title' => $value['game_title'],
-		'status' => $value['status'],
-		'date' => $value['last_update'],
-		'thread' => (int) $value['thread_id'],
-		'commit' => $value['commit'],
-		'pr' => $value['pr']
-		);
+		
+		if (array_key_exists('gid_EU', $value)) {
+			$results['results'][$value['gid_EU']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_EU'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		if (array_key_exists('gid_US', $value)) {
+			$results['results'][$value['gid_US']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_US'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		if (array_key_exists('gid_JP', $value)) {
+			$results['results'][$value['gid_JP']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_JP'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		if (array_key_exists('gid_AS', $value)) {
+			$results['results'][$value['gid_AS']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_AS'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		if (array_key_exists('gid_KR', $value)) {
+			$results['results'][$value['gid_KR']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_KR'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		if (array_key_exists('gid_HK', $value)) {
+			$results['results'][$value['gid_HK']] = array(
+			'title' => $value['game_title'],
+			'status' => $value['status'],
+			'date' => $value['last_update'],
+			'thread' => (int) $value['tid_HK'],
+			'commit' => $value['commit'],
+			'pr' => $value['pr']
+			);
+		}
+		
 	}
 	
 	if ($q_main) {

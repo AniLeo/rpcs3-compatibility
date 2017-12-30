@@ -102,15 +102,15 @@ function getGameRegion($gid, $url = true, $extra = '') {
 	
 	// Allow for filter resetting by clicking the flag again
 	if ($get['f'] == strtolower($l) && $url) {
-		return "<a href=\"?{$ex}\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$ex}\"><img title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
 	
 	if ($url) {
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
-		return "<img alt=\"{$l}\" src=\"$a_flags[$l]\">";
+		return "<img title=\"{$gid}\" alt=\"{$l}\" src=\"$a_flags[$l]\">";
 	}
 }
 
@@ -283,14 +283,14 @@ function obtainGet($db = null) {
 		$get['d'] = $_GET['d'];
 	}
 	
-	// Region
-	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
-		$get['f'] = strtolower($_GET['f']); 
-	}
-	
 	// Media type
 	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media)) {
 		$get['t'] = strtolower($_GET['t']); 
+	}
+	
+	// Region
+	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
+		$get['f'] = strtolower($_GET['f']); 
 	}
 	
 	// History
@@ -335,11 +335,13 @@ function generateQuery($get, $db = null) {
 		if ($get['c'] == '09') {
 			$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
 			OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
-			OR game_title LIKE '8%' OR game_title LIKE '9%') ";
+			OR game_title LIKE '8%' OR game_title LIKE '9%' OR alternative_title LIKE '0%' OR alternative_title LIKE '1%' OR alternative_title LIKE '2%'
+			OR alternative_title LIKE '3%' OR alternative_title LIKE '4%' OR alternative_title LIKE '5%' OR alternative_title LIKE '6%' OR alternative_title LIKE '7%'
+			OR alternative_title LIKE '8%' OR alternative_title LIKE '9%') ";
 		} elseif ($get['c'] == 'sym') {
-			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%') ";
+			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%' OR alternative_title LIKE '.%' OR alternative_title LIKE '&%') ";
 		} else {
-			$genquery .= " game_title LIKE '{$get['c']}%' ";
+			$genquery .= " game_title LIKE '{$get['c']}%' OR alternative_title LIKE '{$get['c']}%' ";
 		}
 		$and = true;
 	}
@@ -348,24 +350,25 @@ function generateQuery($get, $db = null) {
 	if ($get['g'] != '') {
 		if ($and) { $genquery .= " AND "; }
 		$s_g = mysqli_real_escape_string($db, $get['g']);
-		$genquery .= " (game_title LIKE '%{$s_g}%' OR game_id LIKE '%{$s_g}%') ";
-		$and = true;
-	}
-
-	// QUERYGEN: Search by region
-	if ($get['f'] != '') {
-		if ($and) { $genquery .= " AND "; }
-		$genquery .= " SUBSTR(game_id, 3, 1) = '{$get['f']}' ";
+		$genquery .= " (game_title LIKE '%{$s_g}%' OR alternative_title LIKE '%{$s_g}%' OR gid_EU LIKE '%{$s_g}%' OR gid_US LIKE '%{$s_g}%' OR gid_JP LIKE '%{$s_g}%' 
+		OR gid_AS LIKE '%{$s_g}%' OR gid_KR LIKE '%{$s_g}%' OR gid_HK LIKE '%{$s_g}%') ";
 		$and = true;
 	}
 	
 	// QUERYGEN: Search by media type
 	if ($get['t'] != '') {
 		if ($and) { $genquery .= " AND "; }
-		$genquery .= " SUBSTR(game_id, 1, 1) = '{$get['t']}' ";
+		$genquery .= " (
+		(gid_EU IS NOT NULL && SUBSTR(gid_EU,1,1) = '{$get['t']}') OR 
+		(gid_US IS NOT NULL && SUBSTR(gid_US,1,1) = '{$get['t']}') OR 
+		(gid_JP IS NOT NULL && SUBSTR(gid_JP,1,1) = '{$get['t']}') OR 
+		(gid_AS IS NOT NULL && SUBSTR(gid_AS,1,1) = '{$get['t']}') OR 
+		(gid_KR IS NOT NULL && SUBSTR(gid_KR,1,1) = '{$get['t']}') OR 
+		(gid_HK IS NOT NULL && SUBSTR(gid_HK,1,1) = '{$get['t']}') 
+		) ";
 		$and = true;
 	}
-
+	
 	// QUERYGEN: Search by date
 	if ($get['d'] != '') {
 		if ($and) { $genquery .= " AND "; }
@@ -434,12 +437,12 @@ function countGames($db = null, $query = '') {
 		
 		// For count with specified status, include only results for specified status
 		if ($id == $get['s']) {
-			$scount[0][$id] = $row->c;
-			$scount[0][0] = $row->c;
+			$scount[0][$id] = (int)$row->c;
+			$scount[0][0] = (int)$row->c;
 		}
 		
 		// Add count from status to the array
-		$scount[1][$id] = $row->c;
+		$scount[1][$id] = (int)$row->c;
 		
 		// Instead of querying the database once more add all the previous counts to get the total count
 		$scount[1][0] += $scount[1][$id];
@@ -684,10 +687,10 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	if ($get['c'] != "" && $c) {$combined .= "c={$get['c']}&";}
 	// Combined search: searchbox
 	if ($get['g'] != "" && $scount[0] > 0 && $g) {$combined .= "g=".urlencode($get['g'])."&";} 
-	// Combined search: search by region
-	if ($get['f'] != "" && $f) {$combined .= "f={$get['f']}&";} 
 	// Combined search: search by media type
 	if ($get['t'] != "" && $t) {$combined .= "t={$get['t']}&";} 
+	// Combined search: search by region
+	if ($get['f'] != "" && $f) {$combined .= "f={$get['f']}&";} 
 	// Combined search: date search
 	if ($get['d'] != "" && $d) {$combined .= "d={$get['d']}&";}
 	// Combined search: order by
@@ -838,18 +841,50 @@ function storeResults(&$a_results, $query, &$a_cache, &$db) {
 			}
 		}
 		
-		$a_results[$row->game_id] = array(
-		'game_id' => $row->game_id,
+		$a_results[$row->key] = array(
 		'game_title' => $row->game_title,
 		'status' => $row->status,
-		'thread_id' => $row->thread_id,
 		'last_update' => $row->last_update,
 		'commit' => $commit,
 		'pr' => $pr
 		);
+		
+		if (!empty($row->alternative_title)) {
+			$a_results[$row->key]['alternative_title'] = $row->alternative_title;
+		}
+		
+		if (!empty($row->gid_EU)) {
+			$a_results[$row->key]['gid_EU'] = $row->gid_EU;
+			$a_results[$row->key]['tid_EU'] = $row->tid_EU;
+		}
+		if (!empty($row->gid_US)) {
+			$a_results[$row->key]['gid_US'] = $row->gid_US;
+			$a_results[$row->key]['tid_US'] = $row->tid_US;
+		}
+		if (!empty($row->gid_JP)) {
+			$a_results[$row->key]['gid_JP'] = $row->gid_JP;
+			$a_results[$row->key]['tid_JP'] = $row->tid_JP;
+		}
+		if (!empty($row->gid_AS)) {
+			$a_results[$row->key]['gid_AS'] = $row->gid_AS;
+			$a_results[$row->key]['tid_AS'] = $row->tid_AS;
+		}
+		if (!empty($row->gid_KR)) {
+			$a_results[$row->key]['gid_KR'] = $row->gid_KR;
+			$a_results[$row->key]['tid_KR'] = $row->tid_KR;
+		}
+		if (!empty($row->gid_HK)) {
+			$a_results[$row->key]['gid_HK'] = $row->gid_HK;
+			$a_results[$row->key]['tid_HK'] = $row->tid_HK;
+		}
 		
 	}
 	
 	return true;
 	
 }
+
+/*
+	echo "<br>";
+	highlight_string("<?php\n\$data =\n".var_export($a_games, true).";\n?>");
+*/

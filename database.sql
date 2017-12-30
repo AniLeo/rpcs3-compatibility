@@ -3,14 +3,26 @@
 -- ----------------------------
 DROP TABLE IF EXISTS `game_list`;
 CREATE TABLE `game_list` (
-  `game_id` varchar(9) CHARACTER SET utf8 NOT NULL,
-  `game_title` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `thread_id` int(11) NOT NULL,
-  `build_commit` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `last_update` date NOT NULL DEFAULT '0000-00-00',
+  `key` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Don''t need a primary key, just for good practice',
+  `game_title` varchar(255) NOT NULL,
+  `alternative_title` varchar(255) DEFAULT NULL,
   `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
-  PRIMARY KEY (`game_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `build_commit` varchar(255) NOT NULL,
+  `last_update` date NOT NULL,
+  `gid_EU` varchar(9) DEFAULT NULL,
+  `tid_EU` int(11) DEFAULT NULL,
+  `gid_US` varchar(9) DEFAULT NULL,
+  `tid_US` int(11) DEFAULT NULL,
+  `gid_JP` varchar(9) DEFAULT NULL,
+  `tid_JP` int(11) DEFAULT NULL,
+  `gid_AS` varchar(9) DEFAULT NULL,
+  `tid_AS` int(11) DEFAULT NULL,
+  `gid_KR` varchar(9) DEFAULT NULL,
+  `tid_KR` int(11) DEFAULT NULL,
+  `gid_HK` varchar(9) DEFAULT NULL,
+  `tid_HK` int(11) DEFAULT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for builds_windows
@@ -54,10 +66,15 @@ CREATE TABLE `ip_whitelist` (
 DROP TABLE IF EXISTS `game_history`;
 CREATE TABLE `game_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `game_id` varchar(9) NOT NULL,
+  `gid_EU` varchar(255) DEFAULT NULL,
+  `gid_US` varchar(255) DEFAULT NULL,
+  `gid_JP` varchar(255) DEFAULT NULL,
+  `gid_AS` varchar(255) DEFAULT NULL,
+  `gid_KR` varchar(255) DEFAULT NULL,
+  `gid_HK` varchar(255) DEFAULT NULL,
   `old_status` enum('Playable','Ingame','Intro','Loadable','Nothing') DEFAULT NULL,
   `old_date` date DEFAULT NULL,
-  `new_status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL,
+  `new_status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `new_date` date NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3386 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

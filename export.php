@@ -29,9 +29,8 @@ function exportDatabase() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
-	$q_export = mysqli_query($db, "SELECT game_id, status, last_update 
-	FROM game_list 
-	ORDER BY game_id ASC; ");
+	$q_export = mysqli_query($db, "SELECT * 
+	FROM game_list; ");
 	
 	if (!$q_export || mysqli_num_rows($q_export) === 0) {
 		$results['return_code'] = -1;
@@ -47,10 +46,42 @@ function exportDatabase() {
 	
 	while ($row = mysqli_fetch_object($q_export)) {
 		
-		$results['results'][$row->game_id] = array(
-		'status' => $row->status,
-		'date' => $row->last_update
-		);
+		if (!empty($row->gid_EU)) {
+			$results['results'][$row->gid_EU] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
+		if (!empty($row->gid_US)) {
+			$results['results'][$row->gid_US] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
+		if (!empty($row->gid_JP)) {
+			$results['results'][$row->gid_JP] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
+		if (!empty($row->gid_AS)) {
+			$results['results'][$row->gid_AS] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
+		if (!empty($row->gid_KR)) {
+			$results['results'][$row->gid_KR] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
+		if (!empty($row->gid_HK)) {
+			$results['results'][$row->gid_HK] = array(
+			'status' => $row->status,
+			'date' => $row->last_update
+			);
+		}
 		
 	}
 	

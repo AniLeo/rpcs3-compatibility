@@ -89,16 +89,54 @@ function getTestedContents() {
 	
 	// Get all games in the database (ID + Title)
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT game_id, game_title, thread_id, last_update, pr  
+	$query = mysqli_query($db, "SELECT *
 	FROM game_list 
 	LEFT JOIN builds_windows
 	ON SUBSTR(commit,1,7) = SUBSTR(build_commit,1,7) ");
 	while($row = mysqli_fetch_object($query)) {
-		$a_games[$row->game_id] = array(
-		'title' => $row->game_title,
-		'thread' => $row->thread_id,
-		'last_update' => $row->last_update,
-		'pr' => $row->pr);
+		// TODO: Cleanup
+		if (!empty($row->gid_EU)) {
+			$a_games[$row->gid_EU] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_EU,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
+		if (!empty($row->gid_US)) {
+			$a_games[$row->gid_US] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_US,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
+		if (!empty($row->gid_JP)) {
+			$a_games[$row->gid_JP] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_JP,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
+		if (!empty($row->gid_AS)) {
+			$a_games[$row->gid_AS] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_AS,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
+		if (!empty($row->gid_KR)) {
+			$a_games[$row->gid_KR] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_KR,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
+		if (!empty($row->gid_HK)) {
+			$a_games[$row->gid_HK] = array(
+			'title' => $row->game_title,
+			'thread' => $row->tid_HK,
+			'last_update' => $row->last_update,
+			'pr' => $row->pr);
+		}
 	}
 	
 	mysqli_close($db);

@@ -40,7 +40,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					  <li><a href="?a=updateRoadmapCache">Update Roadmap Cache</a></li>
 					  <li><a href="?a=compareThreads">Compare Threads</a></li>
 					  <li><a href="?a=updateCompatibility">Update Compatibility</a></li>
-					  <li><a href="?a=getNewTests">Get New Tests</a></li>
+					  <!-- <li><a href="?a=getNewTests">Get New Tests</a></li> -->
 					</ul> 
 				</div>
 				
@@ -60,9 +60,11 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 						if ($get['a'] == 'updateCompatibility') {
 							compareThreads(true); 
 						}
+						/*
 						if ($get['a'] == 'getNewTests') {
 							getNewTests(); 
 						}
+						*/
 					?>
 				</div>
 				

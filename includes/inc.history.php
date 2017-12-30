@@ -108,7 +108,7 @@ function getHistoryOptions() {
 function getHistoryHeaders($full = true) {
 	if ($full) {
 		$headers = array(
-			'Game ID' => 0,
+			'Game Regions' => 0,
 			'Game Title' => 0,
 			'New Status' => 0,
 			'New Date' => 0,
@@ -117,7 +117,7 @@ function getHistoryHeaders($full = true) {
 		);
 	} else {
 		$headers = array(
-			'Game ID' => 0,
+			'Game Regions' => 0,
 			'Game Title' => 0,
 			'Status' => 0,
 			'Date' => 0
@@ -142,12 +142,22 @@ function getHistoryContent() {
 		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 	
+	// Note: The GROUP BY causes the first new_date to be shown instead of the last new_date
+	// of that entry (for tests in the same month in different regions of same game). 
+	// Maybe handle this later somehow.
 	if ($get['m'] == "c" || $get['m'] == "") {
-		$cQuery = mysqli_query($db, "SELECT * FROM game_history 
-		LEFT JOIN game_list ON game_history.game_id = game_list.game_id 
+		$cQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history 
+		LEFT JOIN game_list ON 
+		game_history.gid_EU = game_list.gid_EU OR
+		game_history.gid_US = game_list.gid_US OR
+		game_history.gid_JP = game_list.gid_JP OR
+		game_history.gid_AS = game_list.gid_AS OR
+		game_history.gid_KR = game_list.gid_KR OR
+		game_history.gid_HK = game_list.gid_HK 
 		WHERE old_status IS NOT NULL 
 		{$dateQuery} 
-		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
+		GROUP BY game_list.key 
+		ORDER BY new_status ASC, -old_status DESC, new_date DESC, game_title ASC; ");
 	
 		if (!$cQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
@@ -160,10 +170,43 @@ function getHistoryContent() {
 
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($cQuery)) {
-				$s_content .= "<div class='divTableRow'>
-				<div class=\"divTableCell\">".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</div>
-				<div class=\"divTableCell\">".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</div>
-				<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
+				$s_content .= "<div class='divTableRow'>";
+				
+				$s_content .= "<div class=\"divTableCell\">";
+				if (!empty($row->gid_EU)) {
+					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_EU, false);
+				}
+				if (!empty($row->gid_US)) {
+					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_US, false);
+				}
+				if (!empty($row->gid_JP)) {
+					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_JP, false);
+				}
+				if (!empty($row->gid_AS)) {
+					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_AS, false);
+				}
+				if (!empty($row->gid_KR)) {
+					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_KR, false);
+				}
+				if (!empty($row->gid_HK)) {
+					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_HK, false);
+				}
+				$s_content .= "</div>";
+				
+				$s_content .= "<div class=\"divTableCell\">";
+				$s_content .= "{$media}&nbsp;&nbsp;{$row->game_title}";
+				if (array_key_exists('alternative_title', $value)) {
+					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
+				}
+				$s_content .= "</div>";
+				
+				$s_content .= "<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
 				<div class=\"divTableCell\">{$row->new_date}</div>
 				<div class=\"divTableCell\">".getColoredStatus($row->old_status)."</div>
 				<div class=\"divTableCell\">{$row->old_date}</div>
@@ -174,11 +217,18 @@ function getHistoryContent() {
 	}
 	
 	if ($get['m'] == "n" || $get['m'] == "") {
-		$nQuery = mysqli_query($db, "SELECT * FROM game_history 
-		LEFT JOIN game_list ON game_history.game_id = game_list.game_id 
+		$nQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history 
+		LEFT JOIN game_list ON 
+		game_history.gid_EU = game_list.gid_EU OR
+		game_history.gid_US = game_list.gid_US OR
+		game_history.gid_JP = game_list.gid_JP OR
+		game_history.gid_AS = game_list.gid_AS OR
+		game_history.gid_KR = game_list.gid_KR OR
+		game_history.gid_HK = game_list.gid_HK 
 		WHERE old_status IS NULL 
 		{$dateQuery} 
-		ORDER BY new_status ASC, -old_status DESC, game_title ASC; ");
+		GROUP BY game_list.key 
+		ORDER BY new_status ASC, new_date DESC, game_title ASC; ");
 		
 		if (!$nQuery) { 
 			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
@@ -192,10 +242,43 @@ function getHistoryContent() {
 			
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($nQuery)) {
-				$s_content .= "<div class='divTableRow'>
-				<div class=\"divTableCell\">".getGameRegion($row->game_id, false)."&nbsp;&nbsp;".getThread($row->game_id, $row->thread_id)."</div>
-				<div class=\"divTableCell\">".getGameMedia($row->game_id)."&nbsp;&nbsp;".getThread($row->game_title, $row->thread_id)."</div>
-				<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
+				$s_content .= "<div class='divTableRow'>";
+				
+				$s_content .= "<div class=\"divTableCell\">";
+				if (!empty($row->gid_EU)) {
+					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_EU, false);
+				}
+				if (!empty($row->gid_US)) {
+					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_US, false);
+				}
+				if (!empty($row->gid_JP)) {
+					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_JP, false);
+				}
+				if (!empty($row->gid_AS)) {
+					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_AS, false);
+				}
+				if (!empty($row->gid_KR)) {
+					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_KR, false);
+				}
+				if (!empty($row->gid_HK)) {
+					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK)."&nbsp;&nbsp;";
+					$media = getGameMedia($row->gid_HK, false);
+				}
+				$s_content .= "</div>";
+				
+				$s_content .= "<div class=\"divTableCell\">";
+				$s_content .= "{$media}&nbsp;&nbsp;{$row->game_title}";
+				if (array_key_exists('alternative_title', $value)) {
+					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
+				}
+				$s_content .= "</div>";
+				
+				$s_content .= "<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
 				<div class=\"divTableCell\">{$row->new_date}</div>
 				</div>";	
 			}
@@ -224,7 +307,14 @@ function getHistoryRSS(){
 		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 	
-	$rssCmd = "SELECT * FROM game_history LEFT JOIN game_list ON game_history.game_id = game_list.game_id ";
+	$rssCmd = "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history 
+	LEFT JOIN game_list ON 
+	game_history.gid_EU = game_list.gid_EU OR
+	game_history.gid_US = game_list.gid_US OR
+	game_history.gid_JP = game_list.gid_JP OR
+	game_history.gid_AS = game_list.gid_AS OR
+	game_history.gid_KR = game_list.gid_KR OR
+	game_history.gid_HK = game_list.gid_HK ";
 	if ($get['m'] == "c") {
 		$rssCmd .= " WHERE old_status IS NOT NULL ";
 	} elseif ($get['m'] == "n") {
@@ -232,7 +322,9 @@ function getHistoryRSS(){
 	} else {
 		$rssCmd .= " WHERE game_list.game_id IS NOT NULL ";
 	}
-	$rssCmd .= " {$dateQuery} ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
+	$rssCmd .= " {$dateQuery} 
+	GROUP BY game_list.key 
+	ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
 	
 	$rssQuery = mysqli_query($db, $rssCmd);
 	
