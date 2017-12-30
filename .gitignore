@@ -1,4 +1,5 @@
-
+# Ignore the following files
 ps3tdb.txt
 tested.txt
 untested.txt
+cache/*

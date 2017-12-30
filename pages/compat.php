@@ -53,8 +53,8 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<!--End -->
 			<?php 
 			prof_flag("Page: Get Status Module");
-			if (file_exists(__DIR__.'/../modules/mod.status.count.php')) {
-				include(__DIR__.'/../modules/mod.status.count.php');
+			if (file_exists(__DIR__.'/../cache/mod.status.count.php')) {
+				include(__DIR__.'/../cache/mod.status.count.php');
 			} else {
 				echo generateStatusModule();
 			}

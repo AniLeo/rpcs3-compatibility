@@ -32,12 +32,11 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
   *
   * @param string $gid   GameID, 9 character ID that identifies a game
   * @param bool   $url   Whether to return Game Media as a clickable(1) or non-clickable(0) flag
-  * @param string $class CSS classes for returned image
   * @param string $extra Extra params for clickable URL (combined search)
   *
   * @return string
   */
-function getGameMedia($gid, $url = true, $class = 'compat-icon-media', $extra = '') {
+function getGameMedia($gid, $url = true, $extra = '') {
 	global $a_media, $get;
 	
 	// First letter of Game ID
@@ -52,21 +51,21 @@ function getGameMedia($gid, $url = true, $class = 'compat-icon-media', $extra = 
 	elseif ($l == 'B')  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
 	elseif ($l == 'X')  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
 	
-	$img = "<img alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"{$class}\">";
+	$img = "<img title=\"{$alt}\" alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"compat-icon-media\">";
 	
-	// Get the page we're on so we can reset back to the correct page
+	// Get the module we're on so we can reset back to the correct module
 	$ex = $extra != '' ? substr($extra, 0, 1) : '';
 	
-	// Allow for filter resetting by clicking the flag again
+	// Allow for filter resetting by clicking the icon again
 	if ($get['t'] == strtolower($l) && $url) {
 		return "<a href=\"?{$ex}\">{$img}</a>";
 	}
 	
 	if ($url) {
-		// Returns clickable flag for region (flag) search
+		// Returns clickable icon for type (media) search
 		return "<a href=\"?{$extra}t=".strtolower($l)."\">{$img}</a>";
 	} else {
-		// Returns unclickable flag
+		// Returns unclickable icon
 		return $img;
 	}
 }
@@ -96,9 +95,8 @@ function getGameRegion($gid, $url = true, $extra = '') {
 		return "";
 	}
 	
-	if ($extra != '') {
-		$ex = substr($extra, 0, 1);
-	} else { $ex = ''; }
+	// Get the module we're on so we can reset back to the correct module
+	$ex = $extra != '' ? substr($extra, 0, 1) : '';
 	
 	// Allow for filter resetting by clicking the flag again
 	if ($get['f'] == strtolower($l) && $url) {
@@ -110,7 +108,7 @@ function getGameRegion($gid, $url = true, $extra = '') {
 		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
-		return "<img title=\"{$gid}\" alt=\"{$l}\" src=\"$a_flags[$l]\">";
+		return "<img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"$a_flags[$l]\">";
 	}
 }
 

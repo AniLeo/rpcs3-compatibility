@@ -140,7 +140,7 @@
 .divTable {
     font-family: arial;
     font-size: 12px;
-    line-height: 31px;
+    line-height: 29px;
     display: table;
     overflow: hidden;
     width: 100%;
@@ -177,8 +177,8 @@
 
 .divTableCell,.divTableHead {
     display: table-cell;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 1px;
+    padding-bottom: 1px;
     padding-left: 30px;
 }
 
@@ -188,9 +188,16 @@
     float: left;
     width: 18px;
     height: 18px;
-    margin-top: 2px;
+    margin-top: 1px;
     margin-right: 3px;
     padding: 4px 4px;
+}
+
+.compat-icon-flag {
+    position: relative;
+    z-index: 1;
+    float: left;
+    margin-top: 9px;
 }
 
 .builds-icon {
@@ -207,10 +214,6 @@
 .compat-icon-media:hover {
     background: rgba(49,152,255,.3);
     border-radius: 100%;
-}
-
-.icon-library {
-    margin-top: 1px;
 }
 
 #compat-con-search {
