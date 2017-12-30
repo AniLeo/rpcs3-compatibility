@@ -318,8 +318,15 @@ function cacheLibraryStatistics() {
 	$a_games = array();
 	$query = mysqli_query($db, "SELECT * FROM game_list; ");
 	
+	$all = 0;
+	
 	while($row = mysqli_fetch_object($query)) {
-		$a_games[] = $row->game_id;
+		if (!empty($row->gid_EU)) { $a_games[] = $row->gid_EU; $all++; }
+		if (!empty($row->gid_US)) { $a_games[] = $row->gid_US; $all++; }
+		if (!empty($row->gid_JP)) { $a_games[] = $row->gid_JP; $all++; }
+		if (!empty($row->gid_AS)) { $a_games[] = $row->gid_AS; $all++; }
+		if (!empty($row->gid_KR)) { $a_games[] = $row->gid_KR; $all++; }
+		if (!empty($row->gid_HK)) { $a_games[] = $row->gid_HK; $all++; }
 	}
 	
 	mysqli_close($db);
@@ -343,15 +350,19 @@ function cacheLibraryStatistics() {
 		fclose($f_ps3tdb);
 
 		// Open tested.txt and write number of tested games in one line
-		$f_tested = fopen(__DIR__.'/tested.txt', 'w');
+		$f_tested = fopen(__DIR__.'/cache/tested.txt', 'w');
 		fwrite($f_tested, $tested);
 		fclose($f_tested);
 
 		// Open untested.txt and write number of untested games in one line
-		$f_untested = fopen(__DIR__.'/untested.txt', 'w');
+		$f_untested = fopen(__DIR__.'/cache/untested.txt', 'w');
 		fwrite($f_untested, $untested);
 		fclose($f_untested);
 		
+		// Open all.txt and write number of all Game IDs in database in one line
+		$f_all = fopen(__DIR__.'/cache/all.txt', 'w');
+		fwrite($f_all, $all);
+		fclose($f_all);
 	} 
 }
 

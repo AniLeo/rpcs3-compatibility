@@ -206,7 +206,17 @@ function tested_getPagesCounter() {
 }
 
 
-function getGames($tested) {
-	$file = $tested ? 'tested.txt' : 'untested.txt';
-	return fgets(fopen(__DIR__."/../{$file}", 'r'));
+function getGameCount($type) {
+	// Only allow access to all, tested and untested files
+	if (!($type == 'all' || $type == 'tested' || $type == 'untested')) {
+		return 0;
+	}
+	// Open handle to requested file
+	$handle = fopen(__DIR__."/../cache/{$type}.txt", 'r');
+	// Assign file content to a temporary variable before returning, so we can close the handle first
+	$count = fgets($handle);
+	// Close opened handle before returning
+	fclose($handle);
+	
+	return $count;
 }
