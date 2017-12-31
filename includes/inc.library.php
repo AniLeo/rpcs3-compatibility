@@ -77,7 +77,7 @@ function getResultsPerPage() {
 
 
 function getTestedContents() {
-	global $get, $pages, $currentPage, $a_db;
+	global $get, $pages, $currentPage, $a_db, $c_github;
 	
 	if (!$a_db) {
 		echo "<p class=\"compat-tx1-criteria\">There are no games present in the selected categories.</p>";
@@ -186,7 +186,7 @@ function getTestedContents() {
 				</div>
 				<div class=\"divTableCell\"style='color:{$color};'>
 				{$a_games[$gameID]['last_update']}&nbsp;&nbsp;&nbsp;";
-				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$a_games[$gameID]['pr']}'>Pull #{$a_games[$gameID]['pr']}</a>)";
+				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>Pull #{$a_games[$gameID]['pr']}</a>)";
 				
 				echo "</div>
 			</div>";

@@ -95,7 +95,7 @@ function builds_getTableHeaders() {
 
 
 function builds_getTableContent() {
-	global $get, $c_appveyor, $a_order, $currentPage, $buildsQuery;
+	global $get, $c_appveyor, $c_github, $a_order, $currentPage, $buildsQuery;
 	
 	if (mysqli_num_rows($buildsQuery) > 0) {
 		while ($row = mysqli_fetch_object($buildsQuery)) { 
@@ -104,7 +104,7 @@ function builds_getTableContent() {
 			$diff = getDateDiff($row->merge_datetime);
 	
 			$s_tablecontent .= "<div class=\"divTableRow\">
-			<div class=\"divTableCell\"><a href=\"https://github.com/RPCS3/rpcs3/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
+			<div class=\"divTableCell\"><a href=\"{$c_github}/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
 			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>
 			<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
 			if ($row->appveyor != "0") { 

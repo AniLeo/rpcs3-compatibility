@@ -189,7 +189,7 @@
     width: 18px;
     height: 18px;
     margin-top: 1px;
-    margin-right: 3px;
+    margin-right: 9px;
     padding: 4px 4px;
 }
 
@@ -198,6 +198,7 @@
     z-index: 1;
     float: left;
     margin-top: 9px;
+    margin-right: 6px;
 }
 
 .builds-icon {
@@ -460,10 +461,10 @@ input {
 }
 
 .txt-compat-status {
-    line-height: 20px;
+    line-height: 18px;
     position: relative;
     width: 70px;
-    height: 20px;
+    height: 18px;
     text-align: center;
     text-transform: none;
     color: #fff!important;

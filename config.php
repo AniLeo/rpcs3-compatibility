@@ -27,8 +27,8 @@ define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
 
 // Global config variables
-$c_github = 'https://github.com/RPCS3/rpcs3/commit/';
-$c_forum = 'https://forums.rpcs3.net/thread-';
+$c_github = 'https://github.com/RPCS3/rpcs3';
+$c_forum = 'https://forums.rpcs3.net';
 $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pageresults = 3; // Default results per page (50)
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)

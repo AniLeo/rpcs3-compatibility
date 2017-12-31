@@ -231,7 +231,7 @@ function getSortBy() {
 
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
 		// Displays status description when hovered on
-		$s_sortby .= "<a title='{$a_desc[$i]}' href=\"?"; 
+		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?"; 
 		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
 		$s_sortby .= "s={$i}\">"; 
 		
@@ -348,42 +348,42 @@ function compat_getTableContent() {
 		// prof_flag("Page: Display Table Content: Row - GameID");
 		$s = "<div class=\"divTableCell\">";
 		if (array_key_exists('gid_EU', $value)) {
-			$s .= getThread(getGameRegion($value['gid_EU'], false), $value['tid_EU'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_EU'], false), $value['tid_EU']);
 			$s .= getThread($value['gid_EU'], $value['tid_EU']);
 			$media = getGameMedia($value['gid_EU']);
 			$multiple = true;
 		}
 		if (array_key_exists('gid_US', $value)) {
 			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_US'], false), $value['tid_US'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_US'], false), $value['tid_US']);
 			$s .= getThread($value['gid_US'], $value['tid_US']);
 			$media = getGameMedia($value['gid_US']);
 			$multiple = true;
 		}
 		if (array_key_exists('gid_JP', $value)) {
 			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_JP'], false), $value['tid_JP'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_JP'], false), $value['tid_JP']);
 			$s .= getThread($value['gid_JP'], $value['tid_JP']);
 			$media = getGameMedia($value['gid_JP']);
 			$multiple = true;
 		}
 		if (array_key_exists('gid_AS', $value)) {
 			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_AS'], false), $value['tid_AS'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_AS'], false), $value['tid_AS']);
 			$s .= getThread($value['gid_AS'], $value['tid_AS']);
 			$media = getGameMedia($value['gid_AS']);
 			$multiple = true;
 		}
 		if (array_key_exists('gid_KR', $value)) {
 			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_KR'], false), $value['tid_KR'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_KR'], false), $value['tid_KR']);
 			$s .= getThread($value['gid_KR'], $value['tid_KR']);
 			$media = getGameMedia($value['gid_KR']);
 			$multiple = true;
 		}
 		if (array_key_exists('gid_HK', $value)) {
 			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_HK'], false), $value['tid_HK'])."&nbsp;&nbsp;";
+			$s .= getThread(getGameRegion($value['gid_HK'], false), $value['tid_HK']);
 			$s .= getThread($value['gid_HK'], $value['tid_HK']);
 			$media = getGameMedia($value['gid_HK']);
 			$multiple = true;
@@ -392,7 +392,7 @@ function compat_getTableContent() {
 		
 		// prof_flag("Page: Display Table Content: Row - Game Title");
 		$s .= "<div class=\"divTableCell\">";
-		$s .= "{$media}&nbsp;&nbsp;{$value['game_title']}";
+		$s .= "{$media}{$value['game_title']}";
 		if (array_key_exists('alternative_title', $value)) {
 			$s .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$value['alternative_title']})";
 		}

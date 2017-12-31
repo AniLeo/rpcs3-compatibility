@@ -174,33 +174,33 @@ function getHistoryContent() {
 				
 				$s_content .= "<div class=\"divTableCell\">";
 				if (!empty($row->gid_EU)) {
-					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU);
 					$media = getGameMedia($row->gid_EU, false);
 				}
 				if (!empty($row->gid_US)) {
-					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US);
 					$media = getGameMedia($row->gid_US, false);
 				}
 				if (!empty($row->gid_JP)) {
-					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP);
 					$media = getGameMedia($row->gid_JP, false);
 				}
 				if (!empty($row->gid_AS)) {
-					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS);
 					$media = getGameMedia($row->gid_AS, false);
 				}
 				if (!empty($row->gid_KR)) {
-					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR);
 					$media = getGameMedia($row->gid_KR, false);
 				}
 				if (!empty($row->gid_HK)) {
-					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK);
 					$media = getGameMedia($row->gid_HK, false);
 				}
 				$s_content .= "</div>";
 				
 				$s_content .= "<div class=\"divTableCell\">";
-				$s_content .= "{$media}&nbsp;&nbsp;{$row->game_title}";
+				$s_content .= "{$media}{$row->game_title}";
 				if (array_key_exists('alternative_title', $value)) {
 					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
 				}
@@ -246,33 +246,33 @@ function getHistoryContent() {
 				
 				$s_content .= "<div class=\"divTableCell\">";
 				if (!empty($row->gid_EU)) {
-					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU);
 					$media = getGameMedia($row->gid_EU, false);
 				}
 				if (!empty($row->gid_US)) {
-					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US);
 					$media = getGameMedia($row->gid_US, false);
 				}
 				if (!empty($row->gid_JP)) {
-					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP);
 					$media = getGameMedia($row->gid_JP, false);
 				}
 				if (!empty($row->gid_AS)) {
-					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS);
 					$media = getGameMedia($row->gid_AS, false);
 				}
 				if (!empty($row->gid_KR)) {
-					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR);
 					$media = getGameMedia($row->gid_KR, false);
 				}
 				if (!empty($row->gid_HK)) {
-					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK)."&nbsp;&nbsp;";
+					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK);
 					$media = getGameMedia($row->gid_HK, false);
 				}
 				$s_content .= "</div>";
 				
 				$s_content .= "<div class=\"divTableCell\">";
-				$s_content .= "{$media}&nbsp;&nbsp;{$row->game_title}";
+				$s_content .= "{$media}{$row->game_title}";
 				if (array_key_exists('alternative_title', $value)) {
 					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
 				}
@@ -314,14 +314,13 @@ function getHistoryRSS(){
 	game_history.gid_JP = game_list.gid_JP OR
 	game_history.gid_AS = game_list.gid_AS OR
 	game_history.gid_KR = game_list.gid_KR OR
-	game_history.gid_HK = game_list.gid_HK ";
+	game_history.gid_HK = game_list.gid_HK 
+	WHERE game_title IS NOT NULL ";
 	if ($get['m'] == "c") {
-		$rssCmd .= " WHERE old_status IS NOT NULL ";
+		$rssCmd .= " AND old_status IS NOT NULL ";
 	} elseif ($get['m'] == "n") {
-		$rssCmd .= " WHERE old_status IS NULL ";
-	} else {
-		$rssCmd .= " WHERE game_list.game_id IS NOT NULL ";
-	}
+		$rssCmd .= " AND old_status IS NULL ";
+	} 
 	$rssCmd .= " {$dateQuery} 
 	GROUP BY game_list.key 
 	ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
@@ -349,9 +348,8 @@ function getHistoryRSS(){
     while($row = mysqli_fetch_object($rssQuery)) {
  
         $rssfeed .= "<item>
-					<title><![CDATA[{$row->game_id} - {$row->game_title}]]></title>
-					<link>{$c_forum}{$row->thread_id}</link>
-					<guid>{$c_forum}{$row->thread_id}</guid>";
+					<title><![CDATA[{$row->game_title}]]></title>
+					<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$row->id}</guid>";
 		
 		if ($row->old_status !== NULL) {
 			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";

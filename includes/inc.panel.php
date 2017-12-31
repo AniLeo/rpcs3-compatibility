@@ -268,7 +268,7 @@ function checkInvalidThreads() {
 
 
 function compareThreads($update = false) {
-	global $a_color, $a_title;
+	global $a_color, $a_title, $c_forum;
 	
 	set_time_limit(600);
 	
@@ -463,7 +463,7 @@ function compareThreads($update = false) {
 						$region = $a_games[$row->tid]['region'];
 						$a_games[$row->tid]['commit'] = $commit;
 						$a_games[$row->tid]['last_update'] = date('Y-m-d', $row->dateline);
-						echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit found: {$commit} ({$date}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
+						echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit found: {$commit} ({$date}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
 					}
 					$found[$row->tid] = 1;
 					break;
@@ -497,7 +497,7 @@ function compareThreads($update = false) {
 					$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->dateline);
 					$a_games[$a_duplicates[$row->tid]]['commit'] = $found_c;
 					$region = $a_games[$a_duplicates[$row->tid]]['region'];
-					echo "<b>{$a_games[$a_duplicates[$row->tid]]['gid_'.$region]}</b>: Commit found (other region): {$found_c} ({$found_d}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
+					echo "<b>{$a_games[$a_duplicates[$row->tid]]['gid_'.$region]}</b>: Commit found (other region): {$found_c} ({$found_d}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
 				}
 				
 			}

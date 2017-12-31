@@ -26,8 +26,6 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 /* Utilities for the main website */
 
 function getLatestWindowsBuild() {
-	global $c_appveyor;
-	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
@@ -68,7 +66,9 @@ function getLatestLinuxBuild() {
 
 
 function cacheRoadmap() {
-	$content = file_get_contents("https://github.com/RPCS3/rpcs3/wiki/Roadmap");
+	global $c_github;
+	
+	$content = file_get_contents("{$c_github}/wiki/Roadmap");
 
 	if ($content) { 
 		$start = "<div id=\"wiki-body\" class=\"wiki-body gollum-markdown-content instapaper_body\">";

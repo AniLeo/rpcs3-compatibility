@@ -22,7 +22,9 @@
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-function cacheWindowsBuilds($full = false){
+function cacheWindowsBuilds($full = false) {
+	global $c_github;
+	
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
 	
@@ -46,7 +48,7 @@ function cacheWindowsBuilds($full = false){
 	}
 	
 	// Get number of PRs
-	$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Amerged-asc%20merged%3A%3E{$date}");
+	$content = file_get_contents("{$c_github}/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Amerged-asc%20merged%3A%3E{$date}");
 	$step_1 = explode("<div class=\"table-list-header-toggle states float-left pl-3\">", $content);
 	$step_2 = explode("</div>" , $step_1[1]);
 	$step_3 = explode("</svg>" , $step_2[0]);
