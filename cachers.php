@@ -113,11 +113,11 @@ function cacheWindowsBuilds($full = false) {
 					$content_commit = explode($end, explode($start, $content_commit)[1])[0];
 					
 					// Section that contains AppVeyor data that we want
-					$start1 = "\"AppVeyor CI (@appveyor) generated this status.\">";
+					$start1 = "\"AppVeyor CI (@appveyor) generated this status.\"";
 					$end1 = "</svg>";
 					$type = "pr_alt_nocheck"; // Commit doesn't contain any checks
 					
-					if (strpos($content_commit, '<a href="http://www.appveyor.com" class="d-inline-block tooltipped tooltipped-e muted-link mr-2" aria-label="AppVeyor CI (@appveyor) generated this status.">') !== false) {
+					if (strpos($content_commit, "\"AppVeyor CI (@appveyor) generated this status.\"") !== false) {
 						
 						$appveyor = explode($end1, explode($start1, $content_commit)[1])[0]; 
 						
@@ -132,10 +132,10 @@ function cacheWindowsBuilds($full = false) {
 						$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
 						$content_commit = explode($end, explode($start, $content_commit)[1])[0];
 						
-						if (strpos($content_commit, '<a href="http://www.appveyor.com" class="d-inline-block tooltipped tooltipped-e muted-link mr-2" aria-label="AppVeyor CI (@appveyor) generated this status.">') !== false) {
-							
-							$appveyor = explode($end1, explode($start1, $content_commit)[1])[0]; 
+						if (strpos($content_commit, "\"AppVeyor CI (@appveyor) generated this status.\"") !== false) {
 						
+							$appveyor = explode($end1, explode($start1, $content_commit)[1])[0]; 
+							
 							// Get build type
 							if (strpos($appveyor, 'branch') !== false) { $type = "branch"; } // Rebuilt on master after merge
 							elseif (strpos($appveyor, 'pr') !== false) { $type = "pr"; }     // Last pull request artifact before merge
