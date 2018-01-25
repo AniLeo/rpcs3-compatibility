@@ -18,20 +18,35 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if(!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
-if(!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.history.php");
 
-// Firstly we check if it's a RSS request. 
-// These need to be displayed before any HTML code is loaded or the syntax is broken.
-if (isset($_GET['rss'])) { 	
-	if (isset($_GET['h'])) {
-		header('Content-Type: application/xml');
-		echo getHistoryRSS(); 
-	} elseif (isset($_GET['b'])) {
+
+// Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
+
+// RSS Feed Request
+if (isset($_GET['rss'])) {
+	
+	if (isset($_GET['b'])) {
+		
+		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: application/xml');
 		echo getBuildsRSS();
+		
+	} else /*if (isset($_GET['h']))*/ { 
+	
+		// Default to History RSS when parameter is not set
+		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
+		header('Content-Type: application/xml');
+		echo getHistoryRSS(); 
+		
 	}
-} elseif (isset($_GET['api'])) {
+	
+	// No need to load the rest of the page.
+	exit();
+	
+} 
+
+// JSON API Request
+if (isset($_GET['api'])) {
 	
 	// API: v1
 	if ($_GET['api'] == 'v1') {
@@ -49,12 +64,17 @@ if (isset($_GET['rss'])) {
 		
 	}
 	
-} else {
+	// No need to load the rest of the page.
+	exit();
+	
+} 
+
 /**
 RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22 
 **/  
+if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
 <div id="page-con-content">
 	<div id="header-con-head">
@@ -104,4 +124,3 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 	?>
 </div>
 <?php if (!@include_once(__DIR__.'/../../lib/module/metadata/footer.compat.php')) throw new Exception("Compat: footer.compat.php is missing. Failed to include footer.compat.php"); ?>
-<?php } // Closes RSS If clause ?>
