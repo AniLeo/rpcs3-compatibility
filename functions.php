@@ -780,13 +780,14 @@ function monthNumberToName($month) {
 
 
 function getJSON($url) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_URL, $url);
-    $result = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($result);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0');
+	curl_setopt($ch, CURLOPT_URL, $url);
+	$result = curl_exec($ch);
+	curl_close($ch);
+	return json_decode($result);
 }
 
 

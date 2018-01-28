@@ -91,18 +91,13 @@ function cacheWindowsBuilds($full = false) {
 				// If PR isn't cached, then just DO IT!
 				if (mysqli_num_rows($PRQuery) === 0) {
 					
-					// Content for the current PR
-					$content_pr = file_get_contents("https://github.com/RPCS3/rpcs3/pull/{$pr}");
-					
-					// Merge Datetime
-					$e_datetime = explode("<relative-time datetime=\"", $content_pr);
-					$merge_datetime = explode("\"", $e_datetime[1])[0];
-					$start_datetime = explode("\"", $e_datetime[2])[0];
-					
-					// Commit
-					$start = "merged commit <a href=\"/RPCS3/rpcs3/commit/";
-					$end = "\"><code class=\"discussion-item-entity\">";
-					$commit = explode($end, explode($start, $content_pr)[1])[0]; 
+					// Grab pull request information from GitHub REST API (v3)
+					$pr_info = getJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}");
+
+					// Merge time, Creation time, Commit SHA
+					$merge_datetime = $pr_info->merged_at;
+					$start_datetime = $pr_info->created_at;
+					$commit = $pr_info->merge_commit_sha;
 
 					// Content for the commits page starting at the commit we obtained
 					$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
@@ -146,6 +141,10 @@ function cacheWindowsBuilds($full = false) {
 
 					if ($type == "unknown" || $type == "pr_alt_nocheck") {
 						// If code reaches here, do it the old way
+						
+						// Page content for the current PR
+						$content_pr = file_get_contents("https://github.com/RPCS3/rpcs3/pull/{$pr}");
+						
 						$start = "<a href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
 						$end = "\" class=\"ml-2\">";
 						$build = explode($end, explode($start, $content_pr)[1])[0]; 
@@ -185,7 +184,6 @@ function cacheWindowsBuilds($full = false) {
 					}
 
 					// Only caches if the post-merge build has been successfully built.
-					
 					if ($status == "Succeeded") {
 						
 						// 0 - JobID, 1 - Filename, 2 - Author
@@ -199,8 +197,8 @@ function cacheWindowsBuilds($full = false) {
 							`start_datetime` = '{$start_datetime}',
 							`merge_datetime` = '{$merge_datetime}', 
 							`appveyor` = '{$build}', 
-							`buildjob` = '{$data[0]}', 
-							`filename` = '{$data[1]}' 
+							`buildjob` = '".mysqli_real_escape_string($db, $data[0])."', 
+							`filename` = '".mysqli_real_escape_string($db, $data[1])."' 
 							WHERE `pr` = '{$pr}' LIMIT 1;");
 						} else {
 							$cachePRQuery = mysqli_query($db, " INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`) 
