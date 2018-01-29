@@ -109,8 +109,12 @@ function checkInvalidThreads() {
 	$a_threads = array();
 	
 	while ($row = mysqli_fetch_object($q_threads)) {
-		$a_threads[$row->tid][0] = get_string_between($row->subject, '[', ']');
-		$a_threads[$row->tid][1] = array_search($row->fid, $a_status);
+		if ($gid = get_string_between($row->subject, '[', ']')) {
+			$a_threads[$row->tid][0] = $gid;
+			$a_threads[$row->tid][1] = array_search($row->fid, $a_status);
+		} else {
+			$output .= "<p class='compat-tvalidity-list'>Thread ".getThread($row->subject, $row->tid)." is incorrectly formatted.</p>";
+		}
 	}
 	
 	$q_games = mysqli_query($db, "SELECT * FROM game_list; ");
@@ -316,29 +320,36 @@ function compareThreads($update = false) {
 	&& closed NOT like '%moved%' 
 	&& lastpost > {$timestamp}; ");
 	
-	// Cache games
+	// Cache array for games
 	$a_games = array();
-	
+	// Cache array for duplicates
 	$a_duplicates = array();
 	
 	echo "<p style='padding-top:10px; font-size:12px;'>";
 	
 	while ($row = mysqli_fetch_object($q_threads)) {
-		$sid = $row->fid - 4;
-		$gid = get_string_between($row->subject, '[', ']');
 		
-		if (is_null($row->gid_EU) && is_null($row->gid_US) && is_null($row->gid_JP) 
+		if (!($gid = get_string_between($row->subject, '[', ']'))) {
+			
+			// If [GameID] is not present on thread title
+			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") incorrectly formatted.<br>";
+			
+		} elseif (strlen($gid) != 9 || !is_numeric(substr($gid, 4, 5)) || !array_key_exists(substr($gid, 2, 1), $a_regions)) {
+			
+			// If the GameID is invalid
+			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") incorrectly formatted.<br>";
+			
+		} else {
+			
+			$sid = $row->fid - 4;
+		
+			if (is_null($row->gid_EU) && is_null($row->gid_US) && is_null($row->gid_JP) 
 			&& is_null($row->gid_AS) && is_null($row->gid_KR) && is_null($row->gid_HK)) {
 			
-			echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).")<br>";
-			echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
-			
-			if ($gid == '') {
-				echo "Error! {$row->subject} (".getThread($row->tid, $row->tid).") incorrectly formatted.<br>";
-			} elseif (!array_key_exists(substr($gid, 2, 1), $a_regions)) {
-				echo "Error! Invalid Game ID ({$gid})";
-			} else {
-				$title = $bodytag = str_replace(" [{$gid}]", "", "{$row->subject}");
+				echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).")<br>";
+				echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
+
+				$title = str_replace(" [{$gid}]", "", "{$row->subject}");
 				
 				// Check if there's an existing thread already, if so, flag as duplicated for manual correction.
 				$duplicate = mysqli_query($db, "SELECT tid_{$a_regions[substr($gid, 2, 1)]} AS tid FROM game_list WHERE gid_{$a_regions[substr($gid, 2, 1)]} = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
@@ -371,60 +382,60 @@ function compareThreads($update = false) {
 					}
 					
 				}
+			
+			} elseif ($a_status[$row->status] != $row->fid) {
+				// TODO: Fix mov, handle other threads on the same entry
+				echo "<b>Mov:</b> {$gid} - {$row->game_title} (tid:".getThread($row->tid, $row->tid).")<br>";
+				echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
+				echo "- From: <span style='color:#{$a_color[$a_status[$row->status]-4]}'>{$row->status}</span><br>";
+				
+				if (array_key_exists($row->tid, $a_duplicates)) {
+					
+					// Update status
+					if ($a_status[$a_games[$a_duplicates[$row->tid]]['status']] < $row->fid) {
+						$a_games[$a_duplicates[$row->tid]]['status'] = array_search($row->fid, $a_status);
+					}
+					// Update last_update
+					if (strtotime($a_games[$a_duplicates[$row->tid]]['last_update']) < $row->lastpost) {
+						$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->lastpost);
+					}
+					
+				} else {
+					
+					$a_games[$row->tid] = array(
+					"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
+					'region' => $a_regions[substr($gid, 2, 1)],
+					'game_title' => $row->game_title,
+					'status' => array_search($row->fid, $a_status),
+					'commit' => 0,
+					'last_update' => date('Y-m-d', $row->lastpost),
+					'action' => 'mov',
+					'old_date' => $row->last_update,
+					'old_status' => $row->status,
+					);
+					
+					
+					if (!empty($row->tid_EU) && $row->tid_EU != $row->tid) {
+						$a_duplicates[$row->tid_EU] = $row->tid;
+					}
+					if (!empty($row->gid_US) && $row->tid_US != $row->tid) {
+						$a_duplicates[$row->tid_US] = $row->tid;
+					}
+					if (!empty($row->gid_JP) && $row->tid_JP != $row->tid) {
+						$a_duplicates[$row->tid_JP] = $row->tid;
+					}
+					if (!empty($row->gid_AS) && $row->tid_AS != $row->tid) {
+						$a_duplicates[$row->tid_AS] = $row->tid;
+					}
+					if (!empty($row->gid_KR) && $row->tid_KR != $row->tid) {
+						$a_duplicates[$row->tid_KR] = $row->tid;
+					}
+					if (!empty($row->gid_HK) && $row->tid_HK != $row->tid) {
+						$a_duplicates[$row->tid_KR] = $row->tid;
+					}
+				
+				}
 			}
-		} elseif ($a_status[$row->status] != $row->fid) {
-			// TODO: Fix mov, handle other threads on the same entry
-			echo "<b>Mov:</b> {$gid} - {$row->game_title} (tid:".getThread($row->tid, $row->tid).")<br>";
-			echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
-			echo "- From: <span style='color:#{$a_color[$a_status[$row->status]-4]}'>{$row->status}</span><br>";
-			
-			if (array_key_exists($row->tid, $a_duplicates)) {
-				
-				// Update status
-				if ($a_status[$a_games[$a_duplicates[$row->tid]]['status']] < $row->fid) {
-					$a_games[$a_duplicates[$row->tid]]['status'] = array_search($row->fid, $a_status);
-				}
-				// Update last_update
-				if (strtotime($a_games[$a_duplicates[$row->tid]]['last_update']) < $row->lastpost) {
-					$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->lastpost);
-				}
-				
-			} else {
-				
-				$a_games[$row->tid] = array(
-				"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
-				'region' => $a_regions[substr($gid, 2, 1)],
-				'game_title' => $row->game_title,
-				'status' => array_search($row->fid, $a_status),
-				'commit' => 0,
-				'last_update' => date('Y-m-d', $row->lastpost),
-				'action' => 'mov',
-				'old_date' => $row->last_update,
-				'old_status' => $row->status,
-				);
-				
-				
-				if (!empty($row->tid_EU) && $row->tid_EU != $row->tid) {
-					$a_duplicates[$row->tid_EU] = $row->tid;
-				}
-				if (!empty($row->gid_US) && $row->tid_US != $row->tid) {
-					$a_duplicates[$row->tid_US] = $row->tid;
-				}
-				if (!empty($row->gid_JP) && $row->tid_JP != $row->tid) {
-					$a_duplicates[$row->tid_JP] = $row->tid;
-				}
-				if (!empty($row->gid_AS) && $row->tid_AS != $row->tid) {
-					$a_duplicates[$row->tid_AS] = $row->tid;
-				}
-				if (!empty($row->gid_KR) && $row->tid_KR != $row->tid) {
-					$a_duplicates[$row->tid_KR] = $row->tid;
-				}
-				if (!empty($row->gid_HK) && $row->tid_HK != $row->tid) {
-					$a_duplicates[$row->tid_KR] = $row->tid;
-				}
-			
-			}
-			
 		}
 	}
 	
