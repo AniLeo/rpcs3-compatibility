@@ -26,6 +26,9 @@ define('db_user', 'USERNAME');
 define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
 
+define('gh_client', 'OAUTH_ID');
+define('gh_secret', 'OAUTH_SECRET');
+
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3';
 $c_forum = 'https://forums.rpcs3.net';

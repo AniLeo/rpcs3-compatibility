@@ -87,6 +87,8 @@ function builds_getTableHeaders() {
 	$headers = array(
 		'Pull Request' => 1,
 		'Author' => 2,
+		'Added' => 0,
+		'Deleted' => 0,
 		'Build Date' => 4,
 		'Download' => 0
 	);	
@@ -105,8 +107,20 @@ function builds_getTableContent() {
 	
 			$s_tablecontent .= "<div class=\"divTableRow\">
 			<div class=\"divTableCell\"><a href=\"{$c_github}/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
-			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>
-			<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
+			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>";
+			
+			if (!is_null($row->additions)) {
+				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#4cd137'>+{$row->additions}</span></div>";
+			} else {
+				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
+			}
+			if (!is_null($row->deletions)) {
+				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#e84118'>-{$row->deletions}</span></div>";
+			} else {
+				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
+			}
+			
+			$s_tablecontent .= "<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
 			if ($row->appveyor != "0") { 
 				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></div>";
 			} else {

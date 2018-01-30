@@ -38,6 +38,9 @@ CREATE TABLE `builds_windows` (
   `type` varchar(255) NOT NULL,
   `buildjob` varchar(255) DEFAULT NULL,
   `filename` varchar(255) DEFAULT NULL,
+  `additions` int(11) DEFAULT NULL,
+  `deletions` int(11) DEFAULT NULL,
+  `changed_files` int(11) DEFAULT NULL,
   PRIMARY KEY (`pr`,`commit`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
