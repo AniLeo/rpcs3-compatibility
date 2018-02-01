@@ -338,7 +338,7 @@ function compat_getTableHeaders() {
  * Table Content *
  *****************/
 function compat_getTableContent() {
-	global $q_main, $l_title, $l_orig, $a_results;
+	global $a_results, $a_regions;
 
 	foreach ($a_results as $key => $value) {
 		
@@ -347,46 +347,14 @@ function compat_getTableContent() {
 		
 		// prof_flag("Page: Display Table Content: Row - GameID");
 		$s = "<div class=\"divTableCell\">";
-		if (array_key_exists('gid_EU', $value)) {
-			$s .= getThread(getGameRegion($value['gid_EU'], false), $value['tid_EU']);
-			$s .= getThread($value['gid_EU'], $value['tid_EU']);
-			$media = getGameMedia($value['gid_EU']);
-			$multiple = true;
-		}
-		if (array_key_exists('gid_US', $value)) {
-			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_US'], false), $value['tid_US']);
-			$s .= getThread($value['gid_US'], $value['tid_US']);
-			$media = getGameMedia($value['gid_US']);
-			$multiple = true;
-		}
-		if (array_key_exists('gid_JP', $value)) {
-			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_JP'], false), $value['tid_JP']);
-			$s .= getThread($value['gid_JP'], $value['tid_JP']);
-			$media = getGameMedia($value['gid_JP']);
-			$multiple = true;
-		}
-		if (array_key_exists('gid_AS', $value)) {
-			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_AS'], false), $value['tid_AS']);
-			$s .= getThread($value['gid_AS'], $value['tid_AS']);
-			$media = getGameMedia($value['gid_AS']);
-			$multiple = true;
-		}
-		if (array_key_exists('gid_KR', $value)) {
-			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_KR'], false), $value['tid_KR']);
-			$s .= getThread($value['gid_KR'], $value['tid_KR']);
-			$media = getGameMedia($value['gid_KR']);
-			$multiple = true;
-		}
-		if (array_key_exists('gid_HK', $value)) {
-			if ($multiple) { $s .= '<br>'; }
-			$s .= getThread(getGameRegion($value['gid_HK'], false), $value['tid_HK']);
-			$s .= getThread($value['gid_HK'], $value['tid_HK']);
-			$media = getGameMedia($value['gid_HK']);
-			$multiple = true;
+		foreach ($a_regions as $k => $region) {
+			if (array_key_exists("gid_{$region}", $value)) {
+				if ($multiple) { $s .= '<br>'; }
+				$s .= getThread(getGameRegion($value["gid_{$region}"], false), $value["tid_{$region}"]);
+				$s .= getThread($value["gid_{$region}"], $value["tid_{$region}"]);
+				if ($media == '') { $media = getGameMedia($value["gid_{$region}"]); }
+				$multiple = true;
+			}
 		}
 		$s .= "</div>";
 		
@@ -400,13 +368,14 @@ function compat_getTableContent() {
 		
 		// prof_flag("Page: Display Table Content: Row - Status");
 		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>"; 
+		
 		// prof_flag("Page: Display Table Content: Row - Last Updated");
 		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_update'])."\">".$value['last_update']."</a>&nbsp;&nbsp;&nbsp;";
-
 		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";	
 		$s .= '</div>';	
 
 		$s_tablecontent .= "<div class=\"divTableRow\">{$s}</div>";
+		
 	}
 
 	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";

@@ -86,6 +86,16 @@ $a_color = array(
 5 => '2c3e50'
 );
 
+// Regions (GameIDs)
+$a_regions = array(
+"EU",
+"US",
+"JP",
+"AS",
+"KR",
+"HK"
+);
+
 // Region flags
 $a_flags = array(
 "A" => "/img/icons/compat/CN.png", // Asia
