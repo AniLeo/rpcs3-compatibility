@@ -29,7 +29,7 @@ if (isset($_GET['rss'])) {
 		
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: application/xml');
-		echo getBuildsRSS();
+		echo Builds::getBuildsRSS();
 		
 	} else /*if (isset($_GET['h']))*/ { 
 	
@@ -56,7 +56,7 @@ if (isset($_GET['api'])) {
 			$results = exportDatabase();
 		} else {
 			if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
-			$results = APIv1();
+			$results = Compat::APIv1();
 		}
 		
 		header('Content-Type: application/json');

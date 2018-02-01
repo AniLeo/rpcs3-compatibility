@@ -32,11 +32,11 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 					<?php echo getMenu(true, false, true, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class='compat-desc'>
-					<?php echo getHistoryDescription(); ?>
+					<?php echo History::getHistoryDescription(); ?>
 					<br>
 					<?php 
-						echo getHistoryMonths();
-						echo getHistoryOptions();	
+						echo History::getHistoryMonths();
+						echo History::getHistoryOptions();
 					?>	
 				</div>
 			</div> <!-- featured-wrp-block -->
@@ -50,7 +50,7 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 			?>
 		</div> <!-- featured-wrp-block -->
 		
-		<?php echo getHistoryContent(); ?>
+		<?php echo History::getHistoryContent(); ?>
 		
 		<?php echo getFooter($start); ?>
 	</div> <!-- featured-con-block -->

@@ -40,13 +40,13 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<div id="compat-hdr-left">
 				<p>
 					<?php prof_flag("Page: Get Results Per Page"); ?>
-					Results per page <?php echo getResultsPerPage(); ?>
+					Results per page <?php echo Compat::getResultsPerPage(); ?>
 				</p>
 			</div>
 			<div id="compat-hdr-right">
 				<p>
 					<?php prof_flag("Page: Get Sort By"); ?>
-					Sort By <?php echo getSortBy(); ?>
+					Sort By <?php echo Compat::getSortBy(); ?>
 				</p>
 			</div>
 			
@@ -78,27 +78,27 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<!--End -->
 			<table id="compat-con-search">
 				<?php prof_flag("Page: Get Character Search"); ?>
-				<?php echo getCharSearch(); ?>
+				<?php echo Compat::getCharSearch(); ?>
 			</table>
 			<!--End -->
 		</div>
 		
-		<?php echo compat_getTableMessages(); ?>
+		<?php echo Compat::getTableMessages(); ?>
 		<div class="divTable compat-table">
 			<?php 
 				if ($scount[0][0] > 0) { 
 					prof_flag("Page: Display Table Headers");
-					echo compat_getTableHeaders(); 
+					echo Compat::getTableHeaders(); 
 				} 
 				prof_flag("Page: Display Table Content");
-				echo compat_getTableContent(); 
+				echo Compat::getTableContent(); 
 			?>
 		</div>
 		<!--End -->
 		<?php prof_flag("Page: Pages Counter"); ?>
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
-				<?php echo compat_getPagesCounter(); ?>
+				<?php echo Compat::getPagesCounter(); ?>
 			</p>
 		</div>
 		<?php prof_flag("End"); ?>
