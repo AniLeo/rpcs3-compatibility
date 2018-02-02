@@ -791,15 +791,15 @@ function getJSON($url) {
 
 
 function getAppVeyorData($build) {
-    $build_url = "https://ci.appveyor.com/api/projects/rpcs3/rpcs3/build/{$build}";
-    $build_json = getJSON($build_url);
-	
-    $artifacts_url = "https://ci.appveyor.com/api/buildjobs/{$build_json->build->jobs[0]->jobId}/artifacts";
-    $artifacts_json = getJSON($artifacts_url);
-	
+	$build_json = getJSON("https://ci.appveyor.com/api/projects/rpcs3/rpcs3/build/{$build}");
 	$jobID = $build_json->build->jobs[0]->jobId;
-	$filename = $artifacts_json[0]->fileName;
+	$artifacts_json = getJSON("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts");
 	$author = $build_json->build->authorUsername;
+	
+	// Multi-artifact build support
+	// Starting 2018.02.02, builds also generate an artifact with OpenSSL DLLs
+	for ($i = 0; strpos($artifacts_json[$i]->fileName, "rpcs3") === false; $i++) {}
+	$filename = $artifacts_json[$i]->fileName;
 	
 	return array($jobID, $filename, $author);
 }
