@@ -198,8 +198,19 @@ function cacheWindowsBuilds($full = false) {
 						// Only caches if the post-merge build has been successfully built.
 						if ($status == "Succeeded") {
 							
-							// 0 - JobID, 1 - Filename, 2 - Author
+							// 0 - JobID, 1 - Filename, 2 - Author; 3 - Checksum
 							$data = getAppVeyorData($build);
+							
+							// Checksum support for newer builds
+							if (array_key_exists(3, $data)) {
+								$checksum_insert1 = ", `checksum`";
+								$checksum_insert2 = ", '".mysqli_real_escape_string($db, $data[3])."'";
+								$checksum_update = ", `checksum` = '".mysqli_real_escape_string($db, $data[3])."'";
+							} else {
+								$checksum_insert1 = '';
+								$checksum_insert2 = '';
+								$checksum_update = '';
+							}
 							
 							if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
 								$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET 
@@ -213,11 +224,12 @@ function cacheWindowsBuilds($full = false) {
 								`filename` = '".mysqli_real_escape_string($db, $data[1])."', 
 								`additions` = '{$additions}', 
 								`deletions` = '{$deletions}', 
-								`changed_files` = '{$changed_files}'						
+								`changed_files` = '{$changed_files}' 
+								{$checksum_update} 
 								WHERE `pr` = '{$pr}' LIMIT 1;");
 							} else {
-								$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`, `additions`, `deletions`, `changed_files`) 
-								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[2])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '".mysqli_real_escape_string($db, $data[0])."', '".mysqli_real_escape_string($db, $data[1])."', '{$additions}', '{$deletions}', '{$changed_files}'); ");
+								$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`, `additions`, `deletions`, `changed_files`{$checksum_insert1}) 
+								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[2])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '".mysqli_real_escape_string($db, $data[0])."', '".mysqli_real_escape_string($db, $data[1])."', '{$additions}', '{$deletions}', '{$changed_files}'{$checksum_insert2}); ");
 							}
 						} else {
 							// If Building then we wait for the next script run...

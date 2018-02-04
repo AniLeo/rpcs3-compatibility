@@ -798,10 +798,51 @@ function getAppVeyorData($build) {
 	
 	// Multi-artifact build support
 	// Starting 2018.02.02, builds also generate an artifact with OpenSSL DLLs
-	for ($i = 0; strpos($artifacts_json[$i]->fileName, "rpcs3") === false; $i++) {}
+	for ($i = 0; strpos($artifacts_json[$i]->fileName, "rpcs3") === false || strpos($artifacts_json[$i]->fileName, "sha256") !== false; $i++) {}
 	$filename = $artifacts_json[$i]->fileName;
 	
+	// Checksum support	
+	$checksum_fn = '';
+	
+	foreach ($artifacts_json as $key => $value) {
+		if (strpos($value->fileName, "rpcs3") !== false && strpos($value->fileName, "sha256") !== false) {
+			$checksum_fn = $value->fileName;
+		}
+	}
+	
+	if ($checksum_fn != '') {
+	
+		$checksum = '';
+		$tries = 0;
+		
+		set_time_limit(300); // 5 minutes
+		
+		while (strlen($checksum) != 64 && $tries < 10) {
+			// Fetch RPCS3 artifact sha256 file content
+			$checksum = file_get_contents("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts/{$checksum_fn}");
+			// Amount of trash characters to remove from the end of the string
+			$diff = strlen($checksum) - 64;
+			// Remove trash characers from the end of the string;
+			$checksum = substr($checksum, 0, -$diff);
+			
+			// If this is not the first try, let's cool down a bit before trying again;
+			if ($tries > 0) {
+				sleep(10);
+			}
+			
+			// If checksum length isn't 64, then we will retry again up to 10 tries
+			$tries++;
+		}
+	
+		// If we got a 64 length checksum, return it on the array as well
+		if (strlen($checksum) == 64) {
+			return array($jobID, $filename, $author, $checksum);
+		}
+	
+	}
+	
 	return array($jobID, $filename, $author);
+	
 }
 
 

@@ -39,8 +39,11 @@ function getLatestWindowsBuild() {
 	$commit = substr($row->commit, 0, 7);
 	$ver = "v{$win[0]} ({$commit}) Alpha [{$win[1]}]";
 	$url = "https://ci.appveyor.com/api/buildjobs/{$row->buildjob}/artifacts/{$row->filename}";
-
-	// 0 - URL, 1 - Version Name
+	
+	// 0 - URL, 1 - Version Name, 2 - Checksum
+	if (!is_null($row->checksum)) {
+		return array($url, $ver, $checksum);
+	}
 	return array($url, $ver);
 }
 
