@@ -185,23 +185,30 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 prof_flag("Inc: Store Results");
 $a_results = array();
 
-
-// Small cache for commit -> pr information
-$a_cache = array();
-
 // Stop if too many data is returned on Initials / Levenshtein
 $stop = false;
 
+// Fetch all commits => pull requests from builds_windows table
+// This is faster than verifying one by one per row
+prof_flag("Inc: Store Results - Cache");
+$a_cache = array();
 
+$q_builds = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC; ");
+while ($row = mysqli_fetch_object($q_builds)) {
+	$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
+}
+
+prof_flag("Inc: Store Results - Secondary");
 if ($q_initials && mysqli_num_rows($q_initials) > 0 && $q_main2 && mysqli_num_rows($q_main2) > 0) {
-	storeResults($a_results, $q_main2, $a_cache, $db);
+	storeResults($a_results, $q_main2, $a_cache);
 	if (strlen($get['g']) < 3) {
 		$stop = true;
 	}
 }
 
-if ($q_main && mysqli_num_rows($q_main) > 0 && !$stop) {
-	storeResults($a_results, $q_main, $a_cache, $db);
+prof_flag("Inc: Store Results - Main");
+if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
+	storeResults($a_results, $q_main, $a_cache);
 }
 
 
