@@ -29,7 +29,7 @@ function cacheWindowsBuilds($full = false) {
 	mysqli_set_charset($db, 'utf8');
 	
 	// This takes a while to do...
-	set_time_limit(60*60);
+	set_time_limit(60*60*3); // 3 hours
 	
 	if (!$full) {
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
@@ -198,14 +198,14 @@ function cacheWindowsBuilds($full = false) {
 						// Only caches if the post-merge build has been successfully built.
 						if ($status == "Succeeded") {
 							
-							// 0 - JobID, 1 - Filename, 2 - Author; 3 - Checksum
+							// 0 - JobID, 1 - Filename, 2 - Size; 3 - Author; 4 - Checksum
 							$data = getAppVeyorData($build);
 							
 							// Checksum support for newer builds
-							if (array_key_exists(3, $data)) {
+							if (array_key_exists(4, $data)) {
 								$checksum_insert1 = ", `checksum`";
-								$checksum_insert2 = ", '".mysqli_real_escape_string($db, $data[3])."'";
-								$checksum_update = ", `checksum` = '".mysqli_real_escape_string($db, $data[3])."'";
+								$checksum_insert2 = ", '".mysqli_real_escape_string($db, $data[4])."'";
+								$checksum_update = ", `checksum` = '".mysqli_real_escape_string($db, $data[4])."'";
 							} else {
 								$checksum_insert1 = '';
 								$checksum_insert2 = '';
@@ -216,7 +216,7 @@ function cacheWindowsBuilds($full = false) {
 								$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET 
 								`commit` = '".mysqli_real_escape_string($db, $commit)."', 
 								`type` = '{$type}', 
-								`author` = '".mysqli_real_escape_string($db, $data[2])."', 
+								`author` = '".mysqli_real_escape_string($db, $data[3])."', 
 								`start_datetime` = '{$start_datetime}',
 								`merge_datetime` = '{$merge_datetime}', 
 								`appveyor` = '{$build}', 
@@ -224,12 +224,13 @@ function cacheWindowsBuilds($full = false) {
 								`filename` = '".mysqli_real_escape_string($db, $data[1])."', 
 								`additions` = '{$additions}', 
 								`deletions` = '{$deletions}', 
-								`changed_files` = '{$changed_files}' 
+								`changed_files` = '{$changed_files}', 
+								`size` = '".mysqli_real_escape_string($db, $data[2])."', 
 								{$checksum_update} 
 								WHERE `pr` = '{$pr}' LIMIT 1;");
 							} else {
-								$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`, `additions`, `deletions`, `changed_files`{$checksum_insert1}) 
-								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[2])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '".mysqli_real_escape_string($db, $data[0])."', '".mysqli_real_escape_string($db, $data[1])."', '{$additions}', '{$deletions}', '{$changed_files}'{$checksum_insert2}); ");
+								$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`, `additions`, `deletions`, `changed_files`, `size`{$checksum_insert1}) 
+								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[3])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '".mysqli_real_escape_string($db, $data[0])."', '".mysqli_real_escape_string($db, $data[1])."', '{$additions}', '{$deletions}', '{$changed_files}', '".mysqli_real_escape_string($db, $data[2])."'{$checksum_insert2}); ");
 							}
 							
 							// Recache commit => pr cache

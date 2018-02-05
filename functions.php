@@ -800,6 +800,7 @@ function getAppVeyorData($build) {
 	// Starting 2018.02.02, builds also generate an artifact with OpenSSL DLLs
 	for ($i = 0; strpos($artifacts_json[$i]->fileName, "rpcs3") === false || strpos($artifacts_json[$i]->fileName, "sha256") !== false; $i++) {}
 	$filename = $artifacts_json[$i]->fileName;
+	$size = $artifacts_json[$i]->size;
 	
 	// Checksum support	
 	$checksum_fn = '';
@@ -836,12 +837,12 @@ function getAppVeyorData($build) {
 	
 		// If we got a 64 length checksum, return it on the array as well
 		if (strlen($checksum) == 64) {
-			return array($jobID, $filename, $author, $checksum);
+			return array($jobID, $filename, $size, $author, $checksum);
 		}
 	
 	}
 	
-	return array($jobID, $filename, $author);
+	return array($jobID, $filename, $size, $author);
 	
 }
 
