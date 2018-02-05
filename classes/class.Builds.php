@@ -77,7 +77,13 @@ function getTableContent() {
 			
 			$s_tablecontent .= "<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
 			if ($row->appveyor != "0") { 
-				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a></div>";
+				if (!is_null($row->checksum)) {
+					$checksum = "&nbsp;&nbsp;<span style='font-size=10px; border-bottom: 1px dotted #3198ff;' title=\"{$row->checksum}\">sha256</span>";
+				} else {
+					$checksum = '';
+				}
+			
+				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$checksum}</div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
 			}
