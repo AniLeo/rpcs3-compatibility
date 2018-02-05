@@ -312,7 +312,7 @@ function compareThreads($update = false) {
 	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
 	$a_commits = array();
 	while ($row = mysqli_fetch_object($q_commits)) {
-		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
+		$a_commits[substr($row->commit, 0, 7)] = array($row->commit, $row->merge_datetime);
 	}
 	
 	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_list.* 
@@ -472,17 +472,17 @@ function compareThreads($update = false) {
 				$found[$row->tid] = 0;
 			}
 		
-			foreach ($a_commits as $commit => $date) {				
+			foreach ($a_commits as $key => $value) {				
 				
 				// Note: If commit is an int and not a string and one doesn't cast it then it breaks it
-				if (stripos($row->message, (string)$commit) !== false) {
+				if (stripos($row->message, (string)$key) !== false) {
 					
 					// Check if more recent data exists from other region check
 					if ($a_games[$row->tid]['commit'] == 0 || ($a_games[$row->tid]['commit'] != 0 && strtotime($a_games[$row->tid]['last_update']) < $row->dateline)) {
 						$region = $a_games[$row->tid]['region'];
-						$a_games[$row->tid]['commit'] = $commit;
+						$a_games[$row->tid]['commit'] = $value[0];
 						$a_games[$row->tid]['last_update'] = date('Y-m-d', $row->dateline);
-						echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit found: {$commit} ({$date}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
+						echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit found: {$value[0]} ({$value[1]}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
 					}
 					$found[$row->tid] = 1;
 					break;
@@ -501,10 +501,10 @@ function compareThreads($update = false) {
 			$found_c = 0;
 			$found_d = 0;
 			
-			foreach ($a_commits as $commit => $date) {	
-				if (stripos($row->message, (string)$commit) !== false) {
-					$found_c = $commit;
-					$found_d = $date;
+			foreach ($a_commits as $key => $value) {	
+				if (stripos($row->message, (string)$key) !== false) {
+					$found_c = $value[0];
+					$found_d = $value[1];
 					break;
 				}
 			}
