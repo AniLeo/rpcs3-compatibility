@@ -196,7 +196,7 @@ function cacheWindowsBuilds($full = false) {
 						}
 
 						// Only caches if the post-merge build has been successfully built.
-						if ($status == "Succeeded") {
+						if ($status == "Succeeded" && $build != '1.0.106' /* Blacklist first non-artifacted build */) {
 							
 							// 0 - JobID, 1 - Filename, 2 - Size; 3 - Author; 4 - Checksum
 							$data = getAppVeyorData($build);
@@ -418,9 +418,13 @@ function cacheCommitCache() {
 	
 	$a_cache = array();
 
-	// Fetch all commits => pull requests from builds_windows table
+	// Fetch all used commits => pull requests from builds_windows table
 	// This is faster than verifying one by one per row on storeResults()
-	$q_builds = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC; ");
+	$q_builds = mysqli_query($db, "SELECT pr,commit FROM builds_windows LEFT JOIN game_list on
+	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7) 
+	WHERE build_commit IS NOT NULL 
+	GROUP BY commit 
+	ORDER BY merge_datetime DESC;");
 	while ($row = mysqli_fetch_object($q_builds)) {
 		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
 	}

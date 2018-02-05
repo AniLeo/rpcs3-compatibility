@@ -599,6 +599,9 @@ function compareThreads($update = false) {
 			$fid = $a_status[$a_games[$value]['status']];
 			mysqli_query($db, "UPDATE rpcs3_forums.mybb_threads SET fid = '{$fid}' WHERE tid = '{$key}'; ");
 		}
+		
+		// Recache commit cache as new additions may contain new commits
+		cacheCommitCache();
 	}
 	
 	echo "</p>";

@@ -200,7 +200,11 @@ if (file_exists(__DIR__.'/../cache/a_commits.json')) {
 	// If file isn't present, then just get the contents from the database
 	$a_cache = array();
 	
-	$q_builds = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC; ");
+	$q_builds = mysqli_query($db, "SELECT pr,commit FROM builds_windows LEFT JOIN game_list on
+	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7) 
+	WHERE build_commit IS NOT NULL 
+	GROUP BY commit 
+	ORDER BY merge_datetime DESC;");
 	while ($row = mysqli_fetch_object($q_builds)) {
 		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
 	}
