@@ -38,6 +38,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					  <li><a href="?a=updateLibraryCache">Update Library Cache</a></li>
 					  <li><a href="?a=updateStatusModule">Update Status Module</a></li>
 					  <li><a href="?a=updateRoadmapCache">Update Roadmap Cache</a></li>
+					  <li><a href="?a=updateCommitCache">Update Commit Cache</a></li>
 					  <li><a href="?a=compareThreads">Compare Threads</a></li>
 					  <li><a href="?a=updateCompatibility">Update Compatibility</a></li>
 					  <!-- <li><a href="?a=getNewTests">Get New Tests</a></li> -->

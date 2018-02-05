@@ -76,6 +76,14 @@ if ($get['a'] == 'updateStatusModule') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status modules (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateCommitCache') {
+	$startA = getTime();
+	cacheCommitCache();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
+
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 
 	$startA = getTime();
 	$cost = 13;

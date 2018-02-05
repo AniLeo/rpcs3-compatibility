@@ -191,11 +191,19 @@ $stop = false;
 // Fetch all commits => pull requests from builds_windows table
 // This is faster than verifying one by one per row
 prof_flag("Inc: Store Results - Cache");
-$a_cache = array();
 
-$q_builds = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC; ");
-while ($row = mysqli_fetch_object($q_builds)) {
-	$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
+// Since this is rather static data, we're caching it to a file
+// Saves up a lot of execution time
+if (file_exists(__DIR__.'/../cache/a_commits.json')) {
+	$a_cache = json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true);
+} else {
+	// If file isn't present, then just get the contents from the database
+	$a_cache = array();
+	
+	$q_builds = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC; ");
+	while ($row = mysqli_fetch_object($q_builds)) {
+		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
+	}
 }
 
 prof_flag("Inc: Store Results - Secondary");
