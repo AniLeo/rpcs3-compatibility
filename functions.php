@@ -413,14 +413,20 @@ function countGames($db = null, $query = '') {
 	}
 	
 	if ($query == '') {
+		
 		// Empty query or general query with order only, all games returned
-		$gen = "SELECT status, count(*) AS c FROM game_list GROUP BY status;";
+		if (file_exists(__DIR__.'/cache/a_count.json')) {
+			// If we're running a general search, use cached count results
+			$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
+			return $a_count;
+		} else {
+			$q_gen = mysqli_query($db, "SELECT status, count(*) AS c FROM game_list GROUP BY status;");
+		}
+		
 	} else {
 		// Query defined, return count of games with searched parameters
-		$gen = "SELECT status, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;";
+		$q_gen = mysqli_query($db, "SELECT status, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;");
 	}
-
-	$q_gen = mysqli_query($db, $gen);
 
 	// Zero-fill the array keys that are going to be used
 	foreach (range( min(array_keys($a_title)), max(array_keys($a_title)) ) as $s) { 

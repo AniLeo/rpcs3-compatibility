@@ -435,3 +435,30 @@ function cacheCommitCache() {
 	
 	mysqli_close($db);
 }
+
+
+function cacheStatusCount() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	mysqli_set_charset($db, 'utf8');
+	
+	$a_cache = array();
+
+	// Fetch general count per status
+	$q_status = mysqli_query($db, "SELECT status+0 AS sid, count(*) AS c FROM game_list GROUP BY status;");
+	
+	$a_cache[0][0] = 0;
+	
+	while ($row = mysqli_fetch_object($q_status)) {
+		$a_cache[0][$row->sid] = (int)$row->c;
+		$a_cache[0][0] += $a_cache[0][$row->sid];
+	}
+	
+	$a_cache[1] = $a_cache[0];
+	
+	$f_count = fopen(__DIR__.'/cache/a_count.json', 'w');
+	fwrite($f_count, json_encode($a_cache));
+	fclose($f_count);
+	
+	mysqli_close($db);
+}
+

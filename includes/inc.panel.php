@@ -83,6 +83,13 @@ if ($get['a'] == 'updateCommitCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateCountCache') {
+	$startA = getTime();
+	cacheStatusCount();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status count cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) { 
 	$startA = getTime();
@@ -602,6 +609,8 @@ function compareThreads($update = false) {
 		
 		// Recache commit cache as new additions may contain new commits
 		cacheCommitCache();
+		// Recache status counts for general search
+		cacheStatusCount();
 	}
 	
 	echo "</p>";
