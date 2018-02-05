@@ -212,7 +212,7 @@ gameID
 */
 
 function APIv1() {
-	global $q_main, $c_maintenance, $a_results;
+	global $q_main, $c_maintenance, $a_results, $l_title;
 	
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
@@ -297,6 +297,7 @@ function APIv1() {
 		if (mysqli_num_rows($q_main) > 0) {
 			if ($l_title != "") {
 				$results['return_code'] = 2; // No results found for {$l_orig}. Displaying results for {$l_title}.
+				$results['search_term'] = $l_title;
 			}
 		} else {
 			$results['return_code'] = 1;
