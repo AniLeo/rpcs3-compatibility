@@ -126,9 +126,11 @@ function getTableContent() {
 
 
 function getPagesCounter() {
-	global $pages, $currentPage;
+	global $pages, $currentPage, $get;
 	
-	return getPagesCounter($pages, $currentPage, "b&");
+	$extra = $get['r'] == 25 ? '' : "r={$get['rID']}&";
+
+	return getPagesCounter($pages, $currentPage, "b&{$extra}");
 }
 
 

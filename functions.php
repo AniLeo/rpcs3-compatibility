@@ -684,6 +684,7 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	global $get, $scount, $g_pageresults;
 	
 	// Combined search: results per page
+	// TODO: Cleanup the way results per page works
 	if ($r) {$combined .= $g_pageresults;}
 	// Combined search: sort by status
 	if ($get['s'] != 0 && $s) {$combined .= "s={$get['s']}&";} 
