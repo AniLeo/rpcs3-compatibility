@@ -27,6 +27,11 @@ if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception(
 // Start: Microtime when page started loading
 $start = getTime();
 
+// Profiler
+$prof_timing = array();
+$prof_names = array();
+$prof_desc = "Debug mode: Profiling builds";
+
 // Order queries
 $a_order = array(
 '' => 'ORDER BY merge_datetime DESC',
@@ -44,28 +49,36 @@ $a_order = array(
 $get = obtainGet();
 
 // Connect to database
+prof_flag("Inc: Database Connection");
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
 // Calculate pages and current page
+prof_flag("Inc: Count Pages");
 $pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM builds_windows"))->c / 25);
+prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Disconnect from database
+prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
 
 
 // TODO: Cleanup
-// TODO: Costum results per page
+// TODO: Custom results per page
 // TODO: No listing builds with experimental warning 13/14-08/2017 and up + branch only
 
 
-// Main query
+prof_flag("Inc: Database Connection");
 $db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 mysqli_set_charset($db, 'utf8');
 
+// Main query
+prof_flag("Inc: Execute Main Query");
 $buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
 
+prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
 
+prof_flag("--- / ---");

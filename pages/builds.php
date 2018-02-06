@@ -27,6 +27,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			<div id='featured-wrp-block'>
 				<div id='featured-tx1-block' class="compat-title">
 					<p id='title1'>RPCS3 Builds History <a href='compatibility?b&rss'>(RSS)</a></p>
+					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(true, true, false, true, true); ?>
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
@@ -52,17 +53,23 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		<?php echo Builds::getTableMessages(); ?>
 		<div class='divTable builds-table'>
 			<?php 
+				prof_flag("Page: Display Table Headers");
 				echo Builds::getTableHeaders();
+				prof_flag("Page: Display Table Content");
 				echo Builds::getTableContent(); 
 			?>
 		</div>
 		
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
-				<?php echo Builds::getPagesCounter(); ?>
+				<?php 
+					prof_flag("Page: Pages Counter"); 
+					echo Builds::getPagesCounter();
+				?>
 			</p>
 		</div>
 		
+		<?php prof_flag("End"); ?>
 		<?php echo getFooter($start); ?>
 		<!--End -->
 	</div>
