@@ -47,6 +47,13 @@ if ($get['a'] == 'updateBuildCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'updateBuildCacheFull') {
+	$startA = getTime();
+	cacheWindowsBuilds(true);
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced full update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 if ($get['a'] == 'updateInitialsCache') { 
 	$startA = getTime();
 	cacheInitials();

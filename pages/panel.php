@@ -34,6 +34,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 				<div id='debug-left' class='debug-main'>
 					<ul>
 					  <li><a href="?a=updateBuildCache">Update Build Cache</a></li>
+					  <li><a href="?a=updateBuildCacheFull">Update Build Cache (Full)</a></li>
 					  <li><a href="?a=updateInitialsCache">Update Initials Cache</a></li>
 					  <li><a href="?a=updateLibraryCache">Update Library Cache</a></li>
 					  <li><a href="?a=updateStatusModule">Update Status Module</a></li>
