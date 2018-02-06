@@ -85,12 +85,13 @@ function getTableContent() {
 			<div class=\"divTableCell\"><a href=\"{$c_github}/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
 			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>";
 			
-			if (!is_null($row->additions)) {
+			// $row->changed_files > 0: There's a bug in GitHub API that makes some results return +0 -0
+			if (!is_null($row->additions) && $row->changed_files > 0) {
 				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#4cd137'>+{$row->additions}</span></div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
 			}
-			if (!is_null($row->deletions)) {
+			if (!is_null($row->deletions) && $row->changed_files > 0) {
 				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#e84118'>-{$row->deletions}</span></div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
