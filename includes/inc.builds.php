@@ -59,6 +59,11 @@ $pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM b
 prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
+// Main query
+prof_flag("Inc: Execute Main Query");
+$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
+$buildsQuery = mysqli_query($db, $buildsCommand);
+
 // Disconnect from database
 prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
@@ -67,18 +72,5 @@ mysqli_close($db);
 // TODO: Cleanup
 // TODO: Custom results per page
 // TODO: No listing builds with experimental warning 13/14-08/2017 and up + branch only
-
-
-prof_flag("Inc: Database Connection");
-$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-mysqli_set_charset($db, 'utf8');
-
-// Main query
-prof_flag("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
-$buildsQuery = mysqli_query($db, $buildsCommand);
-
-prof_flag("Inc: Close Database Connection");
-mysqli_close($db);
 
 prof_flag("--- / ---");
