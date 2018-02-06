@@ -389,7 +389,8 @@ input {
     padding: 4px 10px;
     text-align: center;
     color: #fff;
-    border-radius: 4px;
+    border-radius: 2px;
+    opacity: 0.95;
 }
 
 #compat-hdr-right a:hover {
@@ -402,19 +403,19 @@ input {
 }
 
 #compat-hdr-right a:nth-child(1) {
-    background: #20b2aa;
+    background: #3198ff;
 }
 
 #compat-hdr-right a:nth-child(2) {
-    background: #2ecc71;
+    background: #1ebc61;
 }
 
 #compat-hdr-right a:nth-child(3) {
-    background: #f1c40f;
+    background: #f9b32f;
 }
 
 #compat-hdr-right a:nth-child(4) {
-    background: #f39c12;
+    background: #e08a1e;
 }
 
 #compat-hdr-right a:nth-child(5) {
@@ -422,7 +423,7 @@ input {
 }
 
 #compat-hdr-right a:nth-child(6) {
-    background: #2c3e50;
+    background: #455556;
 }
 
 .compat-tx1-criteria {
@@ -468,7 +469,8 @@ input {
     text-align: center;
     text-transform: none;
     color: #fff!important;
-    border-radius: 4px;
+    border-radius: 2px;
+    opacity: 0.95;
 }
 
 .txt-compat-build:hover {
@@ -484,11 +486,11 @@ input {
 }
 
 #compat-progress1::-webkit-progress-value {
-    background-color: #2ecc71;
+    background-color: #1ebc61;
 }
 
 #compat-progress1::-moz-progress-bar {
-    background-color: #2ecc71;
+    background-color: #1ebc61;
 }
 
 #compat-progress2::-webkit-progress-bar {
@@ -496,11 +498,11 @@ input {
 }
 
 #compat-progress2::-webkit-progress-value {
-    background-color: #f1c40f;
+    background-color: #f9b32f;
 }
 
 #compat-progress2::-moz-progress-bar {
-    background-color: #f1c40f;
+    background-color: #f9b32f;
 }
 
 #compat-progress3::-webkit-progress-bar {
@@ -508,11 +510,11 @@ input {
 }
 
 #compat-progress3::-webkit-progress-value {
-    background-color: #f39c12;
+    background-color: #e08a1e;
 }
 
 #compat-progress3::-moz-progress-bar {
-    background-color: #f39c12;
+    background-color: #e08a1e;
 }
 
 #compat-progress4::-webkit-progress-bar {
@@ -532,11 +534,11 @@ input {
 }
 
 #compat-progress5::-webkit-progress-value {
-    background-color: #2c3e50;
+    background-color: #455556;
 }
 
 #compat-progress5::-moz-progress-bar {
-    background-color: #2c3e50;
+    background-color: #455556;
 }
 
 @media screen and (max-width: 1000px) {

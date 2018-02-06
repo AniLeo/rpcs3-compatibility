@@ -79,11 +79,11 @@ $a_desc = array(
 
 // Status colors 
 $a_color = array(
-1 => '2ecc71',
-2 => 'f1c40f',
-3 => 'f39c12',
+1 => '1ebc61',
+2 => 'f9b32f',
+3 => 'e08a1e',
 4 => 'e74c3c',
-5 => '2c3e50'
+5 => '455556'
 );
 
 // Regions (GameIDs)
