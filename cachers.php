@@ -225,7 +225,7 @@ function cacheWindowsBuilds($full = false) {
 								`additions` = '{$additions}', 
 								`deletions` = '{$deletions}', 
 								`changed_files` = '{$changed_files}', 
-								`size` = '".mysqli_real_escape_string($db, $data[2])."', 
+								`size` = '".mysqli_real_escape_string($db, $data[2])."' 
 								{$checksum_update} 
 								WHERE `pr` = '{$pr}' LIMIT 1;");
 							} else {
