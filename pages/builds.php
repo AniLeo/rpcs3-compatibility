@@ -32,19 +32,20 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 				</div>
 				<div id='featured-tx2-block' class="compat-desc">
 					<p>
-						This is the history of all RPCS3 builds made per pull request after AppVeyor artifacts were firstly added to the project.
+						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
 					</p>
 				</div>
+			</div>
+			<div id="builds-hdr-left">
+				<p>
+					<?php prof_flag("Page: Get Results Per Page"); ?>
+					Results per page <?php echo Builds::getResultsPerPage(); ?>
+				</p>
 			</div>
 			<!--
 			<div id="compat-hdr-right">
 				<p>
 					Right
-				</p>
-			</div>
-			<div id="compat-hdr-left">
-				<p>
-					Left
 				</p>
 			</div>
 			-->

@@ -45,6 +45,9 @@ $a_order = array(
 '4d' => 'ORDER BY merge_datetime DESC'
 );
 
+// Override default page results to ID:2 (25) as default is 50
+$c_pageresults = 2;
+
 // Obtain values from get
 $get = obtainGet();
 
@@ -61,7 +64,7 @@ $currentPage = getCurrentPage($pages);
 
 // Main query
 prof_flag("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ";
+$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
 
 // Disconnect from database
