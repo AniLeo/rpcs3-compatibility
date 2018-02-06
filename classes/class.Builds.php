@@ -103,8 +103,16 @@ function getTableContent() {
 				} else {
 					$checksum = '';
 				}
+				
+				if (!is_null($row->size)) {
+					$size_mb = ((int)$row->size) / 1024 / 1024;
+					$size_mb = round($size_mb, 1);
+					$size = "&nbsp;&nbsp;({$size_mb}MB)";
+				} else {
+					$size = '';
+				}
 			
-				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$checksum}</div>";
+				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$size}{$checksum}</div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
 			}
