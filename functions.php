@@ -415,7 +415,7 @@ function countGames($db = null, $query = '') {
 	if ($query == '') {
 		
 		// Empty query or general query with order only, all games returned
-		if (file_exists(__DIR__.'/cache/a_count.json')) {
+		if (file_exists(__DIR__.'/cache/a_count.json') && $get['s'] == 0) {
 			// If we're running a general search, use cached count results
 			$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
 			return $a_count;
