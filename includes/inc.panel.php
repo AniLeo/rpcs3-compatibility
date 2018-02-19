@@ -39,6 +39,10 @@ TODO: User permissions system
 TODO: Log commands with run time and datetime
 */
 
+/*
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+*/
 
 if ($get['a'] == 'updateBuildCache') {
 	$startA = getTime();
@@ -140,6 +144,7 @@ function checkInvalidThreads() {
 	}
 	
 	$q_games = mysqli_query($db, "SELECT * FROM game_list; ");
+	$output = '';
 	
 	while ($row = mysqli_fetch_object($q_games)) {
 		if (!empty($row->tid_EU)) {

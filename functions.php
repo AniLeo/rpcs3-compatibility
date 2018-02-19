@@ -567,6 +567,8 @@ function getMenu($c, $h, $b, $l, $a) {
 	global $get;
 	
 	$and = false;
+	$menu = '';
+	
 	if ($c) {
 		$menu .= "<a href='?'>Compatibility List</a>";
 		$and = true;
@@ -798,6 +800,9 @@ function getJSON($url) {
 
 
 function getAppVeyorData($build) {
+	
+	// TODO: Handle broken jobs
+	// See: https://ci.appveyor.com/api/buildjobs/jdlrsimqwxf7p82y/artifacts
 	$build_json = getJSON("https://ci.appveyor.com/api/projects/rpcs3/rpcs3/build/{$build}");
 	$jobID = $build_json->build->jobs[0]->jobId;
 	$artifacts_json = getJSON("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts");
@@ -805,7 +810,14 @@ function getAppVeyorData($build) {
 	
 	// Multi-artifact build support
 	// Starting 2018.02.02, builds also generate an artifact with OpenSSL DLLs
-	for ($i = 0; strpos($artifacts_json[$i]->fileName, "rpcs3") === false || strpos($artifacts_json[$i]->fileName, "sha256") !== false; $i++) {}
+	// Number of used artifacts: 4
+	$i = 0;
+	while ($i < 5 && (strpos($artifacts_json[$i]->fileName, "rpcs3") === false || strpos($artifacts_json[$i]->fileName, "sha256") !== false)) {
+		$i++;
+	}
+	if ($i == 4) {
+		return false; /* Something is very wrong, no artifact found */
+	}
 	$filename = $artifacts_json[$i]->fileName;
 	$size = $artifacts_json[$i]->size;
 	

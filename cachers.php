@@ -195,11 +195,12 @@ function cacheWindowsBuilds($full = false) {
 							$status = "Succeeded";
 						}
 
-						// Only caches if the post-merge build has been successfully built.
-						if ($status == "Succeeded" && $build != '1.0.106' /* Blacklist first non-artifacted build */) {
+						// > Only caches if the post-merge build has been successfully built
+						// > Blacklist first build due to it not having an artifact
+						// > Only caches if fetching AppVeyor data succeeds
+						if ($status == "Succeeded" && $build != '1.0.106' && $type != "pr_alt_failed" && $data = getAppVeyorData($build)) {
 							
-							// 0 - JobID, 1 - Filename, 2 - Size; 3 - Author; 4 - Checksum
-							$data = getAppVeyorData($build);
+							// Data: 0 - JobID, 1 - Filename, 2 - Size; 3 - Author; 4 - Checksum
 							
 							// Checksum support for newer builds
 							if (array_key_exists(4, $data)) {
