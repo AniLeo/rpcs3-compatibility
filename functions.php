@@ -839,11 +839,29 @@ function getAppVeyorData($build) {
 		
 		while (strlen($checksum) != 64 && $tries < 10) {
 			// Fetch RPCS3 artifact sha256 file content
-			$checksum = file_get_contents("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts/{$checksum_fn}");
+			$checksum = file_get_contents("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts/{$checksum_fn}");			
+			
+			/*
+			$i = 0;
+			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) {
+				$checksum = substr($checksum, 1);
+				$i++;
+			}
+			*/
+			
+			// Remove trash characters from the end of the string;
+			$i = strlen($checksum);
+			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) {
+				$checksum = substr($checksum, 0, -1);
+				$i--;
+			}
+			
+			/*
 			// Amount of trash characters to remove from the end of the string
 			$diff = strlen($checksum) - 64;
 			// Remove trash characers from the end of the string;
 			$checksum = substr($checksum, 0, -$diff);
+			*/
 			
 			// If this is not the first try, let's cool down a bit before trying again;
 			if ($tries > 0) {
