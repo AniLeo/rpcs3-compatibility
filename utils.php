@@ -61,14 +61,12 @@ function getLatestLinuxBuild() {
 
 	mysqli_close($db);
 	
-	$linux = array($row->buildname, date_format(date_create($row->datetime), "Y-m-d"));
+	$date = date_format(date_create($row->datetime), "Y-m-d");
+	$name = $row->buildname;
+	$url = "https://rpcs3.net/cdn/builds/{$name}"; // Direct link to AppImage
 	
-	$ver = explode("-", substr($linux[0], 6), 2)[0]; // Extract everything after rpcs3- until next - appears for version indicator
-	$name = $ver.substr($linux[0], 23)." [{$linux[1]}]"; // Display formatted filename
-	$url = "https://rpcs3.net/cdn/builds/{$linux[0]}"; // Direct link to AppImage
-	
-	// 0 - URL, 1 - Version Name
-	return array($url, $name);
+	// 0 - URL, 1 - Filename, 2 - Date
+	return array($url, $name, $date);
 }
 
 
