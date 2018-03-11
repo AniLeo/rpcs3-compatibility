@@ -230,7 +230,7 @@ function getHistoryContent() {
 			$s_content .= "<p class=\"compat-tx1-criteria\">No newer entries were reported and/or reviewed yet.</p>";
 		} else {
 			
-			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games</strong></p>";
+			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
 			$s_content .= "<div class='divTable history-table'>";
 			$s_content .= History::getHistoryHeaders(false);
 			

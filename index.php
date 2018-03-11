@@ -36,7 +36,7 @@ if (isset($_GET['rss'])) {
 		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: application/xml');
-		echo getHistoryRSS(); 
+		echo History::getHistoryRSS(); 
 		
 	}
 	
