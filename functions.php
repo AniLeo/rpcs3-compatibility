@@ -507,8 +507,13 @@ function getPagesCounter($pages, $currentPage, $extra) {
 			// Display number of the page and highlight if current page
 			$s_pagescounter .= "{$common}p=$i\">";
 			
-			if ($i == $currentPage) { if ($i < 10) { $s_pagescounter .= highlightBold("0"); } $s_pagescounter .= highlightBold($i); }
-			else { if ($i < 10) { $s_pagescounter .= "0"; } $s_pagescounter .= $i; }
+			$p = ($i < 10) ? "0{$i}" : "{$i}";
+			
+			if ($i == $currentPage) { 
+				$s_pagescounter .= "<span style=\"font-size:14px; font-weight:700;\">{$p}</span>";
+			} else {
+				$s_pagescounter .= $p; 
+			}
 			
 			$s_pagescounter .= "</a>&nbsp;&#32;"; 
 		
