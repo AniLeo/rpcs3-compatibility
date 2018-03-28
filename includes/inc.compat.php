@@ -80,14 +80,15 @@ prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 
-// Run the main query 
-prof_flag("Inc: Execute Main Query");
-
-$c_main .= "SELECT *
+// Generate the main query
+$c_main = "SELECT *
 FROM game_list ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
+
+// Run the main query 
+prof_flag("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
 
