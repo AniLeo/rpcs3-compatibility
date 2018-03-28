@@ -339,7 +339,7 @@ function generateQuery($get, $db = null) {
 		} elseif ($get['c'] == 'sym') {
 			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%' OR alternative_title LIKE '.%' OR alternative_title LIKE '&%') ";
 		} else {
-			$genquery .= " game_title LIKE '{$get['c']}%' OR alternative_title LIKE '{$get['c']}%' ";
+			$genquery .= " (game_title LIKE '{$get['c']}%' OR alternative_title LIKE '{$get['c']}%') ";
 		}
 		$and = true;
 	}
@@ -726,7 +726,7 @@ function prof_print() {
     $size = count($prof_timing);
 	
     for ($i=0;$i<$size - 1; $i++) {
-        $s .= sprintf("%05dμs&nbsp;-&nbsp;{$prof_names[$i]}<br>", $prof_timing[$i+1]-$prof_timing[$i]);
+        $s .= sprintf("%05dμs&nbsp;-&nbsp;%s<br>", $prof_timing[$i+1]-$prof_timing[$i], $prof_names[$i]);
     }
 	
 	return $s;
