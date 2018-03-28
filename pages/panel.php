@@ -20,13 +20,13 @@
 <?php 
 if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')) throw new Exception("Compat: inc.panel.php is missing. Failed to include inc.panel.php"); } 
 ?>
-<div id="page-con-container">
-	<div id="page-in-container">
+<div class="page-con-container">
+	<div class="page-in-container">
 		
-		<div id='featured-con-block' class="darkmode-block">
-			<div id='featured-wrp-block'>
+		<div class="featured-con-block darkmode-block">
+			<div class='featured-wrp-block'>
 			
-				<div id='featured-tx1-block' class="compat-title">
+				<div class="featured-tx1-block compat-title">
 					<p id='title1'>Debug Panel</p>
 					<?php echo getMenu(true, true, true, true, false); ?>
 				</div>

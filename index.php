@@ -76,14 +76,14 @@ https://github.com/AniLeo
 **/  
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
-<div id="page-con-content">
-	<div id="header-con-head">
-		<div id='header-img-head' class="dynamic-banner">
+<div class="page-con-content">
+	<div class="header-con-head">
+		<div class="header-img-head dynamic-banner">
 		</div>
-		<div id='header-con-overlay' class="darkmode-header">
+		<div class="header-con-overlay darkmode-header">
 		</div>
-		<div id='header-con-body'>
-			<div id='header-tx1-body'>
+		<div class='header-con-body'>
+			<div class='header-tx1-body'>
 				<h1>
 				<?php 
 					$get = obtainGet();
@@ -95,7 +95,7 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 				?>
 				</h1>
 			</div>
-			<div id='header-tx2-body'>
+			<div class='header-tx2-body'>
 				<p>
 					<?php 
 					if (!$c_maintenance || $get['w']) {

@@ -20,18 +20,18 @@
 <?php 
 if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php"); 
 ?>
-<div id='page-con-container'>
-	<div id='page-in-container'>
+<div class='page-con-container'>
+	<div class='page-in-container'>
 	<!-- featured-con-block -->
-		<div id='featured-con-block' class="darkmode-block">
+		<div class="featured-con-block darkmode-block">
 		
 			<!-- featured-wrp-block -->
-			<div id='featured-wrp-block' style='padding-bottom:1px'>
-				<div id='featured-tx1-block' class='compat-title'>
+			<div class='featured-wrp-block' style='padding-bottom:1px'>
+				<div class='featured-tx1-block compat-title'>
 					<p id='title1'>RPCS3 Compatibility List History</p>
 					<?php echo getMenu(true, false, true, true, true); ?>
 				</div>
-				<div id='featured-tx2-block' class='compat-desc'>
+				<div class='featured-tx2-block compat-desc'>
 					<?php echo History::getHistoryDescription(); ?>
 					<br>
 					<?php 

@@ -20,17 +20,17 @@
 <?php 
 if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php"); 
 ?>
-<div id="page-con-container">
-	<div id="page-in-container">
+<div class="page-con-container">
+	<div class="page-in-container">
 		<!--End -->
-		<div id='featured-con-block' class="darkmode-block">
-			<div id='featured-wrp-block'>
-				<div id='featured-tx1-block' class="compat-title">
+		<div class="featured-con-block darkmode-block">
+			<div class='featured-wrp-block'>
+				<div class="featured-tx1-block compat-title">
 					<p id='title1'>RPCS3 Compatibility List</p>
 					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(false, true, true, true, true); ?>
 				</div>
-				<div id='featured-tx2-block' class="compat-desc">
+				<div class='featured-tx2-block compat-desc'>
 					<p>
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions.						
 					</p>
