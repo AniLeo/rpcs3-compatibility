@@ -529,13 +529,17 @@ function compareThreads($update = false) {
 			}
 			
 			if ($found_d != 0) {
+
+				$str_time = strtotime($a_games[$a_duplicates[$row->tid]]['last_update']);
 				
-				// TODO: Fixme, it's overwriting data with older posts from other region threads. Check not working properly
-				if ($a_games[$a_duplicates[$row->tid]]['commit'] == 0 || ($a_games[$a_duplicates[$row->tid]]['commit'] != 0 && strtotime($a_games[$a_duplicates[$row->tid]]['last_update']) < $row->dateline)) {
+				if ($str_time < $row->dateline) {
+					
 					$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->dateline);
 					$a_games[$a_duplicates[$row->tid]]['commit'] = $found_c;
+					
 					$region = $a_games[$a_duplicates[$row->tid]]['region'];
-					echo "<b>{$a_games[$a_duplicates[$row->tid]]['gid_'.$region]}</b>: Commit found (other region): {$found_c} ({$found_d}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
+					echo "<b>{$a_games[$a_duplicates[$row->tid]]['gid_'.$region]}</b>: Commit found (other region): {$found_c} (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
+					
 				}
 				
 			}
