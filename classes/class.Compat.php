@@ -1,46 +1,46 @@
 <?php
 /*
-    RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-    Copyright (C) 2017 AniLeo
-    https://github.com/AniLeo or ani-leo@outlook.com
+		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+		Copyright (C) 2017 AniLeo
+		https://github.com/AniLeo or ani-leo@outlook.com
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+		You should have received a copy of the GNU General Public License along
+		with this program; if not, write to the Free Software Foundation, Inc.,
+		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
 class Compat {
-	
+
 /***********
  * Sort By *
  ***********/
 function getSortBy() {
 	global $a_title, $a_desc, $scount, $get;
 
-	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) { 
+	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) {
 		// Displays status description when hovered on
-		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?"; 
+		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?";
 		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
-		$s_sortby .= "s={$i}\">"; 
-		
+		$s_sortby .= "s={$i}\">";
+
 		$temp = "{$a_title[$i]}&nbsp;({$scount[1][$i]})";
-		
+
 		// If the current selected status, highlight with bold
 		$s_sortby .= ($get['s'] == $i) ? highlightText($temp) : $temp;
 
-		$s_sortby .= "</a>"; 
+		$s_sortby .= "</a>";
 	}
 	return $s_sortby;
 }
@@ -51,19 +51,19 @@ function getSortBy() {
  ********************/
 function getResultsPerPage() {
 	global $a_pageresults, $s_pageresults, $get;
-	
-	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) { 
-		$s_pageresults .= "<a href=\"?"; 
+
+	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) {
+		$s_pageresults .= "<a href=\"?";
 		$s_pageresults .= combinedSearch(false, true, true, true, false, true, true, true);
-		$s_pageresults .= "r={$i}\">"; 
-		
+		$s_pageresults .= "r={$i}\">";
+
 		// If the current selected status, highlight with bold
 		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightText($a_pageresults[$i]) : $a_pageresults[$i];
 
 		$s_pageresults .= "</a>";
-		
+
 		// If not the last value then add a separator for the next value
-		if ($i < max(array_keys($a_pageresults))) { $s_pageresults .= "&nbsp;•&nbsp;"; } 
+		if ($i < max(array_keys($a_pageresults))) { $s_pageresults .= "&nbsp;•&nbsp;"; }
 	}
 	return $s_pageresults;
 }
@@ -81,39 +81,39 @@ function getCharSearch() {
 		$a_chars[$i] = strtoupper($i);
 	}
 	$a_chars["sym"] = "#";
-	
+
 	/* Commonly used code: so we don't have to waste lines repeating this */
 	$common .= "<td><a href=\"?";
 	$common .= combinedSearch(true, true, false, false, false, true, true, false);
-	
-	foreach ($a_chars as $key => $value) { 
-		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>"; 
+
+	foreach ($a_chars as $key => $value) {
+		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>";
 		$s_charsearch .= ($get['c'] == $key) ? highlightText($value) : $value;
-		$s_charsearch .= "</div></a></td>"; 
+		$s_charsearch .= "</div></a></td>";
 	}
-	
+
 	return "<tr>{$s_charsearch}</tr>";
 }
 
 
 function getTableMessages() {
 	global $q_main, $l_title, $l_orig;
-	
+
 	if ($q_main) {
 		if (mysqli_num_rows($q_main) > 0) {
 			if ($l_title != "") {
-				$s_message .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br> 
+				$s_message .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br>
 				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
-			} 
+			}
 		} elseif (strlen($get['g'] == 9 && is_numeric(substr($get['g'], 4, 5))))  {
 			$s_message .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
 		}
 	} else {
 		$s_message .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 	}
-	
+
 	return $s_message;
-	
+
 }
 
 
@@ -122,14 +122,14 @@ function getTableMessages() {
  *****************/
 function getTableHeaders() {
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);
-	
+
 	$headers = array(
 		'Game Regions + IDs' => 0,
 		'Game Title' => 2,
 		'Status' => 3,
 		'Last Test' => 4
 	);
-	
+
 	return getTableHeaders($headers, $extra);
 }
 
@@ -141,10 +141,10 @@ function getTableContent() {
 	global $a_results, $a_regions;
 
 	foreach ($a_results as $key => $value) {
-		
+
 		$media = '';
 		$multiple = false;
-		
+
 		// prof_flag("Page: Display Table Content: Row - GameID");
 		$s = "<div class=\"divTableCell\">";
 		foreach ($a_regions as $k => $region) {
@@ -157,7 +157,7 @@ function getTableContent() {
 			}
 		}
 		$s .= "</div>";
-		
+
 		// prof_flag("Page: Display Table Content: Row - Game Title");
 		$s .= "<div class=\"divTableCell\">";
 		$s .= "{$media}{$value['game_title']}";
@@ -165,17 +165,17 @@ function getTableContent() {
 			$s .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$value['alternative_title']})";
 		}
 		$s .= "</div>";
-		
+
 		// prof_flag("Page: Display Table Content: Row - Status");
-		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>"; 
-		
+		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>";
+
 		// prof_flag("Page: Display Table Content: Row - Last Updated");
 		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_update'])."\">".$value['last_update']."</a>&nbsp;&nbsp;&nbsp;";
-		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";	
-		$s .= '</div>';	
+		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";
+		$s .= '</div>';
 
 		$s_tablecontent .= "<div class=\"divTableRow\">{$s}</div>";
-		
+
 	}
 
 	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
@@ -187,9 +187,9 @@ function getTableContent() {
  *****************/
 function getPagesCounter() {
 	global $pages, $currentPage;
-	
+
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
-	
+
 	return getPagesCounter($pages, $currentPage, $extra);
 }
 
@@ -203,33 +203,33 @@ return_code
 -3 - Illegal search
 
 gameID
-  commit
-    0 - Unknown / Invalid commit
-  status
+	commit
+		0 - Unknown / Invalid commit
+	status
 	Playable/Ingame/Intro/Loadable/Nothing
-  date
-    yyyy-mm-dd
+	date
+		yyyy-mm-dd
 */
 
 function APIv1() {
 	global $q_main, $c_maintenance, $a_results, $l_title;
-	
+
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
 		return $results;
 	}
-	
+
 	if (isset($_GET['g']) && !empty($_GET['g']) && !isValid($_GET['g'])) {
 		$results['return_code'] = -3;
 		return $results;
 	}
-	
+
 	// Array to returned, then encoded in JSON
 	$results = array();
 	$results['return_code'] = 0;
-	
+
 	foreach ($a_results as $key => $value) {
-		
+
 		if (array_key_exists('gid_EU', $value)) {
 			$results['results'][$value['gid_EU']] = array(
 			'title' => $value['game_title'],
@@ -290,9 +290,9 @@ function APIv1() {
 			'pr' => $value['pr']
 			);
 		}
-		
+
 	}
-	
+
 	if ($q_main) {
 		if (mysqli_num_rows($q_main) > 0) {
 			if ($l_title != "") {

@@ -1,22 +1,22 @@
 <?php
 /*
-    RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-    Copyright (C) 2017 AniLeo
-    https://github.com/AniLeo or ani-leo@outlook.com
+		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+		Copyright (C) 2017 AniLeo
+		https://github.com/AniLeo or ani-leo@outlook.com
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+		You should have received a copy of the GNU General Public License along
+		with this program; if not, write to the Free Software Foundation, Inc.,
+		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 // Connection details for the MySQL server
@@ -57,7 +57,7 @@ if (isset($_GET['l'])) {
 	);
 }
 
-// Status titles 
+// Status titles
 $a_title = array(
 'All',
 'Playable',
@@ -67,7 +67,7 @@ $a_title = array(
 'Nothing'
 );
 
-// Status descriptions 
+// Status descriptions
 $a_desc = array(
 'Show games from all statuses',
 'Games that can be properly played from start to finish',
@@ -77,7 +77,7 @@ $a_desc = array(
 'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
 );
 
-// Status colors 
+// Status colors
 $a_color = array(
 1 => '1ebc61',
 2 => 'f9b32f',
@@ -125,7 +125,7 @@ $a_histdates = array(
 	'2017_05' => array(array('y' => 2017, 'm' => 5,  'd' => 01),  array('y' => 2017, 'm' => 5,  'd' => 31)),
 	'2017_06' => array(array('y' => 2017, 'm' => 6,  'd' => 01),  array('y' => 2017, 'm' => 6,  'd' => 30)),
 	'2017_07' => array(array('y' => 2017, 'm' => 7,  'd' => 01),  array('y' => 2017, 'm' => 7,  'd' => 31)),
-	'2017_08' => array(array('y' => 2017, 'm' => 8,  'd' => 01),  array('y' => 2017, 'm' => 9,  'd' => 01)), 
+	'2017_08' => array(array('y' => 2017, 'm' => 8,  'd' => 01),  array('y' => 2017, 'm' => 9,  'd' => 01)),
 	'2017_09' => array(array('y' => 2017, 'm' => 9,  'd' => 02),  array('y' => 2017, 'm' => 9,  'd' => 30)),
 	'2017_10' => array(array('y' => 2017, 'm' => 10, 'd' => 01),  array('y' => 2017, 'm' => 11,  'd' => 02)),
 	'2017_11' => array(array('y' => 2017, 'm' => 11, 'd' => 03),  array('y' => 2017, 'm' => 11,  'd' => 30)),

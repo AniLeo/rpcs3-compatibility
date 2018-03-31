@@ -1,24 +1,24 @@
 <!--
-    RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-    Copyright (C) 2017 AniLeo
-    https://github.com/AniLeo or ani-leo@outlook.com
+		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+		Copyright (C) 2017 AniLeo
+		https://github.com/AniLeo or ani-leo@outlook.com
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+		You should have received a copy of the GNU General Public License along
+		with this program; if not, write to the Free Software Foundation, Inc.,
+		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
-<?php 
-if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php"); 
+<?php
+if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 ?>
 <div class="page-con-container">
 	<div class="page-in-container">
@@ -50,26 +50,26 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			</div>
 			-->
 		</div>
-		
+
 		<?php echo Builds::getTableMessages(); ?>
 		<div class='divTable builds-table'>
-			<?php 
+			<?php
 				prof_flag("Page: Display Table Headers");
 				echo Builds::getTableHeaders();
 				prof_flag("Page: Display Table Content");
-				echo Builds::getTableContent(); 
+				echo Builds::getTableContent();
 			?>
 		</div>
-		
+
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
-				<?php 
-					prof_flag("Page: Pages Counter"); 
+				<?php
+					prof_flag("Page: Pages Counter");
 					echo Builds::getPagesCounter();
 				?>
 			</p>
 		</div>
-		
+
 		<?php prof_flag("End"); ?>
 		<?php echo getFooter($start); ?>
 		<!--End -->

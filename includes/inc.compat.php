@@ -1,22 +1,22 @@
 <?php
 /*
-    RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-    Copyright (C) 2017 AniLeo
-    https://github.com/AniLeo or ani-leo@outlook.com
+		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+		Copyright (C) 2017 AniLeo
+		https://github.com/AniLeo or ani-leo@outlook.com
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+		You should have received a copy of the GNU General Public License along
+		with this program; if not, write to the Free Software Foundation, Inc.,
+		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 // Calls for the file that contains the functions needed
@@ -57,7 +57,7 @@ $get = obtainGet($db);
 
 
 // Generate query
-// 0 => With specified status 
+// 0 => With specified status
 // 1 => Without specified status
 prof_flag("Inc: Generate Query");
 $genquery = generateQuery($get, $db);
@@ -87,7 +87,7 @@ if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
 
-// Run the main query 
+// Run the main query
 prof_flag("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
@@ -97,7 +97,7 @@ prof_flag("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
 if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
-	
+
 	// Initials
 	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
@@ -115,7 +115,7 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 		$scount2 = countGames($db, $partTwo);
 		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
 		$currentPage = getCurrentPage($pages);
-		
+
 		// If we're going to use the results, add count of games found here to main count
 		// HACK: Check if result isn't numeric to exclude duplicate results
 		// TODO: Handle duplicate results properly
@@ -126,54 +126,54 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 				}
 			}
 		}
-		
+
 		$partOne = "SELECT * FROM game_list WHERE ";
 		if ($get['s'] != 0) {
 			$partOne .= " status = {$get['s']} AND ";
 		}
-		
-		$q_main2 = mysqli_query($db, " {$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");	
+
+		$q_main2 = mysqli_query($db, " {$partOne} {$partTwo} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");
 	}
-	
+
 	// If results not found then apply levenshtein to get the closest result
 	$levCheck = mysqli_query($db, "SELECT * FROM game_list WHERE game_title LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
-	
+
 	if ($levCheck && mysqli_num_rows($levCheck) == 0 && $q_initials && mysqli_num_rows($q_initials) == 0) {
 		$l_title = "";
 		$l_dist = -1;
 		$l_orig = "";
-		
+
 		if ($q_main && mysqli_num_rows($q_main) == 0) {
-			
+
 			// Select all database entries
 			$sqlCmd2 = "SELECT * FROM game_list; ";
 			$q_lev = mysqli_query($db, $sqlCmd2);
-			
+
 			// Calculate proximity for each database entry
 			while($row = mysqli_fetch_object($q_lev)) {
 				$lev = levenshtein($get['g'], $row->game_title);
-				
+
 				if ($lev <= $l_dist || $l_dist < 0) {
 					$l_title = $row->game_title;
 					$l_dist = $lev;
 				}
 			}
-			
+
 			$genquery = " game_title LIKE '".mysqli_real_escape_string($db, $l_title)."%' ";
-			
+
 			// Re-run the main query
 			$sqlCmd = "SELECT *
-			FROM game_list 
-			WHERE {$genquery} 
-			{$a_order[$get['o']]} 
+			FROM game_list
+			WHERE {$genquery}
+			{$a_order[$get['o']]}
 			LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 			$q_main = mysqli_query($db, $sqlCmd);
-			
+
 			// Recalculate Pages / CurrentPage
 			$scount = countGames($db, $genquery);
 			$pages = countPages($get, $scount[0][0]);
 			$currentPage = getCurrentPage($pages);
-			
+
 			// Replace faulty search with returned game but keep the original search for display
 			$l_orig = $get['g'];
 			$get['g'] = $l_title;
@@ -200,11 +200,11 @@ if (file_exists(__DIR__.'/../cache/a_commits.json')) {
 } else {
 	// If file isn't present, then just get the contents from the database
 	$a_cache = array();
-	
+
 	$q_builds = mysqli_query($db, "SELECT pr,commit FROM builds_windows LEFT JOIN game_list on
-	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7) 
-	WHERE build_commit IS NOT NULL 
-	GROUP BY commit 
+	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7)
+	WHERE build_commit IS NOT NULL
+	GROUP BY commit
 	ORDER BY merge_datetime DESC;");
 	while ($row = mysqli_fetch_object($q_builds)) {
 		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
