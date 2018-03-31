@@ -592,6 +592,11 @@ input {
 				padding-top: 4px!important;
 		}
 
+		#compat-hdr-right .highlightedText {
+				font-size: 12px;
+				font-weight: 700;
+		}
+
 		.compat-status-progressbar {
 				width: 400px;
 				opacity: .3;
