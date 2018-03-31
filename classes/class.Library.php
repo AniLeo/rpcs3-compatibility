@@ -30,9 +30,7 @@ function getResultsPerPage() {
 		$s_pageresults .= "<a href=\"?l&".combinedSearch(false, false, false, false, true, true, false, false)."r=$i\">"; 
 		
 		// If the current selected status, highlight with bold
-		if ($get['r'] == $a_pageresults[$i]) { $s_pageresults .= highlightBold($a_pageresults[$i]); } 
-		else { $s_pageresults .= $a_pageresults[$i]; }
-
+		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightText($a_pageresults[$i]) : $a_pageresults[$i];
 		$s_pageresults .= "</a>";
 		
 		// If not the last value then add a separator for the next value

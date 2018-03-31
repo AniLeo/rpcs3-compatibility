@@ -33,7 +33,7 @@ function getResultsPerPage() {
 		$s_pageresults .= "r={$i}\">"; 
 		
 		// If the current selected status, highlight with bold
-		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightBold($a_pageresults[$i]) : $a_pageresults[$i];
+		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightText($a_pageresults[$i]) : $a_pageresults[$i];
 
 		$s_pageresults .= "</a>";
 		

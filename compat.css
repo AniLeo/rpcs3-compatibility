@@ -621,8 +621,8 @@ input {
     .page-con-container {
         margin: auto 15px!important;
     }
-	
-	
+
+
 }
 
 .div-pagecounter {
@@ -680,4 +680,9 @@ input {
 #debug-left li a:hover {
     background-color: #555;
     color: white;
+}
+
+.highlightedText {
+    font-size: 13px;
+    font-weight: 700;
 }

@@ -38,7 +38,7 @@ function getSortBy() {
 		$temp = "{$a_title[$i]}&nbsp;({$scount[1][$i]})";
 		
 		// If the current selected status, highlight with bold
-		$s_sortby .= ($get['s'] == $i) ? highlightBold($temp) : $temp;
+		$s_sortby .= ($get['s'] == $i) ? highlightText($temp) : $temp;
 
 		$s_sortby .= "</a>"; 
 	}
@@ -58,7 +58,7 @@ function getResultsPerPage() {
 		$s_pageresults .= "r={$i}\">"; 
 		
 		// If the current selected status, highlight with bold
-		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightBold($a_pageresults[$i]) : $a_pageresults[$i];
+		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightText($a_pageresults[$i]) : $a_pageresults[$i];
 
 		$s_pageresults .= "</a>";
 		
@@ -88,7 +88,7 @@ function getCharSearch() {
 	
 	foreach ($a_chars as $key => $value) { 
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>"; 
-		$s_charsearch .= ($get['c'] == $key) ? highlightBold($value) : $value;
+		$s_charsearch .= ($get['c'] == $key) ? highlightText($value) : $value;
 		$s_charsearch .= "</div></a></td>"; 
 	}
 	
