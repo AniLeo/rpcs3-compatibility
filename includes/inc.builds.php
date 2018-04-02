@@ -49,7 +49,7 @@ $a_order = array(
 $c_pageresults = 2;
 
 // Obtain values from get
-$get = obtainGet();
+$get = validateGet();
 
 // Connect to database
 prof_flag("Inc: Database Connection");

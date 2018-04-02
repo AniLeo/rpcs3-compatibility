@@ -22,6 +22,10 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.Library.php")) throw new Exception("Compat: class.Library.php is missing. Failed to include class.Library.php");
 
 
+// Start: Microtime when page started loading
+$start = getTime();
+
+
 if (in_array($get['r'], $a_pageresults)) {
 	if ($get['r'] == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
 	else { $g_pageresults = "r={$get['rID']}&"; }

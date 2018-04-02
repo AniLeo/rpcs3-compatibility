@@ -29,6 +29,9 @@ class Compat {
 function getSortBy() {
 	global $a_title, $a_desc, $scount, $get;
 
+	// Initialize string
+	$s_sortby = "";
+
 	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) {
 		// Displays status description when hovered on
 		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?";
@@ -83,8 +86,11 @@ function getCharSearch() {
 	$a_chars["sym"] = "#";
 
 	/* Commonly used code: so we don't have to waste lines repeating this */
-	$common .= "<td><a href=\"?";
+	$common = "<td><a href=\"?";
 	$common .= combinedSearch(true, true, false, false, false, true, true, false);
+
+	// Initialize string
+	$s_charsearch = "";
 
 	foreach ($a_chars as $key => $value) {
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>";
@@ -97,7 +103,10 @@ function getCharSearch() {
 
 
 function getTableMessages() {
-	global $q_main, $l_title, $l_orig;
+	global $q_main, $l_title, $l_orig, $get;
+
+	// Initialize string
+	$s_message = "";
 
 	if ($q_main) {
 		if (mysqli_num_rows($q_main) > 0) {
@@ -139,6 +148,9 @@ function getTableHeaders() {
  *****************/
 function getTableContent() {
 	global $a_results, $a_regions;
+
+	// Initialize string
+	$s_tablecontent = "";
 
 	foreach ($a_results as $key => $value) {
 

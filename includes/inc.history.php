@@ -28,4 +28,4 @@ if (!@include_once(__DIR__."/../classes/class.History.php")) throw new Exception
 $start = getTime();
 
 // Obtain values from get
-$get = obtainGet();
+$get = validateGet();

@@ -265,6 +265,9 @@ function cacheInitials() {
 
 		foreach($w as $w) {
 
+			// Skip empty strings
+			if (empty($w)) { continue; }
+
 			// We don't care about the following in initials
 			// demo: several Demo games
 			// pack and vol.: Idolmaster games
@@ -280,15 +283,22 @@ function cacheInitials() {
 				continue;
 			}
 
-			// For .hack//Versus...
+			// Games starting by a dot
+			// Ex: .detuned | .hack//Versus
 			if (strpos($w, ".") === 0) {
-				// explode() expects parameter 2 to be string, array given
-				$hv = explode("//", explode(".", $w));
+				// Remove the dot and continue
+				$w = substr($w, 1);
+			}
+
+			// For .hack//Versus...
+			if (strpos($w, "//") !== false) {
+				$hv = explode("//", $w);
 				foreach($hv as $hv) {
 					$initials .= substr($hv, 0, 1);
 				}
 				continue;
 			}
+
 
 			// If word is alphanumeric then add first character to the initials, else ignore
 			if (ctype_alnum(substr($w, 0, 1))) {

@@ -53,7 +53,7 @@ mysqli_set_charset($db, 'utf8');
 
 // Obtain values from get
 prof_flag("Inc: Obtain GET");
-$get = obtainGet($db);
+$get = validateGet($db);
 
 
 // Generate query
@@ -96,7 +96,7 @@ $q_main = mysqli_query($db, $c_main);
 prof_flag("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
-if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
+if ($get['g'] != '' && strlen($get['g']) >= 2 && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
 
 	// Initials
 	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
@@ -104,6 +104,8 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 	if ($q_initials && mysqli_num_rows($q_initials) > 0) {
 
 		$i = 0;
+		// Initialize string
+		$partTwo = "";
 		while ($row = mysqli_fetch_object($q_initials)) {
 			if ($i > 0) { $partTwo .= " OR "; }
 			$partTwo .= " game_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
@@ -113,16 +115,23 @@ if ($get['g'] != '' && strlen($get['g']) > 2 && ((strlen($get['g'] == 9 && !is_n
 
 		// Recalculate Pages / CurrentPage
 		$scount2 = countGames($db, $partTwo);
-		$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
-		$currentPage = getCurrentPage($pages);
 
-		// If we're going to use the results, add count of games found here to main count
-		// HACK: Check if result isn't numeric to exclude duplicate results
-		// TODO: Handle duplicate results properly
-		if (strlen($get['g']) >= 3 && !is_numeric($get['g'])) {
-			for ($x = 0; $x <= 1; $x++) {
-				for ($y = 0; $y <= 5; $y++) {
-					$scount[$x][$y] += $scount2[$x][$y];
+		// If sum of secondary results with primary is bigger than page limit, don't use them
+		if ($scount2[0][0]+$scount[0][0] > $get['r']) {
+			$onlyUseMain = true;
+		} else {
+			$onlyUseMain = false;
+			$pages = countPages($get, $scount2[0][0]+$scount[0][0]);
+			$currentPage = getCurrentPage($pages);
+
+			// If we're going to use the results, add count of games found here to main count
+			// HACK: Check if result isn't numeric to exclude duplicate results
+			// TODO: Handle duplicate results properly
+			if (!is_numeric($get['g'])) {
+				for ($x = 0; $x <= 1; $x++) {
+					for ($y = 0; $y <= 5; $y++) {
+						$scount[$x][$y] += $scount2[$x][$y];
+					}
 				}
 			}
 		}
@@ -212,9 +221,9 @@ if (file_exists(__DIR__.'/../cache/a_commits.json')) {
 }
 
 prof_flag("Inc: Store Results - Secondary");
-if ($q_initials && mysqli_num_rows($q_initials) > 0 && $q_main2 && mysqli_num_rows($q_main2) > 0) {
+if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && isset($q_main2) && $q_main2 && mysqli_num_rows($q_main2) > 0 && !$onlyUseMain) {
 	storeResults($a_results, $q_main2, $a_cache);
-	if (strlen($get['g']) < 3) {
+	if (strlen($get['g']) < 2) {
 		$stop = true;
 	}
 }
@@ -223,6 +232,27 @@ prof_flag("Inc: Store Results - Main");
 if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
 	storeResults($a_results, $q_main, $a_cache);
 }
+
+
+prof_flag("Inc: Sort Results");
+// Temporary array to store sorted results
+$a_sorted = array();
+
+// For each status | TODO: Allow reverse order sorting
+foreach (range(min(array_keys($a_title))+1, max(array_keys($a_title))) as $i) {
+	// Go through our results array
+	foreach ($a_results as $key => $value) {
+		// When it finds a game on the current status, move it to the temporary array
+		// and remove it from the a_results array
+		if ($value['status'] == $a_title[$i]) {
+			$a_sorted[$key] = $value;
+			unset($a_results[$i]);
+		}
+	}
+}
+
+// Copy our new sorted array to a_results
+$a_results = $a_sorted;
 
 
 // Close MySQL connection.

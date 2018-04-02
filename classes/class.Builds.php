@@ -49,12 +49,10 @@ function getTableMessages() {
 
 	if (!$buildsQuery) {
 		// Query generator fail error
-		$s_messages .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
+		return "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
 	} elseif (mysqli_num_rows($buildsQuery) === 0) {
-		$s_messages .= "<p class=\"compat-tx1-criteria\">No builds are listed yet.</p>";
+		return "<p class=\"compat-tx1-criteria\">No builds are listed yet.</p>";
 	}
-
-	return $s_messages;
 
 }
 
@@ -74,6 +72,9 @@ function getTableHeaders() {
 
 function getTableContent() {
 	global $get, $c_appveyor, $c_github, $a_order, $currentPage, $buildsQuery;
+
+	// Initialize string
+	$s_tablecontent = "";
 
 	if (mysqli_num_rows($buildsQuery) > 0) {
 		while ($row = mysqli_fetch_object($buildsQuery)) {
@@ -135,7 +136,7 @@ function getPagesCounter() {
 
 
 function getBuildsRSS() {
-	global $a_order, $currentPage, $c_appveyor;
+	global $a_order, $currentPage, $c_appveyor, $get;
 
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
 	mysqli_set_charset($db, 'utf8');
@@ -150,6 +151,9 @@ function getBuildsRSS() {
 
 	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	$url = str_replace('&', '&amp;', $url);
+
+	// Initialize string
+	$rssfeed = "";
 
 	if (mysqli_num_rows($buildsQuery) > 0) {
 		while ($row = mysqli_fetch_object($buildsQuery)) {

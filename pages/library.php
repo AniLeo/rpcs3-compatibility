@@ -19,6 +19,7 @@
 -->
 <?php
 if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("Compat: inc.library.php is missing. Failed to include inc.library.php");
+$Library = new Library();	// Initialize class
 ?>
 <div class='page-con-container'>
 	<div class='page-in-container'>
@@ -36,7 +37,8 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 						The list of the whole PS3's game library known to mankind can be found at <a target='_blank' href='http://www.gametdb.com/PS3/List'>GameTDB</a>.
 						<br>
 
-						There are currently <span style="color: #27ae60;"><b><?php echo Library::getGameCount('all'); ?></b> tested Game IDs (<b><?php echo Library::getGameCount('tested'); ?></b> listed here) </span> and <span style="color: #e74c3c;"><b><?php echo Library::getGameCount('untested'); ?></b> untested Game IDs</span>.
+						There are currently <span style="color: #27ae60;"><b><?php echo $Library->getGameCount('all'); ?></b> tested Game IDs (<b><?php echo $Library->getGameCount('tested'); ?></b> listed here) </span>
+						and <span style="color: #e74c3c;"><b><?php echo $Library->getGameCount('untested'); ?></b> untested Game IDs</span>.
 						<br>
 
 						<i>Keep in mind this list doesn't have some of the Game IDs tested so far in our compatibility list.</i>
@@ -81,17 +83,17 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 
 			<div id="compat-hdr-left2">
 				<p>
-					Results per page <?php echo Library::getResultsPerPage(); ?>
+					Results per page <?php echo $Library->getResultsPerPage(); ?>
 				</p>
 			</div>
 
 		</div> <!-- featured-wrp-block -->
 
-		<?php Library::getTestedContents(); ?>
+		<?php $Library->getTestedContents(); ?>
 
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
-				<?php echo Library::getPagesCounter(); ?>
+				<?php echo $Library->getPagesCounter(); ?>
 			</p>
 		</div>
 

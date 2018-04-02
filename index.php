@@ -29,14 +29,16 @@ if (isset($_GET['rss'])) {
 
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: application/xml');
-		echo Builds::getBuildsRSS();
+		$Builds = new Builds();
+		echo $Builds->getBuildsRSS();
 
 	} else /*if (isset($_GET['h']))*/ {
 
 		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: application/xml');
-		echo History::getHistoryRSS();
+		$History = new History();
+		echo $History->getHistoryRSS();
 
 	}
 
@@ -56,7 +58,8 @@ if (isset($_GET['api'])) {
 			$results = exportDatabase();
 		} else {
 			if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
-			$results = Compat::APIv1();
+			$Compat = new Compat();
+			$results = $Compat->APIv1();
 		}
 
 		header('Content-Type: application/json');
@@ -86,7 +89,7 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 			<div class='header-tx1-body'>
 				<h1>
 				<?php
-					$get = obtainGet();
+					$get = validateGet();
 					if (isset($_GET['h']))     { echo "HISTORY"; }
 					elseif (isset($_GET['b'])) { echo "BUILDS"; }
 					elseif (isset($get['a']))  { echo "DEBUG PANEL"; }

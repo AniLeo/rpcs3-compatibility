@@ -26,7 +26,7 @@ class History {
 function getHistoryDescription() {
 	global $get, $a_histdates, $a_currenthist;
 
-	$s_desc .= "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
+	$s_desc = "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
 	if ($get['h'] == $a_currenthist[0]) {
 		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
@@ -44,7 +44,7 @@ function getHistoryDescription() {
 function getHistoryMonths() {
 	global $get, $a_histdates, $a_currenthist;
 
-	$s_months .= "<strong>Month:&nbsp;</strong>";
+	$s_months = "<strong>Month:&nbsp;</strong>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
 	foreach($a_histdates as $k => $v) {
@@ -81,7 +81,7 @@ function getHistoryOptions() {
 	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
-	$s_options .= ($get['m'] == "") ? highlightText($o1) : $o1;
+	$s_options = ($get['m'] == "") ? highlightText($o1) : $o1;
 	$s_options .= " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
 
 	$s_options .= ($get['m'] == "c") ? highlightText($o2) : $o2;
@@ -131,6 +131,9 @@ function getHistoryContent() {
 		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 
+	// Initialize string
+	$s_content = "";
+
 	// Note: The GROUP BY causes the first new_date to be shown instead of the last new_date
 	// of that entry (for tests in the same month in different regions of same game).
 	// Maybe handle this later somehow.
@@ -155,7 +158,7 @@ function getHistoryContent() {
 		} else {
 
 			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= History::getHistoryHeaders();
+			$s_content .= $this->getHistoryHeaders();
 
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($cQuery)) {
@@ -190,7 +193,7 @@ function getHistoryContent() {
 
 				$s_content .= "<div class=\"divTableCell\">";
 				$s_content .= "{$media}{$row->game_title}";
-				if (array_key_exists('alternative_title', $value)) {
+				if (!is_null($row->alternative_title)) {
 					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
 				}
 				$s_content .= "</div>";
@@ -227,7 +230,7 @@ function getHistoryContent() {
 
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
 			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= History::getHistoryHeaders(false);
+			$s_content .= $this->getHistoryHeaders(false);
 
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($nQuery)) {
@@ -262,7 +265,7 @@ function getHistoryContent() {
 
 				$s_content .= "<div class=\"divTableCell\">";
 				$s_content .= "{$media}{$row->game_title}";
-				if (array_key_exists('alternative_title', $value)) {
+				if (!is_null($row->alternative_title)) {
 					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
 				}
 				$s_content .= "</div>";

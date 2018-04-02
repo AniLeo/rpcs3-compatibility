@@ -30,7 +30,7 @@ if (!@include_once(__DIR__."/../utils.php")) throw new Exception("Compat: utils.
 // Start: Microtime when page started loading
 $start = getTime();
 
-$get = obtainGet();
+$get = validateGet();
 
 /*
 TODO: Login system
@@ -487,7 +487,7 @@ function compareThreads($update = false) {
 		if (isset($a_games[$row->tid]) && $a_games[$row->tid]['commit'] == '0') {
 
 			// Also log threads where commits weren't found
-			if (array_key_exists($row->tid, $found)) {
+			if (!array_key_exists($row->tid, $found)) {
 				$found[$row->tid] = 0;
 			}
 

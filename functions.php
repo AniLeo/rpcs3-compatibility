@@ -216,7 +216,7 @@ function highlightText($str) {
 }
 
 
-function obtainGet($db = null) {
+function validateGet($db = null) {
 	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
 
 	// Start new $get array
@@ -303,6 +303,12 @@ function obtainGet($db = null) {
 
 	// Is whitelisted?
 	$get['w'] = isWhitelisted($db) ? true : false;
+
+	// Enable error reporting for admins
+	if ($get['w']) {
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
+	}
 
 	// Admin debug mode
 	if (isset($_GET['a']) && $get['w']) {
@@ -474,6 +480,9 @@ function getTime() {
 function getPagesCounter($pages, $currentPage, $extra) {
 	global $c_pagelimit;
 
+	// Initialize string
+	$s_pagescounter = "";
+
 	// IF no results are found then the amount of pages is 0
 	// Shows no results found message
 	if ($pages == 0) {
@@ -535,6 +544,9 @@ function getTableHeaders($headers, $extra = '') {
 
 	$tableHead_open  = "<div class=\"divTableHead\">";
 	$tableHead_close = "</div>";
+
+	// Initialize string
+	$s_tableheaders = "";
 
 	foreach ($headers as $k => $v) {
 		if     ($v == 0)              { $s_tableheaders .= "{$tableHead_open}{$k}{$tableHead_close}"; }
@@ -624,6 +636,9 @@ function generateStatusModule($getCount = true) {
 	// Get games count per status
 	$count = countGames()[0];
 
+	// Initialize string
+	$output = "";
+
 	// Pretty output for readability
 	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) {
 
@@ -687,8 +702,12 @@ function isWhitelisted($db = null) {
 function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	global $get, $scount, $g_pageresults;
 
-	// Combined search: results per page
 	// TODO: Cleanup the way results per page works
+
+	// Initialize string
+	$combined = "";
+
+	// Combined search: results per page
 	if ($r) {$combined .= $g_pageresults;}
 	// Combined search: sort by status
 	if ($get['s'] != 0 && $s) {$combined .= "s={$get['s']}&";}
@@ -721,6 +740,9 @@ function prof_flag($str) {
 function prof_print() {
 		global $prof_timing, $prof_names;
 		$size = count($prof_timing);
+
+		// Initialize string
+		$s = "";
 
 		for ($i=0;$i<$size - 1; $i++) {
 				$s .= sprintf("%05dμs&nbsp;-&nbsp;%s<br>", $prof_timing[$i+1]-$prof_timing[$i], $prof_names[$i]);
@@ -947,7 +969,7 @@ function storeResults(&$a_results, $query, &$a_cache) {
 
 }
 
-/*
+function dumpVar($var) {
 	echo "<br>";
-	highlight_string("<?php\n\$data =\n".var_export($a_games, true).";\n?>");
-*/
+	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
+}
