@@ -198,14 +198,14 @@ function getColoredStatus($sn) {
 	* @return bool
 	*/
 function isValid($str) {
-		return !preg_match("/[^A-Za-z0-9.#&~;: \/\'-]/", $str);
+	return !preg_match("/[^A-Za-z0-9.#&~;: \/\'-]/", $str);
 }
 
 
 /**
-	* highlightBold
+	* highlightText
 	*
-	* Returns provided string wrapped in bold html tags
+	* Returns provided string with increased size and font-weight
 	*
 	* @param string $str Some text
 	*
