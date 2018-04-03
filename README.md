@@ -1,16 +1,28 @@
 # RPCS3's Compatibility List
 Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a small but powerful compatibility list for RPCS3.
 
+## Modules
+- **Compat:** The main compatibility list.
+- **History:** The history for the compatibility list.
+- **Builds:** A build history system for RPCS3's AppVeyor artifacts.
+- **Library:** A comparison between the PS3 Game Library and the main compatibility list.
+- **Debug:** A control panel to run several verification and update scripts.
+
 ## Features
-- **Sort it:** Sort listed games by status, first character, region, last update date or by typing ID/Title in the searchbox.
-- **Order it:** Order listed games by ID, Title, Commit, Status or Last Update date (ASC and DESC).
-- **See more:** Click a commit to visit it or a game ID/Title to visit the forum thread about it.
-- **History:** See changes made to a games' statuses from month-to-month with the History feature.
-- **Better searching:** You don't need to search exactly by a game's title to find it. Levenshtein string comparisons assures the closest game is returned when no results are found and abbreviation search allows one to search by games using their abbreviations.
+- **Sorting:** Search listed games by status, first character, media type, last test date or by searching the game's Title or ID.
+- **Ordering:** Order listed games by Game Title, Status or Last Test date (ASC and DESC).
+- **Extra details:** Click the pull request to visit it or the Game ID to visit the forum thread about it.
+- **Better searching:** You don't need to search exactly by a game's title to find it. Levenshtein string comparisons assures the closest game is returned when no results are found and initials search allows one to search by games using their initials.
+- **History:** See changes made to the games' statuses on a month-to-month basis with the History feature.
+- **Builds:** Visit the whole Windows build history since AppVeyor artifacts were added to the project with information about the pull request and its author, added and removed lines of code, build's date, artifact download link and sha-256 hash for checksum purposes.
+- **RSS:** Subscribe to the RSS feed to keep track on new game additions, updates on existent ones or new builds information.
+- **Forum Sync:** The list is able to be synced with MyBB based forums and automatically updated via the debug control panel after a review on the new submissions is done.
+
+## Requirements
+- [PHP 5.6](https://secure.php.net/downloads.php)
+- [MySQL 5.6](https://dev.mysql.com/downloads/mysql/5.6.html) or [MariaDB 10.1](https://downloads.mariadb.org/mariadb/10.1)
+- [RPCS3.net](https://rpcs3.net) [(Source Code)](https://github.com/DAGINATSUKO/www-rpcs3) - Place files inside lib/compat directory on the main website's source.
 
 ## License
-This project is licensed under the GNU GPLv2 license. This software may be modified/distributed for commercial or private use but changes to the source code must be published under the same license, containing a copy of the license and a copyright notice.
-
-## Dependency
-[RPCS3.net](https://rpcs3.net) [(Source Code)](https://github.com/DAGINATSUKO/RPCS3-Website) - Place files inside lib/compat directory on the main website's source code.
-
+This project is licensed under the GNU GPLv2 license. This software may be modified/distributed for commercial or private use but changes to the source code must be published under the same license, containing a copy of the license and a copyright notice. 
+<br>Developed by [AniLeo](https://github.com/AniLeo) at ani-leo@outlook.com (C) 2017-2018.
