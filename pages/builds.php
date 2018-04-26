@@ -24,14 +24,14 @@ $Builds = new Builds();	// Initialize class
 <div class="page-con-container">
 	<div class="page-in-container">
 		<!--End -->
-		<div class="featured-con-block darkmode-block">
-			<div class='featured-wrp-block'>
-				<div class="featured-tx1-block compat-title">
+		<div class="container-con-block darkmode-block">
+			<div class='container-con-wrapper'>
+				<div class="container-tx1-block compat-title">
 					<p id='title1'>RPCS3 Builds History <a href='compatibility?b&rss'>(RSS)</a></p>
 					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(true, true, false, true, true); ?>
 				</div>
-				<div class='featured-tx2-block compat-desc'>
+				<div class='container-tx2-block compat-desc'>
 					<p>
 						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
 					</p>

@@ -24,14 +24,14 @@ $Compat = new Compat();	// Initialize class
 <div class="page-con-container">
 	<div class="page-in-container">
 		<!--End -->
-		<div class="featured-con-block darkmode-block">
-			<div class='featured-wrp-block'>
-				<div class="featured-tx1-block compat-title">
+		<div class="container-con-block darkmode-block">
+			<div class='container-con-wrapper'>
+				<div class="container-tx1-block compat-title">
 					<p id='title1'>RPCS3 Compatibility List</p>
 					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(false, true, true, true, true); ?>
 				</div>
-				<div class='featured-tx2-block compat-desc'>
+				<div class='container-tx2-block compat-desc'>
 					<p>
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions.
 					</p>

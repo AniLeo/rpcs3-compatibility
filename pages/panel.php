@@ -23,10 +23,10 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 <div class="page-con-container">
 	<div class="page-in-container">
 
-		<div class="featured-con-block darkmode-block">
-			<div class='featured-wrp-block'>
+		<div class="container-con-block darkmode-block">
+			<div class='container-con-wrapper'>
 
-				<div class="featured-tx1-block compat-title">
+				<div class="container-tx1-block compat-title">
 					<p id='title1'>Debug Panel</p>
 					<?php echo getMenu(true, true, true, true, false); ?>
 				</div>

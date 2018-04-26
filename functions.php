@@ -875,7 +875,7 @@ function getAppVeyorData($build) {
 
 			// Remove trash characters from the end of the string;
 			$i = strlen($checksum);
-			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) {
+			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) { //Notice: Uninitialized string offset: 66 (65, 64)
 				$checksum = substr($checksum, 0, -1);
 				$i--;
 			}

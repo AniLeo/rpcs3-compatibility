@@ -23,16 +23,16 @@ $History = new History();
 ?>
 <div class='page-con-container'>
 	<div class='page-in-container'>
-	<!-- featured-con-block -->
-		<div class="featured-con-block darkmode-block">
+	<!-- container-con-block -->
+		<div class="container-con-block darkmode-block">
 
-			<!-- featured-wrp-block -->
-			<div class='featured-wrp-block' style='padding-bottom:1px'>
-				<div class='featured-tx1-block compat-title'>
+			<!-- container-con-wrapper -->
+			<div class='container-con-wrapper' style='padding-bottom:1px'>
+				<div class='container-tx1-block compat-title'>
 					<p id='title1'>RPCS3 Compatibility List History</p>
 					<?php echo getMenu(true, false, true, true, true); ?>
 				</div>
-				<div class='featured-tx2-block compat-desc'>
+				<div class='container-tx2-block compat-desc'>
 					<?php echo $History->getHistoryDescription(); ?>
 					<br>
 					<?php
@@ -40,7 +40,7 @@ $History = new History();
 						echo $History->getHistoryOptions();
 					?>
 				</div>
-			</div> <!-- featured-wrp-block -->
+			</div> <!-- container-con-wrapper -->
 
 			<?php
 			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php')) {
@@ -49,10 +49,10 @@ $History = new History();
 				echo generateStatusModule(false);
 			}
 			?>
-		</div> <!-- featured-wrp-block -->
+		</div> <!-- container-con-wrapper -->
 
 		<?php echo $History->getHistoryContent(); ?>
 
 		<?php echo getFooter($start); ?>
-	</div> <!-- featured-con-block -->
+	</div> <!-- container-con-block -->
 </div>

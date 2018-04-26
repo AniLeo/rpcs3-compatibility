@@ -85,8 +85,8 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 		</div>
 		<div class="header-con-overlay darkmode-header">
 		</div>
-		<div class='header-con-body'>
-			<div class='header-tx1-body'>
+		<div class='header-con-body fade-up-onstart'>
+			<div class='header-tx1-body fade-up-onstart'>
 				<h1>
 				<?php
 					$get = validateGet();
@@ -98,7 +98,7 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 				?>
 				</h1>
 			</div>
-			<div class='header-tx2-body'>
+			<div class='header-tx2-body fade-up-onstart'>
 				<p>
 					<?php
 					if (!$c_maintenance || $get['w']) {

@@ -23,16 +23,16 @@ $Library = new Library();	// Initialize class
 ?>
 <div class='page-con-container'>
 	<div class='page-in-container'>
-	<!-- featured-con-block -->
-		<div class="featured-con-block darkmode-block" style='padding-bottom:12px;'>
+	<!-- container-con-block -->
+		<div class="container-con-block darkmode-block" style='padding-bottom:12px;'>
 
-			<!-- featured-wrp-block -->
-			<div class='featured-wrp-block'>
-				<div class='featured-tx1-block compat-title'>
+			<!-- container-con-wrapper -->
+			<div class='container-con-wrapper'>
+				<div class='container-tx1-block compat-title'>
 					<p id='title1'>PS3 Game Library</p>
 					<?php echo getMenu(true, true, true, false, true); ?>
 				</div>
-				<div class='featured-tx2-block compat-desc'>
+				<div class='container-tx2-block compat-desc'>
 					<p>
 						The list of the whole PS3's game library known to mankind can be found at <a target='_blank' href='http://www.gametdb.com/PS3/List'>GameTDB</a>.
 						<br>
@@ -79,7 +79,7 @@ $Library = new Library();	// Initialize class
 						<?php if ($get['t'] == 'n') { echo'</b>'; } ?>
 					</p>
 				</div>
-			</div> <!-- featured-wrp-block -->
+			</div> <!-- container-con-wrapper -->
 
 			<div id="compat-hdr-left2">
 				<p>
@@ -87,7 +87,7 @@ $Library = new Library();	// Initialize class
 				</p>
 			</div>
 
-		</div> <!-- featured-wrp-block -->
+		</div> <!-- container-con-wrapper -->
 
 		<?php $Library->getTestedContents(); ?>
 
@@ -98,5 +98,5 @@ $Library = new Library();	// Initialize class
 		</div>
 
 		<?php echo getFooter($start); ?>
-	</div> <!-- featured-con-block -->
+	</div> <!-- container-con-block -->
 </div>
