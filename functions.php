@@ -579,33 +579,15 @@ function getFooter($start) {
 
 function getMenu($c, $h, $b, $l, $a) {
 	global $get;
-
-	$and = false;
+	
 	$menu = '';
 
-	if ($c) {
-		$menu .= "<a href='?'>Compatibility List</a>";
-		$and = true;
-	}
-	if ($h) {
-		if ($and) { $menu .= " • "; }
-		$menu .= "<a href='?h'>Compatibility List History</a>";
-		$and = true;
-	}
-	if ($b) {
-		if ($and) { $menu .= " • "; }
-		$menu .= "<a href='?b'>RPCS3 Builds History</a>";
-		$and = true;
-	}
-	if ($l) {
-		if ($and) { $menu .= " • "; }
-		$menu .= "<a href='?l'>PS3 Game Library</a>";
-		$and = true;
-	}
-	if ($get['w'] && $a) {
-		if ($and) { $menu .= " • "; }
-		$menu .= "<a href='?a'>Debug Panel</a>";
-	}
+	if ($c) { $menu .= "<a href='?'>Compatibility List</a>"; }
+	if ($h) { $menu .= "<a href='?h'>Compatibility List History</a>"; }
+	if ($b) { $menu .= "<a href='?b'>RPCS3 Builds History</a>";	}
+	if ($l) { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
+	if ($get['w'] && $a) { $menu .= "<a href='?a'>Debug Panel</a>"; }
+
 	return "<p id='title2'>{$menu}</p>";
 }
 
