@@ -94,7 +94,7 @@ function getCharSearch() {
 
 	foreach ($a_chars as $key => $value) {
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>";
-		$s_charsearch .= ($get['c'] == $key) ? highlightText($value) : $value;
+		$s_charsearch .= ($get['c'] == $key) ? "<span style=\"font-size:16px;\">{$value}</span>" : $value;
 		$s_charsearch .= "</div></a></td>";
 	}
 
