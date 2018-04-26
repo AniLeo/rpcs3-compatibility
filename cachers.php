@@ -162,7 +162,7 @@ function cacheWindowsBuilds($full = false) {
 							$build = explode($end, explode($start, $content_pr)[1])[0];
 							$status = "Succeeded";
 						} else {
-							$start = "<a class=\"status-actions\" href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
+							$start = "<a class=\"status-actions\" data-skip-pjax href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
 							$end = "\">Details</a>";
 							$build = explode($end, explode($start, $content_commit)[1])[0];
 
