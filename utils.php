@@ -38,7 +38,7 @@ function getLatestWindowsBuild() {
 
 	$commit = substr($row->commit, 0, 8);
 	$ver = "v{$win[0]} ({$commit}) Alpha [{$win[1]}]";
-	$url = "https://ci.appveyor.com/api/buildjobs/{$row->buildjob}/artifacts/{$row->filename}";
+	$url = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$row->commit}/{$row->filename}";
 
 	$size = ((int)$row->size)/1024/1024;
 	$size = round($size, 1);

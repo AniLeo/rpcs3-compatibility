@@ -579,7 +579,7 @@ function getFooter($start) {
 
 function getMenu($c, $h, $b, $l, $a) {
 	global $get;
-	
+
 	$menu = '';
 
 	if ($c) { $menu .= "<a href='?'>Compatibility List</a>"; }
@@ -802,91 +802,6 @@ function getJSON($url) {
 	$result = curl_exec($ch);
 	curl_close($ch);
 	return json_decode($result);
-}
-
-
-function getAppVeyorData($build) {
-
-	// TODO: Handle broken jobs
-	// See: https://ci.appveyor.com/api/buildjobs/jdlrsimqwxf7p82y/artifacts
-	$build_json = getJSON("https://ci.appveyor.com/api/projects/rpcs3/rpcs3/build/{$build}");
-	$jobID = $build_json->build->jobs[0]->jobId;
-	$artifacts_json = getJSON("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts");
-	$author = $build_json->build->authorUsername;
-
-	// Multi-artifact build support
-	// Starting 2018.02.02, builds also generate an artifact with OpenSSL DLLs
-	// Number of used artifacts: 4
-	$i = 0;
-	while ($i < 5 && (strpos($artifacts_json[$i]->fileName, "rpcs3") === false || strpos($artifacts_json[$i]->fileName, "sha256") !== false)) {
-		$i++;
-	}
-	if ($i == 4) {
-		return false; /* Something is very wrong, no artifact found */
-	}
-	$filename = $artifacts_json[$i]->fileName;
-	$size = $artifacts_json[$i]->size;
-
-	// Checksum support
-	$checksum_fn = '';
-
-	foreach ($artifacts_json as $key => $value) {
-		if (strpos($value->fileName, "rpcs3") !== false && strpos($value->fileName, "sha256") !== false) {
-			$checksum_fn = $value->fileName;
-		}
-	}
-
-	if ($checksum_fn != '') {
-
-		$checksum = '';
-		$tries = 0;
-
-		set_time_limit(300); // 5 minutes
-
-		while (strlen($checksum) != 64 && $tries < 10) {
-			// Fetch RPCS3 artifact sha256 file content
-			$checksum = file_get_contents("https://ci.appveyor.com/api/buildjobs/{$jobID}/artifacts/{$checksum_fn}");
-
-			/*
-			$i = 0;
-			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) {
-				$checksum = substr($checksum, 1);
-				$i++;
-			}
-			*/
-
-			// Remove trash characters from the end of the string;
-			$i = strlen($checksum);
-			while (!ctype_alpha($checksum[$i]) && strlen($checksum) > 64) { //Notice: Uninitialized string offset: 66 (65, 64)
-				$checksum = substr($checksum, 0, -1);
-				$i--;
-			}
-
-			/*
-			// Amount of trash characters to remove from the end of the string
-			$diff = strlen($checksum) - 64;
-			// Remove trash characers from the end of the string;
-			$checksum = substr($checksum, 0, -$diff);
-			*/
-
-			// If this is not the first try, let's cool down a bit before trying again;
-			if ($tries > 0) {
-				sleep(10);
-			}
-
-			// If checksum length isn't 64, then we will retry again up to 10 tries
-			$tries++;
-		}
-
-		// If we got a 64 length checksum, return it on the array as well
-		if (strlen($checksum) == 64) {
-			return array($jobID, $filename, $size, $author, $checksum);
-		}
-
-	}
-
-	return array($jobID, $filename, $size, $author);
-
 }
 
 

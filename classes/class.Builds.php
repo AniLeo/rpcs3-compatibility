@@ -114,7 +114,14 @@ function getTableContent() {
 					$size = '';
 				}
 
-				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$c_appveyor}{$row->appveyor}/artifacts\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$size}{$checksum}</div>";
+				// All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
+				if (strtotime($row->merge_datetime) > 1528416000) {
+					$url = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$row->commit}/{$row->filename}";
+				} else {
+					$url = "{$c_appveyor}{$row->appveyor}/artifacts";
+				}
+
+				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$size}{$checksum}</div>";
 			} else {
 				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
 			}

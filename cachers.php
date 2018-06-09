@@ -44,7 +44,7 @@ function cacheWindowsBuilds($full = false) {
 
 	if ($full) {
 		// Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
-		$date = '2015-08-10'; // 2015-08-10
+		$date = '2018-06-02'; // 2015-08-10 | 2018-06-02
 	}
 
 	// Get number of PRs
@@ -75,7 +75,6 @@ function cacheWindowsBuilds($full = false) {
 		$step_1 = explode("\" class=\"link-gray-dark v-align-middle no-underline h4 js-navigation-open\">", $content);
 
 		$a = 0; // Current PR (page relative)
-		$b = 0; // Current exploded iteration
 
 		while ($a<25) {
 			$pr = substr($step_1[$a], -4); // Future proof: Remember that this needs to be changed to -5 after PR #9999
@@ -101,149 +100,71 @@ function cacheWindowsBuilds($full = false) {
 					// Check if we aren't rate limited
 					if (array_key_exists('merge_commit_sha', $pr_info)) {
 
-						// Merge time, Creation time, Commit SHA
+						// Merge time, Creation Time, Commit SHA, Author
 						$merge_datetime = $pr_info->merged_at;
 						$start_datetime = $pr_info->created_at;
 						$commit = $pr_info->merge_commit_sha;
+						$author = $pr_info->user->login;
 
-						// Additions, deletions, changed files
+						// Additions, Deletions, Changed Files
 						$additions = $pr_info->additions;
 						$deletions = $pr_info->deletions;
 						$changed_files = $pr_info->changed_files;
 
-						// Content for the commits page starting at the commit we obtained
-						$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
+						$info_release = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
 
-						// Get first commit data only
-						$start = "<div class=\"commit-meta commit-author-section";
-						$end = "<div class=\"commit-links-cell table-list-cell\">";
-						$content_commit = explode($end, explode($start, $content_commit)[1])[0];
+						// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next include_once
+						if (isset($info_release->message)) {
+							$a++;
+							continue;
+						}
 
-						// Section that contains AppVeyor data that we want
-						$start1 = "\"AppVeyor CI (@appveyor) generated this status.\"";
-						$end1 = "</svg>";
-						$type = "pr_alt_nocheck"; // Commit doesn't contain any checks
+						// Version name
+						$version = $info_release->name;
+						$type = "branch";
 
-						if (strpos($content_commit, "\"AppVeyor CI (@appveyor) generated this status.\"") !== false) {
+						// Simple sanity check: If build doesn't contain a slash then the buildname is invalid
+						if (!(strpos($version, '-') !== false)) {
+							$a++;
+							continue;
+						}
 
-							$appveyor = explode($end1, explode($start1, $content_commit)[1])[0];
+						// Checksum, Size, Filename
+						$fileinfo = explode(';', $info_release->body);
+						$checksum = $fileinfo[0];
+						$size = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]))*1024*1024;
+						$filename = $info_release->assets[0]->name;
 
-							// Get build type
-							if (strpos($appveyor, '/branch') !== false) { $type = "branch"; } // Rebuilt on master after merge
-							elseif (strpos($appveyor, '/pr') !== false) { $type = "pr"; }     // Last pull request artifact before merge
-
+						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
+							$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
+							`commit` = '".mysqli_real_escape_string($db, $commit)."',
+							`type` = '{$type}',
+							`author` = '".mysqli_real_escape_string($db, $author)."',
+							`start_datetime` = '{$start_datetime}',
+							`merge_datetime` = '{$merge_datetime}',
+							`appveyor` = '{$version}',
+							`filename` = '".mysqli_real_escape_string($db, $filename)."',
+							`additions` = '{$additions}',
+							`deletions` = '{$deletions}',
+							`changed_files` = '{$changed_files}',
+							`size` = '".mysqli_real_escape_string($db, $size)."',
+							`checksum` = '".mysqli_real_escape_string($db, $checksum)."'
+							WHERE `pr` = '{$pr}' LIMIT 1;");
 						} else {
-							sleep(10); // It probably tried to recache the second it was merged and it caught the limbo of nocheck
-
-							// Retry
-							$content_commit = file_get_contents("https://github.com/RPCS3/rpcs3/commits/{$commit}");
-							$content_commit = explode($end, explode($start, $content_commit)[1])[0];
-
-							if (strpos($content_commit, "\"AppVeyor CI (@appveyor) generated this status.\"") !== false) {
-
-								$appveyor = explode($end1, explode($start1, $content_commit)[1])[0];
-
-								// Get build type
-								if (strpos($appveyor, 'branch') !== false) { $type = "branch"; } // Rebuilt on master after merge
-								elseif (strpos($appveyor, 'pr') !== false) { $type = "pr"; }     // Last pull request artifact before merge
-							}
+							$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows`
+								(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `filename`, `additions`, `deletions`, `changed_files`, `size`, `checksum`)
+								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}',
+								'{$version}', '".mysqli_real_escape_string($db, $filename)."', '{$additions}', '{$deletions}', '{$changed_files}',
+								'".mysqli_real_escape_string($db, $size)."', '".mysqli_real_escape_string($db, $checksum)."'); ");
 						}
 
-						$status = "unknown";
+						// Recache commit => pr cache
+						cacheCommitCache();
 
-						if ($type == "unknown" || $type == "pr_alt_nocheck") {
-							// If code reaches here, do it the old way
-
-							// Page content for the current PR
-							$content_pr = file_get_contents("https://github.com/RPCS3/rpcs3/pull/{$pr}");
-
-							$start = "<a href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
-							$end = "\" class=\"ml-2\">";
-							$build = explode($end, explode($start, $content_pr)[1])[0];
-							$status = "Succeeded";
-						} else {
-							$start = "<a class=\"status-actions\" data-skip-pjax href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
-							$end = "\">Details</a>";
-							$build = explode($end, explode($start, $content_commit)[1])[0];
-
-							// Get build status
-							/*
-							AppVeyor build succeeded
-							Waiting for AppVeyor build to complete
-							AppVeyor build failed
-							AppVeyor was unable to build non-mergeable pull request
-							*/
-							if (strpos($appveyor, 'Waiting') !== false) {
-								$status = "Building";
-							} elseif (strpos($appveyor, 'succeeded') !== false) {
-								$status = "Succeeded";
-							} elseif (strpos($appveyor, 'failed') !== false || strpos($appveyor, 'unable') !== false) {
-								$status = "Failed";
-							}
-						}
-
-						// If listed build is failed/unknown, force using old method again
-						if ($status == "unknown" || $status == "Failed") {
-							$start = "<a class=\"status-actions\" href=\"https://ci.appveyor.com/project/rpcs3/rpcs3/build/";
-							$end = "\">Details</a>";
-							$build = explode($end, explode($start, $content_commit)[1])[0];
-							if ($status == "Failed") {
-								$type = "pr_alt_failed";
-							} else {
-								$type = "pr_alt";
-							}
-							$status = "Succeeded";
-						}
-
-						// > Only caches if the post-merge build has been successfully built
-						// > Blacklist first build due to it not having an artifact
-						// > Only caches if fetching AppVeyor data succeeds
-						if ($status == "Succeeded" && $build != '1.0.106' && $build != '0.0.5-8042' && $type != "pr_alt_failed" && $data = getAppVeyorData($build)) {
-
-							// Data: 0 - JobID, 1 - Filename, 2 - Size; 3 - Author; 4 - Checksum
-
-							// Checksum support for newer builds
-							if (array_key_exists(4, $data)) {
-								$checksum_insert1 = ", `checksum`";
-								$checksum_insert2 = ", '".mysqli_real_escape_string($db, $data[4])."'";
-								$checksum_update = ", `checksum` = '".mysqli_real_escape_string($db, $data[4])."'";
-							} else {
-								$checksum_insert1 = '';
-								$checksum_insert2 = '';
-								$checksum_update = '';
-							}
-
-							if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
-								$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
-								`commit` = '".mysqli_real_escape_string($db, $commit)."',
-								`type` = '{$type}',
-								`author` = '".mysqli_real_escape_string($db, $data[3])."',
-								`start_datetime` = '{$start_datetime}',
-								`merge_datetime` = '{$merge_datetime}',
-								`appveyor` = '{$build}',
-								`buildjob` = '".mysqli_real_escape_string($db, $data[0])."',
-								`filename` = '".mysqli_real_escape_string($db, $data[1])."',
-								`additions` = '{$additions}',
-								`deletions` = '{$deletions}',
-								`changed_files` = '{$changed_files}',
-								`size` = '".mysqli_real_escape_string($db, $data[2])."'
-								{$checksum_update}
-								WHERE `pr` = '{$pr}' LIMIT 1;");
-							} else {
-								$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows` (`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `buildjob`, `filename`, `additions`, `deletions`, `changed_files`, `size`{$checksum_insert1})
-								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $data[3])."', '{$start_datetime}', '{$merge_datetime}', '{$build}', '".mysqli_real_escape_string($db, $data[0])."', '".mysqli_real_escape_string($db, $data[1])."', '{$additions}', '{$deletions}', '{$changed_files}', '".mysqli_real_escape_string($db, $data[2])."'{$checksum_insert2}); ");
-							}
-
-							// Recache commit => pr cache
-							cacheCommitCache();
-						} else {
-							// If Building then we wait for the next script run...
-						}
 					}
 				}
 				$a++;
 			}
-			$b++;
 		}
 	}
 
