@@ -61,8 +61,7 @@ function getTableHeaders() {
 	$headers = array(
 		'Pull Request' => 1,
 		'Author' => 2,
-		'Added' => 0,
-		'Deleted' => 0,
+		'Lines of Code' => 0,
 		'Build Date' => 4,
 		'Download' => 0
 	);
@@ -86,17 +85,28 @@ function getTableContent() {
 			<div class=\"divTableCell\"><a href=\"{$c_github}/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
 			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>";
 
-			// $row->changed_files > 0: There's a bug in GitHub API that makes some results return +0 -0
-			if (!is_null($row->additions) && $row->changed_files > 0) {
-				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#4cd137'>+{$row->additions}</span></div>";
-			} else {
-				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
-			}
-			if (!is_null($row->deletions) && $row->changed_files > 0) {
-				$s_tablecontent .= "<div class=\"divTableCell\"><span style='color:#e84118'>-{$row->deletions}</span></div>";
-			} else {
-				$s_tablecontent .= "<div class=\"divTableCell\"><i>?</i></div>";
-			}
+
+			/* Lines of Code */
+			// Note - $row->changed_files > 0: There's a bug in GitHub API that makes some results return +0 -0
+			$s_tablecontent .= "<div class=\"divTableCell\">";
+
+			// Additions
+			$s_tablecontent .= "<span style='color:#4cd137;'>+";
+			$s_tablecontent .= (!is_null($row->additions) && $row->changed_files > 0) ? "{$row->additions}" : "<i>?</i>";
+			$s_tablecontent .= "</span>";
+
+			// Length of additions text
+			$len = (!is_null($row->additions) && $row->changed_files > 0) ? strlen($row->additions)+1 : 2;
+			// Padding formula to apply in order to align deletions in all rows
+			$padding = (8 - $len)*7;
+
+			// Deletions
+			$s_tablecontent .= "<span style='color:#e84118; padding-left: {$padding}px;'>-";
+			$s_tablecontent .= (!is_null($row->deletions) && $row->changed_files > 0) ? "{$row->deletions}" : "<i>?</i>";
+			$s_tablecontent .= "</span>";
+
+			$s_tablecontent .= "</div>";
+
 
 			$s_tablecontent .= "<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
 			if ($row->appveyor != "0") {
