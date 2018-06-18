@@ -60,7 +60,7 @@ function checkForUpdates($commit) {
 
 	$results['latest_build']['pr'] = $r_latestWin->pr;
 	$results['latest_build']['windows']['datetime'] = $r_latestWin->merge_datetime;
-	$results['latest_build']['windows']['download'] = "https://ci.appveyor.com/api/buildjobs/{$r_latestWin->buildjob}/artifacts/{$r_latestWin->filename}";
+	$results['latest_build']['windows']['download'] = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$r_latestWin->commit}/{$r_latestWin->filename}";
 
 	$results['latest_build']['linux']['datetime'] = $r_latestLinux->datetime;
 	$results['latest_build']['linux']['download'] = "https://rpcs3.net/cdn/builds/{$r_latestLinux->buildname}";
