@@ -36,18 +36,16 @@ function getLatestWindowsBuild() {
 
 	$win = array($row->appveyor, date_format(date_create($row->merge_datetime), "Y-m-d"));
 
-	$commit = substr($row->commit, 0, 8);
-	$ver = "v{$win[0]} ({$commit}) Alpha [{$win[1]}]";
+	$ver = "v{$win[0]} Alpha [{$win[1]}]";
 	$url = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$row->commit}/{$row->filename}";
 
 	$size = ((int)$row->size)/1024/1024;
 	$size = round($size, 1);
 
-	// 0 - URL, 1 - Version Name, 2 - Author, 3 - PR, 4 - Checksum, 5 - File Size (MB)
-	if (!is_null($row->checksum)) {
-		return array($url, $ver, $row->author, $row->pr, $row->checksum, $size);
-	}
-	return array($url, $ver, $row->author, $row->pr, 'None', $size);
+	$checksum = is_null($row->checksum) ? 'None' : $row->checksum;
+
+	// 0 - URL, 1 - Version Name, 2 - Author, 3 - PR, 4 - Checksum, 5 - File Size (MB), 6 - Commit
+	return array($url, $ver, $row->author, $row->pr, $checksum, $size, $row->commit);
 }
 
 
