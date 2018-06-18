@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
 
 
 class Builds {
@@ -45,15 +46,8 @@ function getResultsPerPage() {
 
 
 function getTableMessages() {
-	global $buildsQuery;
-
-	if (!$buildsQuery) {
-		// Query generator fail error
-		return "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-	} elseif (mysqli_num_rows($buildsQuery) === 0) {
-		return "<p class=\"compat-tx1-criteria\">No builds are listed yet.</p>";
-	}
-
+	global $info;
+	if (!is_null($info)) { return "<p class=\"compat-tx1-criteria\">{$info}</p>"; }
 }
 
 
@@ -70,73 +64,47 @@ function getTableHeaders() {
 
 
 function getTableContent() {
-	global $get, $c_appveyor, $c_github, $a_order, $currentPage, $buildsQuery;
+	global $c_github, $builds;
 
 	// Initialize string
 	$s_tablecontent = "";
 
-	if (mysqli_num_rows($buildsQuery) > 0) {
-		while ($row = mysqli_fetch_object($buildsQuery)) {
+	foreach($builds as $build) {
 
-			$fulldate = date_format(date_create($row->merge_datetime), "Y-m-d");
-			$diff = getDateDiff($row->merge_datetime);
+		// Length of additions text
+		$len = strlen($build->additions) + 1;
+		// Padding formula to apply in order to align deletions in all rows
+		$padding = (8 - $len) * 7;
+		// Formatted checksum
+		$checksum = !is_null($build->checksum) ? "<span style=\"font-size=10px; border-bottom: 1px dotted #3198ff;\" title=\"{$build->checksum}\">sha256</span>" : NULL;
 
-			$s_tablecontent .= "<div class=\"divTableRow\">
-			<div class=\"divTableCell\"><a href=\"{$c_github}/pull/{$row->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$row->pr}</a></div>
-			<div class=\"divTableCell\"><a href=\"https://github.com/{$row->author}\">{$row->author}</a></div>";
+		$s_tablecontent .= "<div class=\"divTableRow\">";
 
+		/* Cell 1: PR */
+		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$build->pr}</a>";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-			/* Lines of Code */
-			// Note - $row->changed_files > 0: There's a bug in GitHub API that makes some results return +0 -0
-			$s_tablecontent .= "<div class=\"divTableCell\">";
+		/* Cell 2: Author */
+		$cell = "<a href=\"https://github.com/{$build->author}\">{$build->author}</a>";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-			// Additions
-			$s_tablecontent .= "<span style='color:#4cd137;'>+";
-			$s_tablecontent .= (!is_null($row->additions) && $row->changed_files > 0) ? "{$row->additions}" : "<i>?</i>";
-			$s_tablecontent .= "</span>";
+		/* Cell 3: Lines of Code */
+		$cell = "<span style='color:#4cd137;'>+{$build->additions}</span>";
+		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$build->deletions}</span>";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-			// Length of additions text
-			$len = (!is_null($row->additions) && $row->changed_files > 0) ? strlen($row->additions)+1 : 2;
-			// Padding formula to apply in order to align deletions in all rows
-			$padding = (8 - $len)*7;
+		/* Cell 4: Diffdate and Fulldate */
+		$cell = "{$build->diffdate} ({$build->fulldate})";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-			// Deletions
-			$s_tablecontent .= "<span style='color:#e84118; padding-left: {$padding}px;'>-";
-			$s_tablecontent .= (!is_null($row->deletions) && $row->changed_files > 0) ? "{$row->deletions}" : "<i>?</i>";
-			$s_tablecontent .= "</span>";
+		/* Cell 5: URL, Version, Size (MB) and Checksum */
+		$cell = "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$build->version}</a>";
+		if (!is_null($build->sizeMB))	{ $cell .= "&nbsp;&nbsp;{$build->sizeMB}MB"; }
+		if (!is_null($checksum)) 			{ $cell .= "&nbsp;&nbsp;{$checksum}"; }
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-			$s_tablecontent .= "</div>";
+		$s_tablecontent .= "</div>";
 
-
-			$s_tablecontent .= "<div class=\"divTableCell\">{$diff} ({$fulldate})</div>";
-			if ($row->appveyor != "0") {
-				if (!is_null($row->checksum)) {
-					$checksum = "&nbsp;&nbsp;<span style='font-size=10px; border-bottom: 1px dotted #3198ff;' title=\"{$row->checksum}\">sha256</span>";
-				} else {
-					$checksum = '';
-				}
-
-				if (!is_null($row->size)) {
-					$size_mb = ((int)$row->size) / 1024 / 1024;
-					$size_mb = round($size_mb, 1);
-					$size = "&nbsp;&nbsp;({$size_mb}MB)";
-				} else {
-					$size = '';
-				}
-
-				// All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
-				if (strtotime($row->merge_datetime) > 1528416000) {
-					$url = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$row->commit}/{$row->filename}";
-				} else {
-					$url = "{$c_appveyor}{$row->appveyor}/artifacts";
-				}
-
-				$s_tablecontent .= "<div class=\"divTableCell\"><a href=\"{$url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;".str_replace("1.0.", "0.0.0-", $row->appveyor)."</a>{$size}{$checksum}</div>";
-			} else {
-				$s_tablecontent .= "<div class=\"divTableCell\"><i>None</i></div>";
-			}
-			$s_tablecontent .= "</div>";
-		}
 	}
 
 	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
@@ -153,41 +121,27 @@ function getPagesCounter() {
 
 
 function getBuildsRSS() {
-	global $a_order, $currentPage, $c_appveyor, $get;
+	global $info, $builds;
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
-
-	$buildsQuery = mysqli_query($db, "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".(25*$currentPage-25).", 25; ");
-
-	mysqli_close($db);
-
-	if (!$buildsQuery) {
-		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
-	}
-
-	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-	$url = str_replace('&', '&amp;', $url);
+	if (!is_null($info)) { return $info; }
 
 	// Initialize string
 	$rssfeed = "";
 
-	if (mysqli_num_rows($buildsQuery) > 0) {
-		while ($row = mysqli_fetch_object($buildsQuery)) {
-
-			$diff = getDateDiff($row->merge_datetime);
-
+	foreach($builds as $build) {
 			$rssfeed .= "
-						<item>
-							<title><![CDATA[{$row->appveyor} (PR #{$row->pr})]]></title>
-							<link>{$c_appveyor}{$row->appveyor}/artifacts</link>
-							<guid>{$c_appveyor}{$row->appveyor}/artifacts</guid>
-							<description>Pull Request #{$row->pr} by {$row->author} was merged {$diff}.</description>
-							<pubDate>".date('r', strtotime($row->merge_datetime))."</pubDate>
-						</item>
-						";
-		}
+					<item>
+						<title><![CDATA[{$build->version} (PR #{$build->pr})]]></title>
+						<link>{$build->url}</link>
+						<guid>{$build->url}</guid>
+						<description>Pull Request #{$build->pr} by {$build->author} was merged {$build->diffdate}.</description>
+						<pubDate>".date('r', strtotime($build->merge))."</pubDate>
+					</item>
+			";
 	}
+
+	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+	$url = str_replace('&', '&amp;', $url);
 
 	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">

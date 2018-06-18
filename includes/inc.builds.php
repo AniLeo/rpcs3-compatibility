@@ -22,6 +22,7 @@
 // Calls for the file that contains the functions needed
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception("Compat: class.Builds.php is missing. Failed to include class.Builds.php");
+if (!@include_once(__DIR__."/../objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
 
 
 // Start: Microtime when page started loading
@@ -70,6 +71,21 @@ $buildsQuery = mysqli_query($db, $buildsCommand);
 // Disconnect from database
 prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
+
+// Check if query succeded and storing is required, stores messages for information printing
+prof_flag("Inc: Check Query Status");
+$info = NULL;
+if (!$buildsQuery)                            { $info = "Please try again. If this error persists, please contact the RPCS3 team."; }
+elseif (mysqli_num_rows($buildsQuery) === 0)  { $info = "No builds are listed yet."; }
+
+// Store builds in a WindowsBuild array if there are no errors
+if (is_null($info)) {
+  prof_flag("Inc: Store Builds in Array");
+  $builds = array();
+  while ($row = mysqli_fetch_object($buildsQuery)) {
+    $builds[] = new WindowsBuild($row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
+  }
+}
 
 
 // TODO: Cleanup
