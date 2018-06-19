@@ -48,8 +48,7 @@ function getTestedContents() {
 		return;
 	}
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	// Get all games in the database (ID + Title)
 	$a_games = array();

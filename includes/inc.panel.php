@@ -114,8 +114,7 @@ if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 
 
 function checkInvalidThreads() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$invalid = 0;
 
@@ -303,8 +302,7 @@ function compareThreads($update = false) {
 
 	set_time_limit(600);
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$a_status = array(
 	'Playable' => 5,
@@ -640,8 +638,7 @@ function getNewTests() {
 
 	global $a_color, $a_title;
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$a_status = array(
 	'Playable' => 5,

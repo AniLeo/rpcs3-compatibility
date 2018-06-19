@@ -48,8 +48,7 @@ $a_order = array(
 
 // Connect to database
 prof_flag("Inc: Database Connection");
-$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-mysqli_set_charset($db, 'utf8');
+$db = getDatabase();
 
 // Obtain values from get
 prof_flag("Inc: Obtain GET");

@@ -25,6 +25,21 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
 
 
 /**
+	* getDatabase
+	*
+	* Establishes a database connection and sets utf8mb4 charset
+	*
+	* @return object Connection to MySQL Server
+	*/
+function getDatabase() {
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+	if (!$db) return null;
+	mysqli_set_charset($db, 'utf8mb4');
+	return $db;
+}
+
+
+/**
 	* getGameMedia
 	*
 	* Obtains Game Media by checking Game ID's first character.
@@ -323,8 +338,7 @@ function validateGet($db = null) {
 function generateQuery($get, $db = null) {
 
 	if ($db == null) {
-		$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-		mysqli_set_charset($db, 'utf8');
+		$db = getDatabase();
 		$close = true;
 	} else {
 		$close = false;
@@ -403,11 +417,10 @@ function countGames($db = null, $query = '') {
 	global $get, $a_title;
 
 	if ($db == null) {
-		$db = @mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-		if (!$db) {
+		$db = getDatabase();
+		if (is_null($db)) {
 			return 0; // If there's no database connection, return 0 games
 		}
-		mysqli_set_charset($db, 'utf8');
 		$close = true;
 	} else {
 		$close = false;
@@ -654,11 +667,10 @@ function isWhitelisted($db = null) {
 	global $c_cloudflare;
 
 	if ($db == null) {
-		$db = @mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-		if (!$db) {
+		$db = getDatabase();
+		if (is_null($db)) {
 			return false; // If there's no database connection, just assume user isn't whitelisted
 		}
-		mysqli_set_charset($db, 'utf8');
 		$close = true;
 	} else {
 		$close = false;

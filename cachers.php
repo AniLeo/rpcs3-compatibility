@@ -25,8 +25,7 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 function cacheWindowsBuilds($full = false) {
 	global $c_github;
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	// This takes a while to do...
 	set_time_limit(60*60*3); // 3 hours
@@ -173,8 +172,7 @@ function cacheWindowsBuilds($full = false) {
 
 
 function cacheInitials() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$theQuery = mysqli_query($db, "SELECT game_title FROM game_list;");
 
@@ -275,8 +273,7 @@ function cacheInitials() {
 function cacheLibraryStatistics() {
 	global $a_filter;
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	// Get all games in the database (ID + Title)
 	$a_games = array();
@@ -345,8 +342,7 @@ function cacheStatusModule($count = true) {
 
 
 function cacheCommitCache() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$a_cache = array();
 
@@ -370,8 +366,7 @@ function cacheCommitCache() {
 
 
 function cacheStatusCount() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$a_cache = array();
 

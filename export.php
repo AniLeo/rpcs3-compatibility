@@ -26,8 +26,7 @@ if (!@include_once('functions.php')) throw new Exception("Compat: functions.php 
 function exportDatabase() {
 	global $c_maintenance;
 
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$q_export = mysqli_query($db, "SELECT *
 	FROM game_list; ");

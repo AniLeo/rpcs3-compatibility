@@ -54,8 +54,7 @@ $get = validateGet();
 
 // Connect to database
 prof_flag("Inc: Database Connection");
-$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-mysqli_set_charset($db, 'utf8');
+$db = getDatabase();
 
 // Calculate pages and current page
 prof_flag("Inc: Count Pages");

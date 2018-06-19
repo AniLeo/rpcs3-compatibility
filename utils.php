@@ -26,8 +26,7 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 /* Utilities for the main website */
 
 function getLatestWindowsBuild() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$query = mysqli_query($db, "SELECT * FROM builds_windows WHERE type = 'branch' ORDER BY merge_datetime DESC LIMIT 1;");
 	$row = mysqli_fetch_object($query);
@@ -51,8 +50,7 @@ function getLatestWindowsBuild() {
 
 /* Note: Linux builds scripts aren't open-sourced */
 function getLatestLinuxBuild() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	mysqli_set_charset($db, 'utf8');
+	$db = getDatabase();
 
 	$query = mysqli_query($db, "SELECT * FROM builds_linux ORDER BY datetime DESC LIMIT 1;");
 	$row = mysqli_fetch_object($query);
