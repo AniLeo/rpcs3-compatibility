@@ -133,11 +133,10 @@ function getHistoryContent() {
 	// Initialize string
 	$s_content = "";
 
-	// Note: The GROUP BY causes the first new_date to be shown instead of the last new_date
-	// of that entry (for tests in the same month in different regions of same game).
-	// Maybe handle this later somehow.
 	if ($get['m'] == "c" || $get['m'] == "") {
-		$cQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history
+		$cQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date,
+		game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
+		game_title, alternative_title, game_history.* FROM game_history
 		LEFT JOIN game_list ON
 		game_history.gid_EU = game_list.gid_EU OR
 		game_history.gid_US = game_list.gid_US OR
@@ -147,7 +146,6 @@ function getHistoryContent() {
 		game_history.gid_HK = game_list.gid_HK
 		WHERE old_status IS NOT NULL
 		{$dateQuery}
-		GROUP BY game_list.key
 		ORDER BY new_status ASC, -old_status DESC, new_date DESC, game_title ASC; ");
 
 		if (!$cQuery) {
@@ -208,7 +206,9 @@ function getHistoryContent() {
 	}
 
 	if ($get['m'] == "n" || $get['m'] == "") {
-		$nQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history
+		$nQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date,
+		game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
+		game_title, alternative_title, game_history.* FROM game_history
 		LEFT JOIN game_list ON
 		game_history.gid_EU = game_list.gid_EU OR
 		game_history.gid_US = game_list.gid_US OR
@@ -218,7 +218,6 @@ function getHistoryContent() {
 		game_history.gid_HK = game_list.gid_HK
 		WHERE old_status IS NULL
 		{$dateQuery}
-		GROUP BY game_list.key
 		ORDER BY new_status ASC, new_date DESC, game_title ASC; ");
 
 		if (!$nQuery) {
@@ -297,7 +296,9 @@ function getHistoryRSS(){
 		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 	}
 
-	$rssCmd = "SELECT id, old_status, old_date, new_status, new_date, game_list.* FROM game_history
+	$rssCmd = "SELECT id, old_status, old_date, new_status, new_date,
+	game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
+	game_title, alternative_title, game_history.* FROM game_history
 	LEFT JOIN game_list ON
 	game_history.gid_EU = game_list.gid_EU OR
 	game_history.gid_US = game_list.gid_US OR
@@ -312,7 +313,6 @@ function getHistoryRSS(){
 		$rssCmd .= " AND old_status IS NULL ";
 	}
 	$rssCmd .= " {$dateQuery}
-	GROUP BY game_list.key
 	ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
 
 	$rssQuery = mysqli_query($db, $rssCmd);
