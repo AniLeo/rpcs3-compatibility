@@ -80,7 +80,7 @@ class WindowsBuild {
     $this->diffdate = getDateDiff($this->merge);
 
     // All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
-    $this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$this->version}/artifacts";
+    $this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
 
   }
 
