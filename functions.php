@@ -241,8 +241,7 @@ function validateGet($db = null) {
 	// api - Global
 
 	// Set default values
-	$get['r'] = $a_pageresults[$c_pageresults];
-	$get['rID'] = $c_pageresults;
+	$get['r'] = $c_pageresults;
 	$get['s'] = 0; // All
 	$get['o'] = '';
 	$get['c'] = '';
@@ -259,9 +258,8 @@ function validateGet($db = null) {
 	}
 
 	// Results per page
-	if (isset($_GET['r']) && array_key_exists($_GET['r'], $a_pageresults)) {
-		$get['r'] = $a_pageresults[$_GET['r']];
-		$get['rID'] = $_GET['r'];
+	if (isset($_GET['r']) && in_array($_GET['r'], $a_pageresults)) {
+		$get['r'] = $_GET['r'];
 	}
 
 	// Status
@@ -694,15 +692,13 @@ function isWhitelisted($db = null) {
 
 
 function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
-	global $get, $scount, $g_pageresults;
-
-	// TODO: Cleanup the way results per page works
+	global $get, $scount, $c_pageresults;
 
 	// Initialize string
 	$combined = "";
 
 	// Combined search: results per page
-	if ($r) {$combined .= $g_pageresults;}
+	if ($get['r'] != $c_pageresults && $r) {$combined .= "r={$get['r']}&";}
 	// Combined search: sort by status
 	if ($get['s'] != 0 && $s) {$combined .= "s={$get['s']}&";}
 	// Combined search: search by character
@@ -878,7 +874,26 @@ function storeResults(&$a_results, $query, &$a_cache) {
 
 }
 
+
 function dumpVar($var) {
 	echo "<br>";
 	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
+}
+
+
+function resultsPerPage($combinedSearch, $extra = "") {
+	global $a_pageresults, $get;
+
+	foreach ($a_pageresults as $pageresult) {
+		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}r={$pageresult}\">";
+
+		// If the current selected item, highlight with bold
+		$s_pageresults .= ($get['r'] == $pageresult) ? highlightText($pageresult) : $pageresult;
+
+		$s_pageresults .= "</a>";
+
+		// If not the last value then add a separator for the next value
+		if ($pageresult !== end($a_pageresults)) { $s_pageresults .= "&nbsp;•&nbsp;"; }
+	}
+	return $s_pageresults;
 }

@@ -265,20 +265,8 @@ if ($needsSorting && ($a_order == '' || $a_order == '3a')) {
 
 
 
-
 // Close MySQL connection.
 prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
 
 prof_flag("--- / ---");
-
-
-/*****************************************************************************************************************************/
-
-/*******************************
- * General: Combined Search    *
- *   Results per Page          *
- *******************************/
-if (in_array($get['r'], $a_pageresults)) {
-	$g_pageresults = ($get['r'] == $a_pageresults[$c_pageresults]) ? '' : "r={$get['rID']}&";
-}

@@ -33,29 +33,18 @@ define('gh_secret', 'OAUTH_SECRET');
 $c_github = 'https://github.com/RPCS3/rpcs3';
 $c_forum = 'https://forums.rpcs3.net';
 $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
-$c_pageresults = 3; // Default results per page (50)
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
 $c_cloudflare = true; // Use cloudflare
 
+// Default value for results per page
+// Builds: 25 | Compat and Library = 50;
+if (isset($_GET['b']))	{ $c_pageresults = 25; }
+else										{ $c_pageresults = 50; }
 
-// Results per page
-if (isset($_GET['l'])) {
-	$a_pageresults = array(
-	1 => 25,
-	2 => 50,
-	3 => 100,
-	4 => 250
-	);
-} else {
-	$a_pageresults = array(
-	1 => 15,
-	2 => 25,
-	3 => 50,
-	4 => 100
-	);
-}
+// Allowed values for results per page
+$a_pageresults = array(15, 25, 50, 100);
 
 // Status titles
 $a_title = array(

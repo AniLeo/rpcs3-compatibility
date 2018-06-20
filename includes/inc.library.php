@@ -26,12 +26,6 @@ if (!@include_once(__DIR__."/../classes/class.Library.php")) throw new Exception
 $start = getTime();
 
 
-if (in_array($get['r'], $a_pageresults)) {
-	if ($get['r'] == $a_pageresults[$c_pageresults]) { $g_pageresults = ''; }
-	else { $g_pageresults = "r={$get['rID']}&"; }
-}
-
-
 // Count number of entries for page calculation and cache results on array
 $entries = 1;
 $a_db = array();

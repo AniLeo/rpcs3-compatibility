@@ -46,9 +46,6 @@ $a_order = array(
 '4d' => 'ORDER BY merge_datetime DESC'
 );
 
-// Override default page results to ID:2 (25) as default is 50
-$c_pageresults = 2;
-
 // Obtain values from get
 $get = validateGet();
 

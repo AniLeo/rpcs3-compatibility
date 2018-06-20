@@ -23,6 +23,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class Compat {
 
+
 /***********
  * Sort By *
  ***********/
@@ -53,22 +54,7 @@ function getSortBy() {
  * Results per page *
  ********************/
 function getResultsPerPage() {
-	global $a_pageresults, $s_pageresults, $get;
-
-	foreach (range(min(array_keys($a_pageresults))+1, max(array_keys($a_pageresults))) as $i) {
-		$s_pageresults .= "<a href=\"?";
-		$s_pageresults .= combinedSearch(false, true, true, true, false, true, true, true);
-		$s_pageresults .= "r={$i}\">";
-
-		// If the current selected status, highlight with bold
-		$s_pageresults .= ($get['r'] == $a_pageresults[$i]) ? highlightText($a_pageresults[$i]) : $a_pageresults[$i];
-
-		$s_pageresults .= "</a>";
-
-		// If not the last value then add a separator for the next value
-		if ($i < max(array_keys($a_pageresults))) { $s_pageresults .= "&nbsp;•&nbsp;"; }
-	}
-	return $s_pageresults;
+	return resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
 }
 
 
