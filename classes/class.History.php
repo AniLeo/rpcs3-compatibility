@@ -23,6 +23,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class History {
 
+
 function getHistoryDescription() {
 	global $get, $a_histdates, $a_currenthist;
 
@@ -44,20 +45,29 @@ function getHistoryDescription() {
 function getHistoryMonths() {
 	global $get, $a_histdates, $a_currenthist;
 
-	$s_months = "<strong>Month:&nbsp;</strong>";
+	$s_months = "<strong>Month Selection</strong><br>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
+
+	$watchdog = '';
 
 	foreach($a_histdates as $k => $v) {
 
 		$month = monthNumberToName(substr($k, -2));
 		$year  = substr($k, 0, 4);
 
-		$m = "<a href=\"?h={$k}\">{$month} {$year}</a>";
+		if ($watchdog != $year) {
+			if ($watchdog != '') { $s_months .= "<br>"; }
+			$s_months .= "<strong>{$year}:</strong>&nbsp;";
+			$watchdog = $year;
+		}
+
+		$m = "<a href=\"?h={$k}\">{$month}</a>";
 
 		$s_months .= ($get['h'] == $k) ? highlightText($m) : $m;
-		$s_months .= $spacer;
-
+		if ($month != "December" && $v != end($a_histdates)) { $s_months .= $spacer; }
 	}
+
+	$s_months .= "<br><strong>Current:</strong>&nbsp;";
 
 	$month = monthNumberToName(substr($a_currenthist[0], -2));
 	$year = substr($a_currenthist[0], 0, 4);
