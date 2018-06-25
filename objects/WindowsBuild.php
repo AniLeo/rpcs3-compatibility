@@ -84,4 +84,18 @@ class WindowsBuild {
 
   }
 
+
+  public static function rowToBuild($row) {
+    return new WindowsBuild($row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
+  }
+
+  public static function getLast() {
+    $db = getDatabase();
+    $query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+    if (mysqli_num_rows($query) === 0) return null;
+    $row = mysqli_fetch_object($query);
+
+    return self::rowToBuild($row);
+  }
+
 }

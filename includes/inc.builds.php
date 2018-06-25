@@ -78,7 +78,7 @@ if (is_null($info)) {
   prof_flag("Inc: Store Builds in Array");
   $builds = array();
   while ($row = mysqli_fetch_object($buildsQuery)) {
-    $builds[] = new WindowsBuild($row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
+    $builds[] = WindowsBuild::rowToBuild($row);
   }
 }
 

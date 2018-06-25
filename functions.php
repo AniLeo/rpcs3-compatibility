@@ -884,6 +884,8 @@ function dumpVar($var) {
 function resultsPerPage($combinedSearch, $extra = "") {
 	global $a_pageresults, $get;
 
+	$s_pageresults = "";
+
 	foreach ($a_pageresults as $pageresult) {
 		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}r={$pageresult}\">";
 

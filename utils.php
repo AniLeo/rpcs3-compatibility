@@ -20,34 +20,12 @@
 */
 
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-
+if(!@include_once("objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
 
 /* Utilities for the main website */
 
-function getLatestWindowsBuild() {
-	$db = getDatabase();
 
-	$query = mysqli_query($db, "SELECT * FROM builds_windows WHERE type = 'branch' ORDER BY merge_datetime DESC LIMIT 1;");
-	$row = mysqli_fetch_object($query);
-
-	mysqli_close($db);
-
-	$win = array($row->appveyor, date_format(date_create($row->merge_datetime), "Y-m-d"));
-
-	$ver = "v{$win[0]} Alpha [{$win[1]}]";
-	$url = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$row->commit}/{$row->filename}";
-
-	$size = ((int)$row->size)/1024/1024;
-	$size = round($size, 1);
-
-	$checksum = is_null($row->checksum) ? 'None' : $row->checksum;
-
-	// 0 - URL, 1 - Version Name, 2 - Author, 3 - PR, 4 - Checksum, 5 - File Size (MB), 6 - Commit
-	return array($url, $ver, $row->author, $row->pr, $checksum, $size, $row->commit);
-}
-
-
-/* Note: Linux builds scripts aren't open-sourced */
+// Note: Linux builds scripts aren't open-sourced
 function getLatestLinuxBuild() {
 	$db = getDatabase();
 
