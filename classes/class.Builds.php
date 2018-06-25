@@ -106,7 +106,7 @@ public static function getPagesCounter() {
 
 
 public static function getBuildsRSS() {
-	global $info, $builds;
+	global $info, $builds, $c_github;
 
 	if (!is_null($info)) { return $info; }
 
@@ -114,15 +114,20 @@ public static function getBuildsRSS() {
 	$rssfeed = "";
 
 	foreach($builds as $build) {
-			$rssfeed .= "
-					<item>
-						<title><![CDATA[{$build->version} (PR #{$build->pr})]]></title>
-						<link>{$build->url}</link>
-						<guid>{$build->url}</guid>
-						<description>Pull Request #{$build->pr} by {$build->author} was merged {$build->diffdate}.</description>
-						<pubDate>".date('r', strtotime($build->merge))."</pubDate>
-					</item>
-			";
+
+		$description = "";
+		if (isset($build->checksum)) 	{ $description .= "<br>Checksum: {$build->checksum}"; }
+		if (isset($build->sizeMB)) 		{ $description .= "<br>Size: {$build->sizeMB} MB"; }
+
+		$rssfeed .= "
+				<item>
+					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
+					<link>{$build->url}</link>
+					<guid>{$build->url}</guid>
+					<description><![CDATA[<a href=\"{$c_github}/pull/{$build->pr}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}.{$description}]]></description>
+					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
+				</item>
+		";
 	}
 
 	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";

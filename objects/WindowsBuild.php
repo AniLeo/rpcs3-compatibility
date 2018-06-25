@@ -94,6 +94,7 @@ class WindowsBuild {
     $query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
     if (mysqli_num_rows($query) === 0) return null;
     $row = mysqli_fetch_object($query);
+    mysqli_close($db);
 
     return self::rowToBuild($row);
   }

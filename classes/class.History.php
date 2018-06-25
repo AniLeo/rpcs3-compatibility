@@ -165,7 +165,7 @@ public static function getHistoryContent() {
 		} else {
 
 			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= $this->getHistoryHeaders();
+			$s_content .= self::getHistoryHeaders();
 
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($cQuery)) {
@@ -238,7 +238,7 @@ public static function getHistoryContent() {
 
 			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
 			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= $this->getHistoryHeaders(false);
+			$s_content .= self::getHistoryHeaders(false);
 
 			$s_content .= "<div class='divTableBody'>";
 			while($row = mysqli_fetch_object($nQuery)) {
