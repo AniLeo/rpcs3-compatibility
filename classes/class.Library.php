@@ -24,12 +24,12 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 class Library {
 
 
-function getResultsPerPage() {
+public static function getResultsPerPage() {
 	return resultsPerPage(combinedSearch(false, false, false, false, true, true, false, false), "l&");
 }
 
 
-function getTestedContents() {
+public static function getTestedContents() {
 	global $get, $pages, $currentPage, $a_db, $c_github;
 
 	if (!$a_db) {
@@ -149,7 +149,7 @@ function getTestedContents() {
 }
 
 
-function getPagesCounter() {
+public static function getPagesCounter() {
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, false, false, false, true, true, false, false);
@@ -158,7 +158,7 @@ function getPagesCounter() {
 }
 
 
-function getGameCount($type) {
+public static function getGameCount($type) {
 	// Only allow access to all, tested and untested files
 	if (!($type == 'all' || $type == 'tested' || $type == 'untested')) {
 		return 0;

@@ -24,7 +24,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 class History {
 
 
-function getHistoryDescription() {
+public static function getHistoryDescription() {
 	global $get, $a_histdates, $a_currenthist;
 
 	$s_desc = "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
@@ -42,7 +42,7 @@ function getHistoryDescription() {
 }
 
 
-function getHistoryMonths() {
+public static function getHistoryMonths() {
 	global $get, $a_histdates, $a_currenthist;
 
 	$s_months = "<strong>Month Selection</strong><br>";
@@ -80,7 +80,7 @@ function getHistoryMonths() {
 }
 
 
-function getHistoryOptions() {
+public static function getHistoryOptions() {
 	global $get, $a_currenthist;
 
 	if ($get['h'] != $a_currenthist[0]) { $h = "={$get['h']}"; }
@@ -104,7 +104,7 @@ function getHistoryOptions() {
 }
 
 
-function getHistoryHeaders($full = true) {
+public static function getHistoryHeaders($full = true) {
 	if ($full) {
 		$headers = array(
 			'Game Regions' => 0,
@@ -127,7 +127,7 @@ function getHistoryHeaders($full = true) {
 }
 
 
-function getHistoryContent() {
+public static function getHistoryContent() {
 	global $get, $a_histdates, $a_currenthist;
 
 	$db = getDatabase();
@@ -293,7 +293,7 @@ function getHistoryContent() {
 }
 
 
-function getHistoryRSS(){
+public static function getHistoryRSS(){
 	global $c_forum, $get, $a_histdates, $a_currenthist;
 
 	$db = getDatabase();

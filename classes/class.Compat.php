@@ -27,7 +27,7 @@ class Compat {
 /***********
  * Sort By *
  ***********/
-function getSortBy() {
+public static function getSortBy() {
 	global $a_title, $a_desc, $scount, $get;
 
 	// Initialize string
@@ -53,7 +53,7 @@ function getSortBy() {
 /********************
  * Results per page *
  ********************/
-function getResultsPerPage() {
+public static function getResultsPerPage() {
 	return resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
 }
 
@@ -61,7 +61,7 @@ function getResultsPerPage() {
 /***********************************
  * Clickable URL: Character search *
  **********************************/
-function getCharSearch() {
+public static function getCharSearch() {
 	global $get;
 
 	$a_chars[""] = "All";
@@ -88,7 +88,7 @@ function getCharSearch() {
 }
 
 
-function getTableMessages() {
+public static function getTableMessages() {
 	global $q_main, $l_title, $l_orig, $get;
 
 	// Initialize string
@@ -115,7 +115,7 @@ function getTableMessages() {
 /*****************
  * Table Headers *
  *****************/
-function getTableHeaders() {
+public static function getTableHeaders() {
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);
 
 	$headers = array(
@@ -132,7 +132,7 @@ function getTableHeaders() {
 /*****************
  * Table Content *
  *****************/
-function getTableContent() {
+public static function getTableContent() {
 	global $a_results, $a_regions;
 
 	// Initialize string
@@ -183,7 +183,7 @@ function getTableContent() {
 /*****************
  * Pages Counter *
  *****************/
-function getPagesCounter() {
+public static function getPagesCounter() {
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
@@ -209,7 +209,7 @@ gameID
 		yyyy-mm-dd
 */
 
-function APIv1() {
+public static function APIv1() {
 	global $q_main, $c_maintenance, $a_results, $l_title;
 
 	if ($c_maintenance) {

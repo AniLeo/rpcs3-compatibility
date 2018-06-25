@@ -19,7 +19,6 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-if(!@include_once("config.php")) throw new Exception("Compat: config.php is missing. Failed to include config.php");
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 

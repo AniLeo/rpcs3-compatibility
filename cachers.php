@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+// Calls for the file that contains the needed functions
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
@@ -112,7 +113,7 @@ function cacheWindowsBuilds($full = false) {
 
 						$info_release = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
 
-						// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next include_once
+						// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next one
 						if (isset($info_release->message)) {
 							$a++;
 							continue;

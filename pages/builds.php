@@ -19,7 +19,6 @@
 -->
 <?php
 if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
-$Builds = new Builds();	// Initialize class
 ?>
 <div class="page-con-container">
 	<div class="page-in-container">
@@ -40,7 +39,7 @@ $Builds = new Builds();	// Initialize class
 			<div id="builds-hdr-left">
 				<p>
 					<?php prof_flag("Page: Get Results Per Page"); ?>
-					Results per page <?php echo $Builds->getResultsPerPage(); ?>
+					Results per page <?php echo Builds::getResultsPerPage(); ?>
 				</p>
 			</div>
 			<!--
@@ -52,13 +51,13 @@ $Builds = new Builds();	// Initialize class
 			-->
 		</div>
 
-		<?php echo $Builds->getTableMessages(); ?>
+		<?php echo Builds::getTableMessages(); ?>
 		<div class='divTable builds-table'>
 			<?php
 				prof_flag("Page: Display Table Headers");
-				echo $Builds->getTableHeaders();
+				echo Builds::getTableHeaders();
 				prof_flag("Page: Display Table Content");
-				echo $Builds->getTableContent();
+				echo Builds::getTableContent();
 			?>
 		</div>
 
@@ -66,7 +65,7 @@ $Builds = new Builds();	// Initialize class
 			<p class="div-pagecounter">
 				<?php
 					prof_flag("Page: Pages Counter");
-					echo $Builds->getPagesCounter();
+					echo Builds::getPagesCounter();
 				?>
 			</p>
 		</div>

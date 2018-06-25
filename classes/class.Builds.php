@@ -25,18 +25,18 @@ if (!@include_once(__DIR__."/../objects/WindowsBuild.php")) throw new Exception(
 class Builds {
 
 
-function getResultsPerPage() {
+public static function getResultsPerPage() {
 	return resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true), "b&");
 }
 
 
-function getTableMessages() {
+public static function getTableMessages() {
 	global $info;
 	if (!is_null($info)) { return "<p class=\"compat-tx1-criteria\">{$info}</p>"; }
 }
 
 
-function getTableHeaders() {
+public static function getTableHeaders() {
 	$headers = array(
 		'Pull Request' => 1,
 		'Author' => 2,
@@ -48,7 +48,7 @@ function getTableHeaders() {
 }
 
 
-function getTableContent() {
+public static function getTableContent() {
 	global $c_github, $builds;
 
 	// Initialize string
@@ -96,7 +96,7 @@ function getTableContent() {
 }
 
 
-function getPagesCounter() {
+public static function getPagesCounter() {
 	global $pages, $currentPage, $get;
 
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
@@ -105,7 +105,7 @@ function getPagesCounter() {
 }
 
 
-function getBuildsRSS() {
+public static function getBuildsRSS() {
 	global $info, $builds;
 
 	if (!is_null($info)) { return $info; }
