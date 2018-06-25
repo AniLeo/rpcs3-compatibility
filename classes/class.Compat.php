@@ -33,13 +33,13 @@ public static function getSortBy() {
 	// Initialize string
 	$s_sortby = "";
 
-	foreach (range(min(array_keys($a_title)), max(array_keys($a_title))) as $i) {
+	foreach ($a_title as $i => $title) {
 		// Displays status description when hovered on
 		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?";
 		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
 		$s_sortby .= "s={$i}\">";
 
-		$temp = "{$a_title[$i]}&nbsp;({$scount[1][$i]})";
+		$temp = "{$title} ({$scount[1][$i]})";
 
 		// If the current selected status, highlight with bold
 		$s_sortby .= ($get['s'] == $i) ? highlightText($temp) : $temp;

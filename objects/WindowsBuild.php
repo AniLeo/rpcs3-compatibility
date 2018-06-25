@@ -79,8 +79,11 @@ class WindowsBuild {
     $this->fulldate = date_format(date_create($this->merge), "Y-m-d");
     $this->diffdate = getDateDiff($this->merge);
 
-    // All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
-    $this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
+    // AppVeyor builds expire after 6 months
+    if (strtotime($this->merge) + 15640418 > time() || strtotime($this->merge) > 1528416000) {
+      // All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
+      $this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
+    }
 
   }
 

@@ -83,7 +83,7 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
-		$cell = "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$build->version}</a>";
+		$cell = isset($build->url) ? "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$build->version}</a>" : $build->version;
 		if (!is_null($build->sizeMB))	{ $cell .= "&nbsp;&nbsp;{$build->sizeMB}MB"; }
 		if (!is_null($checksum)) 			{ $cell .= "&nbsp;&nbsp;{$checksum}"; }
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
@@ -119,11 +119,20 @@ public static function getBuildsRSS() {
 		if (isset($build->checksum)) 	{ $description .= "<br>Checksum: {$build->checksum}"; }
 		if (isset($build->sizeMB)) 		{ $description .= "<br>Size: {$build->sizeMB} MB"; }
 
+		$link = "";
+		if (!is_null($build->url)) {
+			$link = "
+					<link>{$build->url}</link>
+					<guid>{$build->url}</guid>";
+		} else {
+			$link = "
+					<link>{$c_github}/pull/{$build->pr}</link>
+					<guid>{$c_github}/pull/{$build->pr}</guid>";
+		}
+
 		$rssfeed .= "
 				<item>
-					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
-					<link>{$build->url}</link>
-					<guid>{$build->url}</guid>
+					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>{$link}
 					<description><![CDATA[<a href=\"{$c_github}/pull/{$build->pr}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}.{$description}]]></description>
 					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
 				</item>
