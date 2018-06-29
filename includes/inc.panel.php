@@ -322,8 +322,8 @@ function compareThreads($update = false) {
 	);
 
 	// Timestamp of last list update
-	// 1512086400 - 1st December 2017
-	$timestamp = '1512086400';
+	// 1527811200 - 1st June 2018
+	$timestamp = '1527811200';
 
 	// Cache commits
 	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
@@ -354,15 +354,17 @@ function compareThreads($update = false) {
 
 	while ($row = mysqli_fetch_object($q_threads)) {
 
-		if (!($gid = get_string_between($row->subject, '[', ']'))) {
+		// TODO: Some games use [] on title... :facepalm:
+		// Example: UNDER NIGHT IN-BIRTH Exe:Late[st]
+		// if (!($gid = get_string_between($row->subject, '[', ']'))) {
 
-			// If [GameID] is not present on thread title
-			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") incorrectly formatted.<br>";
+		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
+		$gid = substr($row->subject, -10, 9);
 
-		} elseif (strlen($gid) != 9 || !is_numeric(substr($gid, 4, 5)) || !array_key_exists(substr($gid, 2, 1), $a_regions)) {
+		if (!ctype_alnum($gid) || strlen($gid) != 9 || !is_numeric(substr($gid, 4, 5)) || !array_key_exists(substr($gid, 2, 1), $a_regions)) {
 
 			// If the GameID is invalid
-			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") incorrectly formatted.<br>";
+			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br>";
 
 		} else {
 
