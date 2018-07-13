@@ -44,7 +44,7 @@ if (isset($_GET['b']))	{ $c_pageresults = 25; }
 else										{ $c_pageresults = 50; }
 
 // Allowed values for results per page
-$a_pageresults = array(15, 25, 50, 100);
+$a_pageresults = array(25, 50, 100, 200);
 
 // Status titles
 $a_title = array(
