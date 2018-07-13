@@ -135,11 +135,20 @@ function cacheWindowsBuilds($full = false) {
 						$size = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]))*1024*1024;
 						$filename = $info_release->assets[0]->name;
 
+						$aid = cacheContributor($author);
+
+						// Checking author information failed
+						// TODO: This should probably be logged, as other API call fails
+						if ($aid == 0) {
+							$a++;
+							continue;
+						}
+
 						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
 							$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
 							`commit` = '".mysqli_real_escape_string($db, $commit)."',
 							`type` = '{$type}',
-							`author` = '".mysqli_real_escape_string($db, $author)."',
+							`author` = '".mysqli_real_escape_string($db, $aid)."',
 							`start_datetime` = '{$start_datetime}',
 							`merge_datetime` = '{$merge_datetime}',
 							`appveyor` = '{$version}',
@@ -153,7 +162,7 @@ function cacheWindowsBuilds($full = false) {
 						} else {
 							$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows`
 								(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `filename`, `additions`, `deletions`, `changed_files`, `size`, `checksum`)
-								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $author)."', '{$start_datetime}', '{$merge_datetime}',
+								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
 								'{$version}', '".mysqli_real_escape_string($db, $filename)."', '{$additions}', '{$deletions}', '{$changed_files}',
 								'".mysqli_real_escape_string($db, $size)."', '".mysqli_real_escape_string($db, $checksum)."'); ");
 						}
@@ -388,4 +397,31 @@ function cacheStatusCount() {
 	fclose($f_count);
 
 	mysqli_close($db);
+}
+
+
+function cacheContributor($username) {
+	$db = getDatabase();
+
+	$info_contributor = getJSON("https://api.github.com/users/{$username}");
+
+	// If message is set, API call did not go well. Ignore caching.
+	if (!isset($info_contributor->message)) {
+
+		$aid = $info_contributor->id;
+		$q_contributor = mysqli_query($db, "SELECT * FROM contributors WHERE id = ".mysqli_real_escape_string($db, $aid)." LIMIT 1; ");
+
+		if (mysqli_num_rows($q_contributor) === 0) {
+			// Contributor not yet cached on contributors table.
+			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`) VALUES (".mysqli_real_escape_string($db, $aid).", '".mysqli_real_escape_string($db, $username)."');");
+		} elseif (mysqli_fetch_object($q_contributor)->username != $username) {
+			// Contributor on contributors table but changed GitHub username.
+			mysqli_query($db, "UPDATE `contributors` SET `username` = '".mysqli_real_escape_string($db, $username)."' WHERE `id` = ".mysqli_real_escape_string($db, $aid).";");
+		}
+
+	}
+
+	mysqli_close($db);
+
+	return !isset($info_contributor->message) ? $aid : 0;
 }

@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `builds_windows`;
 CREATE TABLE `builds_windows` (
   `pr` int(11) NOT NULL,
   `commit` varchar(64) NOT NULL,
-  `author` varchar(128) NOT NULL,
+  `author` int(11) NOT NULL,
   `start_datetime` datetime NOT NULL,
   `merge_datetime` datetime NOT NULL,
   `appveyor` varchar(64) NOT NULL,
@@ -83,3 +83,13 @@ CREATE TABLE `game_history` (
   `new_date` date NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for `contributors`
+-- ----------------------------
+DROP TABLE IF EXISTS `contributors`;
+CREATE TABLE `contributors` (
+  `id` int(11) NOT NULL,
+  `username` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

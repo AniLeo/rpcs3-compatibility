@@ -43,6 +43,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 						<li><a href="?a=updateCountCache">Update Count Cache</a></li>
 						<li><a href="?a=compareThreads">Compare Threads</a></li>
 						<li><a href="?a=updateCompatibility">Update Compatibility</a></li>
+						<li><a href="?a=recacheContributors">Recache Contributors</a></li>
 						<!-- <li><a href="?a=getNewTests">Get New Tests</a></li> -->
 					</ul>
 				</div>

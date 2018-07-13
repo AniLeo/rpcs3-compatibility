@@ -101,6 +101,13 @@ if ($get['a'] == 'updateCountCache') {
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status count cache (".round(($finishA - $startA), 4)."s).</p>";
 }
 
+if ($get['a'] == 'recacheContributors') {
+	$startA = getTime();
+	recacheContributors();
+	$finishA = getTime();
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Recached contributors cache (".round(($finishA - $startA), 4)."s).</p>";
+}
+
 
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 	$startA = getTime();
@@ -645,6 +652,19 @@ function compareThreads($update = false) {
 	}
 
 	echo "</p>";
+
+	mysqli_close($db);
+}
+
+
+function recacheContributors() {
+	$db = getDatabase();
+
+	$q_contributors = mysqli_query($db, "SELECT DISTINCT `author` FROM builds_windows;");
+
+	while ($row = mysqli_fetch_object($q_contributors)) {
+		cacheContributor($row->author);
+	}
 
 	mysqli_close($db);
 }

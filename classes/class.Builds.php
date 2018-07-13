@@ -70,7 +70,7 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 2: Author */
-		$cell = "<a href=\"https://github.com/{$build->author}\">{$build->author}</a>";
+		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">&nbsp;&nbsp;{$build->author}</a>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */

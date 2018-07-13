@@ -26,6 +26,7 @@ class WindowsBuild {
   public $pr;         // Int
   public $commit;     // String (40)
   public $author;     // String
+  public $authorID;   // Int
   public $merge;      // Datetime
   public $version;    // String
   public $additions;  // Int
@@ -41,13 +42,19 @@ class WindowsBuild {
   public $url;        // String
 
 
-  function __construct($pr, $commit, $author, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
+  function __construct($pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
 
     global $c_appveyor;
 
+    $db = getDatabase();
+
     $this->pr = (Int) $pr;
     $this->commit = (String) $commit;
-    $this->author = (String) $author;
+
+    // Gets author username from ID
+    $this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT username FROM `contributors` WHERE id = {$authorID};"))->username;
+    $this->authorID = $authorID;
+
     $this->merge = $merge;
 
     $this->version = substr($version, 0, 4) == "1.0." ? str_replace("1.0.", "0.0.0-", $version) : $version;
@@ -84,6 +91,8 @@ class WindowsBuild {
       // All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
       $this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
     }
+
+    mysqli_close($db);
 
   }
 
