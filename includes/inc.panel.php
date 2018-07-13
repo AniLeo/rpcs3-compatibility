@@ -126,6 +126,16 @@ function checkInvalidThreads() {
 	'Nothing' => 9
 	);
 
+	// TODO: Cleanup
+	$a_regions = array(
+	'E' => 'EU',
+	'U' => 'US',
+	'J' => 'JP',
+	'A' => 'AS',
+	'K' => 'KR',
+	'H' => 'HK'
+	);
+
 
 	$q_threads = mysqli_query($db, "SELECT tid, subject, fid
 	FROM rpcs3_forums.mybb_threads
@@ -134,7 +144,12 @@ function checkInvalidThreads() {
 	$a_threads = array();
 
 	while ($row = mysqli_fetch_object($q_threads)) {
-		if ($gid = get_string_between($row->subject, '[', ']')) {
+
+		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
+		$gid = substr($row->subject, -10, 9);
+
+		// if ($gid = get_string_between($row->subject, '[', ']')) {
+		if (ctype_alnum($gid) && strlen($gid) == 9 && is_numeric(substr($gid, 4, 5)) && array_key_exists(substr($gid, 2, 1), $a_regions)) {
 			$a_threads[$row->tid][0] = $gid;
 			$a_threads[$row->tid][1] = array_search($row->fid, $a_status);
 		} else {
