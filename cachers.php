@@ -351,18 +351,19 @@ function cacheStatusModule($count = true) {
 }
 
 
+// Fetch all used commits => pull requests from builds_windows table
+// and store on cache/a_commits.json
 function cacheCommitCache() {
 	$db = getDatabase();
 
 	$a_cache = array();
 
-	// Fetch all used commits => pull requests from builds_windows table
 	// This is faster than verifying one by one per row on storeResults()
-	$q_builds = mysqli_query($db, "SELECT pr,commit FROM builds_windows LEFT JOIN game_list on
-	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7)
-	WHERE build_commit IS NOT NULL
-	GROUP BY commit
-	ORDER BY merge_datetime DESC;");
+	$q_builds = mysqli_query($db, "SELECT DISTINCT `pr`, `commit` FROM `builds_windows`
+	LEFT JOIN `game_list` ON SUBSTR(`commit`, 1, 7) = SUBSTR(`build_commit`, 1, 7)
+	WHERE `build_commit` IS NOT NULL
+	ORDER BY `merge_datetime` DESC;");
+
 	while ($row = mysqli_fetch_object($q_builds)) {
 		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
 	}
@@ -372,6 +373,8 @@ function cacheCommitCache() {
 	fclose($f_commits);
 
 	mysqli_close($db);
+
+	return $a_cache;
 }
 
 

@@ -813,68 +813,6 @@ function getJSON($url) {
 }
 
 
-function storeResults(&$a_results, $query, &$a_cache) {
-
-	while ($row = mysqli_fetch_object($query)) {
-
-		if ($row->build_commit == '0') {
-			$commit = $row->build_commit;
-			$pr = 0;
-		} else {
-			// Check if commit has been cached already. If not cache, if yes use cached info.
-			if (array_key_exists(substr($row->build_commit, 0, 7), $a_cache)) {
-				$commit = $a_cache[substr($row->build_commit, 0, 7)][0];
-				$pr = $a_cache[substr($row->build_commit, 0, 7)][1];
-			} else {
-				$commit = $row->build_commit;
-				$pr = 0;
-			}
-		}
-
-		$a_results[$row->key] = array(
-		'game_title' => $row->game_title,
-		'status' => $row->status,
-		'last_update' => $row->last_update,
-		'commit' => $commit,
-		'pr' => $pr
-		);
-
-		if (!empty($row->alternative_title)) {
-			$a_results[$row->key]['alternative_title'] = $row->alternative_title;
-		}
-
-		if (!empty($row->gid_EU)) {
-			$a_results[$row->key]['gid_EU'] = $row->gid_EU;
-			$a_results[$row->key]['tid_EU'] = $row->tid_EU;
-		}
-		if (!empty($row->gid_US)) {
-			$a_results[$row->key]['gid_US'] = $row->gid_US;
-			$a_results[$row->key]['tid_US'] = $row->tid_US;
-		}
-		if (!empty($row->gid_JP)) {
-			$a_results[$row->key]['gid_JP'] = $row->gid_JP;
-			$a_results[$row->key]['tid_JP'] = $row->tid_JP;
-		}
-		if (!empty($row->gid_AS)) {
-			$a_results[$row->key]['gid_AS'] = $row->gid_AS;
-			$a_results[$row->key]['tid_AS'] = $row->tid_AS;
-		}
-		if (!empty($row->gid_KR)) {
-			$a_results[$row->key]['gid_KR'] = $row->gid_KR;
-			$a_results[$row->key]['tid_KR'] = $row->tid_KR;
-		}
-		if (!empty($row->gid_HK)) {
-			$a_results[$row->key]['gid_HK'] = $row->gid_HK;
-			$a_results[$row->key]['tid_HK'] = $row->tid_HK;
-		}
-
-	}
-
-	return true;
-
-}
-
-
 function dumpVar($var) {
 	echo "<br>";
 	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");

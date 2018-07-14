@@ -21,6 +21,7 @@
 
 // Calls for the file that contains the functions needed
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception("Compat: class.Compat.php is missing. Failed to include class.Compat.php");
 
 
@@ -192,7 +193,10 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && ((strlen($get['g'] == 9 && !is_
 
 // Store results
 prof_flag("Inc: Store Results");
-$a_results = array();
+$games = array();
+
+// If secondary results exist, sorting is needed
+$needsSorting = false;
 
 // Stop if too many data is returned on Initials / Levenshtein
 $stop = false;
@@ -203,65 +207,29 @@ prof_flag("Inc: Store Results - Cache");
 
 // Since this is rather static data, we're caching it to a file
 // Saves up a lot of execution time
-if (file_exists(__DIR__.'/../cache/a_commits.json')) {
-	$a_cache = json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true);
-} else {
-	// If file isn't present, then just get the contents from the database
-	$a_cache = array();
+$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
 
-	$q_builds = mysqli_query($db, "SELECT pr,commit FROM builds_windows LEFT JOIN game_list on
-	SUBSTR(commit, 1, 7) = SUBSTR(build_commit, 1, 7)
-	WHERE build_commit IS NOT NULL
-	GROUP BY commit
-	ORDER BY merge_datetime DESC;");
-	while ($row = mysqli_fetch_object($q_builds)) {
-		$a_cache[substr($row->commit, 0, 7)] = array($row->commit, $row->pr);
-	}
-}
-
-$needsSorting = false;
 
 prof_flag("Inc: Store Results - Secondary");
 if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && isset($q_main2) && $q_main2 && mysqli_num_rows($q_main2) > 0 && !$onlyUseMain) {
 	$needsSorting = true;
-	storeResults($a_results, $q_main2, $a_cache);
-	if (strlen($get['g']) < 2) {
+
+	while ($row = mysqli_fetch_object($q_main2))
+	  $games[] = Game::rowToGame($row, $a_cache);
+
+	if (strlen($get['g']) < 2)
 		$stop = true;
-	}
 }
 
 prof_flag("Inc: Store Results - Main");
 if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
-	storeResults($a_results, $q_main, $a_cache);
+	while ($row = mysqli_fetch_object($q_main))
+	  $games[] = Game::rowToGame($row, $a_cache);
 }
-
 
 prof_flag("Inc: Sort Results");
-
-// Sort results
-// Used to sort results for when we obtain results from both search methods
-// TODO: FIXME (Broken with sorting)
-// Currently running on a workaround
-// Need to account for all sorting types
-if ($needsSorting && ($a_order == '' || $a_order == '3a')) {
-	// Temporary array to store sorted results
-	$a_sorted = array();
-
-	foreach (range(min(array_keys($a_title))+1, max(array_keys($a_title))) as $i) {
-		// Go through our results array
-		foreach ($a_results as $key => $value) {
-			// When it finds a game on the current status, move it to the temporary array
-			// and remove it from the a_results array
-			if ($value['status'] == $a_title[$i]) {
-				$a_sorted[$key] = $value;
-				unset($a_results[$i]);
-			}
-		}
-	}
-
-	// Copy our new sorted array to a_results
-	$a_results = $a_sorted;
-}
+if ($needsSorting)
+	Game::sort($games, $get['o'] == '' ? '3' : substr($get['o'], 0, 1), $get['o'] == '' ? 'a' : substr($get['o'], 1, 1));
 
 
 

@@ -19,6 +19,8 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
+
 
 
 class Compat {
@@ -133,46 +135,51 @@ public static function getTableHeaders() {
  * Table Content *
  *****************/
 public static function getTableContent() {
-	global $a_results, $a_regions;
+	global $games, $a_regions;
 
 	// Initialize string
 	$s_tablecontent = "";
 
-	foreach ($a_results as $key => $value) {
+	foreach ($games as $game) {
 
 		$media = '';
 		$multiple = false;
 
-		// prof_flag("Page: Display Table Content: Row - GameID");
-		$s = "<div class=\"divTableCell\">";
-		foreach ($a_regions as $k => $region) {
-			if (array_key_exists("gid_{$region}", $value)) {
-				if ($multiple) { $s .= '<br>'; }
-				$s .= getThread(getGameRegion($value["gid_{$region}"], false), $value["tid_{$region}"]);
-				$s .= getThread($value["gid_{$region}"], $value["tid_{$region}"]);
-				if ($media == '') { $media = getGameMedia($value["gid_{$region}"]); }
-				$multiple = true;
-			}
+		$s_tablecontent .= "<div class=\"divTableRow\">";
+
+		// Cell 1: Regions and GameIDs
+		$cell = '';
+		foreach ($game->IDs as $ID) {
+			if ($multiple)
+				$cell .= "<br>";
+
+			$cell .= getThread(getGameRegion($ID[0], false), $ID[1]);
+			$cell .= getThread($ID[0], $ID[1]);
+
+			if ($media == '')
+				$media = getGameMedia($ID[0]);
+
+			$multiple = true;
 		}
-		$s .= "</div>";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-		// prof_flag("Page: Display Table Content: Row - Game Title");
-		$s .= "<div class=\"divTableCell\">";
-		$s .= "{$media}{$value['game_title']}";
-		if (array_key_exists('alternative_title', $value)) {
-			$s .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$value['alternative_title']})";
-		}
-		$s .= "</div>";
+		// Cell 2: Game Media and Titles
+		$cell = "{$media}{$game->title}";
+		if (!is_null($game->title2))
+			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-		// prof_flag("Page: Display Table Content: Row - Status");
-		$s .= "<div class=\"divTableCell\">".getColoredStatus($value['status'])."</div>";
+		// Cell 3: Status
+		$cell = getColoredStatus($game->status);
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-		// prof_flag("Page: Display Table Content: Row - Last Updated");
-		$s .= "<div class=\"divTableCell\"><a href=\"?d=".str_replace('-', '', $value['last_update'])."\">".$value['last_update']."</a>&nbsp;&nbsp;&nbsp;";
-		$s .= $value['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$value['pr']}'>Pull #{$value['pr']}</a>)";
-		$s .= '</div>';
+		// Cell 4: Last Test
+		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>&nbsp;&nbsp;&nbsp;";
+		$cell .= $game->pr == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$game->pr}'>Pull #{$game->pr}</a>)";
+		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-		$s_tablecontent .= "<div class=\"divTableRow\">{$s}</div>";
+
+		$s_tablecontent .= "</div>";
 
 	}
 
@@ -210,7 +217,7 @@ gameID
 */
 
 public static function APIv1() {
-	global $q_main, $c_maintenance, $a_results, $l_title;
+	global $q_main, $c_maintenance, $games, $l_title;
 
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
@@ -226,69 +233,18 @@ public static function APIv1() {
 	$results = array();
 	$results['return_code'] = 0;
 
-	foreach ($a_results as $key => $value) {
-
-		if (array_key_exists('gid_EU', $value)) {
-			$results['results'][$value['gid_EU']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_EU'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
+	foreach ($games as $game) {
+		foreach ($game->IDs as $id) {
+			$results['results'][$id[0]] = array(
+			'title' => $game->title,
+			'alternative-title' => $game->title2,
+			'status' => $game->status,
+			'date' => $game->date,
+			'thread' => (int) $id[1],
+			'commit' => $game->commit,
+			'pr' => (int) $game->pr
 			);
 		}
-		if (array_key_exists('gid_US', $value)) {
-			$results['results'][$value['gid_US']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_US'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
-			);
-		}
-		if (array_key_exists('gid_JP', $value)) {
-			$results['results'][$value['gid_JP']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_JP'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
-			);
-		}
-		if (array_key_exists('gid_AS', $value)) {
-			$results['results'][$value['gid_AS']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_AS'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
-			);
-		}
-		if (array_key_exists('gid_KR', $value)) {
-			$results['results'][$value['gid_KR']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_KR'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
-			);
-		}
-		if (array_key_exists('gid_HK', $value)) {
-			$results['results'][$value['gid_HK']] = array(
-			'title' => $value['game_title'],
-			'status' => $value['status'],
-			'date' => $value['last_update'],
-			'thread' => (int) $value['tid_HK'],
-			'commit' => $value['commit'],
-			'pr' => $value['pr']
-			);
-		}
-
 	}
 
 	if ($q_main) {
