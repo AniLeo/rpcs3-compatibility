@@ -8,6 +8,7 @@ CREATE TABLE `game_list` (
   `alternative_title` varchar(250) DEFAULT NULL,
   `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `build_commit` varchar(64) NOT NULL,
+  `wiki` int(11) DEFAULT NULL,
   `last_update` date NOT NULL,
   `gid_EU` varchar(9) DEFAULT NULL,
   `tid_EU` int(11) DEFAULT NULL,

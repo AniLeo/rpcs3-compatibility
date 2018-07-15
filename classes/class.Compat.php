@@ -164,7 +164,8 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 2: Game Media and Titles
-		$cell = "{$media}{$game->title}";
+		$title = !is_null($game->wikiID) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wikiTitle}\">{$game->title}</a>" : $game->title;
+		$cell = "{$media}{$title}";
 		if (!is_null($game->title2))
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";

@@ -21,6 +21,7 @@
 
 // Calls for the file that contains the needed functions
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
 function cacheWindowsBuilds($full = false) {
@@ -353,6 +354,8 @@ function cacheStatusModule($count = true) {
 
 // Fetch all used commits => pull requests from builds_windows table
 // and store on cache/a_commits.json
+// Since this is rather static data, we're caching it to a file
+// Saves up a lot of execution time
 function cacheCommitCache() {
 	$db = getDatabase();
 
@@ -427,4 +430,45 @@ function cacheContributor($username) {
 	mysqli_close($db);
 
 	return !isset($info_contributor->message) ? $aid : 0;
+}
+
+
+function cacheWikiIDs() {
+	$db = getDatabase();
+
+	$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
+
+	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
+	$a_games = Game::queryToGames($q_games);
+
+	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, `rev_id`, `rev_len`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
+	LEFT JOIN `rpcs3_wiki`.`revision` ON `page_latest` = `rev_id`
+	LEFT JOIN `rpcs3_wiki`.`text` ON `rev_text_id` = `old_id`
+	WHERE page_namespace = 0; ");
+	$a_wiki = array();
+	while ($row = mysqli_fetch_object($q_wiki))
+		$a_wiki[] = array($row->page_id, $row->text);
+
+	$a_found = array();
+
+	// For every game
+	// For every ID
+	// Look for the ID on all wiki pages
+	foreach ($a_games as $game) {
+		foreach ($game->IDs as $id) {
+			foreach ($a_wiki as $wiki) {
+				if (strpos($wiki[1], $id[0]) !== false) {
+					$a_found[] = array($game->title, $wiki[0]);
+					break 2;
+				}
+			}
+		}
+	}
+
+	// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
+	foreach ($a_found as $entry) {
+		$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki`={$entry[1]} WHERE (`game_title`='".mysqli_real_escape_string($db, $entry[0])."');");
+	}
+
+	mysqli_close($db);
 }

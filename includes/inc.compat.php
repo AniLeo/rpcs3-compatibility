@@ -193,29 +193,17 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && ((strlen($get['g'] == 9 && !is_
 
 // Store results
 prof_flag("Inc: Store Results");
-$games = array();
 
 // If secondary results exist, sorting is needed
 $needsSorting = false;
-
 // Stop if too many data is returned on Initials / Levenshtein
 $stop = false;
-
-// Fetch all commits => pull requests from builds_windows table
-// This is faster than verifying one by one per row
-prof_flag("Inc: Store Results - Cache");
-
-// Since this is rather static data, we're caching it to a file
-// Saves up a lot of execution time
-$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
-
 
 prof_flag("Inc: Store Results - Secondary");
 if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && isset($q_main2) && $q_main2 && mysqli_num_rows($q_main2) > 0 && !$onlyUseMain) {
 	$needsSorting = true;
 
-	while ($row = mysqli_fetch_object($q_main2))
-	  $games[] = Game::rowToGame($row, $a_cache);
+	$games = Game::queryToGames($q_main2);
 
 	if (strlen($get['g']) < 2)
 		$stop = true;
@@ -223,14 +211,19 @@ if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && iss
 
 prof_flag("Inc: Store Results - Main");
 if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
-	while ($row = mysqli_fetch_object($q_main))
-	  $games[] = Game::rowToGame($row, $a_cache);
+	// If secondary search exists
+	if ($needsSorting)
+		$games = array_merge($games, Game::queryToGames($q_main));
+	else
+		$games = Game::queryToGames($q_main);
 }
 
 prof_flag("Inc: Sort Results");
 if ($needsSorting)
-	Game::sort($games, $get['o'] == '' ? '3' : substr($get['o'], 0, 1), $get['o'] == '' ? 'a' : substr($get['o'], 1, 1));
-
+	if ($get['o'] == '')
+		Game::sort($games, '3', 'a');
+	else
+		Game::sort($games, substr($get['o'], 0, 1), substr($get['o'], 1, 1));
 
 
 // Close MySQL connection.

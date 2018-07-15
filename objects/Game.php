@@ -23,15 +23,17 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class Game {
 
-  public $title;    // String
-  public $title2;   // String
-  public $status;   // String
-  public $date;     // String
-  public $commit;   // String
-  public $pr;       // Int
-  public $IDs;      // [(String, Int)]
+  public $title;      // String
+  public $title2;     // String
+  public $status;     // String
+  public $date;       // String
+  public $commit;     // String
+  public $pr;         // Int
+  public $wikiID;     // Int
+  public $wikiTitle;  // String
+  public $IDs;        // [(String, Int)]
 
-  function __construct(&$a_cache, $maintitle, $alternativetitle, $status, $date, $shortcommit,
+  function __construct(&$a_cache, &$a_wiki, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit,
   $gid_EU, $tid_EU, $gid_US, $tid_US, $gid_JP, $tid_JP, $gid_AS, $tid_AS, $gid_KR, $tid_KR, $gid_HK, $tid_HK) {
 
     $this->title = $maintitle;
@@ -40,6 +42,11 @@ class Game {
 
     $this->status = $status;
     $this->date = $date;
+
+    if (!is_null($wiki)) {
+      $this->wikiID = $wiki;
+      $this->wikiTitle = $a_wiki[$wiki];
+    }
 
     if ($shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache)) {
       $this->commit = $shortcommit;
@@ -69,9 +76,27 @@ class Game {
 
   }
 
-  public static function rowToGame($row, &$a_cache) {
-    return new Game($a_cache, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->build_commit,
+  public static function rowToGame($row, &$a_cache, &$a_wiki) {
+    return new Game($a_cache, $a_wiki, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit,
     $row->gid_EU, $row->tid_EU, $row->gid_US, $row->tid_US, $row->gid_JP, $row->tid_JP, $row->gid_AS, $row->tid_AS, $row->gid_KR, $row->tid_KR, $row->gid_HK, $row->tid_HK);
+  }
+
+  public static function queryToGames($query) {
+    $db = getDatabase();
+    $a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
+
+    $a_wiki = array();
+    $q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title` FROM `rpcs3_wiki`.`page` WHERE `page_namespace` = 0 ;");
+    while ($row = mysqli_fetch_object($q_wiki))
+      $a_wiki[$row->page_id] = $row->page_title;
+
+    $a_games = array();
+    while ($row = mysqli_fetch_object($query))
+      $a_games[] = self::rowToGame($row, $a_cache, $a_wiki);
+
+    mysqli_close($db);
+
+    return $a_games;
   }
 
   // Types: 2 (Title), 3 (Status), 4 (Date)
