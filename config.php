@@ -66,6 +66,15 @@ $a_desc = array(
 'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
 );
 
+// Status forum IDs
+$a_fid = array(
+5 => 'Playable',
+6 => 'Ingame',
+7 => 'Intro',
+8 => 'Loadable',
+9 => 'Nothing'
+);
+
 // Status colors
 $a_color = array(
 1 => '1ebc61',

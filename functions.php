@@ -837,3 +837,14 @@ function resultsPerPage($combinedSearch, $extra = "") {
 	}
 	return $s_pageresults;
 }
+
+
+// Checks whether indicated string is a Game ID or not
+// Game ID validation: is alphanumeric, len = 9, last 5 characters are digits,
+// 3rd character represents a valid region and 1st character represents a valid media
+function isGameID($string) {
+	global $a_flags, $a_media;
+
+	return ctype_alnum($string) && strlen($string) == 9 && is_numeric(substr($string, 4, 5)) &&
+	array_key_exists(substr($string, 2, 1), $a_flags) && array_key_exists(substr($string, 0, 1), $a_media);
+}
