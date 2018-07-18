@@ -41,7 +41,6 @@ class WindowsBuild {
   public $diffdate;   // String
   public $url;        // String
 
-
   function __construct($pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
 
     global $c_appveyor;
@@ -97,10 +96,42 @@ class WindowsBuild {
   }
 
 
+  /**
+    * rowToBuild
+    * Obtains a Build from given MySQL Row.
+    *
+    * @param object  $row       The MySQL Row (returned by mysqli_fetch_object($query))
+    *
+    * @return object $build     Build fetched from given Row
+    */
   public static function rowToBuild($row) {
     return new WindowsBuild($row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
   }
 
+  /**
+  	* queryToBuilds
+  	* Obtains array of Builds from given MySQL Query.
+  	*
+  	* @param object  $query        The MySQL Query (returned by mysqli_query())
+  	*
+  	* @return object $array        Array of Builds fetched from given Query
+  	*/
+  public static function queryToBuilds($query) {
+    $db = getDatabase();
+    $a_builds = array();
+    while ($row = mysqli_fetch_object($query))
+      $a_builds[] = self::rowToBuild($row);
+    mysqli_close($db);
+
+    return $a_builds;
+  }
+
+  /**
+  	* getLast
+  	* Obtains the most recent Build.
+  	*
+  	* @return object $array        Most recent build
+  	*/
   public static function getLast() {
     $db = getDatabase();
     $query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
