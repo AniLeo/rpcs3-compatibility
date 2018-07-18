@@ -151,18 +151,13 @@ class Game {
 
       // Temporary arrays to store game titles and original keys respectively
       $values = array();
-      $keys = array();
 
       if ($type == 2) {
-        foreach ($array as $key => $game) {
+        foreach ($array as $key => $game)
           $values[$key] = $game->title;
-          $keys[$key] = $game->title;
-        }
       } else {
-        foreach ($array as $key => $game) {
+        foreach ($array as $key => $game)
           $values[$key] = $game->date;
-          $keys[$key] = $game->date;
-        }
       }
 
       // Alphabetical case-insensitive sort
@@ -172,20 +167,9 @@ class Game {
       if ($order == 'd')
         $values = array_reverse($values);
 
-      // Order all keys according to values' order (not really required)
-      $values = array_values($values);
-
-      // Original count of given array
-      $len = count($array);
-
       // Move all entries from given array to a new sorted array in the correct order
-      for ($i = 0; $i < $len; $i++) {
-        $cur = array_shift($values);
-        $key = array_search($cur, $keys);
-        $sorted[$i] = $array[$key];
-        unset($array[$key]);
-        unset($keys[$key]);
-      }
+      foreach ($values as $key => $value)
+        $sorted[] = $array[$key];
 
     }
 
