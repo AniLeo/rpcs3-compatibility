@@ -31,12 +31,16 @@ public static function getResultsPerPage() {
 
 
 public static function getTableMessages() {
-	global $info;
-	if (!is_null($info)) { return "<p class=\"compat-tx1-criteria\">{$info}</p>"; }
+	global $error;
+	if (!is_null($error)) { return "<p class=\"compat-tx1-criteria\">{$error}</p>"; }
 }
 
 
 public static function getTableHeaders() {
+	global $error;
+
+	if (!is_null($error)) return "";
+
 	$headers = array(
 		'Pull Request' => 1,
 		'Author' => 2,
@@ -49,7 +53,9 @@ public static function getTableHeaders() {
 
 
 public static function getTableContent() {
-	global $c_github, $builds;
+	global $c_github, $builds, $error;
+
+	if (!is_null($error)) return "";
 
 	// Initialize string
 	$s_tablecontent = "";

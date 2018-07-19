@@ -47,21 +47,19 @@ $a_order = array(
 );
 
 
-// Connect to database
-prof_flag("Inc: Database Connection");
-$db = getDatabase();
-
 // Obtain values from get
 prof_flag("Inc: Obtain GET");
 $get = validateGet($db);
 
+// Connect to database
+prof_flag("Inc: Database Connection");
+$db = getDatabase();
 
 // Generate query
 // 0 => With specified status
 // 1 => Without specified status
 prof_flag("Inc: Generate Query");
-$genquery = generateQuery($get, $db);
-
+$genquery = Compat::generateQuery($get, $db);
 
 // Get game count per status
 prof_flag("Inc: Count Games (Search)");
@@ -70,7 +68,6 @@ $scount = countGames($db, $genquery[1]);
 // Get the total count of entries present in the database (not subjective to search params)
 prof_flag("Inc: Count Games (All)");
 $games = countGames($db, 'all');
-
 
 // Pages / CurrentPage
 prof_flag("Inc: Count Pages");
@@ -81,11 +78,9 @@ $currentPage = getCurrentPage($pages);
 
 
 // Generate the main query
-$c_main = "SELECT *
-FROM game_list ";
+$c_main = "SELECT * FROM game_list ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-
 
 // Run the main query
 prof_flag("Inc: Execute Main Query ({$c_main})");
@@ -96,7 +91,7 @@ $q_main = mysqli_query($db, $c_main);
 prof_flag("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
-if ($get['g'] != '' && strlen($get['g']) >= 2 && ((strlen($get['g'] == 9 && !is_numeric(substr($get['g'], 4, 5)))) || strlen($get['g'] != 9 )) ) {
+if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 
 	// Initials
 	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
@@ -190,6 +185,21 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && ((strlen($get['g'] == 9 && !is_
 	}
 }
 
+
+// Check if query succeded and storing is required, stores messages for error/information printing
+prof_flag("Inc: Check Search Status");
+$error = NULL;
+$info = NULL;
+if (!$q_main) {
+	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
+} elseif (mysqli_num_rows($q_main) == 0 && isGameID($get['g'])) {
+	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
+} elseif ($scount[0][0] == 0) {
+ 	$error = "No results found for the specified search on the indicated status.";
+} elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && $l_title != "") {
+	$info = "No results found for <i>{$l_orig}</i>. </br>
+	Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.";
+}
 
 // Store results
 prof_flag("Inc: Store Results");

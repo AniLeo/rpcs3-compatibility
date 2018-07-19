@@ -46,6 +46,7 @@ $a_order = array(
 );
 
 // Obtain values from get
+prof_flag("Inc: Obtain GET");
 $get = validateGet();
 
 // Connect to database
@@ -67,11 +68,11 @@ $buildsQuery = mysqli_query($db, $buildsCommand);
 prof_flag("Inc: Close Database Connection");
 mysqli_close($db);
 
-// Check if query succeded and storing is required, stores messages for information printing
+// Check if query succeded and storing is required, stores messages for error printing
 prof_flag("Inc: Check Query Status");
-$info = NULL;
-if (!$buildsQuery)                            { $info = "Please try again. If this error persists, please contact the RPCS3 team."; }
-elseif (mysqli_num_rows($buildsQuery) === 0)  { $info = "No builds are listed yet."; }
+$error = NULL;
+if (!$buildsQuery)                            { $error = "Please try again. If this error persists, please contact the RPCS3 team."; }
+elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed yet."; }
 
 // Store builds in a WindowsBuild array if there are no errors
 if (is_null($info)) {
@@ -79,9 +80,5 @@ if (is_null($info)) {
   $builds = WindowsBuild::queryToBuilds($buildsQuery);
 }
 
-
-// TODO: Cleanup
-// TODO: Custom results per page
-// TODO: No listing builds with experimental warning 13/14-08/2017 and up + branch only
 
 prof_flag("--- / ---");

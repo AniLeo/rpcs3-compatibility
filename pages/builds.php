@@ -51,15 +51,17 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			-->
 		</div>
 
-		<?php echo Builds::getTableMessages(); ?>
-		<div class='divTable builds-table'>
-			<?php
-				prof_flag("Page: Display Table Headers");
-				echo Builds::getTableHeaders();
-				prof_flag("Page: Display Table Content");
-				echo Builds::getTableContent();
-			?>
-		</div>
+		<?php
+			echo Builds::getTableMessages();
+			if (is_null($error)) echo "<div class=\"divTable builds-table\">";
+
+			prof_flag("Page: Display Table Headers");
+			echo Builds::getTableHeaders();
+			prof_flag("Page: Display Table Content");
+			echo Builds::getTableContent();
+
+			if (is_null($error)) echo "</div>";
+		?>
 
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">

@@ -26,6 +26,84 @@ if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat:
 class Compat {
 
 
+// Generates query from given GET parameters
+static function generateQuery($get, $db = null) {
+
+	if ($db == null) {
+		$db = getDatabase();
+		$close = true;
+	} else {
+		$close = false;
+	}
+
+	$genquery = '';
+	$status = '';
+	$and = false;
+
+	// QUERYGEN: Character
+	if ($get['c'] != '') {
+		if ($get['c'] == '09') {
+			$genquery .= " (game_title LIKE '0%' OR game_title LIKE '1%' OR game_title LIKE '2%'
+			OR game_title LIKE '3%' OR game_title LIKE '4%' OR game_title LIKE '5%' OR game_title LIKE '6%' OR game_title LIKE '7%'
+			OR game_title LIKE '8%' OR game_title LIKE '9%' OR alternative_title LIKE '0%' OR alternative_title LIKE '1%' OR alternative_title LIKE '2%'
+			OR alternative_title LIKE '3%' OR alternative_title LIKE '4%' OR alternative_title LIKE '5%' OR alternative_title LIKE '6%' OR alternative_title LIKE '7%'
+			OR alternative_title LIKE '8%' OR alternative_title LIKE '9%') ";
+		} elseif ($get['c'] == 'sym') {
+			$genquery .= " (game_title LIKE '.%' OR game_title LIKE '&%' OR alternative_title LIKE '.%' OR alternative_title LIKE '&%') ";
+		} else {
+			$genquery .= " (game_title LIKE '{$get['c']}%' OR alternative_title LIKE '{$get['c']}%') ";
+		}
+		$and = true;
+	}
+
+	// QUERYGEN: Searchbox
+	if ($get['g'] != '') {
+		if ($and) { $genquery .= " AND "; }
+		$s_g = mysqli_real_escape_string($db, $get['g']);
+		$genquery .= " (game_title LIKE '%{$s_g}%' OR alternative_title LIKE '%{$s_g}%' OR gid_EU LIKE '%{$s_g}%' OR gid_US LIKE '%{$s_g}%' OR gid_JP LIKE '%{$s_g}%'
+		OR gid_AS LIKE '%{$s_g}%' OR gid_KR LIKE '%{$s_g}%' OR gid_HK LIKE '%{$s_g}%') ";
+		$and = true;
+	}
+
+	// QUERYGEN: Search by media type
+	if ($get['t'] != '') {
+		if ($and) { $genquery .= " AND "; }
+		$genquery .= " (
+		(gid_EU IS NOT NULL && SUBSTR(gid_EU,1,1) = '{$get['t']}') OR
+		(gid_US IS NOT NULL && SUBSTR(gid_US,1,1) = '{$get['t']}') OR
+		(gid_JP IS NOT NULL && SUBSTR(gid_JP,1,1) = '{$get['t']}') OR
+		(gid_AS IS NOT NULL && SUBSTR(gid_AS,1,1) = '{$get['t']}') OR
+		(gid_KR IS NOT NULL && SUBSTR(gid_KR,1,1) = '{$get['t']}') OR
+		(gid_HK IS NOT NULL && SUBSTR(gid_HK,1,1) = '{$get['t']}')
+		) ";
+		$and = true;
+	}
+
+	// QUERYGEN: Search by date
+	if ($get['d'] != '') {
+		if ($and) { $genquery .= " AND "; }
+		$s_d = mysqli_real_escape_string($db, $get['d']);
+		$genquery .= " last_update = '{$s_d}' ";
+		$and = true;
+	}
+
+	// QUERYGEN: Status
+	if ($get['s'] != 0) {
+		if ($and) { $status .= " AND "; }
+		$status .= " status = {$get['s']} ";
+		$and = true;
+	}
+
+	if ($close) {
+		mysqli_close($db);
+	}
+
+	// 0 => With specified status
+	// 1 => Without specified status
+	return array($genquery.$status, $genquery);
+}
+
+
 /***********
  * Sort By *
  ***********/
@@ -91,26 +169,9 @@ public static function getCharSearch() {
 
 
 public static function getTableMessages() {
-	global $q_main, $l_title, $l_orig, $get;
-
-	// Initialize string
-	$s_message = "";
-
-	if ($q_main) {
-		if (mysqli_num_rows($q_main) > 0) {
-			if ($l_title != "") {
-				$s_message .= "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>. </br>
-				Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.</p>";
-			}
-		} elseif (strlen($get['g'] == 9 && is_numeric(substr($get['g'], 4, 5))))  {
-			$s_message .= "<p class=\"compat-tx1-criteria\">The Game ID you just tried to search for isn't registered in our compatibility list yet.</p>";
-		}
-	} else {
-		$s_message .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-	}
-
-	return $s_message;
-
+	global $info, $error;
+	if (!is_null($info)) { return "<p class=\"compat-tx1-criteria\">{$info}</p>"; }
+	elseif (!is_null($error)) { return "<p class=\"compat-tx1-criteria\">{$error}</p>"; }
 }
 
 
@@ -118,6 +179,10 @@ public static function getTableMessages() {
  * Table Headers *
  *****************/
 public static function getTableHeaders() {
+	global $error;
+
+	if (!is_null($error)) return "";
+
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);
 
 	$headers = array(
@@ -135,7 +200,9 @@ public static function getTableHeaders() {
  * Table Content *
  *****************/
 public static function getTableContent() {
-	global $games, $a_regions;
+	global $games, $a_regions, $error;
+
+	if (!is_null($error)) return "";
 
 	// Initialize string
 	$s_tablecontent = "";
