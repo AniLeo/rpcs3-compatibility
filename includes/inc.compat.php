@@ -94,7 +94,9 @@ prof_flag("Inc: Initials + Levenshtein");
 if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 
 	// Initials
-	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
+	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE
+		initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%' &&
+		game_title NOT LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
 	if ($q_initials && mysqli_num_rows($q_initials) > 0) {
 
@@ -120,13 +122,9 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 			$currentPage = getCurrentPage($pages);
 
 			// If we're going to use the results, add count of games found here to main count
-			// HACK: Check if result isn't numeric to exclude duplicate results
-			// TODO: Handle duplicate results properly
-			if (!is_numeric($get['g'])) {
-				for ($x = 0; $x <= 1; $x++) {
-					for ($y = 0; $y <= 5; $y++) {
-						$scount[$x][$y] += $scount2[$x][$y];
-					}
+			for ($x = 0; $x <= 1; $x++) {
+				for ($y = 0; $y <= 5; $y++) {
+					$scount[$x][$y] += $scount2[$x][$y];
 				}
 			}
 		}
