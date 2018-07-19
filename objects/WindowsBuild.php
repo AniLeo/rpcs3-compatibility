@@ -41,17 +41,20 @@ class WindowsBuild {
 	public $diffdate;   // String
 	public $url;        // String
 
-	function __construct($pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
+	function __construct(&$a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
 
 		global $c_appveyor;
-
-		$db = getDatabase();
 
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
 
 		// Gets author username from ID
-		$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT username FROM `contributors` WHERE id = {$authorID};"))->username;
+		// Use contributors array if existent, otherwise fetch directly from the database
+		if (!is_null($a_contributors)) {
+			$this->author = (String) $a_contributors[$authorID];
+		} else {
+			$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT username FROM `contributors` WHERE id = {$authorID};"))->username;
+		}
 		$this->authorID = $authorID;
 
 		$this->merge = $merge;
@@ -91,8 +94,6 @@ class WindowsBuild {
 			$this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
 		}
 
-		mysqli_close($db);
-
 	}
 
 
@@ -104,8 +105,8 @@ class WindowsBuild {
 		*
 		* @return object $build     Build fetched from given Row
 		*/
-	public static function rowToBuild($row) {
-		return new WindowsBuild($row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
+	public static function rowToBuild($row, &$a_contributors) {
+		return new WindowsBuild($a_contributors, $row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
 	}
 
 	/**
@@ -118,9 +119,16 @@ class WindowsBuild {
 		*/
 	public static function queryToBuilds($query) {
 		$db = getDatabase();
+
+		$a_contributors = array();
+		$q_contributors = mysqli_query($db, "SELECT * FROM `contributors`;");
+		while ($row = mysqli_fetch_object($q_contributors))
+			$a_contributors[$row->id] = $row->username;
+
 		$a_builds = array();
 		while ($row = mysqli_fetch_object($query))
-			$a_builds[] = self::rowToBuild($row);
+			$a_builds[] = self::rowToBuild($row, $a_contributors);
+
 		mysqli_close($db);
 
 		return $a_builds;
