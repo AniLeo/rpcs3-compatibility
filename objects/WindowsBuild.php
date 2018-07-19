@@ -41,7 +41,7 @@ class WindowsBuild {
 	public $diffdate;   // String
 	public $url;        // String
 
-	function __construct(&$a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
+	function __construct($a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
 
 		global $c_appveyor;
 
@@ -53,7 +53,9 @@ class WindowsBuild {
 		if (!is_null($a_contributors)) {
 			$this->author = (String) $a_contributors[$authorID];
 		} else {
+			$db = getDatabase();
 			$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT username FROM `contributors` WHERE id = {$authorID};"))->username;
+			mysqli_close($db);
 		}
 		$this->authorID = $authorID;
 
@@ -105,7 +107,7 @@ class WindowsBuild {
 		*
 		* @return object $build     Build fetched from given Row
 		*/
-	public static function rowToBuild($row, &$a_contributors) {
+	public static function rowToBuild($row, $a_contributors) {
 		return new WindowsBuild($a_contributors, $row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
 	}
 
@@ -147,7 +149,7 @@ class WindowsBuild {
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
 
-		return self::rowToBuild($row);
+		return self::rowToBuild($row, null);
 	}
 
 }
