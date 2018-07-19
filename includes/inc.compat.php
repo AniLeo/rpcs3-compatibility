@@ -195,7 +195,7 @@ if (!$q_main) {
 } elseif (mysqli_num_rows($q_main) == 0 && isGameID($get['g'])) {
 	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
 } elseif ($scount[0][0] == 0) {
- 	$error = "No results found for the specified search on the indicated status.";
+	$error = "No results found for the specified search on the indicated status.";
 } elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && $l_title != "") {
 	$info = "No results found for <i>{$l_orig}</i>. </br>
 	Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.";

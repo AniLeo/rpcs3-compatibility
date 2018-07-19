@@ -76,8 +76,8 @@ elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed y
 
 // Store builds in a WindowsBuild array if there are no errors
 if (is_null($info)) {
-  prof_flag("Inc: Store Builds in Array");
-  $builds = WindowsBuild::queryToBuilds($buildsQuery);
+	prof_flag("Inc: Store Builds in Array");
+	$builds = WindowsBuild::queryToBuilds($buildsQuery);
 }
 
 
