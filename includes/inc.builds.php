@@ -75,7 +75,7 @@ if (!$buildsQuery)                            { $error = "Please try again. If t
 elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed yet."; }
 
 // Store builds in a WindowsBuild array if there are no errors
-if (is_null($info)) {
+if (is_null($error)) {
 	prof_flag("Inc: Store Builds in Array");
 	$builds = WindowsBuild::queryToBuilds($buildsQuery);
 }
