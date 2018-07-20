@@ -29,3 +29,76 @@ $start = getTime();
 
 // Obtain values from get
 $get = validateGet();
+
+// Connect to database
+$db = getDatabase();
+
+
+$a_existing = NULL;
+$a_new = NULL;
+$error_existing = "";
+$error_new = "";
+
+
+// Main part of the query
+$cmd_main = "SELECT `old_status`, `old_date`, `new_status`, `new_date`,
+`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
+`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`,
+`game_title`, `alternative_title`, `game_history`.* FROM `game_history`
+LEFT JOIN `game_list` ON
+`game_history`.`gid_EU` = `game_list`.`gid_EU` OR
+`game_history`.`gid_US` = `game_list`.`gid_US` OR
+`game_history`.`gid_AS` = `game_list`.`gid_AS` OR
+`game_history`.`gid_JP` = `game_list`.`gid_JP` OR
+`game_history`.`gid_KR` = `game_list`.`gid_KR` OR
+`game_history`.`gid_HK` = `game_list`.`gid_HK` ";
+
+
+// Generate date part of the query
+if ($get['h'] == $a_currenthist[0]) {
+  $cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
+} else {
+  $cmd_date = " AND `new_date` BETWEEN
+  CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
+  AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
+}
+
+
+// Existing entries
+if ($get['m'] == "c" || $get['m'] == "") {
+  $q_existing = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NOT NULL {$cmd_date}
+  ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC; ");
+
+  if (!$q_existing) {
+    $error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
+  } elseif (mysqli_num_rows($q_existing) === 0) {
+    $error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
+  }
+
+  $a_existing = array();
+
+  while ($row = mysqli_fetch_object($q_existing))
+    $a_existing[] = HistoryEntry::rowToHistoryEntry($row);
+}
+
+
+// New entries
+if ($get['m'] == "n" || $get['m'] == "") {
+  $q_new = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NULL {$cmd_date}
+  ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC; ");
+
+  if (!$q_new) {
+    $error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
+  } elseif (mysqli_num_rows($q_new) === 0) {
+    $error_new = "No newer entries were reported and/or reviewed yet.";
+  }
+
+  $a_new = array();
+
+  while ($row = mysqli_fetch_object($q_new))
+    $a_new[] = HistoryEntry::rowToHistoryEntry($row);
+}
+
+
+// Disconnect from database
+mysqli_close($db);

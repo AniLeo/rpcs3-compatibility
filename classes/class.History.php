@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/HistoryEntry.php")) throw new Exception("Compat: HistoryEntry.php is missing. Failed to include HistoryEntry.php");
 
 
 class History {
@@ -104,7 +105,7 @@ public static function getHistoryOptions() {
 }
 
 
-public static function getHistoryHeaders($full = true) {
+public static function getTableHeaders($full = true) {
 	if ($full) {
 		$headers = array(
 			'Game Regions' => 0,
@@ -127,172 +128,90 @@ public static function getHistoryHeaders($full = true) {
 }
 
 
-public static function getHistoryContent() {
-	global $get, $a_histdates, $a_currenthist;
-
-	$db = getDatabase();
-
-	if ($get['h'] == $a_currenthist[0]) {
-		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
-	} else {
-		$dateQuery = " AND new_date BETWEEN
-		CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
-		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
-	}
-
-	// Initialize string
+public static function getTableContent($array) {
 	$s_content = "";
 
-	if ($get['m'] == "c" || $get['m'] == "") {
-		$cQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date,
-		game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
-		game_title, alternative_title, game_history.* FROM game_history
-		LEFT JOIN game_list ON
-		game_history.gid_EU = game_list.gid_EU OR
-		game_history.gid_US = game_list.gid_US OR
-		game_history.gid_JP = game_list.gid_JP OR
-		game_history.gid_AS = game_list.gid_AS OR
-		game_history.gid_KR = game_list.gid_KR OR
-		game_history.gid_HK = game_list.gid_HK
-		WHERE old_status IS NOT NULL
-		{$dateQuery}
-		ORDER BY new_status ASC, -old_status DESC, new_date DESC, game_title ASC; ");
+	$s_content .= "<div class='divTableBody'>";
 
-		if (!$cQuery) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-		} elseif (mysqli_num_rows($cQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No updates to previously existing entries were reported and/or reviewed yet.</p>";
-		} else {
+	foreach ($array as $entry) {
+		$s_content .= "<div class='divTableRow'>";
 
-			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= self::getHistoryHeaders();
-
-			$s_content .= "<div class='divTableBody'>";
-			while($row = mysqli_fetch_object($cQuery)) {
-				$s_content .= "<div class='divTableRow'>";
-
-				$s_content .= "<div class=\"divTableCell\">";
-				if (!empty($row->gid_EU)) {
-					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU);
-					$media = getGameMedia($row->gid_EU, false);
-				}
-				if (!empty($row->gid_US)) {
-					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US);
-					$media = getGameMedia($row->gid_US, false);
-				}
-				if (!empty($row->gid_JP)) {
-					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP);
-					$media = getGameMedia($row->gid_JP, false);
-				}
-				if (!empty($row->gid_AS)) {
-					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS);
-					$media = getGameMedia($row->gid_AS, false);
-				}
-				if (!empty($row->gid_KR)) {
-					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR);
-					$media = getGameMedia($row->gid_KR, false);
-				}
-				if (!empty($row->gid_HK)) {
-					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK);
-					$media = getGameMedia($row->gid_HK, false);
-				}
-				$s_content .= "</div>";
-
-				$s_content .= "<div class=\"divTableCell\">";
-				$s_content .= "{$media}{$row->game_title}";
-				if (!is_null($row->alternative_title)) {
-					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
-				}
-				$s_content .= "</div>";
-
-				$s_content .= "<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
-				<div class=\"divTableCell\">{$row->new_date}</div>
-				<div class=\"divTableCell\">".getColoredStatus($row->old_status)."</div>
-				<div class=\"divTableCell\">{$row->old_date}</div>
-				</div>";
-			}
-			$s_content .= "</div></div><br>";
+		// Cell 1: Regions
+		$cell = "";
+		foreach ($entry->IDs as $id) {
+			$cell .= getThread(getGameRegion($id[0], false), $id[1]);
+			$media = getGameMedia($id[0], false);
 		}
+		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+
+		// Cell 2: Media and Titles
+		$cell = "{$media}{$entry->title}";
+		if (!is_null($entry->title2)) {
+			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})";
+		}
+		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+
+		// Cell 3: New Status
+		$cell = getColoredStatus($entry->new_status);
+		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+
+		// Cell 4: New Date
+		$cell = $entry->new_date;
+		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+
+		// Cell 5: Old Status (If existent)
+		if (!is_null($entry->old_status)) {
+			$cell = getColoredStatus($entry->old_status);
+			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		}
+
+		// Cell 6: Old Date (If existent)
+		if (!is_null($entry->old_date)) {
+			$cell = $entry->old_date;
+			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		}
+
+		$s_content .= "</div>";
 	}
 
-	if ($get['m'] == "n" || $get['m'] == "") {
-		$nQuery = mysqli_query($db, "SELECT id, old_status, old_date, new_status, new_date,
-		game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
-		game_title, alternative_title, game_history.* FROM game_history
-		LEFT JOIN game_list ON
-		game_history.gid_EU = game_list.gid_EU OR
-		game_history.gid_US = game_list.gid_US OR
-		game_history.gid_JP = game_list.gid_JP OR
-		game_history.gid_AS = game_list.gid_AS OR
-		game_history.gid_KR = game_list.gid_KR OR
-		game_history.gid_HK = game_list.gid_HK
-		WHERE old_status IS NULL
-		{$dateQuery}
-		ORDER BY new_status ASC, new_date DESC, game_title ASC; ");
-
-		if (!$nQuery) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">Please try again. If this error persists, please contact the RPCS3 team.</p>";
-		} elseif (mysqli_num_rows($nQuery) == 0) {
-			$s_content .= "<p class=\"compat-tx1-criteria\">No newer entries were reported and/or reviewed yet.</p>";
-		} else {
-
-			$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
-			$s_content .= "<div class='divTable history-table'>";
-			$s_content .= self::getHistoryHeaders(false);
-
-			$s_content .= "<div class='divTableBody'>";
-			while($row = mysqli_fetch_object($nQuery)) {
-				$s_content .= "<div class='divTableRow'>";
-
-				$s_content .= "<div class=\"divTableCell\">";
-				if (!empty($row->gid_EU)) {
-					$s_content .= getThread(getGameRegion($row->gid_EU, false), $row->tid_EU);
-					$media = getGameMedia($row->gid_EU, false);
-				}
-				if (!empty($row->gid_US)) {
-					$s_content .= getThread(getGameRegion($row->gid_US, false), $row->tid_US);
-					$media = getGameMedia($row->gid_US, false);
-				}
-				if (!empty($row->gid_JP)) {
-					$s_content .= getThread(getGameRegion($row->gid_JP, false), $row->tid_JP);
-					$media = getGameMedia($row->gid_JP, false);
-				}
-				if (!empty($row->gid_AS)) {
-					$s_content .= getThread(getGameRegion($row->gid_AS, false), $row->tid_AS);
-					$media = getGameMedia($row->gid_AS, false);
-				}
-				if (!empty($row->gid_KR)) {
-					$s_content .= getThread(getGameRegion($row->gid_KR, false), $row->tid_KR);
-					$media = getGameMedia($row->gid_KR, false);
-				}
-				if (!empty($row->gid_HK)) {
-					$s_content .= getThread(getGameRegion($row->gid_HK, false),	$row->tid_HK);
-					$media = getGameMedia($row->gid_HK, false);
-				}
-				$s_content .= "</div>";
-
-				$s_content .= "<div class=\"divTableCell\">";
-				$s_content .= "{$media}{$row->game_title}";
-				if (!is_null($row->alternative_title)) {
-					$s_content .= "&nbsp;&nbsp;({$row->alternative_title})";
-				}
-				$s_content .= "</div>";
-
-				$s_content .= "<div class=\"divTableCell\">".getColoredStatus($row->new_status)."</div>
-				<div class=\"divTableCell\">{$row->new_date}</div>
-				</div>";
-			}
-			$s_content .= "</div></div><br>";
-		}
-	}
-
-	// Close MySQL connection again since it won't be required
-	mysqli_close($db);
+	$s_content .= "</div>";
 
 	return $s_content;
 }
 
 
+public static function getHistoryContent() {
+	global $get, $a_existing, $a_new, $error_existing, $error_new;
+
+	// Initialize string
+	$s_content = "";
+
+	// Existing entries table
+	if ($error_existing != "") {
+		$s_content .= "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
+	} elseif (!is_null($a_existing)) {
+		$s_content .= "<div class='divTable history-table'>";
+		$s_content .= self::getTableHeaders();
+		$s_content .= self::getTableContent($a_existing);
+		$s_content .= "</div><br>";
+	}
+
+	// New entries table
+	if ($error_new != "") {
+		$s_content .= "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
+	} elseif (!is_null($a_new)) {
+		$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
+		$s_content .= "<div class='divTable history-table'>";
+		$s_content .= self::getTableHeaders(false);
+		$s_content .= self::getTableContent($a_new);
+		$s_content .= "</div><br>";
+	}
+
+	return $s_content;
+}
+
+
+// TODO: Refactor RSS
 public static function getHistoryRSS(){
 	global $c_forum, $get, $a_histdates, $a_currenthist;
 
