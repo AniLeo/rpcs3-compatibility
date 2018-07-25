@@ -522,6 +522,9 @@ function compareThreads($update = false) {
 		cacheCommitCache();
 		// Recache status counts for general search
 		cacheStatusCount();
+		// Recache initials cache
+		cacheInitials();
+
 	}
 
 	echo "</p>";
