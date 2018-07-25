@@ -211,51 +211,18 @@ public static function getHistoryContent() {
 }
 
 
-// TODO: Refactor RSS
-public static function getHistoryRSS(){
-	global $c_forum, $get, $a_histdates, $a_currenthist;
+public static function getHistoryRSS() {
+	global $a_rss, $error_rss;
 
-	$db = getDatabase();
+	// Should be unreachable, function should never be called without set $_GET['rss']
+	if (is_null($a_rss)) return;
 
-	if ($get['h'] == $a_currenthist[0]) {
-		$dateQuery = " AND new_date >= CAST('{$a_currenthist[2]}' AS DATE) ";
-	} else {
-		$dateQuery = " AND new_date BETWEEN
-		CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
-		AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
-	}
-
-	$rssCmd = "SELECT id, old_status, old_date, new_status, new_date,
-	game_list.tid_EU, game_list.tid_US, game_list.tid_JP, game_list.tid_AS, game_list.tid_KR, game_list.tid_HK,
-	game_title, alternative_title, game_history.* FROM game_history
-	LEFT JOIN game_list ON
-	game_history.gid_EU = game_list.gid_EU OR
-	game_history.gid_US = game_list.gid_US OR
-	game_history.gid_JP = game_list.gid_JP OR
-	game_history.gid_AS = game_list.gid_AS OR
-	game_history.gid_KR = game_list.gid_KR OR
-	game_history.gid_HK = game_list.gid_HK
-	WHERE game_title IS NOT NULL ";
-	if ($get['m'] == "c") {
-		$rssCmd .= " AND old_status IS NOT NULL ";
-	} elseif ($get['m'] == "n") {
-		$rssCmd .= " AND old_status IS NULL ";
-	}
-	$rssCmd .= " {$dateQuery}
-	ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ";
-
-	$rssQuery = mysqli_query($db, $rssCmd);
-
-	mysqli_close($db);
-
-	if (!$rssQuery) {
-		return "An error occurred. Please try again. If the issue persists contact RPCS3 team.";
-	}
+	if ($error_rss != "") return $error_rss;
 
 	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	$url = str_replace('&', '&amp;', $url);
 
-		$rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	$rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 				<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
 				<channel>
 				<title>RPCS3 Compatibility List History's RSS feed</title>
@@ -264,27 +231,25 @@ public static function getHistoryRSS(){
 				<language>en-uk</language>
 				<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
 
-		while($row = mysqli_fetch_object($rssQuery)) {
+	foreach ($a_rss as $key => $entry) {
+		$rssfeed .= "<item>
+					<title><![CDATA[{$entry->title}]]></title>
+					<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0][0]}_{$entry->new_date}</guid>";
 
-				$rssfeed .= "<item>
-					<title><![CDATA[{$row->game_title}]]></title>
-					<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$row->id}</guid>";
-
-		if ($row->old_status !== NULL) {
-			$rssfeed .= "<description>Updated from {$row->old_status} ({$row->old_date}) to {$row->new_status} ({$row->new_date})</description>";
+		if ($entry->old_status !== NULL) {
+			$rssfeed .= "<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>";
 		} else {
-			$rssfeed .= "<description>New entry for {$row->new_status} ({$row->new_date})</description>";
+			$rssfeed .= "<description>New entry for {$entry->new_status} ({$entry->new_date})</description>";
 		}
 
-		$rssfeed .= "<pubDate>".date('r', strtotime($row->new_date))."</pubDate>
+		$rssfeed .= "<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 					</item>";
-		}
+	}
 
-		$rssfeed .= "</channel>
-				</rss>";
+	$rssfeed .= "</channel>
+			</rss>";
 
-
-		return $rssfeed;
+	return $rssfeed;
 }
 
 } // End of Class

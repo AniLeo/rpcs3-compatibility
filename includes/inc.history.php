@@ -36,8 +36,10 @@ $db = getDatabase();
 
 $a_existing = NULL;
 $a_new = NULL;
+$a_rss = NULL;
 $error_existing = "";
 $error_new = "";
+$error_rss = "";
 
 
 // Main part of the query
@@ -65,7 +67,7 @@ if ($get['h'] == $a_currenthist[0]) {
 
 
 // Existing entries
-if ($get['m'] == "c" || $get['m'] == "") {
+if (!isset($_GET['rss']) && ($get['m'] == "c" || $get['m'] == "")) {
   $q_existing = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NOT NULL {$cmd_date}
   ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC; ");
 
@@ -83,7 +85,7 @@ if ($get['m'] == "c" || $get['m'] == "") {
 
 
 // New entries
-if ($get['m'] == "n" || $get['m'] == "") {
+if (!isset($_GET['rss']) && ($get['m'] == "n" || $get['m'] == "")) {
   $q_new = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NULL {$cmd_date}
   ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC; ");
 
@@ -97,6 +99,28 @@ if ($get['m'] == "n" || $get['m'] == "") {
 
   while ($row = mysqli_fetch_object($q_new))
     $a_new[] = HistoryEntry::rowToHistoryEntry($row);
+}
+
+
+// RSS - Existing/New entries
+if (isset($_GET['rss'])) {
+  $cmd_rss = "";
+  if ($get['m'] == "c")     { $cmd_rss .= " AND `old_status` IS NOT NULL "; }
+  elseif ($get['m'] == "n") { $cmd_rss .= " AND `old_status` IS NULL "; }
+
+  $q_rss = mysqli_query($db, "{$cmd_main} WHERE `game_title` IS NOT NULL {$cmd_rss} {$cmd_date}
+  ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ");
+
+  if (!$q_rss) {
+    $error_rss = "Please try again. If this error persists, please contact the RPCS3 team.";
+  } elseif (mysqli_num_rows($q_rss) === 0) {
+    $error_rss = "No newer entries were reported and/or reviewed yet.";
+  }
+
+  $a_rss = array();
+
+  while ($row = mysqli_fetch_object($q_rss))
+    $a_rss[] = HistoryEntry::rowToHistoryEntry($row);
 }
 
 
