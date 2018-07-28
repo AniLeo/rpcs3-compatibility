@@ -46,6 +46,8 @@ $a_order = array(
 '4d' => 'ORDER BY last_update DESC, game_title ASC'
 );
 
+// Game array to store games
+$games = null;
 
 // Obtain values from get
 prof_flag("Inc: Obtain GET");
@@ -64,10 +66,6 @@ $genquery = Compat::generateQuery($get, $db);
 // Get game count per status
 prof_flag("Inc: Count Games (Search)");
 $scount = countGames($db, $genquery[1]);
-
-// Get the total count of entries present in the database (not subjective to search params)
-prof_flag("Inc: Count Games (All)");
-$games = countGames($db, 'all');
 
 // Pages / CurrentPage
 prof_flag("Inc: Count Pages");

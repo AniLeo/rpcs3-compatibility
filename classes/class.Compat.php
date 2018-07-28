@@ -285,7 +285,16 @@ gameID
 */
 
 public static function APIv1() {
-	global $q_main, $c_maintenance, $games, $l_title;
+	global $c_maintenance, $games, $info, $error, $l_title;
+
+	// Array to returned, then encoded in JSON
+	$results = array();
+	$results['return_code'] = 0;
+
+	if ($error == "Please try again. If this error persists, please contact the RPCS3 team.") {
+		$results['return_code'] = -1;
+		return $results;
+	}
 
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
@@ -297,9 +306,16 @@ public static function APIv1() {
 		return $results;
 	}
 
-	// Array to returned, then encoded in JSON
-	$results = array();
-	$results['return_code'] = 0;
+	if (is_null($games)) {
+		$results['return_code'] = 1;
+		return $results;
+	}
+
+	// No results found for {$l_orig}. Displaying results for {$l_title}.
+	if (!is_null($info)) {
+		$results['return_code'] = 2;
+		$results['search_term'] = $l_title;
+	}
 
 	foreach ($games as $game) {
 		foreach ($game->IDs as $id) {
@@ -313,19 +329,6 @@ public static function APIv1() {
 			'pr' => (int) $game->pr
 			);
 		}
-	}
-
-	if ($q_main) {
-		if (mysqli_num_rows($q_main) > 0) {
-			if ($l_title != "") {
-				$results['return_code'] = 2; // No results found for {$l_orig}. Displaying results for {$l_title}.
-				$results['search_term'] = $l_title;
-			}
-		} else {
-			$results['return_code'] = 1;
-		}
-	} else {
-		$results['return_code'] = -1;
 	}
 
 	return $results;
