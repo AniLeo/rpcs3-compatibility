@@ -46,42 +46,38 @@ else										{ $c_pageresults = 50; }
 // Allowed values for results per page
 $a_pageresults = array(25, 50, 100, 200);
 
-// Status titles
-$a_title = array(
-'All',
-'Playable',
-'Ingame',
-'Intro',
-'Loadable',
-'Nothing'
-);
-
-// Status descriptions
-$a_desc = array(
-'Show games from all statuses',
-'Games that can be properly played from start to finish',
-'Games that either can\'t be finished, have serious glitches or have insufficient performance',
-'Games that display image but don\'t make it past the menus',
-'Games that display a black screen with a framerate on the window\'s title',
-'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
-);
-
-// Status colors
-$a_color = array(
-1 => '1ebc61',
-2 => 'f9b32f',
-3 => 'e08a1e',
-4 => 'e74c3c',
-5 => '455556'
-);
-
-// Status forum IDs
-$a_fid = array(
-5 => 'Playable',
-6 => 'Ingame',
-7 => 'Intro',
-8 => 'Loadable',
-9 => 'Nothing'
+// Game status data
+$a_status = array(
+	1 => array(
+		'name' => "Playable",
+		'desc' => "Games that can be properly played from start to finish",
+		'color' => "1ebc61",
+		'fid' => 5
+	),
+	2 => array(
+		'name' => "Ingame",
+		'desc' => "Games that either can't be finished, have serious glitches or have insufficient performance",
+		'color' => "f9b32f",
+		'fid' => 6
+	),
+	3 => array(
+		'name' => "Intro",
+		'desc' => "Games that display image but don't make it past the menus",
+		'color' => "e08a1e",
+		'fid' => 7
+	),
+	4 => array(
+		'name' => "Loadable",
+		'desc' => "Games that display a black screen with a framerate on the window's title",
+		'color' => "e74c3c",
+		'fid' => 8
+	),
+	5 => array(
+		'name' => "Nothing",
+		'desc' => "Games that don't initialize properly, not loading at all and/or crashing the emulator",
+		'color' => "455556",
+		'fid' => 9
+	)
 );
 
 // Regions (GameIDs)

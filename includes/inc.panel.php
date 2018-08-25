@@ -121,19 +121,24 @@ if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 
 
 function checkInvalidThreads() {
-	global $a_fid;
+	global $a_status;
 
 	$db = getDatabase();
 
 	$invalid = 0;
 	$output = '';
 
+	// Store forumID -> statusID
+	$FidToSid = array();
+
 	// Generate WHERE condition for our query
 	// Includes all forum IDs for the game status sections
 	$where = '';
-	foreach ($a_fid as $fid => $status) {
+	foreach ($a_status as $id => $status) {
 		if ($where != '') $where .= "||";
-		$where .= " `fid` = {$fid} ";
+		$where .= " `fid` = {$status['fid']} ";
+
+		$FidToSid[$status['fid']] = $id;
 	}
 
 	$a_threads = array();
@@ -146,7 +151,7 @@ function checkInvalidThreads() {
 
 		if (isGameID($gid)) {
 			$a_threads[$row->tid][0] = $gid;
-			$a_threads[$row->tid][1] = $a_fid[$row->fid];
+			$a_threads[$row->tid][1] = $FidToSid[$row->fid];
 		} else {
 			$output .= "<p class='compat-tvalidity-list'>Thread ".getThread($row->subject, $row->tid)." is incorrectly formatted.</p>";
 		}
@@ -171,11 +176,11 @@ function checkInvalidThreads() {
 				$output .= "- Forums: {$a_threads[$id[1]][0]}<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($game->status != $a_threads[$id[1]][1]) {
+			} elseif ($game->status != $a_status[$a_threads[$id[1]][1]]['name']) {
 				$output .= "<p class='compat-tvalidity-list'>";
 				$output .= "Thread ".getThread("{$id[1]}: [{$id[0]}] {$game->title}", $id[1])." is in the wrong section.<br>";
 				$output .= "- Compat: {$game->status} <br>";
-				$output .= "- Forums: {$a_threads[$id[1]][1]}<br>";
+				$output .= "- Forums: {$a_status[$a_threads[$id[1]][1]]['name']}<br>";
 				$output .= "</p>";
 				$invalid++;
 			}
@@ -192,20 +197,19 @@ function checkInvalidThreads() {
 }
 
 
+// TODO: Refactoring
 function compareThreads($update = false) {
-	global $a_color, $a_title, $c_forum;
+	global $a_status, $c_forum;
 
 	set_time_limit(600);
 
 	$db = getDatabase();
 
-	$a_status = array(
-	'Playable' => 5,
-	'Ingame' => 6,
-	'Intro' => 7,
-	'Loadable' => 8,
-	'Nothing' => 9
-	);
+	// Store forumID -> statusID
+	$FidToSid = array();
+	foreach ($a_status as $id => $status) {
+		$FidToSid[$status['fid']] = $id;
+	}
 
 	$a_regions = array(
 	'E' => 'EU',
@@ -227,7 +231,7 @@ function compareThreads($update = false) {
 		$a_commits[substr($row->commit, 0, 7)] = array($row->commit, $row->merge_datetime);
 	}
 
-	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_list.*
+	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_list.*, game_list.status+0 AS statusID
 	FROM rpcs3_forums.mybb_threads
 	LEFT JOIN rpcs3_compatibility.game_list ON
 	mybb_threads.tid = game_list.tid_EU OR
@@ -256,6 +260,8 @@ function compareThreads($update = false) {
 		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
 		$gid = substr($row->subject, -10, 9);
 
+		$sid = $FidToSid[$row->fid];
+
 		if (!ctype_alnum($gid) || strlen($gid) != 9 || !is_numeric(substr($gid, 4, 5)) || !array_key_exists(substr($gid, 2, 1), $a_regions)) {
 
 			// If the GameID is invalid
@@ -263,13 +269,11 @@ function compareThreads($update = false) {
 
 		} else {
 
-			$sid = $row->fid - 4;
-
 			if (is_null($row->gid_EU) && is_null($row->gid_US) && is_null($row->gid_JP)
 			&& is_null($row->gid_AS) && is_null($row->gid_KR) && is_null($row->gid_HK)) {
 
 				echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).")<br>";
-				echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
+				echo "- To: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
 
 				$title = str_replace(" [{$gid}]", "", "{$row->subject}");
 
@@ -296,7 +300,8 @@ function compareThreads($update = false) {
 						"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
 						'region' => $a_regions[substr($gid, 2, 1)],
 						'game_title' => $title,
-						'status' => array_search($row->fid, $a_status),
+						'status' => $a_status[$sid]['name'],
+						'statusID' => $sid,
 						'commit' => 0,
 						'last_update' => date('Y-m-d', $row->lastpost),
 						'action' => 'new',
@@ -305,17 +310,18 @@ function compareThreads($update = false) {
 
 				}
 
-			} elseif ($a_status[$row->status] != $row->fid) {
+			} elseif ($row->statusID != $sid) {
 				// TODO: Fix mov, handle other threads on the same entry
 				echo "<b>Mov:</b> {$gid} - {$row->game_title} (tid:".getThread($row->tid, $row->tid).")<br>";
-				echo "- To: <span style='color:#{$a_color[$sid]}'>".array_search($row->fid, $a_status)."</span><br>";
-				echo "- From: <span style='color:#{$a_color[$a_status[$row->status]-4]}'>{$row->status}</span><br>";
+				echo "- To: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
+				echo "- From: <span style='color:#{$a_status[$row->statusID]['color']}'>{$row->status}</span><br>";
 
 				if (array_key_exists($row->tid, $a_duplicates)) {
 
 					// Update status
-					if ($a_status[$a_games[$a_duplicates[$row->tid]]['status']] < $row->fid) {
-						$a_games[$a_duplicates[$row->tid]]['status'] = array_search($row->fid, $a_status);
+					if ($a_games[$a_duplicates[$row->tid]]['statusID'] != $sid) {
+						$a_games[$a_duplicates[$row->tid]]['status'] = $a_status[$sid]['name'];
+						$a_games[$a_duplicates[$row->tid]]['statusID'] = $sid;
 					}
 					// Update last_update
 					if (strtotime($a_games[$a_duplicates[$row->tid]]['last_update']) < $row->lastpost) {
@@ -328,7 +334,8 @@ function compareThreads($update = false) {
 					"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
 					'region' => $a_regions[substr($gid, 2, 1)],
 					'game_title' => $row->game_title,
-					'status' => array_search($row->fid, $a_status),
+					'status' => $a_status[$sid]['name'],
+					'statusID' => $sid,
 					'commit' => 0,
 					'last_update' => date('Y-m-d', $row->lastpost),
 					'action' => 'mov',
@@ -514,7 +521,7 @@ function compareThreads($update = false) {
 		}
 		// Update other threads on updated games
 		foreach ($a_duplicates as $key => $value) {
-			$fid = $a_status[$a_games[$value]['status']];
+			$fid = array_search($a_games[$value]['statusID'], $FidToSid);
 			mysqli_query($db, "UPDATE rpcs3_forums.mybb_threads SET fid = '{$fid}' WHERE tid = '{$key}'; ");
 		}
 
@@ -548,8 +555,6 @@ function recacheContributors() {
 
 /* WIP
 function getNewTests() {
-
-	global $a_color, $a_title;
 
 	$db = getDatabase();
 

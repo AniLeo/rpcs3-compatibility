@@ -140,7 +140,7 @@ class Game {
 		* @return object $array   Sorted array of Games
 		*/
 	public static function sort(&$array, $type, $order) {
-		global $a_title;
+		global $a_status;
 
 		$sorted = array();
 
@@ -180,15 +180,15 @@ class Game {
 
 			if ($order == 'a') {
 				$i = 1;
-				$limit = count($a_title);
+				$limit = count($a_status);
 			} elseif ($order == 'd') {
-				$i = count($a_title)-1;
+				$i = count($a_status);
 				$limit = 1;
 			}
 
-			for ($i; $order == 'a' ? $i < $limit : $i >= $limit; $order == 'a' ? $i++ : $i--) {
+			for ($i; $order == 'a' ? $i <= $limit : $i >= $limit; $order == 'a' ? $i++ : $i--) {
 				foreach ($array as $key => $game) {
-					if ($game->status == $a_title[$i]) {
+					if ($game->status == $a_status[$i]['name']) {
 						$sorted[] = $game;
 						unset($array[$key]);
 					}

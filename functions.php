@@ -190,10 +190,10 @@ function getThread($text, $tid) {
 	* @return string
 	*/
 function getColoredStatus($sn) {
-	global $a_title, $a_color;
+	global $a_status;
 
-	foreach (range((min(array_keys($a_title))+1), max(array_keys($a_title))) as $i) {
-		if ($sn == $a_title[$i]) { return "<div class='txt-compat-status' style='background: #{$a_color[$i]};'>{$a_title[$i]}</div>"; }
+	foreach ($a_status as $id => $status) {
+		if ($sn == $status['name']) { return "<div class='txt-compat-status' style='background: #{$status['color']};'>{$status['name']}</div>"; }
 	}
 
 	// This should be unreachable unless someone wrongly inputs status in the database
@@ -232,7 +232,7 @@ function highlightText($str) {
 
 
 function validateGet($db = null) {
-	global $a_pageresults, $c_pageresults, $a_title, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
+	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
 
 	// Start new $get array
 	$get = array();
@@ -263,7 +263,7 @@ function validateGet($db = null) {
 	}
 
 	// Status
-	if (isset($_GET['s']) && array_key_exists($_GET['s'], $a_title)) {
+	if (isset($_GET['s']) && ($_GET['s'] == 0 || array_key_exists($_GET['s'], $a_status))) {
 		$get['s'] = $_GET['s'];
 	}
 
@@ -334,7 +334,7 @@ function validateGet($db = null) {
 
 // Select the count of games in each status, subjective to query restrictions
 function countGames($db = null, $query = '') {
-	global $get, $a_title;
+	global $get, $a_status;
 
 	if ($db == null) {
 		$db = getDatabase();
@@ -359,36 +359,35 @@ function countGames($db = null, $query = '') {
 			$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
 			return $a_count;
 		} else {
-			$q_gen = mysqli_query($db, "SELECT status, count(*) AS c FROM game_list GROUP BY status;");
+			$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list GROUP BY status;");
 		}
 
 	} else {
 		// Query defined, return count of games with searched parameters
-		$q_gen = mysqli_query($db, "SELECT status, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;");
+		$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;");
 	}
 
 	// Zero-fill the array keys that are going to be used
-	foreach ($a_title as $i => $title) {
-		$scount[0][$i] = 0;
-		$scount[1][$i] = 0;
+	$scount[0][0] = 0;
+	$scount[1][0] = 0;
+	foreach ($a_status as $id => $status) {
+		$scount[0][$id] = 0;
+		$scount[1][$id] = 0;
 	}
 
 	while ($row = mysqli_fetch_object($q_gen)) {
 
-		// Get Status ID
-		$id = array_search($row->status, $a_title);
-
 		// For count with specified status, include only results for specified status
-		if ($id == $get['s']) {
-			$scount[0][$id] = (int)$row->c;
+		if ($row->statusID == $get['s']) {
+			$scount[0][$row->statusID] = (int)$row->c;
 			$scount[0][0] = (int)$row->c;
 		}
 
 		// Add count from status to the array
-		$scount[1][$id] = (int)$row->c;
+		$scount[1][$row->statusID] = (int)$row->c;
 
 		// Instead of querying the database once more add all the previous counts to get the total count
-		$scount[1][0] += $scount[1][$id];
+		$scount[1][0] += $scount[1][$row->statusID];
 	}
 
 	// If no status is specified, fill status-specified array normally
@@ -546,7 +545,7 @@ function countPages($get, $count) {
  * Status Module *
  *****************/
 function generateStatusModule($getCount = true) {
-	global $a_desc, $a_color, $a_title;
+	global $a_status;
 
 	// Get games count per status
 	$count = countGames()[0];
@@ -555,23 +554,23 @@ function generateStatusModule($getCount = true) {
 	$output = "";
 
 	// Pretty output for readability
-	foreach (range((min(array_keys($a_desc))+1), max(array_keys($a_desc))) as $i) {
+	foreach ($a_status as $id => $status) {
 
 		$output .= "<div class='compat-status-main'>\n";
-		$output .= "<div class='compat-status-icon' style='background:#{$a_color[$i]}'></div>\n";
+		$output .= "<div class='compat-status-icon' style='background:#{$status['color']}'></div>\n";
 		$output .= "<div class='compat-status-text'>\n";
-		$output .= "<p style='color:#{$a_color[$i]}'><strong>{$a_title[$i]}";
+		$output .= "<p style='color:#{$status['color']}'><strong>{$status['name']}";
 
 		if ($getCount) {
-			$percentage = round(($count[$i]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
+			$percentage = round(($count[$id]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
 			$output .= " ({$percentage}%)";
 		}
 
-		$output .= ":</strong></p>&nbsp;&nbsp;{$a_desc[$i]}\n</div>\n";
+		$output .= ":</strong></p>&nbsp;&nbsp;{$status['desc']}\n</div>\n";
 
 		if ($getCount) {
 			$output .= "<div class='compat-status-progress'>\n";
-			$output .= "<progress class='compat-status-progressbar' id='compat-progress{$i}' style=\"color:#{$a_color[$i]}\" max=\"100\" value=\"{$percentage}\"></progress>\n";
+			$output .= "<progress class='compat-status-progressbar' id='compat-progress{$id}' style=\"color:#{$status['color']}\" max=\"100\" value=\"{$percentage}\"></progress>\n";
 			$output .= "</div>\n";
 		}
 

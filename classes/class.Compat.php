@@ -108,21 +108,21 @@ static function generateQuery($get, $db = null) {
  * Sort By *
  ***********/
 public static function getSortBy() {
-	global $a_title, $a_desc, $scount, $get;
+	global $a_status, $scount, $get;
 
-	// Initialize string
-	$s_sortby = "";
+	// All
+	$s_sortby = "<a title=\"Show games from all statuses\" href=\"?".combinedSearch(true, false, true, true, false, true, true, true)."s=0\">";
+	$s_sortby .= ($get['s'] == 0) ? highlightText("All ({$scount[1][0]})") : "All ({$scount[1][0]})";
+	$s_sortby .= "</a>";
 
-	foreach ($a_title as $i => $title) {
+	foreach ($a_status as $id => $status) {
 		// Displays status description when hovered on
-		$s_sortby .= "<a title=\"{$a_desc[$i]}\" href=\"?";
+		$s_sortby .= "<a title=\"{$status['desc']}\" href=\"?";
 		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
-		$s_sortby .= "s={$i}\">";
-
-		$temp = "{$title} ({$scount[1][$i]})";
+		$s_sortby .= "s={$id}\">";
 
 		// If the current selected status, highlight with bold
-		$s_sortby .= ($get['s'] == $i) ? highlightText($temp) : $temp;
+		$s_sortby .= ($get['s'] == $id) ? highlightText("{$status['name']} ({$scount[1][$id]})") : "{$status['name']} ({$scount[1][$id]})";
 
 		$s_sortby .= "</a>";
 	}
