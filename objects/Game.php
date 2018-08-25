@@ -45,7 +45,7 @@ class Game {
 
 		if (!is_null($a_wiki) && !is_null($wiki)) {
 			$this->wikiID = $wiki;
-			$this->wikiTitle = $a_wiki[$wiki];
+			$this->wikiTitle = urlencode($a_wiki[$wiki]);
 		}
 
 		if (!is_null($a_cache) && ($shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache))) {
