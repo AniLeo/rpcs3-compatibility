@@ -66,15 +66,6 @@ $a_desc = array(
 'Games that don\'t initialize properly, not loading at all and/or crashing the emulator'
 );
 
-// Status forum IDs
-$a_fid = array(
-5 => 'Playable',
-6 => 'Ingame',
-7 => 'Intro',
-8 => 'Loadable',
-9 => 'Nothing'
-);
-
 // Status colors
 $a_color = array(
 1 => '1ebc61',
@@ -82,6 +73,15 @@ $a_color = array(
 3 => 'e08a1e',
 4 => 'e74c3c',
 5 => '455556'
+);
+
+// Status forum IDs
+$a_fid = array(
+5 => 'Playable',
+6 => 'Ingame',
+7 => 'Intro',
+8 => 'Loadable',
+9 => 'Nothing'
 );
 
 // Regions (GameIDs)
@@ -133,8 +133,9 @@ $a_histdates = array(
 	'2018_03' => array(array('y' => 2018, 'm' => 03, 'd' => 02),  array('y' => 2018, 'm' => 03,  'd' => 31)),
 	'2018_04' => array(array('y' => 2018, 'm' => 04, 'd' => 01),  array('y' => 2018, 'm' => 05,  'd' => 01)),
 	'2018_05' => array(array('y' => 2018, 'm' => 05, 'd' => 02),  array('y' => 2018, 'm' => 05,  'd' => 31)),
-	'2018_06' => array(array('y' => 2018, 'm' => 06, 'd' => 01),  array('y' => 2018, 'm' => 06,  'd' => 30))
+	'2018_06' => array(array('y' => 2018, 'm' => 06, 'd' => 01),  array('y' => 2018, 'm' => 06,  'd' => 30)),
+	'2018_07' => array(array('y' => 2018, 'm' => 07, 'd' => 01),  array('y' => 2018, 'm' => 07,  'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2018_07', 'July 1st, 2018', '2018-07-01');
+$a_currenthist = array('2018_08', 'August 1st, 2018', '2018-08-01');
