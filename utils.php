@@ -49,7 +49,7 @@ function cacheRoadmap() {
 	$content = file_get_contents("{$c_github}/wiki/Roadmap");
 
 	if ($content) {
-		$start = "<div id=\"wiki-body\" class=\"wiki-body gollum-markdown-content instapaper_body\">";
+		$start = "<div id=\"wiki-body\" class=\"mt-4 flex-auto min-width-0 gollum-markdown-content instapaper_body\">";
 		$end = "</div>";
 
 		$roadmap = explode($end, explode($start, $content)[1])[0];
