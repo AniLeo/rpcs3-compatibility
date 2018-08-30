@@ -181,7 +181,7 @@ public static function getTableContent($array) {
 
 
 public static function getHistoryContent() {
-	global $get, $a_existing, $a_new, $error_existing, $error_new;
+	global $a_existing, $a_new, $error_existing, $error_new;
 
 	// Initialize string
 	$s_content = "";

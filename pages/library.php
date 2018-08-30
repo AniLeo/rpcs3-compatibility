@@ -20,18 +20,18 @@
 <?php
 if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("Compat: inc.library.php is missing. Failed to include inc.library.php");
 ?>
-<div class='page-con-container'>
-	<div class='page-in-container'>
+<div class="page-con-container">
+	<div class="page-in-container">
 	<!-- container-con-block -->
-		<div class="container-con-block darkmode-block" style='padding-bottom:12px;'>
+		<div class="container-con-block darkmode-block" style="padding-bottom:12px;">
 
 			<!-- container-con-wrapper -->
-			<div class='container-con-wrapper'>
-				<div class='container-tx1-block compat-title'>
-					<p id='title1'>PS3 Game Library</p>
+			<div class="container-con-wrapper">
+				<div class="container-tx1-block compat-title">
+					<p id="title1">PS3 Game Library</p>
 					<?php echo getMenu(true, true, true, false, true); ?>
 				</div>
-				<div class='container-tx2-block compat-desc'>
+				<div class="container-tx2-block compat-desc">
 					<p>
 						The list of the whole PS3's game library known to mankind can be found at <a target='_blank' href='http://www.gametdb.com/PS3/List'>GameTDB</a>.
 						<br>

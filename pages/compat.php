@@ -24,15 +24,18 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 	<div class="page-in-container">
 		<!--End -->
 		<div class="container-con-block darkmode-block">
-			<div class='container-con-wrapper'>
+			<div class="container-con-wrapper">
 				<div class="container-tx1-block compat-title">
-					<p id='title1'>RPCS3 Compatibility List</p>
+					<p id="title1">RPCS3 Compatibility List</p>
 					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(false, true, true, true, true); ?>
 				</div>
-				<div class='container-tx2-block compat-desc'>
+				<div class="container-tx2-block compat-desc">
 					<p>
-						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest progressions and possible regressions.
+						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently.
+						Be sure to check this page often to follow the latest updates.
+						<br>
+						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
 					</p>
 				</div>
 			</div>
@@ -60,18 +63,15 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			}
 			?>
 			<!--End -->
-			<div id='compat-con-searchbox'>
+			<div id="compat-con-searchbox">
 				<?php prof_flag("Page: Display Searchbox"); ?>
-				<form method='get' id='game-search'>
-					<div id='searchbox'>
-						<?php
-							echo '<input id="searchbox-field" style ="background-color: transparent;" name="g" type="text" value="';
-							if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	}
-							echo '" placeholder="Game Title / Game ID" />';
-						?>
+				<form method="get" id="game-search">
+					<div id="searchbox">
+						<input id="searchbox-field" style ="background-color: transparent;" name="g" type="text"
+						value="<?php if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	}	?>" placeholder="Game Title / Game ID" />
 					</div>
-					<div id='compat-searchbox-div'>
-						<button id='compat-searchbox-button' type='submit' form='game-search'></button>
+					<div id="compat-searchbox-div">
+						<button id="compat-searchbox-button" type="submit" form="game-search"></button>
 					</div>
 				</form>
 			</div>

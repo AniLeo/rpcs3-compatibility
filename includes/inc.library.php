@@ -30,8 +30,11 @@ $start = getTime();
 $entries = 1;
 $a_db = array();
 $handle = fopen(__DIR__."/../ps3tdb.txt", "r");
+
 while (!feof($handle)) {
+
 	$line = fgets($handle);
+
 	if (in_array(mb_substr($line, 0, 4), $a_filter)) {
 
 		$valid = true;
@@ -51,6 +54,24 @@ while (!feof($handle)) {
 	}
 
 }
+
 fclose($handle);
-$pages = ceil($entries / $get['r']);
+$pages = countPages($get, $entries);
 $currentPage = getCurrentPage($pages);
+
+// If the above search returns no games in the selected categories, no need to waste database time
+if ($a_db) {
+	// Get all games in the database (ID => Data)
+	$db = getDatabase();
+	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`"), true, false);
+	$a_games = array();
+	foreach ($games as $game)
+		foreach ($game->IDs as $id)
+			$a_games[$id[0]] = array(
+				'title' => $game->title,
+				'thread' => $id[1],
+				'last_update' => $game->date,
+				'pr' => $game->pr
+			);
+	mysqli_close($db);
+}

@@ -54,7 +54,7 @@ class WindowsBuild {
 			$this->author = (String) $a_contributors[$authorID];
 		} else {
 			$db = getDatabase();
-			$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT username FROM `contributors` WHERE id = {$authorID};"))->username;
+			$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT `username` FROM `contributors` WHERE `id` = {$authorID};"))->username;
 			mysqli_close($db);
 		}
 		$this->authorID = $authorID;
@@ -144,7 +144,7 @@ class WindowsBuild {
 		*/
 	public static function getLast() {
 		$db = getDatabase();
-		$query = mysqli_query($db, "SELECT * FROM builds_windows ORDER BY merge_datetime DESC LIMIT 1;");
+		$query = mysqli_query($db, "SELECT * FROM `builds_windows` ORDER BY `merge_datetime` DESC LIMIT 1;");
 		if (mysqli_num_rows($query) === 0) return null;
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);

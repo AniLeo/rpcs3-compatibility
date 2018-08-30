@@ -76,7 +76,7 @@ $currentPage = getCurrentPage($pages);
 
 
 // Generate the main query
-$c_main = "SELECT * FROM game_list ";
+$c_main = "SELECT * FROM `game_list` ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
 $c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
@@ -92,9 +92,9 @@ prof_flag("Inc: Initials + Levenshtein");
 if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 
 	// Initials
-	$q_initials = mysqli_query($db, "SELECT * FROM initials_cache WHERE
-		initials LIKE '%".mysqli_real_escape_string($db, $get['g'])."%' &&
-		game_title NOT LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
+	$q_initials = mysqli_query($db, "SELECT * FROM `initials_cache` WHERE
+		`initials` LIKE '%".mysqli_real_escape_string($db, $get['g'])."%' &&
+		`game_title` NOT LIKE '%".mysqli_real_escape_string($db, $get['g'])."%'; ");
 
 	if ($q_initials && mysqli_num_rows($q_initials) > 0) {
 

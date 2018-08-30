@@ -55,13 +55,13 @@ $db = getDatabase();
 
 // Calculate pages and current page
 prof_flag("Inc: Count Pages");
-$pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM builds_windows"))->c / $get['r']);
+$pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds_windows`"))->c / $get['r']);
 prof_flag("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Main query
 prof_flag("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM builds_windows {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$buildsCommand = "SELECT * FROM `builds_windows` {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
 
 // Disconnect from database

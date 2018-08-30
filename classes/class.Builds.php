@@ -103,7 +103,7 @@ public static function getTableContent() {
 
 
 public static function getPagesCounter() {
-	global $pages, $currentPage, $get;
+	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
 

@@ -24,13 +24,13 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 	<div class="page-in-container">
 		<!--End -->
 		<div class="container-con-block darkmode-block">
-			<div class='container-con-wrapper'>
+			<div class="container-con-wrapper">
 				<div class="container-tx1-block compat-title">
-					<p id='title1'>RPCS3 Builds History <a href='compatibility?b&rss'>(RSS)</a></p>
+					<p id="title1">RPCS3 Builds History <a href="compatibility?b&rss">(RSS)</a></p>
 					<?php prof_flag("Page: Get Menu"); ?>
 					<?php echo getMenu(true, true, false, true, true); ?>
 				</div>
-				<div class='container-tx2-block compat-desc'>
+				<div class="container-tx2-block compat-desc">
 					<p>
 						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
 					</p>
