@@ -149,7 +149,9 @@ class WindowsBuild {
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
 
-		return self::rowToBuild($row, $a_contributors = null);
+		$a_contributors = null; // Strict Standards: Only variables should be passed by reference
+
+		return self::rowToBuild($row, $a_contributors);
 	}
 
 }

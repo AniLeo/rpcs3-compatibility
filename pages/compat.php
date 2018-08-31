@@ -102,7 +102,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</p>
 		</div>
 		<?php prof_flag("End"); ?>
-		<?php echo getFooter($start); ?>
+		<?php echo getFooter(); ?>
 		<!--End -->
 	</div>
 </div>

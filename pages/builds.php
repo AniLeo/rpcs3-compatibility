@@ -73,7 +73,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		</div>
 
 		<?php prof_flag("End"); ?>
-		<?php echo getFooter($start); ?>
+		<?php echo getFooter(); ?>
 		<!--End -->
 	</div>
 </div>

@@ -51,6 +51,6 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 
 		<?php echo History::getHistoryContent(); ?>
 
-		<?php echo getFooter($start); ?>
+		<?php echo getFooter(); ?>
 	</div> <!-- container-con-block -->
 </div>

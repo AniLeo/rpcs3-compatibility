@@ -22,10 +22,6 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.Library.php")) throw new Exception("Compat: class.Library.php is missing. Failed to include class.Library.php");
 
 
-// Start: Microtime when page started loading
-$start = getTime();
-
-
 // Count number of entries for page calculation and cache results on array
 $entries = 1;
 $a_db = array();

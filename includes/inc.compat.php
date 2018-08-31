@@ -25,12 +25,7 @@ if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cach
 if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception("Compat: class.Compat.php is missing. Failed to include class.Compat.php");
 
 
-// Start: Microtime when page started loading
-$start = getTime();
-
 // Profiler
-$prof_timing = array();
-$prof_names = array();
 $prof_desc = "Debug mode: Profiling compat";
 
 // Order queries
@@ -48,10 +43,6 @@ $a_order = array(
 
 // Game array to store games
 $games = null;
-
-// Obtain values from get
-prof_flag("Inc: Obtain GET");
-$get = validateGet($db);
 
 // Connect to database
 prof_flag("Inc: Database Connection");

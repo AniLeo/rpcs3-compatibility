@@ -25,11 +25,6 @@ if (!@include_once(__DIR__."/../utils.php")) throw new Exception("Compat: utils.
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
-// Start: Microtime when page started loading
-$start = getTime();
-
-$get = validateGet();
-
 /*
 TODO: Login system
 TODO: Self-made sessions system

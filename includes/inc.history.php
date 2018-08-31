@@ -24,12 +24,6 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.History.php")) throw new Exception("Compat: class.History.php is missing. Failed to include class.History.php");
 
 
-// Start: Microtime when page started loading
-$start = getTime();
-
-// Obtain values from get
-$get = validateGet();
-
 // Connect to database
 $db = getDatabase();
 

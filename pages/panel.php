@@ -84,7 +84,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 
 		<?php if (isset($message)) { echo $message; } ?>
 
-		<?php echo getFooter($start); ?>
+		<?php echo getFooter(); ?>
 
 	</div>
 </div>

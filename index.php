@@ -19,6 +19,8 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+$get = validateGet();
 
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
 
@@ -77,8 +79,13 @@ RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22
 **/
-if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php"); ?>
+if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php");
+
+$prof_timing = array();
+$prof_names = array();
+$start_memory = memory_get_usage(false);
+$start_time = getTime();
+?>
 <div class="page-con-content">
 	<div class="header-con-head">
 		<div class="header-img-head dynamic-banner">
@@ -91,7 +98,6 @@ if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw 
 			<div class='header-tx1-body fade-up-onstart'>
 				<h1>
 				<?php
-					$get = validateGet();
 					if (isset($_GET['h']))     { echo "HISTORY"; }
 					elseif (isset($_GET['b'])) { echo "BUILDS"; }
 					elseif (isset($get['a']))  { echo "DEBUG PANEL"; }

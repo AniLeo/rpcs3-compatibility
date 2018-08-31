@@ -491,21 +491,32 @@ function getTableHeaders($headers, $extra = '') {
 }
 
 
-function getFooter($start) {
-	global $prof_desc, $c_profiler, $get;
+function getFooter() {
+	global $prof_desc, $c_profiler, $get, $start_time, $start_memory;
 
-	// Finish: Microtime after the page loaded
-	$finish = getTime();
-	$total_time = round(($finish - $start)*1000,2);
+	// Total time in miliseconds
+	$total_time = round((getTime() - $start_time)*1000,2);
 
-	$s = "<p>Compatibility list developed and maintained by
+	$s = "Compatibility list developed and maintained by
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
-	Page loaded in {$total_time}ms</p>";
+	Page loaded in {$total_time}ms";
+
+	// Memory information
+	if ($get['w']) {
+		$s .= "<p style='line-height:20px; padding-bottom:15px;'>";
+		$s .= "Start Memory: ".round($start_memory/1024, 2)."kB<br>";
+		$s .= "End Memory: ".round(memory_get_usage(false)/1024, 2)."kB<br>";
+		$s .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)."kB<br>";
+		$s .= "</p>";
+	}
+
+	// Profiler information
 	if ($get['w'] && $c_profiler && !empty($prof_desc)) {
 		$s .= "<p style='line-height:20px; padding-bottom:15px;'><b>{$prof_desc}</b><br>".prof_print()."</p>";
 	}
-	return "<div id=\"compat-author\">{$s}</div>";
+
+	return "<div id=\"compat-author\"><p>{$s}</p></div>";
 }
 
 

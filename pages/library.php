@@ -96,6 +96,6 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 			</p>
 		</div>
 
-		<?php echo getFooter($start); ?>
+		<?php echo getFooter(); ?>
 	</div> <!-- container-con-block -->
 </div>

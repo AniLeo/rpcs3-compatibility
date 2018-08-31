@@ -24,12 +24,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception("Compat: class.Builds.php is missing. Failed to include class.Builds.php");
 
 
-// Start: Microtime when page started loading
-$start = getTime();
-
 // Profiler
-$prof_timing = array();
-$prof_names = array();
 $prof_desc = "Debug mode: Profiling builds";
 
 // Order queries
@@ -44,10 +39,6 @@ $a_order = array(
 '4a' => 'ORDER BY merge_datetime ASC',
 '4d' => 'ORDER BY merge_datetime DESC'
 );
-
-// Obtain values from get
-prof_flag("Inc: Obtain GET");
-$get = validateGet();
 
 // Connect to database
 prof_flag("Inc: Database Connection");
