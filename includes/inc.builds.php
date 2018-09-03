@@ -32,10 +32,6 @@ $a_order = array(
 '' => 'ORDER BY merge_datetime DESC',
 '1a' => 'ORDER BY pr ASC',
 '1d' => 'ORDER BY pr DESC',
-'2a' => 'ORDER BY author ASC',
-'2d' => 'ORDER BY author DESC',
-'3a' => 'ORDER BY merge_datetime ASC',
-'3d' => 'ORDER BY merge_datetime DESC',
 '4a' => 'ORDER BY merge_datetime ASC',
 '4d' => 'ORDER BY merge_datetime DESC'
 );
@@ -52,7 +48,9 @@ $currentPage = getCurrentPage($pages);
 
 // Main query
 prof_flag("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM `builds_windows` {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$buildsCommand = "SELECT * FROM `builds_windows` ";
+$buildsCommand .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
+$buildsCommand .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
 
 // Disconnect from database

@@ -268,8 +268,8 @@ function validateGet($db = null) {
 	}
 
 	// Order by
-	if (isset($_GET['o']) && isset($a_order) && array_key_exists($_GET['o'], $a_order)) {
-		$get['o'] = strtolower($_GET['o']);
+	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd')) {
+		$get['o'] = $_GET['o'];
 	}
 
 	// Character

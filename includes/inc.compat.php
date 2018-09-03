@@ -31,8 +31,6 @@ $prof_desc = "Debug mode: Profiling compat";
 // Order queries
 $a_order = array(
 '' => 'ORDER BY status ASC, game_title ASC',
-'1a' => '',
-'1d' => '',
 '2a' => 'ORDER BY game_title ASC',
 '2d' => 'ORDER BY game_title DESC',
 '3a' => 'ORDER BY status ASC, game_title ASC',
@@ -69,7 +67,8 @@ $currentPage = getCurrentPage($pages);
 // Generate the main query
 $c_main = "SELECT * FROM `game_list` ";
 if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
-$c_main .= $a_order[$get['o']]." LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+$c_main .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
+$c_main .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
 // Run the main query
 prof_flag("Inc: Execute Main Query ({$c_main})");

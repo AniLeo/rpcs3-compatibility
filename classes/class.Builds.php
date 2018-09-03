@@ -43,7 +43,7 @@ public static function getTableHeaders() {
 
 	$headers = array(
 		'Pull Request' => 1,
-		'Author' => 2,
+		'Author' => 0,
 		'Lines of Code' => 0,
 		'Build Date' => 4,
 		'Download' => 0

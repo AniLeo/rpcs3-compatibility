@@ -85,6 +85,7 @@ $prof_timing = array();
 $prof_names = array();
 $start_memory = memory_get_usage(false);
 $start_time = getTime();
+prof_flag("Index: Start");
 ?>
 <div class="page-con-content">
 	<div class="header-con-head">
