@@ -33,18 +33,13 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 
 				<div id="debug-left" class="debug-main">
 					<ul>
-						<li><a href="?a=updateBuildCache">Update Build Cache</a></li>
-						<li><a href="?a=updateBuildCacheFull">Update Build Cache (Full)</a></li>
-						<li><a href="?a=updateInitialsCache">Update Initials Cache</a></li>
-						<li><a href="?a=updateLibraryCache">Update Library Cache</a></li>
-						<li><a href="?a=updateStatusModule">Update Status Module</a></li>
-						<li><a href="?a=updateRoadmapCache">Update Roadmap Cache</a></li>
-						<li><a href="?a=updateCommitCache">Update Commit Cache</a></li>
-						<li><a href="?a=updateCountCache">Update Count Cache</a></li>
+						<?php
+							foreach ($a_panel as $function => $data) {
+								echo "<li><a href=\"?a={$function}\">{$data['title']}</a></li>";
+							}
+						?>
 						<li><a href="?a=compareThreads">Compare Threads</a></li>
 						<li><a href="?a=updateCompatibility">Update Compatibility</a></li>
-						<li><a href="?a=recacheContributors">Recache Contributors</a></li>
-						<li><a href="?a=updateWikiIDsCache">Update Wiki IDs Cache</a></li>
 						<!-- <li><a href="?a=getNewTests">Get New Tests</a></li> -->
 					</ul>
 				</div>

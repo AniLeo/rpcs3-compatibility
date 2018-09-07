@@ -112,6 +112,42 @@ $a_filter = array(
 	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
 );
 
+// Functions available on debug panel (function_name => (title, success))
+$a_panel = array(
+	'cacheWindowsBuilds' => array(
+		'title' => "Update Build Cache",
+		'success' => "Forced update on windows builds cache"
+	),
+	'cacheInitials' => array(
+		'title' => "Update Initials Cache",
+		'success' => "Forced update on initials cache"
+	),
+	'cacheLibraryStatistics' => array(
+		'title' => "Update Library Stats",
+		'success' => "Forced update on library cache"
+	),
+	'cacheStatusModules' => array(
+		'title' => "Update Status Module",
+		'success' => "Forced update on status modules"
+	),
+	'cacheRoadmap' => array(
+		'title' => "Update Roadmap Cache",
+		'success' => "Forced update on roadmap cache"
+	),
+	'cacheCommitCache' => array(
+		'title' => "Update Commit Cache",
+		'success' => "Forced update on commit cache"
+	),
+	'cacheStatusCount' => array(
+		'title' => "Update Count Cache",
+		'success' => "Forced update on status count cache"
+	),
+	'cacheWikiIDs' => array(
+		'title' => "Update Wiki IDs Cache",
+		'success' => "Forced update on Wiki IDs cache"
+	)
+);
+
 // Dates for history backups
 $a_histdates = array(
 	'2017_03' => array(array('y' => 2017, 'm' => 3,  'd' => 01),  array('y' => 2017, 'm' => 3,  'd' => 29)),

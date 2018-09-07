@@ -32,78 +32,6 @@ TODO: User permissions system
 TODO: Log commands with run time and datetime
 */
 
-
-if ($get['a'] == 'updateBuildCache') {
-	$startA = getTime();
-	cacheWindowsBuilds();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateBuildCacheFull') {
-	$startA = getTime();
-	cacheWindowsBuilds(true);
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced full update on windows builds cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateInitialsCache') {
-	$startA = getTime();
-	cacheInitials();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on initials cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateLibraryCache') {
-	$startA = getTime();
-	cacheLibraryStatistics();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on library cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateRoadmapCache') {
-	$startA = getTime();
-	cacheRoadmap();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on roadmap cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateStatusModule') {
-	$startA = getTime();
-	cacheStatusModule();
-	cacheStatusModule(false);
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status modules (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateCommitCache') {
-	$startA = getTime();
-	cacheCommitCache();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on commit cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateCountCache') {
-	$startA = getTime();
-	cacheStatusCount();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on status count cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'recacheContributors') {
-	$startA = getTime();
-	recacheContributors();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Recached contributors cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
-if ($get['a'] == 'updateWikiIDsCache') {
-	$startA = getTime();
-	cacheWikiIDs();
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Forced update on Wiki IDs cache (".round(($finishA - $startA), 4)."s).</p>";
-}
-
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 	$startA = getTime();
 	$cost = 13;
@@ -112,6 +40,10 @@ if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 	$pass = crypt($_POST['pw'], '$2y$'.$cost.'$'.$salt);
 	$finishA = getTime();
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Hashed and salted secure password generated with {$iterations} iterations (".round(($finishA - $startA), 4)."s).<br><b>Password:</b> {$pass}<br><b>Salt:</b> {$salt}</p>";
+}
+
+if (array_key_exists($get['a'], $a_panel)) {
+	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> {$a_panel[$get['a']]['success']} (".runFunctionWithCronometer($get['a'])."s).</p>";
 }
 
 
@@ -526,23 +458,12 @@ function compareThreads($update = false) {
 		cacheStatusCount();
 		// Recache initials cache
 		cacheInitials();
+		// Recache status modules
+		cacheStatusModules();
 
 	}
 
 	echo "</p>";
-
-	mysqli_close($db);
-}
-
-
-function recacheContributors() {
-	$db = getDatabase();
-
-	$q_contributors = mysqli_query($db, "SELECT DISTINCT `author` FROM builds_windows;");
-
-	while ($row = mysqli_fetch_object($q_contributors)) {
-		cacheContributor($row->author);
-	}
 
 	mysqli_close($db);
 }

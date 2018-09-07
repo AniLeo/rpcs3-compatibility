@@ -780,3 +780,13 @@ function isGameID($string) {
 	return ctype_alnum($string) && strlen($string) == 9 && is_numeric(substr($string, 4, 5)) &&
 	array_key_exists(strtoupper(substr($string, 2, 1)), $a_flags) && array_key_exists(strtoupper(substr($string, 0, 1)), $a_media);
 }
+
+
+// Runs a function while keeping track of the time it takes to run
+// Returns amount of time in seconds
+function runFunctionWithCronometer($function) {
+	$start = getTime();
+	$function();
+	$finish = getTime();
+	return round(($finish - $start), 4); // Seconds
+}
