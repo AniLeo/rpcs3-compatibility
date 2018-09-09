@@ -129,9 +129,9 @@ public static function getTableHeaders($full = true) {
 
 
 public static function getTableContent($array) {
-	$s_content = "";
+	global $a_status;
 
-	$s_content .= "<div class='divTableBody'>";
+	$s_content = "<div class='divTableBody'>";
 
 	foreach ($array as $entry) {
 		$s_content .= "<div class='divTableRow'>";
@@ -152,7 +152,9 @@ public static function getTableContent($array) {
 		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 3: New Status
-		$cell = getColoredStatus($entry->new_status);
+		$cell = '';
+		if (!is_null($entry->new_status))
+			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->new_status]['color']};\">{$a_status[$entry->new_status]['name']}</div>";
 		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 4: New Date
@@ -161,7 +163,9 @@ public static function getTableContent($array) {
 
 		// Cell 5: Old Status (If existent)
 		if (!is_null($entry->old_status)) {
-			$cell = getColoredStatus($entry->old_status);
+			$cell = '';
+			if (!is_null($entry->old_status))
+				$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->old_status]['color']};\">{$a_status[$entry->old_status]['name']}</div>";
 			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 		}
 

@@ -25,7 +25,7 @@ class Game {
 
 	public $title;      // String
 	public $title2;     // String
-	public $status;     // String
+	public $status;     // Int
 	public $date;       // String
 	public $commit;     // String
 	public $pr;         // Int
@@ -40,7 +40,8 @@ class Game {
 		if (!is_null($alternativetitle))
 			$this->title2 = $alternativetitle;
 
-		$this->status = $status;
+		$this->status = getStatusID($status);
+
 		$this->date = $date;
 
 		if (!is_null($a_wiki) && !is_null($wiki)) {
@@ -188,7 +189,7 @@ class Game {
 
 			for ($i; $order == 'a' ? $i <= $limit : $i >= $limit; $order == 'a' ? $i++ : $i--) {
 				foreach ($array as $key => $game) {
-					if ($game->status == $a_status[$i]['name']) {
+					if ($game->status == $i) {
 						$sorted[] = $game;
 						unset($array[$key]);
 					}

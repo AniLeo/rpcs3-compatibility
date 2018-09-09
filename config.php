@@ -82,12 +82,12 @@ $a_status = array(
 
 // Regions (GameIDs)
 $a_regions = array(
-"EU",
-"US",
-"JP",
-"AS",
-"KR",
-"HK"
+'E' => "EU",
+'U' => "US",
+'J' => "JP",
+'A' => "AS",
+'K' => "KR",
+'H' => "HK"
 );
 
 // Region flags
@@ -166,8 +166,9 @@ $a_histdates = array(
 	'2018_04' => array(array('y' => 2018, 'm' => 04, 'd' => 01),  array('y' => 2018, 'm' => 05,  'd' => 01)),
 	'2018_05' => array(array('y' => 2018, 'm' => 05, 'd' => 02),  array('y' => 2018, 'm' => 05,  'd' => 31)),
 	'2018_06' => array(array('y' => 2018, 'm' => 06, 'd' => 01),  array('y' => 2018, 'm' => 06,  'd' => 30)),
-	'2018_07' => array(array('y' => 2018, 'm' => 07, 'd' => 01),  array('y' => 2018, 'm' => 07,  'd' => 31))
+	'2018_07' => array(array('y' => 2018, 'm' => 07, 'd' => 01),  array('y' => 2018, 'm' => 07,  'd' => 31)),
+	'2018_08' => array(array('y' => 2018, 'm' => 08, 'd' => 01),  array('y' => 2018, 'm' => 08,  'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2018_08', 'August 1st, 2018', '2018-08-01');
+$a_currenthist = array('2018_09', 'September 1st, 2018', '2018-09-01');

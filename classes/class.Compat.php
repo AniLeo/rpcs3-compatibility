@@ -198,7 +198,7 @@ public static function getTableHeaders() {
  * Table Content *
  *****************/
 public static function getTableContent() {
-	global $games, $error;
+	global $games, $error, $a_status;
 
 	if (!is_null($error)) return "";
 
@@ -236,7 +236,9 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 3: Status
-		$cell = getColoredStatus($game->status);
+		$cell = '';
+		if (!is_null($game->status))
+			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$game->status]['color']};\">{$a_status[$game->status]['name']}</div>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 4: Last Test
@@ -283,7 +285,7 @@ gameID
 */
 
 public static function APIv1() {
-	global $c_maintenance, $games, $info, $error, $l_title;
+	global $c_maintenance, $games, $info, $error, $l_title, $a_status;
 
 	// Array to returned, then encoded in JSON
 	$results = array();
@@ -321,7 +323,7 @@ public static function APIv1() {
 			'title' => $game->title,
 			'alternative-title' => $game->title2,
 			'wiki-title' => $game->wikiTitle,
-			'status' => $game->status,
+			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
 			'thread' => (int) $id[1],
 			'commit' => $game->commit,

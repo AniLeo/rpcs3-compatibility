@@ -45,20 +45,27 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 				</div>
 
 				<div id="debug-right" class="debug-main">
-					<form action="?a=generatePassword" method="post">
-						<p style="font-size: 12px;">
-							<b>Generate secure password:</b>&nbsp;
-							<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
-							<br>
-						</p>
-					</form>
+
 					<?php
-						checkInvalidThreads();
 						if ($get['a'] == 'compareThreads') {
+							echo "<p style=\"padding-top:10px; font-size:12px;\">";
 							compareThreads();
-						}
-						if ($get['a'] == 'updateCompatibility') {
+							echo "</p>";
+						} elseif ($get['a'] == 'updateCompatibility') {
+							echo "<p style=\"padding-top:10px; font-size:12px;\">";
 							compareThreads(true);
+							echo "</p>";
+						} else {
+						?>
+							<form action="?a=generatePassword" method="post">
+								<p style="font-size: 12px;">
+									<b>Generate secure password:</b>&nbsp;
+									<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
+									<br>
+								</p>
+							</form>
+						<?php
+							checkInvalidThreads();
 						}
 						/*
 						if ($get['a'] == 'getNewTests') {

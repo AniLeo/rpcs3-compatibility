@@ -103,10 +103,10 @@ function checkInvalidThreads() {
 				$output .= "- Forums: {$a_threads[$id[1]][0]}<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($game->status != $a_status[$a_threads[$id[1]][1]]['name']) {
+			} elseif ($game->status != $a_threads[$id[1]][1]) {
 				$output .= "<p class='compat-tvalidity-list'>";
 				$output .= "Thread ".getThread("{$id[1]}: [{$id[0]}] {$game->title}", $id[1])." is in the wrong section.<br>";
-				$output .= "- Compat: {$game->status} <br>";
+				$output .= "- Compat: {$a_status[$game->status]['name']} <br>";
 				$output .= "- Forums: {$a_status[$a_threads[$id[1]][1]]['name']}<br>";
 				$output .= "</p>";
 				$invalid++;
@@ -126,57 +126,54 @@ function checkInvalidThreads() {
 
 // TODO: Refactoring
 function compareThreads($update = false) {
-	global $a_status, $c_forum;
+	global $a_status, $a_regions, $c_forum;
 
 	set_time_limit(600);
 
 	$db = getDatabase();
 
-	// Store forumID -> statusID
-	$FidToSid = array();
-	foreach ($a_status as $id => $status) {
-		$FidToSid[$status['fid']] = $id;
-	}
-
-	$a_regions = array(
-	'E' => 'EU',
-	'U' => 'US',
-	'J' => 'JP',
-	'A' => 'AS',
-	'K' => 'KR',
-	'H' => 'HK'
-	);
-
 	// Timestamp of last list update
 	// 1527811200 - 1st June 2018
 	$timestamp = '1527811200';
 
+
+	// Store forumID -> statusID
+	$FidToSid = array();
+
+	// Generate WHERE condition for our query
+	// Includes all forum IDs for the game status sections
+	$where = '';
+	foreach ($a_status as $id => $status) {
+		if ($where != '') $where .= "||";
+		$where .= " `fid` = {$status['fid']} ";
+
+		$FidToSid[$status['fid']] = $id;
+	}
+
 	// Cache commits
-	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
+	$q_commits = mysqli_query($db, "SELECT * FROM `builds_windows` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
 	while ($row = mysqli_fetch_object($q_commits)) {
 		$a_commits[substr($row->commit, 0, 7)] = array($row->commit, $row->merge_datetime);
 	}
 
-	$q_threads = mysqli_query($db, "SELECT tid, subject, fid, dateline, lastpost, closed, game_list.*, game_list.status+0 AS statusID
-	FROM rpcs3_forums.mybb_threads
-	LEFT JOIN rpcs3_compatibility.game_list ON
-	mybb_threads.tid = game_list.tid_EU OR
-	mybb_threads.tid = game_list.tid_US OR
-	mybb_threads.tid = game_list.tid_JP OR
-	mybb_threads.tid = game_list.tid_AS OR
-	mybb_threads.tid = game_list.tid_KR OR
-	mybb_threads.tid = game_list.tid_HK
-	WHERE fid > 4 && fid < 10
-	&& closed NOT like '%moved%'
-	&& lastpost > {$timestamp}; ");
+	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `dateline`, `lastpost`,
+	`closed`, `game_list`.*, `game_list`.status+0 AS `statusID`
+	FROM `rpcs3_forums`.`mybb_threads`
+	LEFT JOIN `rpcs3_compatibility`.`game_list` ON
+	`mybb_threads`.`tid` IN
+	(`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
+	`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`)
+	WHERE ({$where})
+	&& `closed` NOT LIKE '%moved%'
+	&& `lastpost` > {$timestamp}; ");
 
 	// Cache array for games
 	$a_games = array();
 	// Cache array for duplicates
 	$a_duplicates = array();
 
-	echo "<p style='padding-top:10px; font-size:12px;'>";
+	echo "<b><u>Thread Analysis</u></b><br><br>";
 
 	while ($row = mysqli_fetch_object($q_threads)) {
 
@@ -189,7 +186,7 @@ function compareThreads($update = false) {
 
 		$sid = $FidToSid[$row->fid];
 
-		if (!ctype_alnum($gid) || strlen($gid) != 9 || !is_numeric(substr($gid, 4, 5)) || !array_key_exists(substr($gid, 2, 1), $a_regions)) {
+		if (!isGameID($gid)) {
 
 			// If the GameID is invalid
 			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br>";
@@ -205,7 +202,9 @@ function compareThreads($update = false) {
 				$title = str_replace(" [{$gid}]", "", "{$row->subject}");
 
 				// Check if there's an existing thread already, if so, flag as duplicated for manual correction.
-				$duplicate = mysqli_query($db, "SELECT tid_{$a_regions[substr($gid, 2, 1)]} AS tid FROM game_list WHERE gid_{$a_regions[substr($gid, 2, 1)]} = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
+				$duplicate = mysqli_query($db, "SELECT tid_{$a_regions[substr($gid, 2, 1)]} AS tid FROM game_list
+				WHERE gid_{$a_regions[substr($gid, 2, 1)]} = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
+
 				if (mysqli_num_rows($duplicate) === 1) {
 					$duplicateRow = mysqli_fetch_object($duplicate);
 					echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($duplicateRow->tid, $duplicateRow->tid).").</span><br>";
@@ -296,20 +295,19 @@ function compareThreads($update = false) {
 	}
 
 	// TODO: Dynamic timestamp, check all new posts since entry's last_update
-	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_list.*
-	FROM rpcs3_forums.mybb_posts
-	LEFT JOIN rpcs3_compatibility.game_list ON
-	mybb_posts.tid = game_list.tid_EU OR
-	mybb_posts.tid = game_list.tid_US OR
-	mybb_posts.tid = game_list.tid_JP OR
-	mybb_posts.tid = game_list.tid_AS OR
-	mybb_posts.tid = game_list.tid_KR OR
-	mybb_posts.tid = game_list.tid_HK
-	WHERE fid > 4 && fid < 10
-	&& dateline > {$timestamp}
-	ORDER by tid, pid DESC;");
+	$q_posts = mysqli_query($db, "SELECT `pid`, `tid`, `fid`, `subject`, `dateline`, `message`, `game_list`.*
+	FROM `rpcs3_forums`.`mybb_posts`
+	LEFT JOIN `rpcs3_compatibility`.`game_list` ON
+	`mybb_posts`.`tid` IN
+	(`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
+	`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`)
+	WHERE ({$where})
+	&& `dateline` > {$timestamp}
+	ORDER BY `tid`, `pid` DESC;");
 
 	$found = array();
+
+	echo "<br><br><b><u>Post Analysis</u></b><br><br>";
 
 	while ($row = mysqli_fetch_object($q_posts)) {
 
@@ -446,12 +444,22 @@ function compareThreads($update = false) {
 			}
 
 		}
-		// Update other threads on updated games
-		foreach ($a_duplicates as $key => $value) {
-			$fid = array_search($a_games[$value]['statusID'], $FidToSid);
-			mysqli_query($db, "UPDATE rpcs3_forums.mybb_threads SET fid = '{$fid}' WHERE tid = '{$key}'; ");
-		}
 
+	}
+
+	echo "<br><br><b><u>Thread Movements</u></b><br><br>";
+
+	// Verify the other threads of updated games
+	foreach ($a_duplicates as $key => $value) {
+		if ($update) {
+			$fid = array_search($a_games[$value]['statusID'], $FidToSid);
+			mysqli_query($db, "UPDATE `rpcs3_forums`.`mybb_threads` SET `fid` = '{$fid}' WHERE `tid` = '{$key}'; ");
+		}
+		echo "<span style='color:#{$a_status[$a_games[$value]['statusID']]['color']}'>{$a_status[$a_games[$value]['statusID']]['name']}</span>
+		 -> ".getThread("{$key}: {$a_games[$value]['game_title']}<br>", $key);
+	}
+
+	if ($update) {
 		// Recache commit cache as new additions may contain new commits
 		cacheCommitCache();
 		// Recache status counts for general search
@@ -460,10 +468,7 @@ function compareThreads($update = false) {
 		cacheInitials();
 		// Recache status modules
 		cacheStatusModules();
-
 	}
-
-	echo "</p>";
 
 	mysqli_close($db);
 }

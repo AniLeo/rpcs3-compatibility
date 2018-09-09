@@ -25,8 +25,8 @@ class HistoryEntry {
 
 	public $title;				// String
 	public $title2;				// String
-	public $old_status;		// String
-	public $new_status;		// String
+	public $old_status;		// Int
+	public $new_status;		// Int
 	public $old_date;			// Date
 	public $new_date;			// Date
 	public $IDs;					// [(String, Int)]
@@ -39,11 +39,11 @@ class HistoryEntry {
 			$this->title2 = $alternativetitle;
 
 		if (!is_null($oldstatus))
-			$this->old_status = $oldstatus;
+			$this->old_status = getStatusID($oldstatus);
 		if (!is_null($olddate))
 			$this->old_date = $olddate;
 
-		$this->new_status = $newstatus;
+		$this->new_status = getStatusID($newstatus);
 		$this->new_date = $newdate;
 
 		if (!is_null($gid_EU))

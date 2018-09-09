@@ -179,29 +179,6 @@ function getThread($text, $tid) {
 
 
 /**
-	* getColoredStatus
-	*
-	* Obtains colored status using the color from configuration a_colors array
-	* Returns status wrapped around a background colored div with STATUS CSS class
-	* or italic "Invalid" if someone messes up inputting statuses.
-	*
-	* @param string $sn StatusName
-	*
-	* @return string
-	*/
-function getColoredStatus($sn) {
-	global $a_status;
-
-	foreach ($a_status as $id => $status) {
-		if ($sn == $status['name']) { return "<div class='txt-compat-status' style='background: #{$status['color']};'>{$status['name']}</div>"; }
-	}
-
-	// This should be unreachable unless someone wrongly inputs status in the database
-	return "<i>Invalid</i>";
-}
-
-
-/**
 	* isValid
 	*
 	* Checks if string only has allowed characters.
@@ -789,4 +766,16 @@ function runFunctionWithCronometer($function) {
 	$function();
 	$finish = getTime();
 	return round(($finish - $start), 4); // Seconds
+}
+
+
+// Gets status ID for a respective status title
+function getStatusID($name) {
+	global $a_status;
+
+	foreach ($a_status as $id => $status) {
+		if ($name == $status['name']) { return $id; }
+	}
+
+	return null;
 }

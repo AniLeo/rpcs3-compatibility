@@ -21,71 +21,36 @@
 
 // Calls for the file that contains the functions needed
 if (!@include_once('functions.php')) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
 function exportDatabase() {
-	global $c_maintenance;
-
-	$db = getDatabase();
-
-	$q_export = mysqli_query($db, "SELECT *
-	FROM game_list; ");
-
-	if (!$q_export || mysqli_num_rows($q_export) === 0) {
-		$results['return_code'] = -1;
-		return $results;
-	}
+	global $c_maintenance, $a_status;
 
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
 		return $results;
 	}
 
-	$results['return_code'] = 0;
-
-	while ($row = mysqli_fetch_object($q_export)) {
-
-		if (!empty($row->gid_EU)) {
-			$results['results'][$row->gid_EU] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-		if (!empty($row->gid_US)) {
-			$results['results'][$row->gid_US] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-		if (!empty($row->gid_JP)) {
-			$results['results'][$row->gid_JP] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-		if (!empty($row->gid_AS)) {
-			$results['results'][$row->gid_AS] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-		if (!empty($row->gid_KR)) {
-			$results['results'][$row->gid_KR] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-		if (!empty($row->gid_HK)) {
-			$results['results'][$row->gid_HK] = array(
-			'status' => $row->status,
-			'date' => $row->last_update
-			);
-		}
-
-	}
-
+	$db = getDatabase();
+	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"), false, false);
 	mysqli_close($db);
 
-	return $results;
+	if (is_null($games)) {
+		$results['return_code'] = -1;
+		return $results;
+	}
 
+	$results['return_code'] = 0;
+
+	foreach ($games as $game) {
+		foreach ($game->IDs as $id) {
+			$results['results'][$id[0]] = array(
+				'status' => $a_status[$game->status]['name'],
+				'date' => $game->date
+			);
+		}
+	}
+
+	return $results;
 }
