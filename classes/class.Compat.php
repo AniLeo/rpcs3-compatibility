@@ -222,7 +222,7 @@ public static function getTableContent() {
 			$cell .= getThread($ID[0], $ID[1]);
 
 			if ($media == '')
-				$media = getGameMedia($ID[0]);
+				$media = getGameMediaIcon($ID[0]);
 
 			$multiple = true;
 		}

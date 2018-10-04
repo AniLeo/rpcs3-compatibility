@@ -61,7 +61,7 @@ public static function getTestedContents() {
 				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a>
 				</div>
 				<div class=\"divTableCell\"  style='color:#e74c3c'>"
-				.getGameMedia($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
 				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a>
 				</div>
 				<div class=\"divTableCell\"  style='color:#e74c3c;'>Untested</div>
@@ -78,7 +78,7 @@ public static function getTestedContents() {
 				".getThread($gameID, $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\" style='color:{$color}'>"
-				.getGameMedia($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
 				".getThread($a_games[$gameID]['title'], $a_games[$gameID]['thread'])."
 				</div>
 				<div class=\"divTableCell\"style='color:{$color};'>

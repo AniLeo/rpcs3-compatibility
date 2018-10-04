@@ -80,6 +80,22 @@ $a_status = array(
 	)
 );
 
+// Productcode: Game Media (1º Character)
+$a_media = array(
+	'B' => array(
+		'name' => "Blu-Ray",
+		'icon' => "/img/icons/list/rom.png"
+	),
+	'N' => array(
+		'name' => "Digital (PSN)",
+		'icon' => "/img/icons/list/psn.png"
+	),
+	'X' => array(
+		'name' => "Blu-Ray + Extras",
+		'icon' => "/img/icons/list/rom.png"
+	)
+);
+
 // Regions (GameIDs)
 $a_regions = array(
 'E' => "EU",
@@ -98,13 +114,6 @@ $a_flags = array(
 "K" => "/img/icons/compat/KR.png", // Korea
 "J" => "/img/icons/compat/JP.png", // Japan
 "U" => "/img/icons/compat/US.png"  // USA
-);
-
-// Game media icons
-$a_media = array(
-"N" => '/img/icons/list/psn.png',
-"B" => '/img/icons/list/rom.png',
-"X" => '/img/icons/list/rom.png'
 );
 
 // Game ID filters for library page

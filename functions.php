@@ -40,10 +40,10 @@ function getDatabase() {
 
 
 /**
-	* getGameMedia
+	* getGameMediaIcon
 	*
 	* Obtains Game Media by checking Game ID's first character.
-	* Returns Game Media as an image, empty string if Game Media is invalid.
+	* Returns Game Media as an icon image, empty string if Game Media is invalid.
 	*
 	* @param string $gid   GameID, 9 character ID that identifies a game
 	* @param bool   $url   Whether to return Game Media as a clickable(1) or non-clickable(0) flag
@@ -51,7 +51,7 @@ function getDatabase() {
 	*
 	* @return string
 	*/
-function getGameMedia($gid, $url = true, $extra = '') {
+function getGameMediaIcon($gid, $url = true, $extra = '') {
 	global $a_media, $get;
 
 	// First letter of Game ID
@@ -62,27 +62,22 @@ function getGameMedia($gid, $url = true, $extra = '') {
 		return '';
 	}
 
-	if     ($l == 'N')  { $alt = 'Digital'; }           // PSN Digital
-	elseif ($l == 'B')  { $alt = 'Blu-Ray'; }           // PS3 Blu-Ray
-	elseif ($l == 'X')  { $alt = 'Blu-Ray + Extras'; }  // PS3 Blu-Ray + Extras
-
-	$img = "<img title=\"{$alt}\" alt=\"{$alt}\" src=\"{$a_media[$l]}\" class=\"compat-icon-media\">";
+	$img = "<img title=\"{$a_media[$l]['name']}\" alt=\"{$a_media[$l]['name']}\" src=\"{$a_media[$l]['icon']}\" class=\"compat-icon-media\">";
 
 	// Get the module we're on so we can reset back to the correct module
 	$ex = $extra != '' ? substr($extra, 0, 1) : '';
 
-	// Allow for filter resetting by clicking the icon again
-	if ($get['t'] == strtolower($l) && $url) {
-		return "<a href=\"?{$ex}\">{$img}</a>";
-	}
-
 	if ($url) {
+		// Allow for filter resetting by clicking the icon again
+		if ($get['t'] == strtolower($l)) {
+			return "<a href=\"?{$ex}\">{$img}</a>";
+		}
 		// Returns clickable icon for type (media) search
 		return "<a href=\"?{$extra}t=".strtolower($l)."\">{$img}</a>";
-	} else {
-		// Returns unclickable icon
-		return $img;
 	}
+
+	// Returns unclickable icon
+	return $img;
 }
 
 

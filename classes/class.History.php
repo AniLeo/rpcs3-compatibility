@@ -140,7 +140,7 @@ public static function getTableContent($array) {
 		$cell = "";
 		foreach ($entry->IDs as $id) {
 			$cell .= getThread(getGameRegion($id[0], false), $id[1]);
-			$media = getGameMedia($id[0], false);
+			$media = getGameMediaIcon($id[0], false);
 		}
 		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 
