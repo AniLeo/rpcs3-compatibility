@@ -73,7 +73,7 @@ function cacheWindowsBuilds($full = false) {
 	for ($i=1; $i<=$pages; $i++) {
 		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Amerged-asc+merged%3A%3E{$date}&utf8=%E2%9C%93");
 
-		$step_1 = explode("\" class=\"link-gray-dark v-align-middle no-underline h4 js-navigation-open\">", $content);
+		$step_1 = explode("/hovercard\" href=\"/RPCS3/rpcs3/pull/", $content);
 
 		$a = 0; // Current PR (page relative)
 
