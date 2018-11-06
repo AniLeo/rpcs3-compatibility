@@ -219,39 +219,47 @@ public static function getHistoryRSS() {
 	global $a_rss, $error_rss;
 
 	// Should be unreachable, function should never be called without set $_GET['rss']
-	if (is_null($a_rss)) return;
+	if ($error_rss == "" && is_null($a_rss)) return;
 
-	if ($error_rss != "") return $error_rss;
-
-	$url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-	$url = str_replace('&', '&amp;', $url);
+	$url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 
 	$rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-				<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
-				<channel>
-				<title>RPCS3 Compatibility List History's RSS feed</title>
-				<link>https://rpcs3.net/compatibility?h</link>
-				<description>For more information about RPCS3 visit https://rpcs3.net</description>
-				<language>en-uk</language>
-				<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
+	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
+	<channel>
+	<title>RPCS3 Compatibility List History's RSS feed</title>
+	<link>https://rpcs3.net/compatibility?h</link>
+	<description>For more information about RPCS3 visit https://rpcs3.net</description>
+	<language>en-uk</language>
+	<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
 
-	foreach ($a_rss as $key => $entry) {
-		$rssfeed .= "<item>
-					<title><![CDATA[{$entry->title}]]></title>
-					<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0][0]}_{$entry->new_date}</guid>";
+	if ($error_rss != "") {
+		$rssfeed .= "
+			<item>
+				<title><![CDATA[{$error_rss}]]></title>
+				<description>{$error_rss}</description>
+				<pubDate>".date('r', time())."</pubDate>
+			</item>";
+	} else {
+		foreach ($a_rss as $key => $entry) {
+			$rssfeed .= "
+			<item>
+				<title><![CDATA[{$entry->title}]]></title>
+				<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0][0]}_{$entry->new_date}</guid>";
 
-		if ($entry->old_status !== NULL) {
-			$rssfeed .= "<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>";
-		} else {
-			$rssfeed .= "<description>New entry for {$entry->new_status} ({$entry->new_date})</description>";
+			if ($entry->old_status !== NULL) {
+				$rssfeed .= "<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>";
+			} else {
+				$rssfeed .= "<description>New entry for {$entry->new_status} ({$entry->new_date})</description>";
+			}
+
+			$rssfeed .= "<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
+			</item>";
 		}
-
-		$rssfeed .= "<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
-					</item>";
 	}
 
-	$rssfeed .= "</channel>
-			</rss>";
+	$rssfeed .= "
+	</channel>
+	</rss>";
 
 	return $rssfeed;
 }

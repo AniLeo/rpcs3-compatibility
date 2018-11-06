@@ -108,7 +108,7 @@ if (isset($_GET['rss'])) {
   if (!$q_rss) {
     $error_rss = "Please try again. If this error persists, please contact the RPCS3 team.";
   } elseif (mysqli_num_rows($q_rss) === 0) {
-    $error_rss = "No newer entries were reported and/or reviewed yet.";
+    $error_rss = "No newer entries were reported and/or reviewed yet for this period of time.";
   }
 
   $a_rss = array();
