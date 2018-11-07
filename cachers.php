@@ -25,159 +25,150 @@ if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Ga
 
 
 function cacheWindowsBuilds($full = false) {
-	global $c_github;
-
 	$db = getDatabase();
 
-	// This takes a while to do...
-	set_time_limit(60*60*3); // 3 hours
-
 	if (!$full) {
+		set_time_limit(60*5); // 5 minute limit
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
 		// Note: If master builds are disabled we need to remove WHERE type = 'branch'
-		$mergeDateQuery = mysqli_query($db, "SELECT merge_datetime FROM builds_windows WHERE type = 'branch' ORDER BY merge_datetime DESC LIMIT 1;");
+		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds_windows` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
 		$row = mysqli_fetch_object($mergeDateQuery);
-
-		$merge_datetime = date_create($row->merge_datetime);
-		date_sub($merge_datetime, date_interval_create_from_date_string('1 day'));
-		$date = date_format($merge_datetime, 'Y-m-d');
+		$date = date_format(date_create($row->date), 'Y-m-d');
+	} elseif ($full) {
+		// This can take a while to do...
+		set_time_limit(60*60); // 1 hour limit
+		// Start from indicated date (2015-08-10 for first PR with AppVeyor CI)
+		$date = '2018-06-02';
 	}
 
-	if ($full) {
-		// Get last page from GitHub PR lists: For first time run, only works when there are several pages of PRs.
-		$date = '2018-06-02'; // 2015-08-10 | 2018-06-02
-	}
+	// Get number of PRs (GitHub Search API)
+	// repo:rpcs3/rpcs3, is:pr, is:merged, merged:>$date, sort=updated (asc)
+	// TODO: Sort by merged date whenever it's available on the GitHub API
+	$url = "https://api.github.com/search/issues?q=repo:rpcs3/rpcs3+is:pr+is:merged+sort:updated-asc+merged:%3E{$date}";
+	$search = getJSON($url);
 
-	// Get number of PRs
-	$content = file_get_contents("{$c_github}/pulls?utf8=%E2%9C%93&q=is%3Apr%20is%3Amerged%20sort%3Amerged-asc%20merged%3A%3E{$date}");
-	$step_1 = explode("<div class=\"table-list-header-toggle states float-left pl-3\">", $content);
-	$step_2 = explode("</div>" , $step_1[1]);
-	$step_3 = explode("</svg>" , $step_2[0]);
-	$step_4 = explode(" Total" , $step_3[1]);
-	$PRs = $step_4[0];
-
-	// Remove comma from numbers above 999
-	// Otherwise string to int implicit cast evaluates to 0
-	$PRs = str_replace(',', '', $PRs);
-
-	if ($PRs == 0) {
-		// No PRs to cache, end here
+	// API Call Failed or no PRs to cache, end here
+	// TODO: Log and handle API call fails differently depending on the fail
+	if (!isset($search->total_count) || $search->total_count == 0) {
+		mysqli_close($db);
 		return;
 	}
 
-	$pages = (int)(($PRs / 25)+1);
-
-	$a_PR = array();
+	$page_limit = 30; // Search API page limit: 30
+	$pages = (int)(ceil($search->total_count / $page_limit));
+	$a_PR = array();	// List of iterated PRs
+	$i = 1;	// Current page
 
 	// Loop through all pages and get PR information
-	for ($i=1; $i<=$pages; $i++) {
-		$content = file_get_contents("https://github.com/RPCS3/rpcs3/pulls?page={$i}&q=is%3Apr+is%3Amerged+sort%3Amerged-asc+merged%3A%3E{$date}&utf8=%E2%9C%93");
-
-		$step_1 = explode("/hovercard\" href=\"/RPCS3/rpcs3/pull/", $content);
+	while ($i <= $pages) {
 
 		$a = 0; // Current PR (page relative)
+		
+		// Define PR limit for current page
+		$pr_limit = ($i == $pages) ? ($search->total_count - (($pages-1)*$page_limit)) : $page_limit;
 
-		while ($a<25) {
-			$pr = substr($step_1[$a], -4); // Future proof: Remember that this needs to be changed to -5 after PR #9999
+		$i++; // Prepare for next page
 
-			// At the end it prints something like l>. We know when it's not a number that it reached the end.
-			if (!ctype_digit($pr)) {
-				break 2;
+		while ($a < $pr_limit) {
+
+			$pr = $search->items[$a]->number;
+			$a++;	// Prepare for next PR
+
+			// If PR was already checked in this run, skip it
+			if (in_array($pr, $a_PR)) {
+				continue;
+			}
+			$a_PR[]  = $pr;
+
+			// Check if PR is already cached
+			$PRQuery = mysqli_query($db, "SELECT * FROM `builds_windows` WHERE `pr` = {$pr} LIMIT 1; ");
+
+			// If PR is already cached and we're not in full mode, skip
+			if (mysqli_num_rows($PRQuery) > 0 && !$full) {
+				continue;
 			}
 
-			// If PR isn't already in then add it, else ignore
-			if (!in_array($pr, $a_PR)) {
+			// Grab pull request information from GitHub REST API (v3)
+			$pr_info = getJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}");
 
-				// No need to escape here, we break before if it's not numeric only
-				$PRQuery = mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ");
-				$a_PR[]  = $pr;
-
-				// If PR isn't cached and we're not in full mode, then just DO IT!
-				if ( (mysqli_num_rows($PRQuery) === 0 && !$full) || $full ) {
-
-					// Grab pull request information from GitHub REST API (v3)
-					$pr_info = getJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}");
-
-					// Check if we aren't rate limited
-					if (array_key_exists('merge_commit_sha', $pr_info)) {
-
-						// Merge time, Creation Time, Commit SHA, Author
-						$merge_datetime = $pr_info->merged_at;
-						$start_datetime = $pr_info->created_at;
-						$commit = $pr_info->merge_commit_sha;
-						$author = $pr_info->user->login;
-
-						// Additions, Deletions, Changed Files
-						$additions = $pr_info->additions;
-						$deletions = $pr_info->deletions;
-						$changed_files = $pr_info->changed_files;
-
-						$info_release = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
-
-						// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next one
-						if (isset($info_release->message)) {
-							$a++;
-							continue;
-						}
-
-						// Version name
-						$version = $info_release->name;
-						$type = "branch";
-
-						// Simple sanity check: If build doesn't contain a slash then the buildname is invalid
-						if (!(strpos($version, '-') !== false)) {
-							$a++;
-							continue;
-						}
-
-						// Checksum, Size, Filename
-						$fileinfo = explode(';', $info_release->body);
-						$checksum = $fileinfo[0];
-						$size = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]))*1024*1024;
-						$filename = $info_release->assets[0]->name;
-
-						$aid = cacheContributor($author);
-
-						// Checking author information failed
-						// TODO: This should probably be logged, as other API call fails
-						if ($aid == 0) {
-							$a++;
-							continue;
-						}
-
-						if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM builds_windows WHERE pr = {$pr} LIMIT 1; ")) == 1) {
-							$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
-							`commit` = '".mysqli_real_escape_string($db, $commit)."',
-							`type` = '{$type}',
-							`author` = '".mysqli_real_escape_string($db, $aid)."',
-							`start_datetime` = '{$start_datetime}',
-							`merge_datetime` = '{$merge_datetime}',
-							`appveyor` = '{$version}',
-							`filename` = '".mysqli_real_escape_string($db, $filename)."',
-							`additions` = '{$additions}',
-							`deletions` = '{$deletions}',
-							`changed_files` = '{$changed_files}',
-							`size` = '".mysqli_real_escape_string($db, $size)."',
-							`checksum` = '".mysqli_real_escape_string($db, $checksum)."'
-							WHERE `pr` = '{$pr}' LIMIT 1;");
-						} else {
-							$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows`
-								(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `filename`, `additions`, `deletions`, `changed_files`, `size`, `checksum`)
-								VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
-								'{$version}', '".mysqli_real_escape_string($db, $filename)."', '{$additions}', '{$deletions}', '{$changed_files}',
-								'".mysqli_real_escape_string($db, $size)."', '".mysqli_real_escape_string($db, $checksum)."'); ");
-						}
-
-						// Recache commit => pr cache
-						cacheCommitCache();
-
-					}
-				}
-				$a++;
+			// Check if we aren't rate limited
+			if (!array_key_exists('merge_commit_sha', $pr_info)) {
+				continue;
 			}
+
+			// Merge time, Creation Time, Commit SHA, Author
+			$merge_datetime = $pr_info->merged_at;
+			$start_datetime = $pr_info->created_at;
+			$commit = $pr_info->merge_commit_sha;
+			$author = $pr_info->user->login;
+
+			// Additions, Deletions, Changed Files
+			$additions = $pr_info->additions;
+			$deletions = $pr_info->deletions;
+			$changed_files = $pr_info->changed_files;
+
+			$info_release = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
+
+			// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next one
+			if (isset($info_release->message)) {
+				continue;
+			}
+
+			// Version name
+			$version = $info_release->name;
+			$type = "branch";
+
+			// Simple sanity check: If build doesn't contain a slash then the buildname is invalid
+			if (!(strpos($version, '-') !== false)) {
+				continue;
+			}
+
+			// Checksum, Size, Filename
+			$fileinfo = explode(';', $info_release->body);
+			$checksum = $fileinfo[0];
+			$size = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]))*1024*1024;
+			$filename = $info_release->assets[0]->name;
+
+			$aid = cacheContributor($author);
+
+			// Checking author information failed
+			// TODO: This should probably be logged, as other API call fails
+			if ($aid == 0) {
+				continue;
+			}
+
+			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds_windows` WHERE `pr` = {$pr} LIMIT 1; ")) == 1) {
+				$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
+				`commit` = '".mysqli_real_escape_string($db, $commit)."',
+				`type` = '{$type}',
+				`author` = '".mysqli_real_escape_string($db, $aid)."',
+				`start_datetime` = '{$start_datetime}',
+				`merge_datetime` = '{$merge_datetime}',
+				`appveyor` = '{$version}',
+				`filename` = '".mysqli_real_escape_string($db, $filename)."',
+				`additions` = '{$additions}',
+				`deletions` = '{$deletions}',
+				`changed_files` = '{$changed_files}',
+				`size` = '".mysqli_real_escape_string($db, $size)."',
+				`checksum` = '".mysqli_real_escape_string($db, $checksum)."'
+				WHERE `pr` = '{$pr}' LIMIT 1;");
+			} else {
+				$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows`
+				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `filename`, `additions`, `deletions`, `changed_files`, `size`, `checksum`)
+				VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
+				'{$version}', '".mysqli_real_escape_string($db, $filename)."', '{$additions}', '{$deletions}', '{$changed_files}',
+				'".mysqli_real_escape_string($db, $size)."', '".mysqli_real_escape_string($db, $checksum)."'); ");
+			}
+
+			// Recache commit => pr cache
+			cacheCommitCache();
+
 		}
-	}
 
+		if ($i <= $pages)
+			$search = getJSON("{$url}&page={$i}");
+
+	}
 	mysqli_close($db);
 }
 

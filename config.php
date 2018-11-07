@@ -26,8 +26,8 @@ define('db_user', 'USERNAME');
 define('db_pass', 'PASSWORD');
 define('db_name', 'DATABASE_NAME');
 
-define('gh_client', 'OAUTH_ID');
-define('gh_secret', 'OAUTH_SECRET');
+// GitHub Access Token (Read-only)
+define('gh_token', 'TOKEN');
 
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3';

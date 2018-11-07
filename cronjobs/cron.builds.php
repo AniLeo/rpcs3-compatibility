@@ -21,5 +21,5 @@
 
 if(!@include_once(__DIR__.'/../cachers.php')) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 
-// Running every 5 minutes
+// Running every 10 minutes
 cacheWindowsBuilds();

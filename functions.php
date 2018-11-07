@@ -702,15 +702,18 @@ function monthNumberToName($month) {
 
 function getJSON($url) {
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as string
+
 	if (strpos($url, 'github.com') !== false) {
-		curl_setopt($ch, CURLOPT_USERAGENT, 'RPCS3 - Compatibility');
-		curl_setopt($ch, CURLOPT_URL, $url."?client_id=".gh_client."&client_secret=".gh_secret);
+		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
+		$headers = array("Authorization: token ".gh_token);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	} else {
-		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0');
-		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0");
 	}
+
+	curl_setopt($ch, CURLOPT_URL, $url);
 	$result = curl_exec($ch);
 	curl_close($ch);
 	return json_decode($result);
