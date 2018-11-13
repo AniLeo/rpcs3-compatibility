@@ -464,7 +464,7 @@ function getTableHeaders($headers, $extra = '') {
 
 
 function getFooter() {
-	global $prof_desc, $c_profiler, $get, $start_time, $start_memory;
+	global $prof_desc, $c_profiler, $c_maintenance, $get, $start_time, $start_memory;
 
 	// Total time in miliseconds
 	$total_time = round((getTime() - $start_time)*1000,2);
@@ -473,6 +473,13 @@ function getFooter() {
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
+
+	// Maintenance mode information
+	if ($get['w']) {
+		$s .= "<p style='line-height:10px; padding-bottom:10px;'>Maintenance mode: ";
+		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
+		$s .= "</p>";
+	}
 
 	// Memory information
 	if ($get['w']) {

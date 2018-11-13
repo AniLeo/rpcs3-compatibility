@@ -21,5 +21,5 @@
 
 if(!@include_once(__DIR__.'/../utils.php')) throw new Exception("Compat: utils.php is missing. Failed to include utils.php");
 
-// 2017.06.23 - Cache Roadmap | Running every 30 minutes
+// 2017.06.23 - Cache Roadmap | Running every hour
 cacheRoadmap();
