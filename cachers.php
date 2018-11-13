@@ -296,37 +296,37 @@ function cacheLibraryStatistics() {
 
 	$f_ps3tdb = fopen(__DIR__.'/ps3tdb.txt', 'r');
 
+	if (!$f_ps3tdb)
+		return;
+
 	$tested = 0;
 	$untested = 0;
 
-	if ($f_ps3tdb) {
-
-		while (($line = fgets($f_ps3tdb)) !== false) {
-			// Type: mb_substr($line, 0, 4)
-			if (in_array(mb_substr($line, 0, 4), $a_filter)) {
-				// GameID: mb_substr($line, 0, 9)
-				in_array(mb_substr($line, 0, 9), $a_games) ? $tested++ : $untested++;
-			}
+	while (($line = fgets($f_ps3tdb)) !== false) {
+		// Type: mb_substr($line, 0, 4)
+		if (in_array(mb_substr($line, 0, 4), $a_filter)) {
+			// GameID: mb_substr($line, 0, 9)
+			in_array(mb_substr($line, 0, 9), $a_games) ? $tested++ : $untested++;
 		}
-
-		// Closes ps3tdb.txt file resource
-		fclose($f_ps3tdb);
-
-		// Open tested.txt and write number of tested games in one line
-		$f_tested = fopen(__DIR__.'/cache/tested.txt', 'w');
-		fwrite($f_tested, $tested);
-		fclose($f_tested);
-
-		// Open untested.txt and write number of untested games in one line
-		$f_untested = fopen(__DIR__.'/cache/untested.txt', 'w');
-		fwrite($f_untested, $untested);
-		fclose($f_untested);
-
-		// Open all.txt and write number of all Game IDs in database in one line
-		$f_all = fopen(__DIR__.'/cache/all.txt', 'w');
-		fwrite($f_all, $all);
-		fclose($f_all);
 	}
+
+	// Closes ps3tdb.txt file resource
+	fclose($f_ps3tdb);
+
+	// Open tested.txt and write number of tested games in one line
+	$f_tested = fopen(__DIR__.'/cache/tested.txt', 'w');
+	fwrite($f_tested, $tested);
+	fclose($f_tested);
+
+	// Open untested.txt and write number of untested games in one line
+	$f_untested = fopen(__DIR__.'/cache/untested.txt', 'w');
+	fwrite($f_untested, $untested);
+	fclose($f_untested);
+
+	// Open all.txt and write number of all Game IDs in database in one line
+	$f_all = fopen(__DIR__.'/cache/all.txt', 'w');
+	fwrite($f_all, $all);
+	fclose($f_all);
 }
 
 
