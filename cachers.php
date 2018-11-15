@@ -176,97 +176,106 @@ function cacheWindowsBuilds($full = false) {
 function cacheInitials() {
 	$db = getDatabase();
 
-	$theQuery = mysqli_query($db, "SELECT game_title FROM game_list;");
+	// Pack and Vol.: Idolmaster
+	// GOTY: Batman
+	$words_blacklisted = array("demo", "pack", "vol.", "goty");
+	$words_whitelisted = array("hd");
 
-	while($row = mysqli_fetch_object($theQuery)) {
+	$q_initials = mysqli_query($db, "SELECT DISTINCT(`game_title`), `alternative_title` FROM `game_list`;");
+
+	while ($row = mysqli_fetch_object($q_initials)) {
+		$a_titles[] = $row->game_title;
+		if (!is_null($row->alternative_title))
+			$a_titles[] = $row->alternative_title;
+	}
+
+	foreach ($a_titles as $title) {
+
+		// Original title
+		$original = $title;
+
+		// For games with semi-colons: replace those with spaces
+		// Science Adventure Games (Steins;Gate/Chaos;Head/Robotics;Notes...)
+		$title = str_replace(';', ' ', $title);
+
+		// For games with double slashes: replace those with spaces
+		$title = str_replace('//', ' ', $title);
+
+		// For games starting with a dot: remove it (.detuned and .hack//Versus)
+		if (strpos($title, '.') === 0)
+			$title = substr($title, 1);
 
 		// Divide game title by spaces between words
-		$w = explode(" ", $row->game_title);
+		$words = explode(' ', $title);
+
+		// Variable to store initials result
 		$initials = "";
 
-		foreach($w as $w) {
+		foreach ($words as $word) {
+			// Skip empty words
+			if (empty($word))
+				continue;
 
-			// Skip empty strings
-			if (empty($w)) { continue; }
-
-			// We don't care about the following in initials
-			// demo: several Demo games
-			// pack and vol.: Idolmaster games
-			// goty: Batman
-			if (strtolower($w) == "demo" || strtolower($w) == "pack" || strtolower($w) == "vol." || strtolower($w) == "goty") { continue; }
-
-			// For Steins;Gate/Chaos;Head/Robotics;Notes...
-			if (strpos($w, ";") !== false) {
-				$sg = explode(";", $w);
-				foreach($sg as $sg) {
-					$initials .= substr($sg, 0, 1);
-				}
+			// Include whitelisted words and skip
+			if (in_array(strtolower($word), $words_whitelisted)) {
+				$initials .= $word;
 				continue;
 			}
 
-			// Games starting by a dot
-			// Ex: .detuned | .hack//Versus
-			if (strpos($w, ".") === 0) {
-				// Remove the dot and continue
-				$w = substr($w, 1);
-			}
-
-			// For .hack//Versus...
-			if (strpos($w, "//") !== false) {
-				$hv = explode("//", $w);
-				foreach($hv as $hv) {
-					$initials .= substr($hv, 0, 1);
-				}
+			// Skip blacklisted words without including
+			if (in_array(strtolower($word), $words_blacklisted))
 				continue;
-			}
 
+			// If the first character is alphanumeric then add it to the initials, else ignore
+			if (ctype_alnum($word[0])) {
+				$initials .= $word[0];
 
-			// If word is alphanumeric then add first character to the initials, else ignore
-			if (ctype_alnum(substr($w, 0, 1))) {
-				$initials .= substr($w, 0, 1);
-
-				// If the next character is a number then keep adding until it's not alphanumeric
-				// Workaround for games like Disgaea D2 / Idolmaster G4U!
-				if (ctype_digit(substr($w, 1, 1))) {
-					$i = strlen($w) - 1;
-
-					foreach(range(1, $i) as $n) {
-						if (ctype_alnum($w[$n])) { $initials .= $w[$n]; }
-					}
-				}
-			} elseif (!preg_match("/[a-z]/i", $w)) {
-				// Workaround for games with numbers like 15 or 1942
-				// Any word that doesn't have a-z A-Z
-				$i = strlen($w) - 1;
-				foreach(range(0, $i) as $n) {
-					// If character is a number then add it to initials
-					if (ctype_digit($w[$n])) { $initials .= $w[$n]; }
+				// If the next character is a digit, add next characters to initials
+				// until an non-alphanumeric character is hit
+				// For games like Disgaea D2 and Idolmaster G4U!
+				if (ctype_digit($word[1])) {
+					for ($i = 1; $i < strlen($word); $i++)
+						if (ctype_alnum($word[$i]))
+							$initials .= $word[$i];
+						else
+							break;
 				}
 			}
-
+			// Any word that doesn't have a-z A-Z
+			// For games with numbers like 15 or 1942
+			elseif (!ctype_alpha($word)) {
+				// While character is a number, add it to initials
+				for ($i = 0; $i < strlen($word); $i++)
+					if (ctype_digit($word[$i]))
+						$initials .= $word[$i];
+					else
+						break;
+			}
 		}
 
 		// We don't care about games with less than 2 initials
 		if (strlen($initials) > 1) {
+			$original = mysqli_real_escape_string($db, $original);
 
 			// Check if value is already cached (two games can have the same initials so we use game_title)
-			$checkQuery = mysqli_query($db, "SELECT * FROM initials_cache WHERE game_title = '".mysqli_real_escape_string($db, $row->game_title)."' LIMIT 1; ");
+			$q_check = mysqli_query($db, "SELECT * FROM `initials_cache`
+				WHERE `game_title` = '{$original}' LIMIT 1; ");
 
 			// If value isn't cached, then cache it
-			if(mysqli_num_rows($checkQuery) === 0) {
-				mysqli_query($db, "INSERT INTO initials_cache (game_title, initials)
-				VALUES ('".mysqli_real_escape_string($db, $row->game_title)."',
-				'".mysqli_real_escape_string($db, $initials)."'); ");
+			if (mysqli_num_rows($q_check) === 0) {
+				mysqli_query($db, "INSERT INTO `initials_cache` (`game_title`, `initials`)
+				VALUES ('{$original}', '".mysqli_real_escape_string($db, $initials)."'); ");
 			} else {
-				$row2 = mysqli_fetch_object($checkQuery);
 				// If value is cached but differs from newly calculated initials, update it
-				if ($row2->initials != $initials) {
-					mysqli_query($db, "UPDATE initials_cache SET initials = '".mysqli_real_escape_string($db, $initials)."'
-					WHERE game_title = '".mysqli_real_escape_string($db, $row->game_title)."' LIMIT 1;");
+				$row = mysqli_fetch_object($q_check);
+				if ($row->initials != $initials) {
+					mysqli_query($db, "UPDATE `initials_cache`
+					SET `initials` = '".mysqli_real_escape_string($db, $initials)."'
+					WHERE `game_title` = '{$original}' LIMIT 1;");
 				}
 			}
-
 		}
+
 	}
 	mysqli_close($db);
 }

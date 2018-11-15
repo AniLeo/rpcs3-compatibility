@@ -94,6 +94,7 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 		while ($row = mysqli_fetch_object($q_initials)) {
 			if ($i > 0) { $partTwo .= " OR "; }
 			$partTwo .= " game_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
+			$partTwo .= " OR alternative_title = '".mysqli_real_escape_string($db, $row->game_title)."' ";
 			$i++;
 		}
 		$partTwo = " ( {$partTwo} ) ";
