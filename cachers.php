@@ -198,8 +198,17 @@ function cacheInitials() {
 		// Science Adventure Games (Steins;Gate/Chaos;Head/Robotics;Notes...)
 		$title = str_replace(';', ' ', $title);
 
+		// For games with double dots: replace those with spaces
+		$title = str_replace(':', ' ', $title);
+
 		// For games with double slashes: replace those with spaces
 		$title = str_replace('//', ' ', $title);
+
+		// For games with single slashes: replace those with spaces
+		$title = str_replace('/', ' ', $title);
+
+		// For games with hyphen: replace those with spaces
+		$title = str_replace('-', ' ', $title);
 
 		// For games starting with a dot: remove it (.detuned and .hack//Versus)
 		if (strpos($title, '.') === 0)
@@ -226,6 +235,13 @@ function cacheInitials() {
 			if (in_array(strtolower($word), $words_blacklisted))
 				continue;
 
+			// Handle roman numerals
+			// Note: This catches some false positives, but the result is better than without this step
+			if (preg_match("/^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/", $word)) {
+				$initials .= $word;
+				continue;
+			}
+
 			// If the first character is alphanumeric then add it to the initials, else ignore
 			if (ctype_alnum($word[0])) {
 				$initials .= $word[0];
@@ -234,7 +250,8 @@ function cacheInitials() {
 				// until an non-alphanumeric character is hit
 				// For games like Disgaea D2 and Idolmaster G4U!
 				if (ctype_digit($word[1])) {
-					for ($i = 1; $i < strlen($word); $i++)
+					$len = strlen($word);
+					for ($i = 1; $i < $len; $i++)
 						if (ctype_alnum($word[$i]))
 							$initials .= $word[$i];
 						else
@@ -244,8 +261,9 @@ function cacheInitials() {
 			// Any word that doesn't have a-z A-Z
 			// For games with numbers like 15 or 1942
 			elseif (!ctype_alpha($word)) {
+				$len = strlen($word);
 				// While character is a number, add it to initials
-				for ($i = 0; $i < strlen($word); $i++)
+				for ($i = 0; $i < $len; $i++)
 					if (ctype_digit($word[$i]))
 						$initials .= $word[$i];
 					else
