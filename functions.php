@@ -464,7 +464,7 @@ function getTableHeaders($headers, $extra = '') {
 
 
 function getFooter() {
-	global $prof_desc, $c_profiler, $c_maintenance, $get, $start_time, $start_memory;
+	global $c_maintenance, $get, $start_time;
 
 	// Total time in miliseconds
 	$total_time = round((getTime() - $start_time)*1000,2);
@@ -474,25 +474,14 @@ function getFooter() {
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
 
-	// Maintenance mode information
 	if ($get['w']) {
+		// Maintenance mode information
 		$s .= "<p style='line-height:10px; padding-bottom:10px;'>Maintenance mode: ";
 		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
 		$s .= "</p>";
-	}
 
-	// Memory information
-	if ($get['w']) {
-		$s .= "<p style='line-height:20px; padding-bottom:15px;'>";
-		$s .= "Start Memory: ".round($start_memory/1024, 2)."kB<br>";
-		$s .= "End Memory: ".round(memory_get_usage(false)/1024, 2)."kB<br>";
-		$s .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)."kB<br>";
-		$s .= "</p>";
-	}
-
-	// Profiler information
-	if ($get['w'] && $c_profiler && !empty($prof_desc)) {
-		$s .= "<p style='line-height:20px; padding-bottom:15px;'><b>{$prof_desc}</b><br>".prof_print()."</p>";
+		// Profiler information
+		$s .= Profiler::getDataHTML();
 	}
 
 	return "<div id=\"compat-author\"><p>{$s}</p></div>";
@@ -626,30 +615,6 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	if ($get['o'] != "" && $o) {$combined .= "o={$get['o']}&";}
 
 	return $combined;
-}
-
-
-// Based on https://stackoverflow.com/a/29022400
-function prof_flag($str) {
-		global $prof_timing, $prof_names;
-		$prof_timing[] = microtime(true) * 10000000;
-		$prof_names[] = $str;
-}
-
-
-// Based on https://stackoverflow.com/a/29022400
-function prof_print() {
-		global $prof_timing, $prof_names;
-		$size = count($prof_timing);
-
-		// Initialize string
-		$s = "";
-
-		for ($i=0;$i<$size - 1; $i++) {
-				$s .= sprintf("%05dμs&nbsp;-&nbsp;%s<br>", $prof_timing[$i+1]-$prof_timing[$i], $prof_names[$i]);
-		}
-
-	return $s;
 }
 
 

@@ -20,6 +20,7 @@
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
+if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
 
 
 class Builds {

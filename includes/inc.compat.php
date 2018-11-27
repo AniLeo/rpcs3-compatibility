@@ -26,7 +26,7 @@ if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception(
 
 
 // Profiler
-$prof_desc = "Debug mode: Profiling compat";
+Profiler::setTitle("Debug mode: Profiling compat");
 
 // Order queries
 $a_order = array(
@@ -43,24 +43,24 @@ $a_order = array(
 $games = null;
 
 // Connect to database
-prof_flag("Inc: Database Connection");
+Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
 // Generate query
 // 0 => With specified status
 // 1 => Without specified status
-prof_flag("Inc: Generate Query");
+Profiler::addData("Inc: Generate Query");
 $genquery = Compat::generateQuery($get, $db);
 
 // Get game count per status
-prof_flag("Inc: Count Games (Search)");
+Profiler::addData("Inc: Count Games (Search)");
 $scount = countGames($db, $genquery[1]);
 
 // Pages / CurrentPage
-prof_flag("Inc: Count Pages");
+Profiler::addData("Inc: Count Pages");
 $pages = countPages($get, $scount[0][0]);
 
-prof_flag("Inc: Get Current Page");
+Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 
@@ -71,12 +71,12 @@ $c_main .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
 $c_main .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
 
 // Run the main query
-prof_flag("Inc: Execute Main Query ({$c_main})");
+Profiler::addData("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
 
 // Initials search / Levenshtein search
-prof_flag("Inc: Initials + Levenshtein");
+Profiler::addData("Inc: Initials + Levenshtein");
 
 // If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
 if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
@@ -174,7 +174,7 @@ if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
 
 
 // Check if query succeded and storing is required, stores messages for error/information printing
-prof_flag("Inc: Check Search Status");
+Profiler::addData("Inc: Check Search Status");
 $error = NULL;
 $info = NULL;
 if (!$q_main) {
@@ -189,14 +189,14 @@ if (!$q_main) {
 }
 
 // Store results
-prof_flag("Inc: Store Results");
+Profiler::addData("Inc: Store Results");
 
 // If secondary results exist, sorting is needed
 $needsSorting = false;
 // Stop if too many data is returned on Initials / Levenshtein
 $stop = false;
 
-prof_flag("Inc: Store Results - Secondary");
+Profiler::addData("Inc: Store Results - Secondary");
 if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && isset($q_main2) && $q_main2 && mysqli_num_rows($q_main2) > 0 && !$onlyUseMain) {
 	$needsSorting = true;
 
@@ -206,7 +206,7 @@ if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && iss
 		$stop = true;
 }
 
-prof_flag("Inc: Store Results - Main");
+Profiler::addData("Inc: Store Results - Main");
 if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
 	// If secondary search exists
 	if ($needsSorting)
@@ -215,7 +215,7 @@ if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
 		$games = Game::queryToGames($q_main);
 }
 
-prof_flag("Inc: Sort Results");
+Profiler::addData("Inc: Sort Results");
 if ($needsSorting)
 	if ($get['o'] == '')
 		Game::sort($games, '3', 'a');
@@ -224,7 +224,7 @@ if ($needsSorting)
 
 
 // Close MySQL connection.
-prof_flag("Inc: Close Database Connection");
+Profiler::addData("Inc: Close Database Connection");
 mysqli_close($db);
 
-prof_flag("--- / ---");
+Profiler::addData("--- / ---");

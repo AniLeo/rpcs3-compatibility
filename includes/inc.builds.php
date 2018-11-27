@@ -25,7 +25,7 @@ if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception(
 
 
 // Profiler
-$prof_desc = "Debug mode: Profiling builds";
+Profiler::setTitle("Debug mode: Profiling builds");
 
 // Order queries
 $a_order = array(
@@ -37,37 +37,37 @@ $a_order = array(
 );
 
 // Connect to database
-prof_flag("Inc: Database Connection");
+Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
 // Calculate pages and current page
-prof_flag("Inc: Count Pages");
+Profiler::addData("Inc: Count Pages");
 $pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds_windows`"))->c / $get['r']);
-prof_flag("Inc: Get Current Page");
+Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Main query
-prof_flag("Inc: Execute Main Query");
+Profiler::addData("Inc: Execute Main Query");
 $buildsCommand = "SELECT * FROM `builds_windows` ";
 $buildsCommand .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
 $buildsCommand .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
 
 // Disconnect from database
-prof_flag("Inc: Close Database Connection");
+Profiler::addData("Inc: Close Database Connection");
 mysqli_close($db);
 
 // Check if query succeded and storing is required, stores messages for error printing
-prof_flag("Inc: Check Query Status");
+Profiler::addData("Inc: Check Query Status");
 $error = NULL;
 if (!$buildsQuery)                            { $error = "Please try again. If this error persists, please contact the RPCS3 team."; }
 elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed yet."; }
 
 // Store builds in a WindowsBuild array if there are no errors
 if (is_null($error)) {
-	prof_flag("Inc: Store Builds in Array");
+	Profiler::addData("Inc: Store Builds in Array");
 	$builds = WindowsBuild::queryToBuilds($buildsQuery);
 }
 
 
-prof_flag("--- / ---");
+Profiler::addData("--- / ---");

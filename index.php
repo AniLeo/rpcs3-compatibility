@@ -80,12 +80,9 @@ https://github.com/AniLeo
 2017.01.22
 **/
 if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php");
-
-$prof_timing = array();
-$prof_names = array();
-$start_memory = memory_get_usage(false);
+if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
 $start_time = getTime();
-prof_flag("Index: Start");
+Profiler::addData("Index: Start");
 ?>
 <div class="page-con-content">
 	<div class="header-con-head">

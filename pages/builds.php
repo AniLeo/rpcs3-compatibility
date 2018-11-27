@@ -27,7 +27,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			<div class="container-con-wrapper">
 				<div class="container-tx1-block compat-title">
 					<p id="title1">RPCS3 Builds History <a href="compatibility?b&rss">(RSS)</a></p>
-					<?php prof_flag("Page: Get Menu"); ?>
+					<?php Profiler::addData("Page: Get Menu"); ?>
 					<?php echo getMenu(true, true, false, true, true); ?>
 				</div>
 				<div class="container-tx2-block compat-desc">
@@ -38,7 +38,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			</div>
 			<div id="builds-hdr-left">
 				<p>
-					<?php prof_flag("Page: Get Results Per Page"); ?>
+					<?php Profiler::addData("Page: Get Results Per Page"); ?>
 					Results per page <?php echo Builds::getResultsPerPage(); ?>
 				</p>
 			</div>
@@ -55,9 +55,9 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			echo Builds::getTableMessages();
 			if (is_null($error)) echo "<div class=\"divTable builds-table\">";
 
-			prof_flag("Page: Display Table Headers");
+			Profiler::addData("Page: Display Table Headers");
 			echo Builds::getTableHeaders();
-			prof_flag("Page: Display Table Content");
+			Profiler::addData("Page: Display Table Content");
 			echo Builds::getTableContent();
 
 			if (is_null($error)) echo "</div>";
@@ -66,13 +66,13 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
 				<?php
-					prof_flag("Page: Pages Counter");
+					Profiler::addData("Page: Pages Counter");
 					echo Builds::getPagesCounter();
 				?>
 			</p>
 		</div>
 
-		<?php prof_flag("End"); ?>
+		<?php Profiler::addData("End"); ?>
 		<?php echo getFooter(); ?>
 		<!--End -->
 	</div>
