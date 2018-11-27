@@ -117,7 +117,7 @@ public static function getGameCount($type) {
 
 	// Assign file content to a temporary variable before returning, so we can close the handle first
 	$count = fgets($handle);
-	
+
 	// Close opened handle before returning
 	fclose($handle);
 

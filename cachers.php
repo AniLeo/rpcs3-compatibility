@@ -63,7 +63,7 @@ function cacheWindowsBuilds($full = false) {
 	while ($i <= $pages) {
 
 		$a = 0; // Current PR (page relative)
-		
+
 		// Define PR limit for current page
 		$pr_limit = ($i == $pages) ? ($search->total_count - (($pages-1)*$page_limit)) : $page_limit;
 
