@@ -75,17 +75,17 @@ class Profiler {
     }
 
     if (isset(self::$mem_start)) {
-      $ret .= "<p>";
-      $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>";
-      $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>";
-      $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>";
+      $ret .= "<p>".PHP_EOL;
+      $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
+      $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
+      $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
       $ret .= "</p>";
     }
 
     if (self::$size > 1) {
-      $ret .= "<p>";
+      $ret .= "<p>".PHP_EOL;
   		for ($i = 0; $i < self::$size - 1; $i++)
-  			$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>", self::$data[$i+1]['time'] - self::$data[$i]['time'],
+  			$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL, self::$data[$i+1]['time'] - self::$data[$i]['time'],
         self::$data[$i+1]['mem'] - self::$data[$i]['mem'], self::$data[$i]['desc']);
       $ret .= "</p>";
     }

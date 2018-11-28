@@ -131,7 +131,8 @@ public static function getTableHeaders($full = true) {
 public static function getTableContent($array) {
 	global $a_status;
 
-	$s_content = "<div class='divTableBody'>";
+	// Initialize string
+	$s_content = "";
 
 	foreach ($array as $entry) {
 		$s_content .= "<div class='divTableRow'>";
@@ -175,12 +176,10 @@ public static function getTableContent($array) {
 			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 		}
 
-		$s_content .= "</div>";
+		$s_content .= "</div>".PHP_EOL;
 	}
 
-	$s_content .= "</div>";
-
-	return $s_content;
+	return "<div class='divTableBody'>".PHP_EOL."{$s_content}</div>";
 }
 
 

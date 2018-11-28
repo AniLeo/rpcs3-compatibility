@@ -112,7 +112,7 @@ public static function getSortBy() {
 	// All
 	$s_sortby = "<a title=\"Show games from all statuses\" href=\"?".combinedSearch(true, false, true, true, false, true, true, true)."s=0\">";
 	$s_sortby .= ($get['s'] == 0) ? highlightText("All ({$scount[1][0]})") : "All ({$scount[1][0]})";
-	$s_sortby .= "</a>";
+	$s_sortby .= "</a>".PHP_EOL;
 
 	foreach ($a_status as $id => $status) {
 		// Displays status description when hovered on
@@ -123,7 +123,7 @@ public static function getSortBy() {
 		// If the current selected status, highlight with bold
 		$s_sortby .= ($get['s'] == $id) ? highlightText("{$status['name']} ({$scount[1][$id]})") : "{$status['name']} ({$scount[1][$id]})";
 
-		$s_sortby .= "</a>";
+		$s_sortby .= "</a>".PHP_EOL;
 	}
 	return $s_sortby;
 }
@@ -160,7 +160,7 @@ public static function getCharSearch() {
 	foreach ($a_chars as $key => $value) {
 		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>";
 		$s_charsearch .= ($get['c'] == $key) ? "<span style=\"font-size:16px;\">{$value}</span>" : $value;
-		$s_charsearch .= "</div></a></td>";
+		$s_charsearch .= "</div></a></td>".PHP_EOL;
 	}
 
 	return "<tr>{$s_charsearch}</tr>";
@@ -249,10 +249,11 @@ public static function getTableContent() {
 
 
 		$s_tablecontent .= "</div>";
+		$s_tablecontent .= PHP_EOL;
 
 	}
 
-	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
+	return "<div class=\"divTableBody\">".PHP_EOL."{$s_tablecontent}</div>";
 }
 
 

@@ -95,11 +95,11 @@ public static function getTableContent() {
 		if (!is_null($checksum)) 			{ $cell .= "&nbsp;&nbsp;{$checksum}"; }
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
-		$s_tablecontent .= "</div>";
+		$s_tablecontent .= "</div>".PHP_EOL;
 
 	}
 
-	return "<div class=\"divTableBody\">{$s_tablecontent}</div>";
+	return "<div class=\"divTableBody\">".PHP_EOL."{$s_tablecontent}</div>";
 }
 
 
