@@ -29,7 +29,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 					<p id="title1">RPCS3 Compatibility List</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
-						echo getMenu(false, true, true, true, true);
+						echo getMenu(__FILE__);
 					?>
 				</div>
 				<div class="container-tx2-block compat-desc">

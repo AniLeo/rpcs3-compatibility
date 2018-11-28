@@ -28,7 +28,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 				<div class="container-tx1-block compat-title">
 					<p id="title1">RPCS3 Builds History <a href="compatibility?b&rss">(RSS)</a></p>
 					<?php Profiler::addData("Page: Get Menu"); ?>
-					<?php echo getMenu(true, true, false, true, true); ?>
+					<?php echo getMenu(__FILE__); ?>
 				</div>
 				<div class="container-tx2-block compat-desc">
 					<p>

@@ -488,16 +488,19 @@ function getFooter() {
 }
 
 
-function getMenu($c, $h, $b, $l, $a) {
+// File path where the menu was called from
+function getMenu($file) {
 	global $get;
 
-	$menu = '';
+	$file = basename($file, '.php');
 
-	if ($c) { $menu .= "<a href='?'>Compatibility List</a>"; }
-	if ($h) { $menu .= "<a href='?h'>Compatibility List History</a>"; }
-	if ($b) { $menu .= "<a href='?b'>RPCS3 Builds History</a>";	}
-	if ($l) { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
-	if ($get['w'] && $a) { $menu .= "<a href='?a'>Debug Panel</a>"; }
+	$menu = "";
+
+	if ($file != "compat") 	{ $menu .= "<a href='?'>Compatibility List</a>"; }
+	if ($file != "history") { $menu .= "<a href='?h'>Compatibility List History</a>"; }
+	if ($file != "builds") 	{ $menu .= "<a href='?b'>RPCS3 Builds History</a>";	}
+	if ($file != "library") { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
+	if ($get['w'] && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
 
 	return "<p id='title2'>{$menu}</p>";
 }

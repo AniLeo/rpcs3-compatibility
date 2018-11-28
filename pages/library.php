@@ -31,7 +31,7 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 					<p id="title1">PS3 Game Library</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
-						echo getMenu(true, true, true, false, true);
+						echo getMenu(__FILE__);
 					?>
 				</div>
 				<div class="container-tx2-block compat-desc">

@@ -31,7 +31,7 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 					<p id="title1">RPCS3 Compatibility List History</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
-						echo getMenu(true, false, true, true, true);
+						echo getMenu(__FILE__);
 					?>
 				</div>
 				<div class="container-tx2-block compat-desc">
