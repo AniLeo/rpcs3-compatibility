@@ -476,7 +476,7 @@ function getFooter() {
 
 	if ($get['w']) {
 		// Maintenance mode information
-		$s .= "<p style='line-height:10px; padding-bottom:10px;'>Maintenance mode: ";
+		$s .= "<p>Maintenance mode: ";
 		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
 		$s .= "</p>";
 
@@ -748,4 +748,11 @@ function getStatusID($name) {
 	}
 
 	return null;
+}
+
+
+// Check if OS is Windows
+// PHP 7.2 TODO: Use PHP_OS_FAMILY instead
+function isWindows() {
+	return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }

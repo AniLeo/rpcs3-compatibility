@@ -27,8 +27,10 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<div class="container-con-wrapper">
 				<div class="container-tx1-block compat-title">
 					<p id="title1">RPCS3 Compatibility List</p>
-					<?php Profiler::addData("Page: Get Menu"); ?>
-					<?php echo getMenu(false, true, true, true, true); ?>
+					<?php
+						Profiler::addData("Page: Get Menu");
+						echo getMenu(false, true, true, true, true);
+					?>
 				</div>
 				<div class="container-tx2-block compat-desc">
 					<p>
@@ -55,10 +57,11 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 
 			<!--End -->
 			<?php
-			Profiler::addData("Page: Get Status Module");
 			if (file_exists(__DIR__.'/../cache/mod.status.count.php')) {
+				Profiler::addData("Page: Get Status Module");
 				include(__DIR__.'/../cache/mod.status.count.php');
 			} else {
+				Profiler::addData("Page: Generate Status Module");
 				echo generateStatusModule();
 			}
 			?>

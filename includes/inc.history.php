@@ -24,7 +24,11 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.History.php")) throw new Exception("Compat: class.History.php is missing. Failed to include class.History.php");
 
 
+// Profiler
+Profiler::setTitle("Profiler: History");
+
 // Connect to database
+Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
 
@@ -61,6 +65,7 @@ if ($get['h'] == $a_currenthist[0]) {
 
 
 // Existing entries
+Profiler::addData("Inc: Check Existing Entries");
 if (!isset($_GET['rss']) && ($get['m'] == "c" || $get['m'] == "")) {
   $q_existing = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NOT NULL {$cmd_date}
   ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC; ");
@@ -79,6 +84,7 @@ if (!isset($_GET['rss']) && ($get['m'] == "c" || $get['m'] == "")) {
 
 
 // New entries
+Profiler::addData("Inc: Check New Entries");
 if (!isset($_GET['rss']) && ($get['m'] == "n" || $get['m'] == "")) {
   $q_new = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NULL {$cmd_date}
   ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC; ");
@@ -119,4 +125,7 @@ if (isset($_GET['rss'])) {
 
 
 // Disconnect from database
+Profiler::addData("Inc: Close Database Connection");
 mysqli_close($db);
+
+Profiler::addData("--- / ---");

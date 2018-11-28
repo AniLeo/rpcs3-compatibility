@@ -29,28 +29,45 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 			<div class="container-con-wrapper" style="padding-bottom:1px">
 				<div class="container-tx1-block compat-title">
 					<p id="title1">RPCS3 Compatibility List History</p>
-					<?php echo getMenu(true, false, true, true, true); ?>
+					<?php
+						Profiler::addData("Page: Get Menu");
+						echo getMenu(true, false, true, true, true);
+					?>
 				</div>
 				<div class="container-tx2-block compat-desc">
-					<?php echo History::getHistoryDescription(); ?>
+					<?php
+						Profiler::addData("Page: Get History Description");
+						echo History::getHistoryDescription();
+					?>
 					<br>
-					<?php echo History::getHistoryMonths(); ?>
+					<?php
+						Profiler::addData("Page: Get History Months");
+						echo History::getHistoryMonths();
+					?>
 					<br>
-					<?php echo History::getHistoryOptions(); ?>
+					<?php
+						Profiler::addData("Page: Get History Options");
+						echo History::getHistoryOptions();
+					?>
 				</div>
 			</div> <!-- container-con-wrapper -->
 
 			<?php
 			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php')) {
+				Profiler::addData("Page: Get Status Module");
 				include(__DIR__.'/../modules/mod.status.nocount.php');
 			} else {
+				Profiler::addData("Page: Generate Status Module");
 				echo generateStatusModule(false);
 			}
 			?>
 		</div> <!-- container-con-wrapper -->
+		<?php
+			Profiler::addData("Page: Get History Content");
+			echo History::getHistoryContent();
 
-		<?php echo History::getHistoryContent(); ?>
-
-		<?php echo getFooter(); ?>
+			Profiler::addData("End");
+			echo getFooter();
+		?>
 	</div> <!-- container-con-block -->
 </div>

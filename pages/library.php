@@ -29,13 +29,17 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 			<div class="container-con-wrapper">
 				<div class="container-tx1-block compat-title">
 					<p id="title1">PS3 Game Library</p>
-					<?php echo getMenu(true, true, true, false, true); ?>
+					<?php
+						Profiler::addData("Page: Get Menu");
+						echo getMenu(true, true, true, false, true);
+					?>
 				</div>
 				<div class="container-tx2-block compat-desc">
 					<p>
 						The list of the whole PS3's game library known to mankind can be found at <a target='_blank' href='http://www.gametdb.com/PS3/List'>GameTDB</a>.
 						<br>
 
+						<?php Profiler::addData("Page: Get Game Counts"); ?>
 						There are currently <span style="color: #27ae60;"><b><?php echo Library::getGameCount('all'); ?></b> tested Game IDs (<b><?php echo Library::getGameCount('tested'); ?></b> listed here) </span>
 						and <span style="color: #e74c3c;"><b><?php echo Library::getGameCount('untested'); ?></b> untested Game IDs</span>.
 						<br>
@@ -43,6 +47,8 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 						<i>Keep in mind this list doesn't have some of the Game IDs tested so far in our compatibility list.</i>
 						<br>
 						<br>
+
+						<?php Profiler::addData("Page: Generate Filters"); ?>
 						Filter by region:
 						<?php if ($get['f'] == 'a') { echo'<b>'; } ?>
 						<a href='?l&f=a&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Asia</a>
@@ -82,20 +88,29 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 
 			<div id="compat-hdr-left2">
 				<p>
+					<?php Profiler::addData("Page: Results per Page"); ?>
 					Results per page <?php echo Library::getResultsPerPage(); ?>
 				</p>
 			</div>
 
 		</div> <!-- container-con-wrapper -->
 
-		<?php Library::getTestedContents(); ?>
+		<?php
+			Profiler::addData("Page: Get Tested Contents");
+			Library::getTestedContents();
+		?>
 
 		<div id="compat-con-pages">
 			<p class="div-pagecounter">
-				<?php echo Library::getPagesCounter(); ?>
+				<?php
+					Profiler::addData("Page: Get Pages Counter");
+					echo Library::getPagesCounter();
+				?>
 			</p>
 		</div>
-
-		<?php echo getFooter(); ?>
+		<?php
+			Profiler::addData("End");
+			echo getFooter();
+		?>
 	</div> <!-- container-con-block -->
 </div>

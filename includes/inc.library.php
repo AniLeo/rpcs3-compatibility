@@ -22,7 +22,11 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../classes/class.Library.php")) throw new Exception("Compat: class.Library.php is missing. Failed to include class.Library.php");
 
 
+// Profiler
+Profiler::setTitle("Profiler: Library");
+
 // Count number of entries for page calculation and cache results on array
+Profiler::addData("Profiler: Count and Cache Entries");
 $entries = 1;
 $a_db = array();
 $handle = fopen(__DIR__."/../ps3tdb.txt", "r");
@@ -43,11 +47,14 @@ if ($handle) {
 	fclose($handle);
 }
 
+Profiler::addData("Profiler: Count Pages");
 $pages = countPages($get, $entries);
+Profiler::addData("Profiler: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // If the above search returns no games in the selected categories, no need to waste database time
 if ($a_db) {
+	Profiler::addData("Profiler: Get All Database Game Entries");
 	// Get all games in the database (ID => Data)
 	$db = getDatabase();
 	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`"), true, false);
@@ -62,3 +69,5 @@ if ($a_db) {
 			);
 	mysqli_close($db);
 }
+
+Profiler::addData("--- / ---");

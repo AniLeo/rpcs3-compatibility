@@ -52,7 +52,7 @@ class Profiler {
 
     self::$data[] = array(
       'desc' => $description,
-      'time' => microtime(true) * 10000000,               // Microseconds
+      'time' => microtime(true) * 1000,                   // Miliseconds
       'mem'  => round(memory_get_usage(false)/1024, 2));  // KBs
     self::$size++;
   }
@@ -63,17 +63,29 @@ class Profiler {
     if (!$get['w'] || !$c_profiler || is_null(self::$data) || empty(self::$data))
       return "";
 
+    $ret = "<p><b>".self::$title."</b><br>";
+
+    if (!isWindows()) {
+      $load = sys_getloadavg();
+      $ret .= "<p>";
+      $ret .= "Load (1m): {$load[0]}<br>";
+      $ret .= "Load (5m): {$load[1]}<br>";
+      $ret .= "Load (15m): {$load[2]}<br>";
+      $ret .= "</p>";
+    }
+
     if (isset(self::$mem_start)) {
-      $ret = "<p style='line-height:20px; padding-bottom:15px;'>";
+      $ret .= "<p>";
       $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)."kB<br>";
       $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)."kB<br>";
       $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)."kB<br>";
       $ret .= "</p>";
     }
 
-    $ret .= "<p style='line-height:20px; padding-bottom:15px;'><b>".self::$title."</b><br>";
+    $ret .= "<p>";
 		for ($i = 0; $i < self::$size - 1; $i++)
-			$ret .= sprintf("%05dμs &nbsp;-&nbsp; %.02fKBs &nbsp;-&nbsp; %s<br>", self::$data[$i+1]['time'] - self::$data[$i]['time'], self::$data[$i]['mem'], self::$data[$i]['desc']);
+			$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>", self::$data[$i+1]['time'] - self::$data[$i]['time'],
+      self::$data[$i+1]['mem'] - self::$data[$i]['mem'], self::$data[$i]['desc']);
     $ret .= "</p>";
 
     return $ret;

@@ -26,7 +26,7 @@ if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception(
 
 
 // Profiler
-Profiler::setTitle("Debug mode: Profiling compat");
+Profiler::setTitle("Profiler: Compat");
 
 // Order queries
 $a_order = array(

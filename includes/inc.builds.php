@@ -25,7 +25,7 @@ if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception(
 
 
 // Profiler
-Profiler::setTitle("Debug mode: Profiling builds");
+Profiler::setTitle("Profiler: Builds");
 
 // Order queries
 $a_order = array(
@@ -68,6 +68,5 @@ if (is_null($error)) {
 	Profiler::addData("Inc: Store Builds in Array");
 	$builds = WindowsBuild::queryToBuilds($buildsQuery);
 }
-
 
 Profiler::addData("--- / ---");
