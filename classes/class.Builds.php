@@ -67,17 +67,17 @@ public static function getTableContent() {
 		$len = strlen($build->additions) + 1;
 		// Padding formula to apply in order to align deletions in all rows
 		$padding = (8 - $len) * 7;
-		// Formatted checksum
-		$checksum = !is_null($build->checksum) ? "<span style=\"font-size=10px; border-bottom: 1px dotted #3198ff;\" title=\"{$build->checksum}\">sha256</span>" : NULL;
+		// Formatted version with checksum
+		$version = !is_null($build->checksum) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"SHA-256: {$build->checksum}\">$build->version</span>" : $build->version;
 
 		$s_tablecontent .= "<div class=\"divTableRow\">";
 
 		/* Cell 1: PR */
-		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">&nbsp;&nbsp;#{$build->pr}</a>";
+		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 2: Author */
-		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">&nbsp;&nbsp;{$build->author}</a>";
+		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">{$build->author}</a>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */
@@ -90,9 +90,8 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
-		$cell = isset($build->url) ? "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/download.png\">&nbsp;&nbsp;{$build->version}</a>" : $build->version;
-		if (!is_null($build->sizeMB))	{ $cell .= "&nbsp;&nbsp;{$build->sizeMB}MB"; }
-		if (!is_null($checksum)) 			{ $cell .= "&nbsp;&nbsp;{$checksum}"; }
+		$cell = isset($build->url) ? "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/windows-h.png\">{$version}</a>" : $version;
+		if (!is_null($build->sizeMB))	{ $cell .= "&nbsp;{$build->sizeMB}MB"; }
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		$s_tablecontent .= "</div>".PHP_EOL;

@@ -33,6 +33,8 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 				<div class="container-tx2-block compat-desc">
 					<p>
 						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
+						<br>
+						Hovering over the build number displays the SHA-256 checksum.
 					</p>
 				</div>
 			</div>
