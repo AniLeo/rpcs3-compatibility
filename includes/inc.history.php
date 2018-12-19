@@ -41,17 +41,8 @@ $error_rss = "";
 
 
 // Main part of the query
-$cmd_main = "SELECT `old_status`, `old_date`, `new_status`, `new_date`,
-`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
-`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`,
-`game_title`, `alternative_title`, `game_history`.* FROM `game_history`
-LEFT JOIN `game_list` ON
-`game_history`.`gid_EU` = `game_list`.`gid_EU` OR
-`game_history`.`gid_US` = `game_list`.`gid_US` OR
-`game_history`.`gid_AS` = `game_list`.`gid_AS` OR
-`game_history`.`gid_JP` = `game_list`.`gid_JP` OR
-`game_history`.`gid_KR` = `game_list`.`gid_KR` OR
-`game_history`.`gid_HK` = `game_list`.`gid_HK` ";
+$cmd_main = "SELECT `game_list`.*,  `game_history`.* FROM `game_history`
+LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key` ";
 
 
 // Generate date part of the query

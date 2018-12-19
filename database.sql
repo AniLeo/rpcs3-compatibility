@@ -71,18 +71,13 @@ CREATE TABLE `ip_whitelist` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_history`;
 CREATE TABLE `game_history` (
-	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`gid_EU` varchar(9) DEFAULT NULL,
-	`gid_US` varchar(9) DEFAULT NULL,
-	`gid_JP` varchar(9) DEFAULT NULL,
-	`gid_AS` varchar(9) DEFAULT NULL,
-	`gid_KR` varchar(9) DEFAULT NULL,
-	`gid_HK` varchar(9) DEFAULT NULL,
-	`old_status` enum('Playable','Ingame','Intro','Loadable','Nothing') DEFAULT NULL,
-	`old_date` date DEFAULT NULL,
-	`new_status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
-	`new_date` date NOT NULL,
-	PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `game_key` int(11) NOT NULL,
+  `old_status` enum('Playable','Ingame','Intro','Loadable','Nothing') DEFAULT NULL,
+  `old_date` date DEFAULT NULL,
+  `new_status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
+  `new_date` date NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------

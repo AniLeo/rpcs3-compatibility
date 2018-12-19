@@ -355,50 +355,28 @@ function compareThreads($update = false) {
 			'{$game['last_update']}',
 			'{$game['status']}');");
 
-			// TODO: GID Structure Update
-			$tempColumn = '';
-			if (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, "; }
-			if (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, "; }
-			if (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, "; }
-			if (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, "; }
-			if (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, "; }
-			if (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, "; }
-			$tempValues = '';
-			if (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', "; }
-			if (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', "; }
-			if (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', "; }
-			if (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', "; }
-			if (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', "; }
-			if (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', "; }
+			// Get the key from the entry that was just inserted
+			$q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
+			`game_title` = '".mysqli_real_escape_string($db, $game['game_title'])."' AND
+			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
+			`last_update` = '{$game['last_update']}' AND
+			`status` = {$game['status']}
+			ORDER BY `key` DESC LIMIT 1");
+			$key = mysqli_fetch_object($q_fetchkey)->key;
+
+			// Sanity check, this should be unreachable
+			if ($key == NULL)
+				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: {$game}<br><br>";
 
 			// Log change to game history
-			$q_history = mysqli_query($db, "INSERT INTO `game_history` ({$tempColumn}`new_status`, `new_date`) VALUES
-			({$tempValues}
-			'{$game['status']}',
-			'{$game['last_update']}'
-			);");
+			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_status`, `new_date`) VALUES
+			({$key}, '{$game['status']}', '{$game['last_update']}');");
 		}
 
 		/*
 			Updates
 		*/
 		foreach ($a_updates as $key => $game) {
-			// TODO: GID Structure Update
-			$tempColumn = '';
-			if (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, "; }
-			if (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, "; }
-			if (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, "; }
-			if (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, "; }
-			if (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, "; }
-			if (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, "; }
-			$tempValues = '';
-			if (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', "; }
-			if (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', "; }
-			if (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', "; }
-			if (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', "; }
-			if (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', "; }
-			if (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', "; }
-
 			// Update entry parameters on game list
 			$q_update = mysqli_query($db, "UPDATE `game_list` SET
 			`build_commit`='".mysqli_real_escape_string($db, $game['commit'])."',
@@ -407,12 +385,8 @@ function compareThreads($update = false) {
 			WHERE `key` = {$key};");
 
 			// Log change to game history
-			mysqli_query($db, "INSERT INTO game_history ({$tempColumn}old_status, old_date, new_status, new_date) VALUES ({$tempValues}
-			'{$game['old_status']}',
-			'{$game['old_date']}',
-			'{$game['status']}',
-			'{$game['last_update']}'
-			); ");
+			mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `old_status`, `old_date`, `new_status`, `new_date`) VALUES
+			({$key}, '{$game['old_status']}', '{$game['old_date']}', '{$game['status']}', '{$game['last_update']}'); ");
 		}
 
 		// Recache commit cache as new additions may contain new commits
@@ -425,5 +399,7 @@ function compareThreads($update = false) {
 		cacheStatusModules();
 
 	}
+
+	mysqli_close($db);
 
 }
