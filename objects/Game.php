@@ -23,6 +23,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class Game {
 
+	public $key;        // Int
 	public $title;      // String
 	public $title2;     // String
 	public $status;     // Int
@@ -33,8 +34,10 @@ class Game {
 	public $wikiTitle;  // String
 	public $IDs;        // [(String, Int)]
 
-	function __construct(&$a_cache, &$a_wiki, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit,
+	function __construct(&$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit,
 	$gid_EU, $tid_EU, $gid_US, $tid_US, $gid_JP, $tid_JP, $gid_AS, $tid_AS, $gid_KR, $tid_KR, $gid_HK, $tid_HK) {
+
+		$this->key = $key;
 
 		$this->title = $maintitle;
 		if (!is_null($alternativetitle))
@@ -89,7 +92,7 @@ class Game {
 		* @return object $game      Game fetched from given Row
 		*/
 	public static function rowToGame($row, &$a_cache, &$a_wiki) {
-		return new Game($a_cache, $a_wiki, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit,
+		return new Game($a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit,
 		$row->gid_EU, $row->tid_EU, $row->gid_US, $row->tid_US, $row->gid_JP, $row->tid_JP, $row->gid_AS, $row->tid_AS, $row->gid_KR, $row->tid_KR, $row->gid_HK, $row->tid_HK);
 	}
 

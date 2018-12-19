@@ -124,342 +124,297 @@ function checkInvalidThreads() {
 }
 
 
-// TODO: Refactoring
 function compareThreads($update = false) {
-	global $a_status, $a_regions, $c_forum;
+	global $a_histdates, $a_status, $a_regions;
 
-	set_time_limit(600);
-
+	set_time_limit(300);
 	$db = getDatabase();
 
 	// Timestamp of last list update
-	// 1527811200 - 1st June 2018
-	$timestamp = '1527811200';
-
+	end($a_histdates);
+	$lastkey = key($a_histdates);
+	reset($a_histdates);
+	$ts_lastupdate = strtotime("{$a_histdates[$lastkey][1]['y']}-{$a_histdates[$lastkey][1]['m']}-{$a_histdates[$lastkey][1]['d']}");
 
 	// Store forumID -> statusID
-	$FidToSid = array();
-
 	// Generate WHERE condition for our query
 	// Includes all forum IDs for the game status sections
+	$fid2sid = array();
 	$where = '';
 	foreach ($a_status as $id => $status) {
 		if ($where != '') $where .= "||";
 		$where .= " `fid` = {$status['fid']} ";
-
-		$FidToSid[$status['fid']] = $id;
+		$fid2sid[$status['fid']] = $id;
 	}
 
 	// Cache commits
 	$q_commits = mysqli_query($db, "SELECT * FROM `builds_windows` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
-	while ($row = mysqli_fetch_object($q_commits)) {
-		$a_commits[substr($row->commit, 0, 7)] = array($row->commit, $row->merge_datetime);
-	}
+	while ($row = mysqli_fetch_object($q_commits))
+		$a_commits[substr($row->commit, 0, 8)] = array($row->commit, $row->merge_datetime);
 
-	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `dateline`, `lastpost`,
-	`closed`, `game_list`.*, `game_list`.status+0 AS `statusID`
+	// Get all threads since the end of the last compatibility period
+	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
 	FROM `rpcs3_forums`.`mybb_threads`
-	LEFT JOIN `rpcs3_compatibility`.`game_list` ON
-	`mybb_threads`.`tid` IN
-	(`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
-	`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`)
-	WHERE ({$where})
-	&& `closed` NOT LIKE '%moved%'
-	&& `lastpost` > {$timestamp}; ");
+	WHERE ({$where}) && `closed` NOT LIKE '%moved%' && `lastpost` > {$ts_lastupdate};");
 
-	// Cache array for games
-	$a_games = array();
-	// Cache array for duplicates
-	$a_duplicates = array();
+	// Get all games in the database
+	$a_games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"));
 
-	echo "<b><u>Thread Analysis</u></b><br><br>";
+	// Script data
+	$a_inserts = array();
+	$a_updates = array();
+	// Visited Game IDs
+	$a_gameIDs = array();
 
 	while ($row = mysqli_fetch_object($q_threads)) {
 
-		// TODO: Some games use [] on title... :facepalm:
-		// Example: UNDER NIGHT IN-BIRTH Exe:Late[st]
-		// if (!($gid = get_string_between($row->subject, '[', ']'))) {
-
 		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
 		$gid = substr($row->subject, -10, 9);
+		$sid = $fid2sid[$row->fid];
 
-		$sid = $FidToSid[$row->fid];
-
+		// Not a valid Game ID, continue to next thread entry
 		if (!isGameID($gid)) {
-
-			// If the GameID is invalid
 			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br>";
+			continue;
+		}
 
+		// If a thread for this Game ID was already visited, continue to next thread entry
+		if (!in_array($gid, $a_gameIDs)) {
+			$a_gameIDs[] = $gid;
 		} else {
+			echo "Error! A thread for {$gid} was already visited. ".getThread($row->subject, $row->tid)." is a duplicate.<br>";
+			continue;
+		}
 
-			if (is_null($row->gid_EU) && is_null($row->gid_US) && is_null($row->gid_JP)
-			&& is_null($row->gid_AS) && is_null($row->gid_KR) && is_null($row->gid_HK)) {
+		// Thread ID validation
+		// If game entry exists, get game data
+		$tid = null;
+		$cur_game = null;
+		foreach($a_games as $game) {
+			foreach($game->IDs as $id) {
+				if ($id[0] == $gid) {
+					$tid = $id[1];
+					$cur_game = $game;
+				}
+			}
+		}
 
-				echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).")<br>";
-				echo "- To: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
+		// New thread is a duplicate of an existing one
+		if ($tid != null && $tid != $row->tid) {
+			echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($tid, $tid).").</span><br>";
+			continue;
+		}
 
-				$title = str_replace(" [{$gid}]", "", "{$row->subject}");
+		// New thread for the Game ID
+		if ($tid == null) {
 
-				// Check if there's an existing thread already, if so, flag as duplicated for manual correction.
-				$duplicate = mysqli_query($db, "SELECT tid_{$a_regions[substr($gid, 2, 1)]} AS tid FROM game_list
-				WHERE gid_{$a_regions[substr($gid, 2, 1)]} = '".mysqli_real_escape_string($db, $gid)."' LIMIT 1; ");
+			// Extract game title from thread title
+			$title = str_replace(" [{$gid}]", "", "{$row->subject}");
 
-				if (mysqli_num_rows($duplicate) === 1) {
-					$duplicateRow = mysqli_fetch_object($duplicate);
-					echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($duplicateRow->tid, $duplicateRow->tid).").</span><br>";
-				} else {
+			// Handle PBKAC: When user can't properly format title
+			if (substr($title, -2) == ' -')
+				$title = substr($title, 0, -2);
+			if (substr($title, -1) == ' ')
+				$title = substr($title, 0, -1);
 
-					// When user can't properly format title
-					if (substr($title, -2) == ' -') {
-						$title = substr($title, 0, -2);
+			// TODO: GID Structure Update
+			$a_inserts[$row->tid] = array(
+				"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
+				'region' => $a_regions[substr($gid, 2, 1)],
+				'game_title' => $title,
+				'status' => $sid,
+				'commit' => 0,
+				'last_update' => date('Y-m-d', $row->lastpost),
+				'author' => $row->username
+			);
+
+			// Verify posts
+			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`
+			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid}
+			ORDER BY `pid` DESC;");
+
+			while ($post = mysqli_fetch_object($q_post)) {
+				foreach ($a_commits as $key => $value) {
+					if (stripos($post->message, (string)$key) !== false) {
+						$a_inserts[$row->tid]['commit'] = $value[0];
+						$a_inserts[$row->tid]['last_update'] = date('Y-m-d', $post->dateline);
+						break;
 					}
-					if (substr($title, -1) == ' ') {
-						$title = substr($title, 0, -1);
-					}
+				}
+			}
 
-					if (array_key_exists($gid, $a_games)) {
-						echo "Error! {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread.<br>";
-					} else {
+			// Green for existing commit, Red for non-existing commit
+			$status_commit = $a_inserts[$row->tid]['commit'] !== 0 ? 'green' : 'red';
+			$short_commit = $a_inserts[$row->tid]['commit'] !== 0 ? substr($a_inserts[$row->tid]['commit'], 0, 8) : 0;
+			$date_commit = $a_inserts[$row->tid]['commit'] !== 0 ? "({$a_commits[$short_commit][1]})" : "";
 
-						$a_games[$row->tid] = array(
-						"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
-						'region' => $a_regions[substr($gid, 2, 1)],
-						'game_title' => $title,
-						'status' => $a_status[$sid]['name'],
-						'statusID' => $sid,
-						'commit' => 0,
-						'last_update' => date('Y-m-d', $row->lastpost),
-						'action' => 'new',
-						);
-					}
+			echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).", author:{$a_inserts[$row->tid]['author']})<br>";
+			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
+			echo "- Commit: <span style='color:{$status_commit}'>{$short_commit}</span> {$date_commit}<br>";
+			echo "<br>";
 
+		} elseif ($tid == $row->tid && $sid != $cur_game->status) {
+
+			// This game entry was already checked before in this script
+			// Update with the new information
+			if (array_key_exists($cur_game->key, $a_updates)) {
+
+				// Update status
+				if ($a_updates[$cur_game->key]['status'] > $sid) {
+					$a_updates[$cur_game->key]["gid_{$a_regions[substr($gid, 2, 1)]}"] = $gid;
+					$a_updates[$cur_game->key]['status'] = $sid;
+					$a_updates[$cur_game->key]['commit'] = 0;
+					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
+				} elseif ($a_updates[$cur_game->key]['status'] < $sid) {
+					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br>";
+					continue;
 				}
 
-			} elseif ($row->statusID != $sid) {
-				// TODO: Fix mov, handle other threads on the same entry
-				echo "<b>Mov:</b> {$gid} - {$row->game_title} (tid:".getThread($row->tid, $row->tid).")<br>";
-				echo "- To: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
-				echo "- From: <span style='color:#{$a_status[$row->statusID]['color']}'>{$row->status}</span><br>";
+			} else {
 
-				if (array_key_exists($row->tid, $a_duplicates)) {
-
-					// Update status
-					if ($a_games[$a_duplicates[$row->tid]]['statusID'] != $sid) {
-						$a_games[$a_duplicates[$row->tid]]['status'] = $a_status[$sid]['name'];
-						$a_games[$a_duplicates[$row->tid]]['statusID'] = $sid;
-					}
-					// Update last_update
-					if (strtotime($a_games[$a_duplicates[$row->tid]]['last_update']) < $row->lastpost) {
-						$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->lastpost);
-					}
-
-				} else {
-
-					$a_games[$row->tid] = array(
+				$a_updates[$cur_game->key] = array(
 					"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
-					'region' => $a_regions[substr($gid, 2, 1)],
-					'game_title' => $row->game_title,
-					'status' => $a_status[$sid]['name'],
-					'statusID' => $sid,
+					'game_title' => $cur_game->title,
+					'status' => $sid,
 					'commit' => 0,
 					'last_update' => date('Y-m-d', $row->lastpost),
 					'action' => 'mov',
-					'old_date' => $row->last_update,
-					'old_status' => $row->status,
-					);
-
-
-					if (!empty($row->tid_EU) && $row->tid_EU != $row->tid) {
-						$a_duplicates[$row->tid_EU] = $row->tid;
-					}
-					if (!empty($row->gid_US) && $row->tid_US != $row->tid) {
-						$a_duplicates[$row->tid_US] = $row->tid;
-					}
-					if (!empty($row->gid_JP) && $row->tid_JP != $row->tid) {
-						$a_duplicates[$row->tid_JP] = $row->tid;
-					}
-					if (!empty($row->gid_AS) && $row->tid_AS != $row->tid) {
-						$a_duplicates[$row->tid_AS] = $row->tid;
-					}
-					if (!empty($row->gid_KR) && $row->tid_KR != $row->tid) {
-						$a_duplicates[$row->tid_KR] = $row->tid;
-					}
-					if (!empty($row->gid_HK) && $row->tid_HK != $row->tid) {
-						$a_duplicates[$row->tid_KR] = $row->tid;
-					}
-
-				}
-			}
-		}
-	}
-
-	// TODO: Dynamic timestamp, check all new posts since entry's last_update
-	$q_posts = mysqli_query($db, "SELECT `pid`, `tid`, `fid`, `subject`, `dateline`, `message`, `game_list`.*
-	FROM `rpcs3_forums`.`mybb_posts`
-	LEFT JOIN `rpcs3_compatibility`.`game_list` ON
-	`mybb_posts`.`tid` IN
-	(`game_list`.`tid_EU`, `game_list`.`tid_US`, `game_list`.`tid_JP`,
-	`game_list`.`tid_AS`, `game_list`.`tid_KR`, `game_list`.`tid_HK`)
-	WHERE ({$where})
-	&& `dateline` > {$timestamp}
-	ORDER BY `tid`, `pid` DESC;");
-
-	$found = array();
-
-	echo "<br><br><b><u>Post Analysis</u></b><br><br>";
-
-	while ($row = mysqli_fetch_object($q_posts)) {
-
-		if (isset($a_games[$row->tid]) && $a_games[$row->tid]['commit'] == '0') {
-
-			// Also log threads where commits weren't found
-			if (!array_key_exists($row->tid, $found)) {
-				$found[$row->tid] = 0;
-			}
-
-			foreach ($a_commits as $key => $value) {
-
-				// Note: If commit is an int and not a string and one doesn't cast it then it breaks it
-				if (stripos($row->message, (string)$key) !== false) {
-
-					// Check if more recent data exists from other region check
-					if ($a_games[$row->tid]['commit'] == 0 || ($a_games[$row->tid]['commit'] != 0 && strtotime($a_games[$row->tid]['last_update']) < $row->dateline)) {
-						$region = $a_games[$row->tid]['region'];
-						$a_games[$row->tid]['commit'] = $value[0];
-						$a_games[$row->tid]['last_update'] = date('Y-m-d', $row->dateline);
-						echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit found: {$value[0]} ({$value[1]}) (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
-					}
-					$found[$row->tid] = 1;
-					break;
-				}
+					'old_date' => $cur_game->date,
+					'old_status' => $cur_game->status,
+					'author' => ''
+				);
 
 			}
 
-			if ($found[$row->tid] == 0) {
-				$region = $a_games[$row->tid]['region'];
-				echo "<b>{$a_games[$row->tid]['gid_'.$region]}</b>: Commit not found (tid:".getThread($row->tid, $row->tid).")<br>";
-				$found[$row->tid] = 1; // Log only once per thread
-			}
+			// Verify posts
+			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
+			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
+			ORDER BY `pid` DESC;");
 
-		} elseif (array_key_exists($row->tid, $a_duplicates)) {
-
-			$found_c = 0;
-			$found_d = 0;
-
-			foreach ($a_commits as $key => $value) {
-				if (stripos($row->message, (string)$key) !== false) {
-					$found_c = $value[0];
-					$found_d = $value[1];
-					break;
+			while ($post = mysqli_fetch_object($q_post)) {
+				foreach ($a_commits as $key => $value) {
+					if (stripos($post->message, (string)$key) !== false) {
+						// If current commit is newer than the previously recorded one, replace
+						if (($a_updates[$cur_game->key]['commit'] == 0) ||
+						($a_updates[$cur_game->key]['commit'] != 0 && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) < strtotime($value[1]))) {
+							$a_updates[$cur_game->key]['commit'] = $value[0];
+							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
+							$a_updates[$cur_game->key]['author'] = $post->username;
+							break;
+						}
+					}
 				}
 			}
 
-			if ($found_d != 0) {
+			// Green for existing commit, Red for non-existing commit
+			$status_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? 'green' : 'red';
+			$short_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? substr($a_updates[$cur_game->key]['commit'], 0, 8) : 0;
+			$date_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? "({$a_commits[$short_commit][1]})" : "";
 
-				$str_time = strtotime($a_games[$a_duplicates[$row->tid]]['last_update']);
+			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid:".getThread($row->tid, $row->tid).", author:{$a_updates[$cur_game->key]['author']})<br>";
+			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span> <-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']}</span><br>";
+			echo "- Commit: <span style='color:{$status_commit}'>{$short_commit}</span> {$date_commit}<br>";
+			echo "<br>";
 
-				if ($str_time < $row->dateline) {
-
-					$a_games[$a_duplicates[$row->tid]]['last_update'] = date('Y-m-d', $row->dateline);
-					$a_games[$a_duplicates[$row->tid]]['commit'] = $found_c;
-
-					$region = $a_games[$a_duplicates[$row->tid]]['region'];
-					echo "<b>{$a_games[$a_duplicates[$row->tid]]['gid_'.$region]}</b>: Commit found (other region): {$found_c} (pid:<a href='{$c_forum}/post-{$row->pid}.html'>{$row->pid}</a>)<br>";
-
-				}
-
-			}
-
+		} else {
+			// TODO: Updates within the same status
+			// echo "<b>Skipping:</b> {$row->subject} {$tid}<br><br>";
+			continue;
 		}
 
 	}
-
 
 	if ($update) {
-		foreach ($a_games as $key => $value) {
 
-			$region = $a_games[$key]['region'];
-
+		/*
+			Inserts
+		*/
+		foreach ($a_inserts as $tid => $game) {
+			// TODO: GID Structure Update
 			$tempColumn = '';
-			if (array_key_exists('gid_EU', $a_games[$key])) { $tempColumn .= "gid_EU, "; }
-			if (array_key_exists('gid_US', $a_games[$key])) { $tempColumn .= "gid_US, "; }
-			if (array_key_exists('gid_JP', $a_games[$key])) { $tempColumn .= "gid_JP, "; }
-			if (array_key_exists('gid_AS', $a_games[$key])) { $tempColumn .= "gid_AS, "; }
-			if (array_key_exists('gid_KR', $a_games[$key])) { $tempColumn .= "gid_KR, "; }
-			if (array_key_exists('gid_HK', $a_games[$key])) { $tempColumn .= "gid_HK, "; }
+			if 		 (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, tid_EU, "; }
+			elseif (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, tid_US, "; }
+			elseif (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, tid_JP, "; }
+			elseif (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, tid_AS, "; }
+			elseif (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, tid_KR, "; }
+			elseif (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, tid_HK, "; }
 			$tempValues = '';
-			if (array_key_exists('gid_EU', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_EU']}', "; }
-			if (array_key_exists('gid_US', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_US']}', "; }
-			if (array_key_exists('gid_JP', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_JP']}', "; }
-			if (array_key_exists('gid_AS', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_AS']}', "; }
-			if (array_key_exists('gid_KR', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_KR']}', "; }
-			if (array_key_exists('gid_HK', $a_games[$key])) { $tempValues .= "'{$a_games[$key]['gid_HK']}', "; }
+			if 		 (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', {$tid}, "; }
+			elseif (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', {$tid}, "; }
+			elseif (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', {$tid}, "; }
+			elseif (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', {$tid}, "; }
+			elseif (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', {$tid}, "; }
+			elseif (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', {$tid}, "; }
 
-			// No need to escape all params but meh
-			if ($a_games[$key]['action'] == 'new') {
+			// Insert new entry on the game list
+			$q_insert = mysqli_query($db, "INSERT INTO `game_list` ({$tempColumn}`game_title`, `build_commit`, `last_update`, `status`) VALUES
+			({$tempValues}
+			'".mysqli_real_escape_string($db, $game['game_title'])."',
+			'".mysqli_real_escape_string($db, $game['commit'])."',
+			'{$game['last_update']}',
+			'{$game['status']}');");
 
-				// `gid_{$a_games[$key]['region']}`,
+			// TODO: GID Structure Update
+			$tempColumn = '';
+			if (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, "; }
+			if (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, "; }
+			if (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, "; }
+			if (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, "; }
+			if (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, "; }
+			if (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, "; }
+			$tempValues = '';
+			if (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', "; }
+			if (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', "; }
+			if (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', "; }
+			if (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', "; }
+			if (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', "; }
+			if (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', "; }
 
-				$insertCmd = "INSERT INTO `game_list` ({$tempColumn}game_title, build_commit, tid_{$a_games[$key]['region']}, last_update, status) VALUES ({$tempValues}
-				'".mysqli_real_escape_string($db, $a_games[$key]['game_title'])."',
-				'".mysqli_real_escape_string($db, $a_games[$key]['commit'])."',
-				'{$key}',
-				'{$a_games[$key]['last_update']}',
-				'{$a_games[$key]['status']}' ) ;";
-				mysqli_query($db, $insertCmd);
-
-				// Log change to game_history
-				$logCmd = "INSERT INTO game_history ({$tempColumn}new_status, new_date) VALUES ({$tempValues}
-				'{$a_games[$key]['status']}',
-				'{$a_games[$key]['last_update']}'
-				); ";
-				mysqli_query($db, $logCmd);
-
-			} elseif ($a_games[$key]['action'] == 'mov') {
-
-				$updateCmd = "UPDATE `game_list` SET ";
-				if (array_key_exists('gid_EU', $a_games[$key])) { $updateCmd .= "`gid_EU`='{$a_games[$key]['gid_EU']}', "; }
-				if (array_key_exists('gid_US', $a_games[$key])) { $updateCmd .= "`gid_US`='{$a_games[$key]['gid_US']}', "; }
-				if (array_key_exists('gid_JP', $a_games[$key])) { $updateCmd .= "`gid_JP`='{$a_games[$key]['gid_JP']}', "; }
-				if (array_key_exists('gid_AS', $a_games[$key])) { $updateCmd .= "`gid_AS`='{$a_games[$key]['gid_AS']}', "; }
-				if (array_key_exists('gid_KR', $a_games[$key])) { $updateCmd .= "`gid_KR`='{$a_games[$key]['gid_KR']}', "; }
-				if (array_key_exists('gid_HK', $a_games[$key])) { $updateCmd .= "`gid_HK`='{$a_games[$key]['gid_HK']}', "; }
-				$updateCmd .= "
-				`build_commit`='".mysqli_real_escape_string($db, $a_games[$key]['commit'])."',
-				`last_update`='{$a_games[$key]['last_update']}',
-				`status`='{$a_games[$key]['status']}'
-				WHERE (`gid_{$a_games[$key]['region']}`='".$a_games[$key]['gid_'.$region]."'); ";
-
-				mysqli_query($db, $updateCmd);
-
-				// Log change to game_history
-				mysqli_query($db, "INSERT INTO game_history ({$tempColumn}old_status, old_date, new_status, new_date) VALUES ({$tempValues}
-				'{$a_games[$key]['old_status']}',
-				'{$a_games[$key]['old_date']}',
-				'{$a_games[$key]['status']}',
-				'{$a_games[$key]['last_update']}'
-				); ");
-
-			}
-
+			// Log change to game history
+			$q_history = mysqli_query($db, "INSERT INTO `game_history` ({$tempColumn}`new_status`, `new_date`) VALUES
+			({$tempValues}
+			'{$game['status']}',
+			'{$game['last_update']}'
+			);");
 		}
 
-	}
+		/*
+			Updates
+		*/
+		foreach ($a_updates as $key => $game) {
+			// TODO: GID Structure Update
+			$tempColumn = '';
+			if (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, "; }
+			if (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, "; }
+			if (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, "; }
+			if (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, "; }
+			if (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, "; }
+			if (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, "; }
+			$tempValues = '';
+			if (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', "; }
+			if (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', "; }
+			if (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', "; }
+			if (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', "; }
+			if (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', "; }
+			if (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', "; }
 
-	echo "<br><br><b><u>Thread Movements</u></b><br><br>";
+			// Update entry parameters on game list
+			$q_update = mysqli_query($db, "UPDATE `game_list` SET
+			`build_commit`='".mysqli_real_escape_string($db, $game['commit'])."',
+			`last_update`='{$game['last_update']}',
+			`status`='{$game['status']}'
+			WHERE `key` = {$key};");
 
-	// Verify the other threads of updated games
-	foreach ($a_duplicates as $key => $value) {
-		if ($update) {
-			$fid = array_search($a_games[$value]['statusID'], $FidToSid);
-			mysqli_query($db, "UPDATE `rpcs3_forums`.`mybb_threads` SET `fid` = '{$fid}' WHERE `tid` = '{$key}'; ");
+			// Log change to game history
+			mysqli_query($db, "INSERT INTO game_history ({$tempColumn}old_status, old_date, new_status, new_date) VALUES ({$tempValues}
+			'{$game['old_status']}',
+			'{$game['old_date']}',
+			'{$game['status']}',
+			'{$game['last_update']}'
+			); ");
 		}
-		echo "<span style='color:#{$a_status[$a_games[$value]['statusID']]['color']}'>{$a_status[$a_games[$value]['statusID']]['name']}</span>
-		 -> ".getThread("{$key}: {$a_games[$value]['game_title']}<br>", $key);
-	}
 
-	if ($update) {
 		// Recache commit cache as new additions may contain new commits
 		cacheCommitCache();
 		// Recache status counts for general search
@@ -468,117 +423,7 @@ function compareThreads($update = false) {
 		cacheInitials();
 		// Recache status modules
 		cacheStatusModules();
-	}
-
-	mysqli_close($db);
-}
-
-
-/* WIP
-function getNewTests() {
-
-	$db = getDatabase();
-
-	$a_status = array(
-	'Playable' => 5,
-	'Ingame' => 6,
-	'Intro' => 7,
-	'Loadable' => 8,
-	'Nothing' => 9
-	);
-
-	// Cache commits
-	$q_commits = mysqli_query($db, "SELECT * FROM builds_windows ORDER by merge_datetime DESC;");
-	$a_commits = array();
-	while ($row = mysqli_fetch_object($q_commits)) {
-		$a_commits[substr($row->commit, 0, 7)] = $row->merge_datetime;
-	}
-
-	$q_threads = mysqli_query($db, "SELECT *
-	FROM rpcs3_compatibility.game_list
-	WHERE status = 'Playable';"); // Playable only
-
-	// Cache games
-	$a_games = array();
-
-	while ($row = mysqli_fetch_object($q_threads)) {
-		$a_games[$row->thread_id] = array(
-		'game_id' => $row->game_id,
-		'game_title' => $row->game_title,
-		'status' => $row->status,
-		'currentCommit' => $row->build_commit,
-		'currentDate' => date('Y-m-d',  strtotime($row->last_update)),
-		'newCommit' => $row->build_commit,
-		'newDate' => date('Y-m-d', strtotime($row->last_update)),
-		'parent_id' => $parent_id
-		);
-	}
-
-	// Manually locked to Playable games
-	$q_posts = mysqli_query($db, "SELECT pid, tid, fid, subject, dateline, message, game_id, game_title, build_commit, status, last_update
-	FROM rpcs3_forums.mybb_posts
-	LEFT JOIN rpcs3_compatibility.game_list
-	ON tid = thread_id
-	WHERE fid = 5
-	ORDER by tid, pid DESC;");
-
-	$found = array();
-
-	echo "<p style='padding-top:10px; font-size:12px;'>";
-
-	while ($row = mysqli_fetch_object($q_posts)) {
-
-		if (isset($a_games[$row->tid])) {
-
-			if (!array_key_exists($row->tid, $found)) {
-				$found[$row->tid] = 0;
-			}
-
-			if ($found[$row->tid] == 0) {
-
-				foreach ($a_commits as $commit => $date) {
-
-					// Note: If commit is an int and not a string and one doesn't cast it then it breaks it
-					if (stripos($row->message, (string)$commit) !== false) {
-
-						$newDate = date('Y-m-d', $row->dateline);
-
-						// If new date is after the current one and the commits are different
-						if ( $newDate > $a_games[$row->tid]['currentDate'] && substr($a_games[$row->tid]['currentCommit'], 0, 7) != substr((string)$commit, 0, 7)) {
-
-							$a_games[$row->tid]['newCommit'] = $commit;
-							$a_games[$row->tid]['newDate'] = $newDate;
-							echo "<b>{$a_games[$row->tid]['game_id']}</b>: Commit found: &nbsp;&nbsp;&nbsp; {$commit} (".date('Y-m-d', strtotime($date))." | {$newDate} | {$a_games[$row->tid]['currentDate']}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html#pid{$row->pid}'>{$row->pid}</a>)<br>";
-							$found[$row->tid] = 1;
-							break;
-
-						}
-
-					}
-
-				}
-
-			} elseif (stripos($row->message, (string)$a_games[$row->tid]['newCommit']) !== false) {
-
-				// Discards useless quote duplicates: If commit belongs to an older post, set date to that post's
-				$newDate = date('Y-m-d', $row->dateline);
-				$a_games[$row->tid]['newDate'] = $newDate;
-				echo "<b>{$a_games[$row->tid]['game_id']}</b>: Older date found: {$a_games[$row->tid]['newCommit']} ({$newDate} | {$a_games[$row->tid]['currentDate']}) (pid:<a href='https://forums.rpcs3.net/post-{$row->pid}.html#pid{$row->pid}'>{$row->pid}</a>)<br>";
-
-			}
-
-		}
 
 	}
-
-
-	echo "<br>";
-	highlight_string("<?php\n\$data =\n".var_export($a_games, true).";\n?>");
-
-
-	echo "</p>";
-
-	mysqli_close($db);
 
 }
-*/
