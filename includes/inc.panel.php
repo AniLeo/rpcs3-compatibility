@@ -218,10 +218,8 @@ function compareThreads($update = false) {
 			if (substr($title, -1) == ' ')
 				$title = substr($title, 0, -1);
 
-			// TODO: GID Structure Update
 			$a_inserts[$row->tid] = array(
-				"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
-				'region' => $a_regions[substr($gid, 2, 1)],
+				'gid' => $gid,
 				'game_title' => $title,
 				'status' => $sid,
 				'commit' => 0,
@@ -262,7 +260,7 @@ function compareThreads($update = false) {
 
 				// Update status
 				if ($a_updates[$cur_game->key]['status'] > $sid) {
-					$a_updates[$cur_game->key]["gid_{$a_regions[substr($gid, 2, 1)]}"] = $gid;
+					$a_updates[$cur_game->key]['gid'] = $gid;
 					$a_updates[$cur_game->key]['status'] = $sid;
 					$a_updates[$cur_game->key]['commit'] = 0;
 					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
@@ -274,7 +272,7 @@ function compareThreads($update = false) {
 			} else {
 
 				$a_updates[$cur_game->key] = array(
-					"gid_{$a_regions[substr($gid, 2, 1)]}" => $gid,
+					'gid' => $gid,
 					'game_title' => $cur_game->title,
 					'status' => $sid,
 					'commit' => 0,
@@ -331,26 +329,9 @@ function compareThreads($update = false) {
 			Inserts
 		*/
 		foreach ($a_inserts as $tid => $game) {
-			// TODO: GID Structure Update
-			$tempColumn = '';
-			if 		 (array_key_exists('gid_EU', $game)) { $tempColumn .= "gid_EU, tid_EU, "; }
-			elseif (array_key_exists('gid_US', $game)) { $tempColumn .= "gid_US, tid_US, "; }
-			elseif (array_key_exists('gid_JP', $game)) { $tempColumn .= "gid_JP, tid_JP, "; }
-			elseif (array_key_exists('gid_AS', $game)) { $tempColumn .= "gid_AS, tid_AS, "; }
-			elseif (array_key_exists('gid_KR', $game)) { $tempColumn .= "gid_KR, tid_KR, "; }
-			elseif (array_key_exists('gid_HK', $game)) { $tempColumn .= "gid_HK, tid_HK, "; }
-			$tempValues = '';
-			if 		 (array_key_exists('gid_EU', $game)) { $tempValues .= "'{$game['gid_EU']}', {$tid}, "; }
-			elseif (array_key_exists('gid_US', $game)) { $tempValues .= "'{$game['gid_US']}', {$tid}, "; }
-			elseif (array_key_exists('gid_JP', $game)) { $tempValues .= "'{$game['gid_JP']}', {$tid}, "; }
-			elseif (array_key_exists('gid_AS', $game)) { $tempValues .= "'{$game['gid_AS']}', {$tid}, "; }
-			elseif (array_key_exists('gid_KR', $game)) { $tempValues .= "'{$game['gid_KR']}', {$tid}, "; }
-			elseif (array_key_exists('gid_HK', $game)) { $tempValues .= "'{$game['gid_HK']}', {$tid}, "; }
-
 			// Insert new entry on the game list
-			$q_insert = mysqli_query($db, "INSERT INTO `game_list` ({$tempColumn}`game_title`, `build_commit`, `last_update`, `status`) VALUES
-			({$tempValues}
-			'".mysqli_real_escape_string($db, $game['game_title'])."',
+			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `last_update`, `status`) VALUES
+			('".mysqli_real_escape_string($db, $game['game_title'])."',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'{$game['last_update']}',
 			'{$game['status']}');");
@@ -363,6 +344,9 @@ function compareThreads($update = false) {
 			`status` = {$game['status']}
 			ORDER BY `key` DESC LIMIT 1");
 			$key = mysqli_fetch_object($q_fetchkey)->key;
+
+			// Insert Game and Thread IDs on the ID table
+			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$game['gid']}', {$tid}); ");
 
 			// Sanity check, this should be unreachable
 			if ($key == NULL)

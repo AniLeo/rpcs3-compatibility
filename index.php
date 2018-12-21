@@ -20,6 +20,7 @@
 */
 
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
 $get = validateGet();
 
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
@@ -80,7 +81,6 @@ https://github.com/AniLeo
 2017.01.22
 **/
 if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php");
-if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
 $start_time = getTime();
 Profiler::addData("Index: Start");
 ?>

@@ -10,18 +10,6 @@ CREATE TABLE `game_list` (
 	`build_commit` varchar(64) NOT NULL,
 	`wiki` int(11) DEFAULT NULL,
 	`last_update` date NOT NULL,
-	`gid_EU` varchar(9) DEFAULT NULL,
-	`tid_EU` int(11) DEFAULT NULL,
-	`gid_US` varchar(9) DEFAULT NULL,
-	`tid_US` int(11) DEFAULT NULL,
-	`gid_JP` varchar(9) DEFAULT NULL,
-	`tid_JP` int(11) DEFAULT NULL,
-	`gid_AS` varchar(9) DEFAULT NULL,
-	`tid_AS` int(11) DEFAULT NULL,
-	`gid_KR` varchar(9) DEFAULT NULL,
-	`tid_KR` int(11) DEFAULT NULL,
-	`gid_HK` varchar(9) DEFAULT NULL,
-	`tid_HK` int(11) DEFAULT NULL,
 	PRIMARY KEY (`key`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
@@ -89,3 +77,13 @@ CREATE TABLE `contributors` (
 	`username` varchar(128) NOT NULL,
 	PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for `game_id`
+-- ----------------------------
+DROP TABLE IF EXISTS `game_id`;
+CREATE TABLE `game_id` (
+  `key` int(11) NOT NULL,
+  `gid` varchar(9) NOT NULL,
+  `tid` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

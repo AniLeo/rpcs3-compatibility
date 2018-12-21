@@ -28,7 +28,7 @@ class Compat {
 
 
 // Generates query from given GET parameters
-static function generateQuery($get, &$db) {
+public static function generateQuery($get, &$db) {
 
 	if ($db == null) {
 		$db = getDatabase();
@@ -59,22 +59,14 @@ static function generateQuery($get, &$db) {
 	if ($get['g'] != '') {
 		if ($and) { $genquery .= " AND "; }
 		$s_g = mysqli_real_escape_string($db, $get['g']);
-		$genquery .= " (`game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `gid_EU` LIKE '%{$s_g}%' OR `gid_US` LIKE '%{$s_g}%' OR `gid_JP` LIKE '%{$s_g}%'
-		OR `gid_AS` LIKE '%{$s_g}%' OR `gid_KR` LIKE '%{$s_g}%' OR `gid_HK` LIKE '%{$s_g}%') ";
+		$genquery .= " (`game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ) ";
 		$and = true;
 	}
 
 	// QUERYGEN: Search by media type
 	if ($get['t'] != '') {
 		if ($and) { $genquery .= " AND "; }
-		$genquery .= " (
-		(`gid_EU` IS NOT NULL && SUBSTR(`gid_EU`,1,1) = '{$get['t']}') OR
-		(`gid_US` IS NOT NULL && SUBSTR(`gid_US`,1,1) = '{$get['t']}') OR
-		(`gid_JP` IS NOT NULL && SUBSTR(`gid_JP`,1,1) = '{$get['t']}') OR
-		(`gid_AS` IS NOT NULL && SUBSTR(`gid_AS`,1,1) = '{$get['t']}') OR
-		(`gid_HK` IS NOT NULL && SUBSTR(`gid_HK`,1,1) = '{$get['t']}') OR
-		(`gid_KR` IS NOT NULL && SUBSTR(`gid_KR`,1,1) = '{$get['t']}')
-		) ";
+		$genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`,1,1) = '{$get['t']}') ) ";
 		$and = true;
 	}
 

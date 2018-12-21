@@ -304,20 +304,13 @@ function cacheLibraryStatistics() {
 
 	$db = getDatabase();
 
-	// Get all games in the database (ID + Title)
+	// Get all game IDs in the database
 	$a_games = array();
-	$query = mysqli_query($db, "SELECT * FROM game_list; ");
+	$query = mysqli_query($db, "SELECT * FROM `game_id`; ");
 
-	$all = 0;
-
-	while($row = mysqli_fetch_object($query)) {
-		if (!empty($row->gid_EU)) { $a_games[] = $row->gid_EU; $all++; }
-		if (!empty($row->gid_US)) { $a_games[] = $row->gid_US; $all++; }
-		if (!empty($row->gid_JP)) { $a_games[] = $row->gid_JP; $all++; }
-		if (!empty($row->gid_AS)) { $a_games[] = $row->gid_AS; $all++; }
-		if (!empty($row->gid_KR)) { $a_games[] = $row->gid_KR; $all++; }
-		if (!empty($row->gid_HK)) { $a_games[] = $row->gid_HK; $all++; }
-	}
+	while($row = mysqli_fetch_object($query))
+		$a_games[] = $row->gid;
+	$all = sizeof($a_games);
 
 	mysqli_close($db);
 

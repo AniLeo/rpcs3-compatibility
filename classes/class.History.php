@@ -139,10 +139,8 @@ public static function getTableContent($array) {
 
 		// Cell 1: Regions
 		$cell = "";
-		foreach ($entry->IDs as $id) {
-			$cell .= getThread(getGameRegion($id[0], false), $id[1]);
-			$media = getGameMediaIcon($id[0], false);
-		}
+		$cell .= getThread(getGameRegion($entry->IDs[0], false).$entry->IDs[0], $entry->IDs[1]);
+		$media = getGameMediaIcon($entry->IDs[0], false);
 		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
@@ -243,7 +241,7 @@ public static function getHistoryRSS() {
 			$rssfeed .= "
 			<item>
 				<title><![CDATA[{$entry->title}]]></title>
-				<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0][0]}_{$entry->new_date}</guid>";
+				<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>";
 
 			if ($entry->old_status !== NULL) {
 				$rssfeed .= "<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>";

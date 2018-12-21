@@ -34,8 +34,7 @@ class Game {
 	public $wikiTitle;  // String
 	public $IDs;        // [(String, Int)]
 
-	function __construct(&$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit,
-	$gid_EU, $tid_EU, $gid_US, $tid_US, $gid_JP, $tid_JP, $gid_AS, $tid_AS, $gid_KR, $tid_KR, $gid_HK, $tid_HK) {
+	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit) {
 
 		$this->key = $key;
 
@@ -60,23 +59,9 @@ class Game {
 			$this->pr     = $a_cache[substr($shortcommit, 0, 7)][1];
 		}
 
-		if (!is_null($gid_EU))
-			$this->IDs[] = array($gid_EU, $tid_EU);
-
-		if (!is_null($gid_US))
-			$this->IDs[] = array($gid_US, $tid_US);
-
-		if (!is_null($gid_JP))
-			$this->IDs[] = array($gid_JP, $tid_JP);
-
-		if (!is_null($gid_AS))
-			$this->IDs[] = array($gid_AS, $tid_AS);
-
-		if (!is_null($gid_KR))
-			$this->IDs[] = array($gid_KR, $tid_KR);
-
-		if (!is_null($gid_HK))
-			$this->IDs[] = array($gid_HK, $tid_HK);
+		if (!is_null($a_ids))
+			foreach ($a_ids[$key] as $id)
+				$this->IDs[] = $id;
 
 	}
 
@@ -86,14 +71,14 @@ class Game {
 		* Obtains a Game from given MySQL Row.
 		*
 		* @param object  $row       The MySQL Row (returned by mysqli_fetch_object($query))
+		* @param object  $a_ids     Array containing key => Game and Thread IDs to be included on the Game object
 		* @param object  $a_cache   Commit => PR cache
 		* @param object  $a_wiki    Wiki Page ID => Page Title cache
 		*
 		* @return object $game      Game fetched from given Row
 		*/
-	public static function rowToGame($row, &$a_cache, &$a_wiki) {
-		return new Game($a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit,
-		$row->gid_EU, $row->tid_EU, $row->gid_US, $row->tid_US, $row->gid_JP, $row->tid_JP, $row->gid_AS, $row->tid_AS, $row->gid_KR, $row->tid_KR, $row->gid_HK, $row->tid_HK);
+	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki) {
+		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit);
 	}
 
 	/**
@@ -108,6 +93,11 @@ class Game {
 		*/
 	public static function queryToGames($query, $commitData = true, $wikiData = true) {
 		$db = getDatabase();
+
+		$a_games = array();
+
+		if (mysqli_num_rows($query) === 0)
+			return $a_games;
 
 		if ($commitData) {
 			$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
@@ -124,12 +114,29 @@ class Game {
 			$a_wiki = NULL;
 		}
 
-		mysqli_close($db);
+		// Get GIDs and TIDs
+		$c_ids = "SELECT * FROM `game_id` WHERE ";
+		for ($i = 0; $row = mysqli_fetch_object($query); $i++) {
+			if ($i > 0)
+				$c_ids .= " OR ";
+			$c_ids .= " `key` = {$row->key} ";
+		}
 
-		$a_games = array();
+		// All (or most) games being fetch
+		if (mysqli_num_rows($query) > 1000)
+			$q_ids = mysqli_query($db, "SELECT * FROM `game_id` ");
+		else
+			$q_ids = mysqli_query($db, $c_ids);
+
+		$a_ids = array();
+		while ($row = mysqli_fetch_object($q_ids))
+			$a_ids[$row->key][] = array($row->gid, $row->tid);
+
+		mysqli_data_seek($query, 0);
 		while ($row = mysqli_fetch_object($query))
-			$a_games[] = self::rowToGame($row, $a_cache, $a_wiki);
+			$a_games[] = self::rowToGame($row, $a_ids, $a_cache, $a_wiki);
 
+		mysqli_close($db);
 		return $a_games;
 	}
 
