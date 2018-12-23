@@ -75,94 +75,51 @@ Profiler::addData("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
 
-// Initials search / Levenshtein search
-Profiler::addData("Inc: Initials + Levenshtein");
+// Levenshtein search
+Profiler::addData("Inc: Levenshtein");
 
-// If game search exists and isn't a Game ID (length isn't 9 and chars 4-9 aren't numbers)
-if ($get['g'] != '' && strlen($get['g']) >= 2 && !isGameID($get['g'])) {
+// Levenshtein Search (Get the closest result to the searched input)
+// If the main query didn't return anything and game search exists and isn't a Game ID
+if ($q_main && mysqli_num_rows($q_main) == 0 && $get['g'] != '' && !isGameID($get['g'])) {
 
-	$s_title = mysqli_real_escape_string($db, $get['g']);
+	$l_title = "";
+	$l_orig = "";
+	$l_dist = -1;
+	$titles = array();
 
-	// Initials Search
-	$q_initials = mysqli_query($db, "SELECT * FROM `initials_cache` WHERE
-		`initials` LIKE '%{$s_title}' && `game_title` NOT LIKE '%{$s_title}%'; ");
-
-	if ($q_initials && mysqli_num_rows($q_initials) > 0) {
-
-		$c_title = "";
-		for ($i = 0; $row = mysqli_fetch_object($q_initials); $i++) {
-			if ($i > 0)
-				$c_title .= " OR ";
-
-			$s_title = mysqli_real_escape_string($db, $row->game_title);
-			$c_title .= " game_title = '{$s_title}' OR alternative_title = '{$s_title}' ";
-		}
-		$c_title = " ( {$c_title} ) ";
-
-		// Recalculate Pages / CurrentPage
-		$scount2 = countGames($db, $c_title);
-
-		// If sum of secondary results with primary is bigger than page limit, don't use them
-		if ($scount2[0][0]+$scount[0][0] > $get['r']) {
-			$onlyUseMain = true;
-		} else {
-			$onlyUseMain = false;
-
-			// If we're going to use the results, add count of games found here to main count
-			for ($x = 0; $x <= 1; $x++)
-				for ($y = 0; $y <= 5; $y++)
-					$scount[$x][$y] += $scount2[$x][$y];
-
-			$pages = countPages($get, $scount[0][0]);
-			$currentPage = getCurrentPage($pages);
-		}
-
-		$c_status = ($get['s'] != 0) ? " status = {$get['s']} AND " : "";
-		$q_main2 = mysqli_query($db, " SELECT * FROM `game_list` WHERE {$c_status} {$c_title} {$a_order[$get['o']]} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};");
+	// Select all database entries
+	$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
+	while ($row = mysqli_fetch_object($q_lev)) {
+		$titles[] = $row->game_title;
+		$titles[] = $row->alternative_title;
 	}
 
-	// Levenshtein Search
-	// If there are no results from previous searches then apply levenshtein to get the closest result
-	if ($q_main && mysqli_num_rows($q_main) == 0 && $q_initials && mysqli_num_rows($q_initials) == 0) {
-		$l_title = "";
-		$l_orig = "";
-		$l_dist = -1;
-		$titles = array();
-
-		// Select all database entries
-		$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
-		while ($row = mysqli_fetch_object($q_lev)) {
-			$titles[] = $row->game_title;
-			$titles[] = $row->alternative_title;
+	// Calculate proximity for each database entry
+	foreach ($titles as $title) {
+		$lev = levenshtein($get['g'], $title);
+		if ($lev <= $l_dist || $l_dist < 0) {
+					$l_title = $title;
+					$l_dist = $lev;
 		}
-
-		// Calculate proximity for each database entry
-		foreach ($titles as $title) {
-			$lev = levenshtein($get['g'], $title);
-			if ($lev <= $l_dist || $l_dist < 0) {
-						$l_title = $title;
-						$l_dist = $lev;
-			}
-		}
-
-		$s_title = mysqli_real_escape_string($db, $l_title);
-
-		$genquery = " `game_title` LIKE '{$s_title}%' OR `alternative_title` LIKE '{$s_title}%' ";
-
-		// Re-run the main query
-		$c_main = "SELECT * FROM `game_list` WHERE {$genquery} {$a_order[$get['o']]}
-		LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
-		$q_main = mysqli_query($db, $c_main);
-
-		// Recalculate Pages / CurrentPage
-		$scount = countGames($db, $genquery);
-		$pages = countPages($get, $scount[0][0]);
-		$currentPage = getCurrentPage($pages);
-
-		// Replace faulty search with returned game but keep the original search for display
-		$l_orig = $get['g'];
-		$get['g'] = $l_title;
 	}
+
+	$s_title = mysqli_real_escape_string($db, $l_title);
+
+	$genquery = " `game_title` LIKE '%{$s_title}%' OR `alternative_title` LIKE '%{$s_title}%' ";
+
+	// Re-run the main query
+	$c_main = "SELECT * FROM `game_list` WHERE {$genquery} {$a_order[$get['o']]}
+	LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+	$q_main = mysqli_query($db, $c_main);
+
+	// Recalculate Pages / CurrentPage
+	$scount = countGames($db, $genquery);
+	$pages = countPages($get, $scount[0][0]);
+	$currentPage = getCurrentPage($pages);
+
+	// Replace faulty search with returned game but keep the original search for display
+	$l_orig = $get['g'];
+	$get['g'] = $l_title;
 }
 
 
@@ -183,38 +140,8 @@ if (!$q_main) {
 
 // Store results
 Profiler::addData("Inc: Store Results");
-
-// If secondary results exist, sorting is needed
-$needsSorting = false;
-// Stop if too many data is returned on Initials / Levenshtein
-$stop = false;
-
-Profiler::addData("Inc: Store Results - Secondary");
-if (isset($q_initials) && $q_initials && mysqli_num_rows($q_initials) > 0 && isset($q_main2) && $q_main2 && mysqli_num_rows($q_main2) > 0 && !$onlyUseMain) {
-	$needsSorting = true;
-
-	$games = Game::queryToGames($q_main2);
-
-	if (strlen($get['g']) < 2)
-		$stop = true;
-}
-
-Profiler::addData("Inc: Store Results - Main");
-if (!$stop && $q_main && mysqli_num_rows($q_main) > 0) {
-	// If secondary search exists
-	if ($needsSorting)
-		$games = array_merge($games, Game::queryToGames($q_main));
-	else
-		$games = Game::queryToGames($q_main);
-}
-
-Profiler::addData("Inc: Sort Results");
-if ($needsSorting)
-	if ($get['o'] == '')
-		Game::sort($games, '3', 'a');
-	else
-		Game::sort($games, substr($get['o'], 0, 1), substr($get['o'], 1, 1));
-
+if ($q_main && mysqli_num_rows($q_main) > 0)
+	$games = Game::queryToGames($q_main);
 
 // Close MySQL connection.
 Profiler::addData("Inc: Close Database Connection");

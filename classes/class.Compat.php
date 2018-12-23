@@ -59,7 +59,15 @@ public static function generateQuery($get, &$db) {
 	if ($get['g'] != '') {
 		if ($and) { $genquery .= " AND "; }
 		$s_g = mysqli_real_escape_string($db, $get['g']);
-		$genquery .= " (`game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ) ";
+		$searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ";
+
+		// Initials cache search
+		if (strlen($get['g']) >= 2) {
+				$searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
+				OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
+		}
+
+		$genquery .= " ({$searchbox}) ";
 		$and = true;
 	}
 
