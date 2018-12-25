@@ -38,8 +38,8 @@ if ($handle) {
 		if (!in_array(mb_substr($line, 0, 4), $a_filter))
 			continue;
 
-		if (!($get['f'] != '' && strtolower(substr($line, 2, 1)) != $get['f']) ||
-			!($get['t'] != '' && strtolower(substr($line, 0, 1)) != $get['t'])) {
+		if ( ($get['f'] == '' || strtolower(substr($line, 2, 1)) == $get['f'])
+			&& ($get['t'] == '' || strtolower(substr($line, 0, 1)) == $get['t']) ) {
 			$a_db[$entries] = array(mb_substr($line, 0, 9) => mb_substr($line, 12));
 			$entries++;
 		}
