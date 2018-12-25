@@ -349,8 +349,8 @@ input {
 
 #compat-con-pages {
     font-family: arial;
-    font-size: 14px;
-    line-height: 33px;
+    font-size: 12px;
+    line-height: 42px;
     position: relative;
     height: auto;
     min-height: 30px;
@@ -360,6 +360,18 @@ input {
     color: #616161;
     background: #fff;
     border-radius: 4px
+}
+
+#compat-con-pages a {
+    padding: 8px;
+    color: #3198ff
+}
+
+#compat-con-pages a:hover {
+    width: 22px;
+    text-decoration: none;
+    color: #fff;
+    background: #3198ff
 }
 
 #compat-hdr-left {
@@ -644,26 +656,6 @@ input {
     .page-con-container {
         margin: auto 15px!important
     }
-}
-
-.div-pagecounter {
-    font-size: 12px
-}
-
-.div-pagecounter a {
-    font-size: 12px;
-    line-height: 42px;
-    position: relative;
-    padding: 8px;
-    color: #3198ff
-}
-
-.div-pagecounter a:hover {
-    position: relative;
-    width: 22px;
-    text-decoration: none;
-    color: #fff;
-    background: #3198ff
 }
 
 .debug-main {

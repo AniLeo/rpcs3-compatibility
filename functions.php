@@ -194,12 +194,13 @@ function isValid($str) {
 	*
 	* Returns provided string with increased size and font-weight
 	*
-	* @param string $str Some text
+	* @param string $str 	Some text
+	* @param bool		$cond	Condition to be met for text to be highlighted
 	*
 	* @return string
 	*/
-function highlightText($str) {
-	return "<span class=\"highlightedText\">{$str}</span>";
+function highlightText($str, $cond = true) {
+	return $cond ? "<span class=\"highlightedText\">{$str}</span>" : $str;
 }
 
 

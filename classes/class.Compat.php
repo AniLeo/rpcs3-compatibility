@@ -103,115 +103,107 @@ public static function generateQuery($get, &$db) {
 }
 
 
-/***********
- * Sort By *
- ***********/
-public static function getSortBy() {
+/**********************
+ * Print: Status Sort *
+ **********************/
+public static function printStatusSort() {
 	global $a_status, $scount, $get;
 
-	// All
-	$s_sortby = "<a title=\"Show games from all statuses\" href=\"?".combinedSearch(true, false, true, true, false, true, true, true)."s=0\">";
-	$s_sortby .= ($get['s'] == 0) ? highlightText("All ({$scount[1][0]})") : "All ({$scount[1][0]})";
-	$s_sortby .= "</a>".PHP_EOL;
+	// Get combined search parameters
+	$s_combined = combinedSearch(true, false, true, true, false, true, true, true);
 
+	// All statuses
+	echo "<a title=\"Show games from all statuses\" href=\"?{$s_combined}s=0\">";
+	echo highlightText("All ({$scount[1][0]})", $get['s'] === 0);
+	echo "</a>";
+
+	// Individual statuses
 	foreach ($a_status as $id => $status) {
-		// Displays status description when hovered on
-		$s_sortby .= "<a title=\"{$status['desc']}\" href=\"?";
-		$s_sortby .= combinedSearch(true, false, true, true, false, true, true, true);
-		$s_sortby .= "s={$id}\">";
-
-		// If the current selected status, highlight with bold
-		$s_sortby .= ($get['s'] == $id) ? highlightText("{$status['name']} ({$scount[1][$id]})") : "{$status['name']} ({$scount[1][$id]})";
-
-		$s_sortby .= "</a>".PHP_EOL;
+		echo "<a title=\"{$status['desc']}\" href=\"?{$s_combined}s={$id}\">";
+		// If it's the currently selected status, highlight it
+		echo highlightText("{$status['name']} ({$scount[1][$id]})", $get['s'] === $id);
+		echo "</a>";
 	}
-	return $s_sortby;
 }
 
 
-/********************
- * Results per page *
- ********************/
-public static function getResultsPerPage() {
-	return resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
+/***************************
+ * Print: Results per page *
+ ***************************/
+public static function printResultsPerPage() {
+	echo resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
 }
 
 
-/***********************************
- * Clickable URL: Character search *
- **********************************/
-public static function getCharSearch() {
+/***************************
+ * Print: Character search *
+ ***************************/
+public static function printCharSearch() {
 	global $get;
 
-	$a_chars[""] = "All";
-	$a_chars["09"] = "0-9";
-	foreach (range('a', 'z') as $i) {
+	// Get combined search parameters
+	$s_combined = combinedSearch(true, true, false, false, false, true, true, false);
+
+	// Build characters array
+	$a_chars[''] = 'All';
+	$a_chars['09'] = '0-9';
+	foreach (range('a', 'z') as $i)
 		$a_chars[$i] = strtoupper($i);
-	}
-	$a_chars["sym"] = "#";
+	$a_chars['sym'] = '#';
 
-	/* Commonly used code: so we don't have to waste lines repeating this */
-	$common = "<td><a href=\"?";
-	$common .= combinedSearch(true, true, false, false, false, true, true, false);
-
-	// Initialize string
-	$s_charsearch = "";
-
+	echo '<table id="compat-con-search"><tr>';
 	foreach ($a_chars as $key => $value) {
-		$s_charsearch .= "{$common}c={$key}\"><div class='compat-search-character'>";
-		$s_charsearch .= ($get['c'] == $key) ? "<span style=\"font-size:16px;\">{$value}</span>" : $value;
-		$s_charsearch .= "</div></a></td>".PHP_EOL;
+		echo "<td><a href=\"?{$s_combined}c={$key}\"><div class='compat-search-character'>";
+		echo ($get['c'] == $key) ? "<span style=\"font-size:16px;\">{$value}</span>" : $value;
+		echo "</div></a></td>";
 	}
-
-	return "<tr>{$s_charsearch}</tr>";
+	echo '</tr></table>';
 }
 
 
-public static function getTableMessages() {
+/*******************
+ * Print: Messages *
+ *******************/
+public static function printMessages() {
 	global $info, $error;
-	if (!is_null($info)) { return "<p class=\"compat-tx1-criteria\">{$info}</p>"; }
-	elseif (!is_null($error)) { return "<p class=\"compat-tx1-criteria\">{$error}</p>"; }
+
+	if (!is_null($info))
+		echo "<p class=\"compat-tx1-criteria\">{$info}</p>";
+	elseif (!is_null($error))
+		echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
 }
 
 
 /*****************
- * Table Headers *
+ * Print: Table  *
  *****************/
-public static function getTableHeaders() {
-	global $error;
+public static function printTable() {
+	global $games, $error, $a_status;
 
-	if (!is_null($error)) return "";
+	if (!is_null($error))
+		return;
 
+	// Start table
+	echo "<div class=\"divTable compat-table\">";
+
+	// Print table headers
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);
-
 	$headers = array(
 		'Game IDs' => 0,
 		'Game Title' => 2,
 		'Status' => 3,
 		'Updated on' => 4
 	);
+	echo getTableHeaders($headers, $extra);
 
-	return getTableHeaders($headers, $extra);
-}
-
-
-/*****************
- * Table Content *
- *****************/
-public static function getTableContent() {
-	global $games, $error, $a_status;
-
-	if (!is_null($error)) return "";
-
-	// Initialize string
-	$s_tablecontent = "";
-
+	// Print table body
+	echo "<div class=\"divTableBody\">";
 	foreach ($games as $game) {
 
 		$media = '';
 		$multiple = false;
 
-		$s_tablecontent .= "<div class=\"divTableRow\">";
+		echo "<div class=\"divTableRow\">";
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
@@ -227,45 +219,44 @@ public static function getTableContent() {
 
 			$multiple = true;
 		}
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 2: Game Media and Titles
 		$title = !is_null($game->wikiID) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wikiTitle}\">{$game->title}</a>" : $game->title;
 		$cell = "{$media}{$title}";
 		if (!is_null($game->title2))
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 3: Status
 		$cell = '';
 		if (!is_null($game->status))
 			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$game->status]['color']};\">{$a_status[$game->status]['name']}</div>";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 4: Last Test
 		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>&nbsp;&nbsp;&nbsp;";
 		$cell .= $game->pr == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$game->pr}'>Pull #{$game->pr}</a>)";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
-
-		$s_tablecontent .= "</div>";
-		$s_tablecontent .= PHP_EOL;
-
+		echo "</div>";
 	}
-
-	return "<div class=\"divTableBody\">".PHP_EOL."{$s_tablecontent}</div>";
+	echo "</div>";	// End table body
+	echo "</div>";	// End table
 }
 
 
 /*****************
  * Pages Counter *
  *****************/
-public static function getPagesCounter() {
+public static function printPagesCounter() {
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
 
-	return getPagesCounter($pages, $currentPage, $extra);
+	echo '<div id="compat-con-pages">';
+	echo getPagesCounter($pages, $currentPage, $extra);
+	echo '</div>';
 }
 
 /*

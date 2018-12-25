@@ -22,9 +22,9 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 ?>
 <div class="page-con-container">
 	<div class="page-in-container">
-		<!--End -->
 		<div class="container-con-block darkmode-block">
 			<div class="container-con-wrapper">
+
 				<div class="container-tx1-block compat-title">
 					<p id="title1">RPCS3 Compatibility List</p>
 					<?php
@@ -32,80 +32,68 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						echo getMenu(__FILE__);
 					?>
 				</div>
+
 				<div class="container-tx2-block compat-desc">
 					<p>
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently.
 						Be sure to check this page often to follow the latest updates.
-						<br>
+					<br>
 						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
 					</p>
 				</div>
 			</div>
-			<!--End -->
+
 			<div id="compat-hdr-left">
-				<p>
-					<?php Profiler::addData("Page: Get Results Per Page"); ?>
-					Results per page <?php echo Compat::getResultsPerPage(); ?>
-				</p>
+				<?php Profiler::addData("Page: Print Results Per Page"); ?>
+				<p>Results per page <?php Compat::printResultsPerPage(); ?></p>
 			</div>
 			<div id="compat-hdr-right">
-				<p>
-					<?php Profiler::addData("Page: Get Sort By"); ?>
-					Sort By <?php echo Compat::getSortBy(); ?>
-				</p>
+				<?php Profiler::addData("Page: Print Status Sort"); ?>
+				<p>Sort By <?php echo Compat::printStatusSort(); ?></p>
 			</div>
 
-			<!--End -->
 			<?php
 			if (file_exists(__DIR__.'/../cache/mod.status.count.php')) {
-				Profiler::addData("Page: Get Status Module");
+				Profiler::addData("Page: Include Status Module");
 				include(__DIR__.'/../cache/mod.status.count.php');
 			} else {
 				Profiler::addData("Page: Generate Status Module");
 				echo generateStatusModule();
 			}
 			?>
-			<!--End -->
+
+			<?php Profiler::addData("Page: Display Searchbox"); ?>
 			<div id="compat-con-searchbox">
-				<?php Profiler::addData("Page: Display Searchbox"); ?>
 				<form method="get" id="game-search">
 					<div id="searchbox">
-						<input id="searchbox-field" style ="background-color: transparent;" name="g" type="text"
-						value="<?php if($get['g'] != "" && $scount[0] > 0) {	echo $get['g'];	}	?>" placeholder="Game Title / Game ID" />
+						<input id="searchbox-field" name="g" type="text" value="<?php if($get['g'] != "" && $scount[0] > 0) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
 					</div>
 					<div id="compat-searchbox-div">
 						<button id="compat-searchbox-button" type="submit" form="game-search"></button>
 					</div>
 				</form>
 			</div>
-			<!--End -->
-			<table id="compat-con-search">
-				<?php Profiler::addData("Page: Get Character Search"); ?>
-				<?php echo Compat::getCharSearch(); ?>
-			</table>
-			<!--End -->
-		</div>
+
+			<?php
+				Profiler::addData("Page: Print Character Search");
+				Compat::printCharSearch();
+			?>
+
+		</div> <!-- container-con-block -->
 
 		<?php
-			echo Compat::getTableMessages();
-			if (is_null($error)) echo "<div class=\"divTable compat-table\">";
+			Profiler::addData("Page: Print Messages");
+			Compat::printMessages();
 
-			Profiler::addData("Page: Display Table Headers");
-			echo Compat::getTableHeaders();
-			Profiler::addData("Page: Display Table Content");
-			echo Compat::getTableContent();
+			Profiler::addData("Page: Print Table");
+			Compat::printTable();
 
-			if (is_null($error)) echo "</div>";
+			Profiler::addData("Page: Print Pages Counter");
+			Compat::printPagesCounter();
+
+			Profiler::addData("End");
+			echo getFooter();
 		?>
-		<!--End -->
-		<?php Profiler::addData("Page: Pages Counter"); ?>
-		<div id="compat-con-pages">
-			<p class="div-pagecounter">
-				<?php echo Compat::getPagesCounter(); ?>
-			</p>
-		</div>
-		<?php Profiler::addData("End"); ?>
-		<?php echo getFooter(); ?>
-		<!--End -->
-	</div>
-</div>
+
+	</div> <!-- page-in-container -->
+</div> <!-- page-con-container -->
