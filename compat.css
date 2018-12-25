@@ -114,16 +114,15 @@
 
 .compat-tvalidity-title {
     font-family: arial;
-    font-size: 13px;
-    padding-top: 15px
+    font-size: 13px
 }
 
 .color-red {
-    color: #e74c3c
+    color: #e74c3c !important;
 }
 
 .color-green {
-    color: #2ecc71
+    color: #2ecc71 !important;
 }
 
 .compat-tvalidity-list {

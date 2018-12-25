@@ -30,20 +30,31 @@ TODO: Login system
 TODO: Self-made sessions system
 TODO: User permissions system
 TODO: Log commands with run time and datetime
-*/
 
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
 	$startA = getTime();
 	$cost = 13;
 	$iterations = pow(2, $cost);
-	$salt  = substr(strtr(base64_encode(openssl_random_pseudo_bytes(22)), '+', '.'), 0, 22);
+	$salt = substr(strtr(base64_encode(openssl_random_pseudo_bytes(22)), '+', '.'), 0, 22);
 	$pass = crypt($_POST['pw'], '$2y$'.$cost.'$'.$salt);
 	$finishA = getTime();
 	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Hashed and salted secure password generated with {$iterations} iterations (".round(($finishA - $startA), 4)."s).<br><b>Password:</b> {$pass}<br><b>Salt:</b> {$salt}</p>";
 }
+*/
 
-if (array_key_exists($get['a'], $a_panel)) {
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> {$a_panel[$get['a']]['success']} (".runFunctionWithCronometer($get['a'])."s).</p>";
+
+function runFunctions() {
+	global $get, $a_panel;
+
+	echo "<div style=\"font-size:12px;\">";
+
+	if (array_key_exists($get['a'], $a_panel)) {
+		$ret = runFunctionWithCronometer($get['a']);
+		if (!empty($a_panel[$get['a']]['success']))
+			echo "<p><b>Debug mode:</b> {$a_panel[$get['a']]['success']} ({$ret}s).</p>";
+	}
+
+	echo "</div>";
 }
 
 
@@ -115,16 +126,16 @@ function checkInvalidThreads() {
 	}
 
 	if ($invalid > 0) {
-		echo "<p class='compat-tvalidity-title color-red'><b>Not Naisu: Attention required! {$invalid} Invalid threads detected.<br><br></b></p>";
+		echo "<p class='compat-tvalidity-title color-red'><b>Attention required! {$invalid} Invalid threads detected<br><br></b></p>";
 		echo $output;
 	} else {
-		echo "<p class='compat-tvalidity-title color-green'><b>Naisu! No invalid threads detected.</b></p>";
+		echo "<p class='compat-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
 	}
 
 }
 
 
-function compareThreads($update = false) {
+function compatibilityUpdater() {
 	global $a_histdates, $a_status, $a_regions;
 
 	set_time_limit(300);
@@ -166,6 +177,8 @@ function compareThreads($update = false) {
 	$a_updates = array();
 	// Visited Game IDs
 	$a_gameIDs = array();
+
+	echo "<p>"; // Start paragraph
 
 	while ($row = mysqli_fetch_object($q_threads)) {
 
@@ -323,7 +336,9 @@ function compareThreads($update = false) {
 
 	}
 
-	if ($update) {
+	echo "</p>"; // End paragraph
+
+	if (isset($_POST['updateCompatibility'])) {
 
 		/*
 			Inserts
@@ -381,6 +396,13 @@ function compareThreads($update = false) {
 		cacheInitials();
 		// Recache status modules
 		cacheStatusModules();
+
+	} else {
+
+		// Display update button
+		echo "<form action=\"\" method=\"post\">
+						<button name=\"updateCompatibility\" type=\"submit\">Update Compatibility</button>
+					</form><br>";
 
 	}
 

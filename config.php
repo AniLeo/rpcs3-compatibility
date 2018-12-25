@@ -154,6 +154,10 @@ $a_panel = array(
 	'cacheWikiIDs' => array(
 		'title' => "Update Wiki IDs Cache",
 		'success' => "Forced update on Wiki IDs cache"
+	),
+	'compatibilityUpdater' => array(
+		'title' => "Compatibility Updater",
+		'success' => "Ran compatibility updater"
 	)
 );
 

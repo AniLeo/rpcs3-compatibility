@@ -38,41 +38,22 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 								echo "<li><a href=\"?a={$function}\">{$data['title']}</a></li>";
 							}
 						?>
-						<li><a href="?a=compareThreads">Compare Threads</a></li>
-						<li><a href="?a=updateCompatibility">Update Compatibility</a></li>
-						<!-- <li><a href="?a=getNewTests">Get New Tests</a></li> -->
 					</ul>
 				</div>
 
 				<div id="debug-right" class="debug-main">
-
-					<?php
-						if ($get['a'] == 'compareThreads') {
-							echo "<p style=\"padding-top:10px; font-size:12px;\">";
-							compareThreads();
-							echo "</p>";
-						} elseif ($get['a'] == 'updateCompatibility') {
-							echo "<p style=\"padding-top:10px; font-size:12px;\">";
-							compareThreads(true);
-							echo "</p>";
-						} else {
-						?>
-							<form action="?a=generatePassword" method="post">
-								<p style="font-size: 12px;">
-									<b>Generate secure password:</b>&nbsp;
-									<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
-									<br>
-								</p>
-							</form>
-						<?php
-							checkInvalidThreads();
-						}
-						/*
-						if ($get['a'] == 'getNewTests') {
-							getNewTests();
-						}
-						*/
-					?>
+					<!--
+					<form action="?a=generatePassword" method="post">
+						<p style="font-size: 12px;">
+							<b>Generate secure password:</b>&nbsp;
+							<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
+							<br>
+						</p>
+					</form>
+					-->
+					<?php checkInvalidThreads(); ?>
+					<br>
+					<?php runFunctions(); ?>
 				</div>
 
 			</div>
@@ -83,8 +64,6 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 			</div>
 			-->
 		</div>
-
-		<?php if (isset($message)) { echo $message; } ?>
 
 		<?php echo getFooter(); ?>
 
