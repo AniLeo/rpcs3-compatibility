@@ -158,6 +158,10 @@ $a_panel = array(
 	'compatibilityUpdater' => array(
 		'title' => "Compatibility Updater",
 		'success' => "Ran compatibility updater"
+	),
+	'mergeGames' => array(
+		'title' => "Merge Games",
+		'success' => "Ran game merger"
 	)
 );
 

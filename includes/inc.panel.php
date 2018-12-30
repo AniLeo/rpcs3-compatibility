@@ -409,3 +409,82 @@ function compatibilityUpdater() {
 	mysqli_close($db);
 
 }
+
+
+function mergeGames() {
+
+	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
+	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
+
+	echo "<form action=\"\" method=\"post\">
+					<input name=\"gid1\" type=\"text\" value=\"{$gid1}\" placeholder=\"Game ID 1\"><br>
+					<input name=\"gid2\" type=\"text\" value=\"{$gid2}\" placeholder=\"Game ID 2\"><br>
+					<br>
+					<button name=\"mergeRequest\" type=\"submit\">Merge Request</button>
+					<button name=\"mergeConfirm\" type=\"submit\">Merge Confirm</button>
+				</form><br>";
+
+	if (!isset($_POST['mergeRequest']) && !isset($_POST['mergeConfirm']))
+		return;
+
+	if (!isGameID($gid1)) {
+		echo "<p><b>Error:</b> Game ID 1 is not a valid Game ID</p>";
+		return;
+	}
+	if (!isGameID($gid2)) {
+		echo "<p><b>Error:</b> Game ID 2 is not a valid Game ID</p>";
+		return;
+	}
+
+	$db = getDatabase();
+
+	$s_gid1 = mysqli_real_escape_string($db, $_POST['gid1']);
+	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
+
+	$game1 = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');"))[0];
+	if (empty($game1)) {
+		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
+		return;
+	}
+
+	$game2 = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');"))[0];
+	if (empty($game2)) {
+		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
+		return;
+	}
+
+	if ($game1->key == $game2->key) {
+		echo "<p><b>Error:</b> Both Game IDs belong to the same Game Entry</p>";
+		return;
+	}
+
+	echo "<p>"; // Start paragraph
+
+	echo "<b>Game 1: {$game1->title} (status: {$game1->status})</b><br>";
+		foreach ($game1->IDs as $id)
+			echo "- {$id[0]} (tid: $id[1])<br>";
+	echo "<br>";
+
+	echo "<b>Game 2: {$game2->title} (status: {$game2->status})</b><br>";
+		foreach ($game2->IDs as $id)
+			echo "- {$id[0]} (tid: $id[1])<br>";
+	echo "<br>";
+
+	$newKey = strtotime($game1->date) > strtotime($game2->date) ? $game1->key : $game2->key;
+	$oldKey = strtotime($game1->date) > strtotime($game2->date) ? $game2->key : $game1->key;
+
+	// Update: Set both game keys to the key of the latest updated game
+	if (isset($_POST['mergeConfirm'])) {
+		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$oldKey}')");
+		mysqli_query($db, "UPDATE `game_id` SET `key`='{$newKey}' WHERE (`key`='{$oldKey}')");
+		mysqli_query($db, "UPDATE `game_history` SET `game_key`='{$newKey}' WHERE (`game_key`='{$oldKey}')");
+		// Recache status counts for general search
+		cacheStatusCount();
+		// Recache status modules
+		cacheStatusModules();
+		echo "<b>Games successfully merged!</b><br>";
+	}
+
+	echo "</p>"; // End paragraph
+
+}
