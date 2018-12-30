@@ -121,10 +121,11 @@ class Game {
 				$c_ids .= " OR ";
 			$c_ids .= " `key` = {$row->key} ";
 		}
+		$c_ids .= " ORDER BY `gid` ASC ";
 
 		// All (or most) games being fetch
 		if (mysqli_num_rows($query) > 1000)
-			$q_ids = mysqli_query($db, "SELECT * FROM `game_id` ");
+			$q_ids = mysqli_query($db, "SELECT * FROM `game_id` ORDER BY `gid` ASC");
 		else
 			$q_ids = mysqli_query($db, $c_ids);
 
