@@ -189,7 +189,7 @@ function compatibilityUpdater() {
 
 		// Not a valid Game ID, continue to next thread entry
 		if (!isGameID($gid)) {
-			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br>";
+			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br><br>";
 			continue;
 		}
 
@@ -197,7 +197,7 @@ function compatibilityUpdater() {
 		if (!in_array($gid, $a_gameIDs)) {
 			$a_gameIDs[] = $gid;
 		} else {
-			echo "Error! A thread for {$gid} was already visited. ".getThread($row->subject, $row->tid)." is a duplicate.<br>";
+			echo "Error! A thread for {$gid} was already visited. ".getThread($row->subject, $row->tid)." is a duplicate.<br><br>";
 			continue;
 		}
 
@@ -216,7 +216,7 @@ function compatibilityUpdater() {
 
 		// New thread is a duplicate of an existing one
 		if ($tid != null && $tid != $row->tid) {
-			echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($tid, $tid).").</span><br>";
+			echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($tid, $tid).").</span><br><br>";
 			continue;
 		}
 
@@ -279,7 +279,7 @@ function compatibilityUpdater() {
 					$a_updates[$cur_game->key]['commit'] = 0;
 					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
 				} elseif ($a_updates[$cur_game->key]['status'] < $sid) {
-					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br>";
+					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
 					continue;
 				}
 
