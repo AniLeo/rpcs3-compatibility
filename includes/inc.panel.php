@@ -413,6 +413,7 @@ function compatibilityUpdater() {
 
 
 function mergeGames() {
+	global $a_status;
 
 	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
 	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
@@ -459,22 +460,37 @@ function mergeGames() {
 		return;
 	}
 
+	if (substr($game1->IDs[0][0], 0, 1) != substr($game2->IDs[0][0], 0, 1)) {
+		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
+		return;
+	}
+
 	echo "<p>"; // Start paragraph
 
-	echo "<b>Game 1: {$game1->title} (status: {$game1->status})</b><br>";
+	echo "<b>Game 1: {$game1->title} (status: {$a_status[$game1->status]['name']}, pr: {$game1->pr}, date: {$game1->date})</b><br>";
 		foreach ($game1->IDs as $id)
 			echo "- {$id[0]} (tid: $id[1])<br>";
 	echo "<br>";
 
-	echo "<b>Game 2: {$game2->title} (status: {$game2->status})</b><br>";
+	echo "<b>Game 2: {$game2->title} (status: {$a_status[$game2->status]['name']}, pr: {$game2->pr}, date: {$game2->date})</b><br>";
 		foreach ($game2->IDs as $id)
 			echo "- {$id[0]} (tid: $id[1])<br>";
 	echo "<br>";
 
-	$newKey = strtotime($game1->date) > strtotime($game2->date) ? $game1->key : $game2->key;
-	$oldKey = strtotime($game1->date) > strtotime($game2->date) ? $game2->key : $game1->key;
+	$time1 = strtotime($game1->date);
+	$time2 = strtotime($game2->date);
 
-	// Update: Set both game keys to the key of the latest updated game
+	if ($time1 == $time2 && $game1->pr != $game2->pr) {
+		// If the update date is the same, pick the one with the most recent PR
+		$newKey = $game1->pr > $game2->pr ? $game1->key : $game2->key;
+		$oldKey = $game1->pr > $game2->pr ? $game2->key : $game1->key;
+	} else {
+		// If the update date differs, pick the one with the most recent update date
+		$newKey = $time1 > $time2 ? $game1->key : $game2->key;
+		$oldKey = $time1 > $time2 ? $game2->key : $game1->key;
+	}
+
+	// Update: Set both game keys to the same previous picked key
 	if (isset($_POST['mergeConfirm'])) {
 		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$oldKey}')");
 		mysqli_query($db, "UPDATE `game_id` SET `key`='{$newKey}' WHERE (`key`='{$oldKey}')");
