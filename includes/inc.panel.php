@@ -480,6 +480,13 @@ function mergeGames() {
 	$time1 = strtotime($game1->date);
 	$time2 = strtotime($game2->date);
 
+	// If the most recent entry doesn't have a PR and the oldest one has
+	// allow for 1 month tolerance to use the older key if the difference between them is 1 month at max
+	if ($game1->pr == 0 && $game2->pr != 0)
+		$time1 -= 2678400;
+	if ($game1->pr != 0 && $game2->pr == 0)
+		$time2 -= 2678400;
+
 	if ($time1 == $time2 && $game1->pr != $game2->pr) {
 		// If the update date is the same, pick the one with the most recent PR
 		$newKey = $game1->pr > $game2->pr ? $game1->key : $game2->key;
