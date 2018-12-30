@@ -59,7 +59,7 @@ function runFunctions() {
 
 
 function checkInvalidThreads() {
-	global $a_status;
+	global $a_status, $get;
 
 	$db = getDatabase();
 
@@ -127,7 +127,8 @@ function checkInvalidThreads() {
 
 	if ($invalid > 0) {
 		echo "<p class='compat-tvalidity-title color-red'><b>Attention required! {$invalid} Invalid threads detected<br><br></b></p>";
-		echo $output;
+		if ($get['a'] == 'checkInvalidThreads')
+			echo $output;
 	} else {
 		echo "<p class='compat-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
 	}

@@ -155,6 +155,10 @@ $a_panel = array(
 		'title' => "Update Wiki IDs Cache",
 		'success' => "Forced update on Wiki IDs cache"
 	),
+	'checkInvalidThreads' => array(
+		'title' => "Check Invalid Threads",
+		'success' => ""
+	),
 	'compatibilityUpdater' => array(
 		'title' => "Compatibility Updater",
 		'success' => "Ran compatibility updater"
