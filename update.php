@@ -52,7 +52,7 @@ function checkForUpdates($commit) {
 	$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
 
 	// Get user build information
-	$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE commit LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
+	$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
 
 	mysqli_close($db);
 
@@ -63,16 +63,16 @@ function checkForUpdates($commit) {
 	$results['latest_build']['datetime'] = $latest->fulldate;
 	$results['latest_build']['windows']['download'] = $latest->url_win;
 	$results['latest_build']['linux']['download'] = $latest->url_linux;
-	$results['current_build']['pr'] = $q_check->pr;
-	$results['current_build']['datetime'] = $q_check->merge_datetime;
 
 	// Check if the build exists as a master build
-	if (mysqli_num_rows($q_check) === 0)
+	if (mysqli_num_rows($q_check) === 0) {
 		$results['return_code'] = -1;	// Current build not found
-	elseif ($q_check->$pr != $latest->$pr)
-		$results['return_code'] = 1; 	// Newer build found
-	else
-		$results['return_code'] = 0; 	// Current build equals newer build
+	} else {
+		$r_check = mysqli_fetch_object($q_check);
+		$results['current_build']['pr'] = $r_check->pr;
+		$results['current_build']['datetime'] = $r_check->merge_datetime;
+		$results['return_code'] = $r_check->pr != $latest->pr ? 1 : 0;
+	}
 
 	return $results;
 
