@@ -109,9 +109,9 @@ public static function getTableContent() {
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
 		$cell = $version;
 		if (!is_null($build->url_win))
-			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/windows.png\"></a>";
+			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
 		if (!is_null($build->url_linux))
-			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/linux.png\"></a>";
+			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		$s_tablecontent .= "</div>".PHP_EOL;

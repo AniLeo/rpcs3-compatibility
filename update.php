@@ -60,7 +60,7 @@ function checkForUpdates($commit) {
 	$latest = Build::getLast();
 
 	$results['latest_build']['pr'] = $latest->pr;
-	$results['latest_build']['datetime'] = $latest->fulldate;
+	$results['latest_build']['datetime'] = $latest->merge;
 	$results['latest_build']['windows']['download'] = $latest->url_win;
 	$results['latest_build']['linux']['download'] = $latest->url_linux;
 
