@@ -19,7 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
+if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
 
 
@@ -67,8 +67,16 @@ public static function getTableContent() {
 		$len = strlen($build->additions) + 1;
 		// Padding formula to apply in order to align deletions in all rows
 		$padding = (8 - $len) * 7;
-		// Formatted version with checksum
-		$version = !is_null($build->checksum) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"SHA-256: {$build->checksum}\">$build->version</span>" : $build->version;
+		// Formatted version with metadata
+		$version = "";
+		if (!is_null($build->checksum_win)) {
+			$version .= "Windows SHA-256: {$build->checksum_win}";
+		}
+		if (!is_null($build->checksum_linux)) {
+			if (!empty($version)) $version .= "\n";
+			$version .= "Linux SHA-256: {$build->checksum_linux}";
+		}
+		$version = !empty($version) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"{$version}\">$build->version</span>" : $build->version;
 
 		$s_tablecontent .= "<div class=\"divTableRow\">";
 
@@ -90,8 +98,12 @@ public static function getTableContent() {
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
-		$cell = isset($build->url) ? "<a href=\"{$build->url}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/windows-h.png\">{$version}</a>" : $version;
-		if (!is_null($build->sizeMB))	{ $cell .= "&nbsp;{$build->sizeMB}MB"; }
+		$cell = $version;
+		if (!is_null($build->url_win))
+			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/windows-h.png\"></a>";
+		if (!is_null($build->url_linux))
+			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/linux-h.png\"></a>";
+		// if (!is_null($build->sizeMB_win))	{ $cell .= "&nbsp;{$build->sizeMB_win}MB"; }
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		$s_tablecontent .= "</div>".PHP_EOL;

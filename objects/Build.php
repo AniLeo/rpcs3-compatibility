@@ -21,7 +21,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-class WindowsBuild {
+class Build {
 
 	public $pr;         // Int
 	public $commit;     // String (40)
@@ -32,19 +32,25 @@ class WindowsBuild {
 	public $additions;  // Int
 	public $deletions;  // Int
 	public $files;      // Int
-	public $checksum;   // String
-	public $size;       // Int
-	public $filename;   // String
 
-	public $sizeMB;     // Float
 	public $fulldate;   // String
 	public $diffdate;   // String
-	public $url;        // String
 
-	function __construct(&$a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files, $checksum, $size, $filename) {
+	public $checksum_win;   // String
+	public $size_win;       // Int
+	public $filename_win;   // String
+	public $sizeMB_win;     // Float
+	public $url_win;        // String
 
-		global $c_appveyor;
+	public $checksum_linux; 	// String
+	public $size_linux;       // Int
+	public $filename_linux;   // String
+	public $sizeMB_linux;     // Float
+	public $url_linux;        // String
 
+
+	function __construct(&$a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files,
+	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux) {
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
 
@@ -74,26 +80,35 @@ class WindowsBuild {
 			$this->files = '?';
 		}
 
-		if (!is_null($checksum)) {
-			$this->checksum = (String) $checksum;
-		}
-
-		if (!is_null($size)) {
-			$this->size = (Int) $size;
-			$this->sizeMB = !is_null($this->size) ? round(((int)$this->size) / 1024 / 1024, 1) : 0;
-		}
-
-		if (!is_null($filename)) {
-			$this->filename = $filename;
-		}
-
 		$this->fulldate = date_format(date_create($this->merge), "Y-m-d");
 		$this->diffdate = getDateDiff($this->merge);
 
-		// AppVeyor builds expire after 6 months
-		if (strtotime($this->merge) + 15640418 > time() || strtotime($this->merge) > 1528416000) {
-			// All PRs starting 2018-06-02 are hosted on rpcs3/rpcs3-binaries-win
-			$this->url = strtotime($this->merge) > 1528416000 ? "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename}" : "{$c_appveyor}{$version}/artifacts";
+		if (!is_null($checksum_win)) {
+			$this->checksum_win = (String) $checksum_win;
+		}
+
+		if (!is_null($size_win)) {
+			$this->size_win = (Int) $size_win;
+			$this->sizeMB_win = !is_null($this->size_win) ? round(((int)$this->size_win) / 1024 / 1024, 1) : 0;
+		}
+
+		if (!is_null($filename_win)) {
+			$this->filename_win = $filename_win;
+			$this->url_win = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
+		}
+
+		if (!is_null($checksum_linux)) {
+			$this->checksum_linux = (String) $checksum_linux;
+		}
+
+		if (!is_null($size_linux)) {
+			$this->size_linux = (Int) $size_linux;
+			$this->sizeMB_linux = !is_null($this->size_linux) ? round(((int)$this->size_linux) / 1024 / 1024, 1) : 0;
+		}
+
+		if (!is_null($filename_linux)) {
+			$this->filename_linux = $filename_linux;
+			$this->url_linux = "https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-{$this->commit}/{$this->filename_linux}";
 		}
 
 	}
@@ -108,7 +123,8 @@ class WindowsBuild {
 		* @return object $build     Build fetched from given Row
 		*/
 	public static function rowToBuild($row, &$a_contributors) {
-		return new WindowsBuild($a_contributors, $row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files, $row->checksum, $row->size, $row->filename);
+		return new Build($a_contributors, $row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files,
+		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux);
 	}
 
 	/**
@@ -140,11 +156,11 @@ class WindowsBuild {
 		* getLast
 		* Obtains the most recent Build.
 		*
-		* @return object $array        Most recent build
+		* @return object $build        Most recent build
 		*/
 	public static function getLast() {
 		$db = getDatabase();
-		$query = mysqli_query($db, "SELECT * FROM `builds_windows` ORDER BY `merge_datetime` DESC LIMIT 1;");
+		$query = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC LIMIT 1;");
 		if (mysqli_num_rows($query) === 0) return null;
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);

@@ -20,28 +20,9 @@
 */
 
 if(!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if(!@include_once("objects/WindowsBuild.php")) throw new Exception("Compat: WindowsBuild.php is missing. Failed to include WindowsBuild.php");
+if(!@include_once("objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 
 /* Utilities for the main website */
-
-
-// Note: Linux builds scripts aren't open-sourced
-function getLatestLinuxBuild() {
-	$db = getDatabase();
-
-	$query = mysqli_query($db, "SELECT * FROM builds_linux ORDER BY datetime DESC LIMIT 1;");
-	$row = mysqli_fetch_object($query);
-
-	mysqli_close($db);
-
-	$date = date_format(date_create($row->datetime), "Y-m-d");
-	$name = $row->buildname;
-	$url = "https://rpcs3.net/cdn/builds/{$name}"; // Direct link to AppImage
-
-	// 0 - URL, 1 - Filename, 2 - Date
-	return array($url, $name, $date);
-}
-
 
 function cacheRoadmap() {
 	global $c_github;

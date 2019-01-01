@@ -14,25 +14,28 @@ CREATE TABLE `game_list` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
--- Table structure for `builds_windows`
+-- Table structure for `builds`
 -- ----------------------------
-DROP TABLE IF EXISTS `builds_windows`;
-CREATE TABLE `builds_windows` (
-	`pr` int(11) NOT NULL,
-	`commit` varchar(64) NOT NULL,
-	`author` int(11) NOT NULL,
-	`start_datetime` datetime NOT NULL,
-	`merge_datetime` datetime NOT NULL,
-	`appveyor` varchar(64) NOT NULL,
-	`type` varchar(64) NOT NULL,
-	`buildjob` varchar(64) DEFAULT NULL,
-	`filename` varchar(128) DEFAULT NULL,
-	`additions` int(11) DEFAULT NULL,
-	`deletions` int(11) DEFAULT NULL,
-	`changed_files` int(11) DEFAULT NULL,
-	`checksum` varchar(64) DEFAULT NULL COMMENT 'sha256',
-	`size` int(11) DEFAULT NULL,
-	PRIMARY KEY (`pr`)
+DROP TABLE IF EXISTS `builds`;
+CREATE TABLE `builds` (
+  `pr` int(11) NOT NULL,
+  `commit` varchar(64) NOT NULL,
+  `author` int(11) NOT NULL,
+  `start_datetime` datetime NOT NULL,
+  `merge_datetime` datetime NOT NULL,
+  `appveyor` varchar(64) NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `buildjob` varchar(64) DEFAULT NULL,
+  `additions` int(11) DEFAULT NULL,
+  `deletions` int(11) DEFAULT NULL,
+  `changed_files` int(11) DEFAULT NULL,
+  `filename_win` varchar(128) DEFAULT NULL,
+  `checksum_win` varchar(64) DEFAULT NULL COMMENT 'sha256',
+  `size_win` int(11) DEFAULT NULL,
+  `filename_linux` varchar(128) DEFAULT NULL,
+  `checksum_linux` varchar(64) DEFAULT NULL COMMENT 'sha256',
+  `size_linux` int(11) DEFAULT NULL,
+  PRIMARY KEY (`pr`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------

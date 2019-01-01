@@ -42,13 +42,13 @@ $db = getDatabase();
 
 // Calculate pages and current page
 Profiler::addData("Inc: Count Pages");
-$pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds_windows`"))->c / $get['r']);
+$pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`"))->c / $get['r']);
 Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Main query
 Profiler::addData("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM `builds_windows` ";
+$buildsCommand = "SELECT * FROM `builds` ";
 $buildsCommand .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
 $buildsCommand .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $buildsQuery = mysqli_query($db, $buildsCommand);
@@ -63,10 +63,10 @@ $error = NULL;
 if (!$buildsQuery)                            { $error = "Please try again. If this error persists, please contact the RPCS3 team."; }
 elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed yet."; }
 
-// Store builds in a WindowsBuild array if there are no errors
+// Store builds in a Build array if there are no errors
 if (is_null($error)) {
 	Profiler::addData("Inc: Store Builds in Array");
-	$builds = WindowsBuild::queryToBuilds($buildsQuery);
+	$builds = Build::queryToBuilds($buildsQuery);
 }
 
 Profiler::addData("--- / ---");

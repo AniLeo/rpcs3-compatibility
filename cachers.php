@@ -24,14 +24,14 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
-function cacheWindowsBuilds($full = false) {
+function cacheBuilds($full = false) {
 	$db = getDatabase();
 
 	if (!$full) {
 		set_time_limit(60*5); // 5 minute limit
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
 		// Note: If master builds are disabled we need to remove WHERE type = 'branch'
-		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds_windows` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
+		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
 		$row = mysqli_fetch_object($mergeDateQuery);
 		$date = date_format(date_create($row->date), 'Y-m-d');
 	} elseif ($full) {
@@ -81,7 +81,7 @@ function cacheWindowsBuilds($full = false) {
 			$a_PR[]  = $pr;
 
 			// Check if PR is already cached
-			$PRQuery = mysqli_query($db, "SELECT * FROM `builds_windows` WHERE `pr` = {$pr} LIMIT 1; ");
+			$PRQuery = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
 
 			// If PR is already cached and we're not in full mode, skip
 			if (mysqli_num_rows($PRQuery) > 0 && !$full) {
@@ -107,57 +107,72 @@ function cacheWindowsBuilds($full = false) {
 			$deletions = $pr_info->deletions;
 			$changed_files = $pr_info->changed_files;
 
-			$info_release = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
+			$type = "branch";
 
-			// Error message found: Build doesn't exist in rpcs3-binaries-win yet, continue to check the next one
-			if (isset($info_release->message)) {
+			$aid = cacheContributor($author);
+			// Checking author information failed
+			// TODO: This should probably be logged, as other API call fails
+			if ($aid == 0) {
+				echo "Error: Checking author information failed";
+				continue;
+			}
+
+			// Windows build metadata
+			$info_release_win = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
+
+			// Linux build metadata
+			$info_release_linux = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}");
+
+			// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
+			if (isset($info_release_win->message) || isset($info_release_linux->message)) {
 				continue;
 			}
 
 			// Version name
-			$version = $info_release->name;
-			$type = "branch";
+			$version = $info_release_win->name;
 
-			// Simple sanity check: If build doesn't contain a slash then the buildname is invalid
+			// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
 			if (!(strpos($version, '-') !== false)) {
 				continue;
 			}
 
-			// Checksum, Size, Filename
-			$fileinfo = explode(';', $info_release->body);
-			$checksum = $fileinfo[0];
-			$size = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]))*1024*1024;
-			$filename = $info_release->assets[0]->name;
+			// Windows: Checksum, Size, Filename
+			$fileinfo_win = explode(';', $info_release_win->body);
+			$checksum_win = strtoupper($fileinfo_win[0]);
+			$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]))*1024*1024;
+			$filename_win = $info_release_win->assets[0]->name;
 
-			$aid = cacheContributor($author);
+			// Linux: Checksum, Size, Filename
+			$fileinfo_linux = explode(';', $info_release_linux->body);
+			$checksum_linux = strtoupper($fileinfo_linux[0]);
+			$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]))*1024*1024;
+			$filename_linux = $info_release_linux->assets[0]->name;
 
-			// Checking author information failed
-			// TODO: This should probably be logged, as other API call fails
-			if ($aid == 0) {
-				continue;
-			}
-
-			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds_windows` WHERE `pr` = {$pr} LIMIT 1; ")) == 1) {
-				$cachePRQuery = mysqli_query($db, "UPDATE `builds_windows` SET
+			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) == 1) {
+				$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
 				`commit` = '".mysqli_real_escape_string($db, $commit)."',
 				`type` = '{$type}',
 				`author` = '".mysqli_real_escape_string($db, $aid)."',
 				`start_datetime` = '{$start_datetime}',
 				`merge_datetime` = '{$merge_datetime}',
-				`appveyor` = '{$version}',
-				`filename` = '".mysqli_real_escape_string($db, $filename)."',
+				`appveyor` = '".mysqli_real_escape_string($db, $version)."',
 				`additions` = '{$additions}',
 				`deletions` = '{$deletions}',
 				`changed_files` = '{$changed_files}',
-				`size` = '".mysqli_real_escape_string($db, $size)."',
-				`checksum` = '".mysqli_real_escape_string($db, $checksum)."'
+				`size_win` = '".mysqli_real_escape_string($db, $size_win)."',
+				`checksum_win` = '".mysqli_real_escape_string($db, $checksum_win)."',
+				`filename_win` = '".mysqli_real_escape_string($db, $filename_win)."',
+				`size_linux` = '".mysqli_real_escape_string($db, $size_linux)."',
+				`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
+				`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."'
 				WHERE `pr` = '{$pr}' LIMIT 1;");
 			} else {
-				$cachePRQuery = mysqli_query($db, "INSERT INTO `builds_windows`
-				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `filename`, `additions`, `deletions`, `changed_files`, `size`, `checksum`)
+				$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
+				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
 				VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
-				'{$version}', '".mysqli_real_escape_string($db, $filename)."', '{$additions}', '{$deletions}', '{$changed_files}',
-				'".mysqli_real_escape_string($db, $size)."', '".mysqli_real_escape_string($db, $checksum)."'); ");
+				'".mysqli_real_escape_string($db, $version)."', '{$additions}', '{$deletions}', '{$changed_files}',
+				'".mysqli_real_escape_string($db, $size_win)."', '".mysqli_real_escape_string($db, $checksum_win)."', '".mysqli_real_escape_string($db, $filename_win)."',
+				'".mysqli_real_escape_string($db, $size_linux)."', '".mysqli_real_escape_string($db, $checksum_linux)."', '".mysqli_real_escape_string($db, $filename_linux)."'); ");
 			}
 
 			// Recache commit => pr cache
@@ -361,7 +376,7 @@ function cacheStatusModules() {
 }
 
 
-// Fetch all used commits => pull requests from builds_windows table
+// Fetch all used commits => pull requests from builds table
 // and store on cache/a_commits.json
 // Since this is rather static data, we're caching it to a file
 // Saves up a lot of execution time
@@ -371,7 +386,7 @@ function cacheCommitCache() {
 	$a_cache = array();
 
 	// This is faster than verifying one by one per row on storeResults()
-	$q_builds = mysqli_query($db, "SELECT DISTINCT `pr`, `commit` FROM `builds_windows`
+	$q_builds = mysqli_query($db, "SELECT DISTINCT `pr`, `commit` FROM `builds`
 	LEFT JOIN `game_list` ON SUBSTR(`commit`, 1, 7) = SUBSTR(`build_commit`, 1, 7)
 	WHERE `build_commit` IS NOT NULL
 	ORDER BY `merge_datetime` DESC;");

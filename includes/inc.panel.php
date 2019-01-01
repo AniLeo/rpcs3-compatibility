@@ -160,7 +160,7 @@ function compatibilityUpdater() {
 	}
 
 	// Cache commits
-	$q_commits = mysqli_query($db, "SELECT * FROM `builds_windows` ORDER BY `merge_datetime` DESC;");
+	$q_commits = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
 	while ($row = mysqli_fetch_object($q_commits))
 		$a_commits[substr($row->commit, 0, 8)] = array($row->commit, $row->merge_datetime);

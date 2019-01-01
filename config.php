@@ -123,9 +123,9 @@ $a_filter = array(
 
 // Functions available on debug panel (function_name => (title, success))
 $a_panel = array(
-	'cacheWindowsBuilds' => array(
+	'cacheBuilds' => array(
 		'title' => "Update Build Cache",
-		'success' => "Forced update on windows builds cache"
+		'success' => "Forced update on builds cache"
 	),
 	'cacheInitials' => array(
 		'title' => "Update Initials Cache",
