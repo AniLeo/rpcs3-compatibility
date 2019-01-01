@@ -72,9 +72,18 @@ public static function getTableContent() {
 		if (!is_null($build->checksum_win)) {
 			$version .= "Windows SHA-256: {$build->checksum_win}";
 		}
+		if (!is_null($build->sizeMB_win)) {
+			if (!empty($version)) $version .= "\n";
+			$version .= "Windows Size: {$build->sizeMB_win} MB";
+		}
+		if (!empty($version)) $version .= "\n";
 		if (!is_null($build->checksum_linux)) {
 			if (!empty($version)) $version .= "\n";
 			$version .= "Linux SHA-256: {$build->checksum_linux}";
+		}
+		if (!is_null($build->sizeMB_linux)) {
+			if (!empty($version)) $version .= "\n";
+			$version .= "Linux Size: {$build->sizeMB_linux} MB";
 		}
 		$version = !empty($version) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"{$version}\">$build->version</span>" : $build->version;
 
@@ -100,10 +109,9 @@ public static function getTableContent() {
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
 		$cell = $version;
 		if (!is_null($build->url_win))
-			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/windows-h.png\"></a>";
+			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/windows.png\"></a>";
 		if (!is_null($build->url_linux))
-			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' alt='Download' src=\"/img/icons/buttons/linux-h.png\"></a>";
-		// if (!is_null($build->sizeMB_win))	{ $cell .= "&nbsp;{$build->sizeMB_win}MB"; }
+			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' alt='Download' src=\"/img/icons/compat/linux.png\"></a>";
 		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
 
 		$s_tablecontent .= "</div>".PHP_EOL;

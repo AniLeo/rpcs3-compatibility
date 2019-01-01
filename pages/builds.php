@@ -34,7 +34,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 					<p>
 						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
 						<br>
-						Hovering over the build number displays the SHA-256 checksum.
+						Hovering over the build number displays the SHA-256 checksum and the build size.
 					</p>
 				</div>
 			</div>
