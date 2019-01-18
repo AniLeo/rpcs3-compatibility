@@ -189,7 +189,8 @@ function compatibilityUpdater() {
 
 		// Not a valid Game ID, continue to next thread entry
 		if (!isGameID($gid)) {
-			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}) incorrectly formatted.<br><br>";
+			$bin = bin2hex($gid);
+			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}, hex=0x{$bin}) incorrectly formatted.<br><br>";
 			continue;
 		}
 
@@ -273,14 +274,15 @@ function compatibilityUpdater() {
 			if (array_key_exists($cur_game->key, $a_updates)) {
 
 				// Update status
-				if ($a_updates[$cur_game->key]['status'] > $sid) {
+				if ($a_updates[$cur_game->key]['status'] < $sid) {
+					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
+					continue;
+				} elseif ($a_updates[$cur_game->key]['commit'] === 0) {
+					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$gid}<br><br>";
 					$a_updates[$cur_game->key]['gid'] = $gid;
 					$a_updates[$cur_game->key]['status'] = $sid;
 					$a_updates[$cur_game->key]['commit'] = 0;
 					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
-				} elseif ($a_updates[$cur_game->key]['status'] < $sid) {
-					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
-					continue;
 				}
 
 			} else {
@@ -308,12 +310,13 @@ function compatibilityUpdater() {
 				foreach ($a_commits as $key => $value) {
 					if (stripos($post->message, (string)$key) !== false) {
 						// If current commit is newer than the previously recorded one, replace
-						if (($a_updates[$cur_game->key]['commit'] == 0) ||
-						($a_updates[$cur_game->key]['commit'] != 0 && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) < strtotime($value[1]))) {
+						if (($a_updates[$cur_game->key]['commit'] === 0) ||
+						($a_updates[$cur_game->key]['commit'] !== 0 && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) < strtotime($value[1]))) {
+							// echo "<b>Commit Replacement:</b> {$a_updates[$cur_game->key]['commit']} (".strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]).") for commit {$value[0]} ($value[1])<br><br>";
 							$a_updates[$cur_game->key]['commit'] = $value[0];
 							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
 							$a_updates[$cur_game->key]['author'] = $post->username;
-							break;
+							break 2;
 						}
 					}
 				}
