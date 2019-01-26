@@ -61,16 +61,22 @@ function checkForUpdates($commit) {
 
 	$results['latest_build']['pr'] = $latest->pr;
 	$results['latest_build']['datetime'] = $latest->merge;
+	$results['latest_build']['version'] = $latest->version;
 	$results['latest_build']['windows']['download'] = $latest->url_win;
+	$results['latest_build']['windows']['size'] = $latest->size_win;
+	$results['latest_build']['windows']['checksum'] = $latest->checksum_win;
 	$results['latest_build']['linux']['download'] = $latest->url_linux;
+	$results['latest_build']['linux']['size'] = $latest->size_linux;
+	$results['latest_build']['linux']['checksum'] = $latest->checksum_linux;
 
 	// Check if the build exists as a master build
 	if (mysqli_num_rows($q_check) === 0) {
 		$results['return_code'] = -1;	// Current build not found
 	} else {
 		$r_check = mysqli_fetch_object($q_check);
-		$results['current_build']['pr'] = $r_check->pr;
+		$results['current_build']['pr'] = (int) $r_check->pr;
 		$results['current_build']['datetime'] = $r_check->merge_datetime;
+		$results['current_build']['version'] = $r_check->appveyor;
 		$results['return_code'] = $r_check->pr != $latest->pr ? 1 : 0;
 	}
 
