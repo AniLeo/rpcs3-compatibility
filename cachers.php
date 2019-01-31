@@ -264,7 +264,7 @@ function cacheInitials() {
 				// If the next character is a digit, add next characters to initials
 				// until an non-alphanumeric character is hit
 				// For games like Disgaea D2 and Idolmaster G4U!
-				if (ctype_digit($word[1])) {
+				if (strlen($word) > 1 && ctype_digit($word[1])) {
 					$len = strlen($word);
 					for ($i = 1; $i < $len; $i++)
 						if (ctype_alnum($word[$i]))
