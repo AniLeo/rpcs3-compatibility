@@ -566,11 +566,9 @@ function generateStatusModule($getCount = true) {
 
 // Checks if IP is on whitelist
 function isWhitelisted($db = null) {
-	global $c_cloudflare;
-
 	if ($db == null) {
 		$db = getDatabase();
-		if (is_null($db)) {
+		if ($db == null) {
 			return false; // If there's no database connection, just assume user isn't whitelisted
 		}
 		$close = true;
@@ -578,20 +576,103 @@ function isWhitelisted($db = null) {
 		$close = false;
 	}
 
-	if ($c_cloudflare) {
+	if (isset($_SERVER["HTTP_CF_CONNECTING_IP"]) && !empty($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+		// Cloudflare IPv4 & IPv6 ranges
+		// https://www.cloudflare.com/ips/
+		$a_cloudflare = array(
+		"103.21.244.0/22",
+		"103.22.200.0/22",
+		"103.31.4.0/22",
+		"104.16.0.0/12",
+		"108.162.192.0/18",
+		"131.0.72.0/22",
+		"141.101.64.0/18",
+		"162.158.0.0/15",
+		"172.64.0.0/13",
+		"173.245.48.0/20",
+		"188.114.96.0/20",
+		"190.93.240.0/20",
+		"197.234.240.0/22",
+		"198.41.128.0/17",
+		"2400:cb00::/32",
+		"2405:b500::/32",
+		"2606:4700::/32",
+		"2803:f800::/32",
+		"2c0f:f248::/32",
+		"2a06:98c0::/29");
+
+		// Check if request comes from a CloudFlare Server
+		$found = false;
+		foreach ($a_cloudflare as $ip_cloudflare)
+			if (cidr_match($_SERVER["REMOTE_ADDR"], $ip_cloudflare))
+				$found = true;
+
+		// Bad request (or CloudFlare has new servers)
+		if (!$found)
+			return false;
 		$ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
 	} else {
 		$ip = $_SERVER["REMOTE_ADDR"];
 	}
 
-	// Page calculation according to the user's search
-	$ipQuery = mysqli_query($db, "SELECT * FROM ip_whitelist WHERE ip = '".mysqli_real_escape_string($db, $ip)."' LIMIT 1; ");
+	$q_ip = mysqli_query($db, "SELECT * FROM `ip_whitelist` WHERE `ip` = '".mysqli_real_escape_string($db, $ip)."' LIMIT 1; ");
 
 	if ($close) {
 		mysqli_close($db);
 	}
 
-	return mysqli_num_rows($ipQuery) === 1;
+	return mysqli_num_rows($q_ip) === 1;
+}
+
+
+// Checks if a given IPv4 or IPv6 is within a given CIDR
+// https://stackoverflow.com/a/594134
+// https://stackoverflow.com/a/7952169
+function cidr_match($ip, $range) {
+	// IP and given CIDR are different IP versions
+	if (isIPv6($ip) != isIPv6($range))
+		return false;
+
+	if (isIPv6($ip)) {
+		// IPv6
+		$array = explode('/', $range, 2);
+		$ip = inet_pton($ip);
+		$range = inet_pton($array[0]);
+		$mask = $array[1];
+		$addr = str_repeat("f", $mask / 4);
+		switch ($mask % 4) {
+	  	case 0:
+	    	break;
+	  	case 1:
+	    	$addr .= "8";
+	    	break;
+	  	case 2:
+	    	$addr .= "c";
+	    	break;
+	  	case 3:
+	    	$addr .= "e";
+	    	break;
+		}
+		$addr = str_pad($addr, 32, '0');
+		$addr = pack("H*" , $addr);
+		return ($ip & $addr) == $range;
+	} else {
+		// IPv4
+		list($subnet, $bits) = explode('/', $range);
+		if ($bits === null)
+        $bits = 32;
+		$ip = ip2long($ip);
+		$subnet = ip2long($subnet);
+		$mask = -1 << (32 - $bits);
+		$subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+		return ($ip & $mask) == $subnet;
+	}
+}
+
+
+// Simple IPv6 check (IPv4 never has : and IPv6 always has it)
+function isIPv6($ip) {
+	return strpos($ip, ':') !== false;
 }
 
 

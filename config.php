@@ -36,7 +36,6 @@ $c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
-$c_cloudflare = true; // Use cloudflare
 
 // Default value for results per page
 // Builds: 25 | Compat and Library = 50;
