@@ -178,7 +178,7 @@ public static function printMessages() {
  * Print: Table  *
  *****************/
 public static function printTable() {
-	global $games, $error, $a_status;
+	global $games, $error, $a_status, $c_github;
 
 	if (!is_null($error))
 		return;
@@ -236,7 +236,7 @@ public static function printTable() {
 
 		// Cell 4: Last Test
 		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>&nbsp;&nbsp;&nbsp;";
-		$cell .= $game->pr == 0 ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$game->pr}'>Pull #{$game->pr}</a>)";
+		$cell .= $game->pr == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$game->pr}'>Pull #{$game->pr}</a>)";
 		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		echo "</div>";

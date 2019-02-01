@@ -20,10 +20,10 @@ DROP TABLE IF EXISTS `builds`;
 CREATE TABLE `builds` (
   `pr` int(11) NOT NULL,
   `commit` varchar(64) NOT NULL,
+  `version` varchar(64) NOT NULL,
   `author` int(11) NOT NULL,
   `start_datetime` datetime NOT NULL,
   `merge_datetime` datetime NOT NULL,
-  `appveyor` varchar(64) NOT NULL,
   `type` varchar(64) NOT NULL,
   `buildjob` varchar(64) DEFAULT NULL,
   `additions` int(11) DEFAULT NULL,

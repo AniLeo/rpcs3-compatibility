@@ -76,7 +76,7 @@ function checkForUpdates($commit) {
 		$r_check = mysqli_fetch_object($q_check);
 		$results['current_build']['pr'] = (int) $r_check->pr;
 		$results['current_build']['datetime'] = $r_check->merge_datetime;
-		$results['current_build']['version'] = $r_check->appveyor;
+		$results['current_build']['version'] = $r_check->version;
 		$results['return_code'] = $r_check->pr != $latest->pr ? 1 : 0;
 	}
 

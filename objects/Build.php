@@ -49,7 +49,7 @@ class Build {
 	public $url_linux;        // String
 
 
-	function __construct(&$a_contributors, $pr, $commit, $authorID, $merge, $version, $additions, $deletions, $files,
+	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files,
 	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux) {
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
@@ -123,7 +123,7 @@ class Build {
 		* @return object $build     Build fetched from given Row
 		*/
 	public static function rowToBuild($row, &$a_contributors) {
-		return new Build($a_contributors, $row->pr, $row->commit, $row->author, $row->merge_datetime, $row->appveyor, $row->additions, $row->deletions, $row->changed_files,
+		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime, $row->additions, $row->deletions, $row->changed_files,
 		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux);
 	}
 

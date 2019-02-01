@@ -155,7 +155,7 @@ function cacheBuilds($full = false) {
 				`author` = '".mysqli_real_escape_string($db, $aid)."',
 				`start_datetime` = '{$start_datetime}',
 				`merge_datetime` = '{$merge_datetime}',
-				`appveyor` = '".mysqli_real_escape_string($db, $version)."',
+				`version` = '".mysqli_real_escape_string($db, $version)."',
 				`additions` = '{$additions}',
 				`deletions` = '{$deletions}',
 				`changed_files` = '{$changed_files}',
@@ -168,7 +168,7 @@ function cacheBuilds($full = false) {
 				WHERE `pr` = '{$pr}' LIMIT 1;");
 			} else {
 				$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
-				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `appveyor`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
+				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `version`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
 				VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
 				'".mysqli_real_escape_string($db, $version)."', '{$additions}', '{$deletions}', '{$changed_files}',
 				'".mysqli_real_escape_string($db, $size_win)."', '".mysqli_real_escape_string($db, $checksum_win)."', '".mysqli_real_escape_string($db, $filename_win)."',

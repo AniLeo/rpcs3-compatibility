@@ -32,7 +32,6 @@ define('gh_token', 'TOKEN');
 // Global config variables
 $c_github = 'https://github.com/RPCS3/rpcs3';
 $c_forum = 'https://forums.rpcs3.net';
-$c_appveyor = 'https://ci.appveyor.com/project/rpcs3/rpcs3/build/';
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
@@ -137,10 +136,6 @@ $a_panel = array(
 	'cacheStatusModules' => array(
 		'title' => "Update Status Module",
 		'success' => "Forced update on status modules"
-	),
-	'cacheRoadmap' => array(
-		'title' => "Update Roadmap Cache",
-		'success' => "Forced update on roadmap cache"
 	),
 	'cacheCommitCache' => array(
 		'title' => "Update Commit Cache",

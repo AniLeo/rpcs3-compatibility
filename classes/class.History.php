@@ -64,7 +64,7 @@ public static function getHistoryMonths() {
 
 		$m = "<a href=\"?h={$k}\">{$month}</a>";
 
-		$s_months .= ($get['h'] == $k) ? highlightText($m) : $m;
+		$s_months .= highlightText($m, $get['h'] == $k);
 		if ($month != "December" && $v != end($a_histdates)) { $s_months .= $spacer; }
 	}
 
@@ -75,7 +75,7 @@ public static function getHistoryMonths() {
 
 	$m = "<a href=\"?h\">{$month} {$year}</a>";
 
-	$s_months .= ($get['h'] == $a_currenthist[0]) ? highlightText($m) : $m;
+	$s_months .= highlightText($m, $get['h'] == $a_currenthist[0]);
 
 	return "<p id='compat-history-months'>{$s_months}</p>";
 }
@@ -92,13 +92,13 @@ public static function getHistoryOptions() {
 	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
-	$s_options = ($get['m'] == "") ? highlightText($o1) : $o1;
+	$s_options = highlightText($o1, $get['m'] == "");
 	$s_options .= " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
 
-	$s_options .= ($get['m'] == "c") ? highlightText($o2) : $o2;
+	$s_options .= highlightText($o2, $get['m'] == "c");
 	$s_options .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
 
-	$s_options .= ($get['m'] == "n") ? highlightText($o3) : $o3;
+	$s_options .= highlightText($o3, $get['m'] == "n");
 	$s_options .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
 
 	return "<p id='compat-history-options'>{$s_options}</p>";

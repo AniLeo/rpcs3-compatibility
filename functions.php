@@ -389,53 +389,46 @@ function getPagesCounter($pages, $currentPage, $extra) {
 	$s_pagescounter = "";
 
 	// IF no results are found then the amount of pages is 0
-	// Shows no results found message
-	if ($pages == 0) {
-		return 'No results found using the selected search criteria.';
-	}
-	// Shows current page and total pages
-	else {
-		$s_pagescounter .= "Page {$currentPage} of {$pages} - ";
-	}
+	// Returns no results found message
+	if ($pages == 0)
+		return "No results found using the selected search criteria.";
 
-	// Commonly used code
-	$common = "<a href=\"?{$extra}";
+	// Shows current page and total pages
+	$s_pagescounter .= "Page {$currentPage} of {$pages} - ";
 
 	// If there's less pages to the left than current limit it loads the excess amount to the right for balance
-	if ($c_pagelimit > $currentPage) {
-		$a = $c_pagelimit - $currentPage;
-		$c_pagelimit = $c_pagelimit + $a + 1;
-	}
+	if ($c_pagelimit > $currentPage)
+		$c_pagelimit += $c_pagelimit - $currentPage + 1;
 
 	// If there's less pages to the right than current limit it loads the excess amount to the left for balance
-	if ($c_pagelimit > $pages - $currentPage) {
-		$a = $c_pagelimit - ($pages - $currentPage);
-		$c_pagelimit = $c_pagelimit + $a + 1;
-	}
+	if ($c_pagelimit > $pages - $currentPage)
+		$c_pagelimit += $c_pagelimit - ($pages - $currentPage) + 1;
 
 	// Loop for each page link and make it properly clickable until there are no more pages left
-	for ($i=1; $i<=$pages; $i++) {
+	for ($i = 1; $i <= $pages; $i++) {
 
 		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) ) {
 
-			$s_pagescounter .= "{$common}p=$i\">";
+			$s_pagescounter .= "<a href=\"?{$extra}p=$i\">";
 
 			// Add zero padding if it is a single digit number
 			$p = ($i < 10) ? "0{$i}" : "{$i}";
 
 			// Highlights the page if it's the one we're currently in
-			$s_pagescounter .= ($i == $currentPage) ? highlightText($p) : $p;
+			$s_pagescounter .= highlightText($p, $i == $currentPage);
 
 			$s_pagescounter .= "</a>&nbsp;&#32;";
 
 		}
 		// First page
 		elseif ($i == 1) {
-			$s_pagescounter .= "{$common}p=$i\">01</a>&nbsp;&#32;";
+			$s_pagescounter .= "<a href=\"?{$extra}p=$i\">01</a>&nbsp;&#32;";
 			if ($currentPage != $c_pagelimit+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
 		}
 		// Last page
-		elseif ($pages == $i) { $s_pagescounter .= "...&nbsp;&#32;{$common}p=$pages\">$pages</a>&nbsp;&#32;"; }
+		elseif ($pages == $i) {
+			$s_pagescounter .= "...&nbsp;&#32;<a href=\"?{$extra}p=$pages\">$pages</a>&nbsp;&#32;";
+		}
 
 	}
 
@@ -711,23 +704,15 @@ function getDateDiff($datetime) {
 		$hours = floor($diff / 3600);
 		if ($hours == 0) {
 			$minutes = floor($diff / 60);
-			if ($minutes == 1) {
-				$diff = "{$minutes} minute ago";
-			} else {
-				$diff = "{$minutes} minutes ago";
-			}
-		} elseif ($hours == 1) {
-			$diff = "{$hours} hour ago";
+			$diff = $minutes == 1 ? "{$minutes} minute" : "{$minutes} minutes";
 		} else {
-			$diff = "{$hours} hours ago";
+			$diff = $hours == 1   ? "{$hours} hour" : "{$hours} hours";
 		}
-	} elseif ($days == 1) {
-		$diff = "{$days} day ago";
 	} else {
-		$diff = "{$days} days ago";
+		$diff = $days == 1      ? "{$days} day" : "{$days} days";
 	}
 
-	return $diff;
+	return "{$diff} ago";
 }
 
 
@@ -790,10 +775,8 @@ function resultsPerPage($combinedSearch, $extra = "") {
 
 	foreach ($a_pageresults as $pageresult) {
 		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}r={$pageresult}\">";
-
-		// If the current selected item, highlight with bold
-		$s_pageresults .= ($get['r'] == $pageresult) ? highlightText($pageresult) : $pageresult;
-
+		// If the current selected item, highlight
+		$s_pageresults .= highlightText($pageresult, $get['r'] == $pageresult);
 		$s_pageresults .= "</a>";
 
 		// If not the last value then add a separator for the next value
