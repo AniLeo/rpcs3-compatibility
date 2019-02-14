@@ -139,28 +139,16 @@ public static function getBuildsRSS() {
 	// Initialize string
 	$rssfeed = "";
 
-	foreach($builds as $build) {
-
-		$description = "";
-		if (isset($build->checksum)) 	{ $description .= "<br>Checksum: {$build->checksum}"; }
-		if (isset($build->sizeMB)) 		{ $description .= "<br>Size: {$build->sizeMB} MB"; }
-
-		$link = "";
-		if (!is_null($build->url)) {
-			$link = "
-					<link>{$build->url}</link>
-					<guid>{$build->url}</guid>";
-		} else {
-			$link = "
-					<link>{$c_github}/pull/{$build->pr}</link>
-					<guid>{$c_github}/pull/{$build->pr}</guid>";
-		}
-
+	foreach ($builds as $build) {
 		$rssfeed .= "
 				<item>
-					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>{$link}
-					<description><![CDATA[<a href=\"{$c_github}/pull/{$build->pr}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}.{$description}]]></description>
+					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
+					<description><![CDATA[<a href=\"{$c_github}/pull/{$build->pr}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}]]></description>
+					<guid>{$c_github}/pull/{$build->pr}</guid>
 					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
+					<link>{$c_github}/pull/{$build->pr}</link>
+					<comments>{$c_github}/pull/{$build->pr}</comments>
+					<author>{$build->author}</author>
 				</item>
 		";
 	}
@@ -175,7 +163,8 @@ public static function getBuildsRSS() {
 			<link>https://rpcs3.net/compatibility?b</link>
 			<description>For more information about RPCS3 visit https://rpcs3.net</description>
 			<language>en-uk</language>
-			<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />
+			<category>Emulation</category>
+			<atom:link href=\"{$url}\" rel=\"self\" type=\"text/xml\" />
 				{$rssfeed}
 			</channel>
 	</rss>";

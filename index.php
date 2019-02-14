@@ -31,7 +31,7 @@ if (isset($_GET['rss'])) {
 	if (isset($_GET['b'])) {
 
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
-		header('Content-Type: application/xml');
+		header('Content-Type: text/xml');
 		$Builds = new Builds();
 		echo $Builds->getBuildsRSS();
 
@@ -39,7 +39,7 @@ if (isset($_GET['rss'])) {
 
 		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
-		header('Content-Type: application/xml');
+		header('Content-Type: text/xml');
 		$History = new History();
 		echo $History->getHistoryRSS();
 
