@@ -154,7 +154,7 @@ public static function printCharSearch() {
 	echo '<table id="compat-con-search"><tr>';
 	foreach ($a_chars as $key => $value) {
 		echo "<td><a href=\"?{$s_combined}c={$key}\"><div class='compat-search-character'>";
-		echo ($get['c'] == $key) ? "<span style=\"font-size:16px;\">{$value}</span>" : $value;
+		echo highlightText($value, $get['c'] == $key);
 		echo "</div></a></td>";
 	}
 	echo '</tr></table>';
@@ -184,7 +184,7 @@ public static function printTable() {
 		return;
 
 	// Start table
-	echo "<div class=\"divTable compat-table\">";
+	echo "<div class=\"divTable\">";
 
 	// Print table headers
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);

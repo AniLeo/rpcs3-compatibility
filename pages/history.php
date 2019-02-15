@@ -28,7 +28,7 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 			<!-- container-con-wrapper -->
 			<div class="container-con-wrapper" style="padding-bottom:1px">
 				<div class="container-tx1-block compat-title">
-					<p id="title1">RPCS3 Compatibility List History</p>
+					<p id="title1">Compatibility List History</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
 						echo getMenu(__FILE__);

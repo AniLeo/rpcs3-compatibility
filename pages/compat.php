@@ -26,7 +26,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<div class="container-con-wrapper">
 
 				<div class="container-tx1-block compat-title">
-					<p id="title1">RPCS3 Compatibility List</p>
+					<p id="title1">Compatibility List</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
 						echo getMenu(__FILE__);

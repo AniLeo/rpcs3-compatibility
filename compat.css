@@ -1,700 +1,595 @@
 .compat-status-main {
-    position: relative;
-    width: 100%;
-    height: 26px;
-    padding-top: 2px
+	position:relative;
+	width:100%;
+	height:26px;
+	padding-top:2px
 }
-
 .compat-status-main:hover {
-    background: rgba(0,128,255,.1)
+	background:rgba(0,128,255,.1)
 }
-
 .compat-status-icon {
-    position: relative;
-    top: 7px;
-    left: 24px;
-    float: left;
-    width: 10px;
-    height: 10px;
-    border-radius: 100%
+	position:relative;
+	top:7px;
+	float:left;
+	width:10px;
+	height:10px;
+	border-radius:100%
 }
-
 .compat-status-text {
-    font-family: arial;
-    font-size: 14px;
-    line-height: 24px;
-    position: relative;
-    left: 32px;
-    width: 750px;
-    height: 24px;
-    color: #616161
+	font-family:arial;
+	font-size:14px;
+	line-height:24px;
+	position:relative;
+	left:11px;
+	width:750px;
+	height:24px
 }
-
 .compat-status-text p {
-    display: inline
+	display:inline
 }
-
 .compat-status-progress {
-    position: absolute;
-    top: 2px;
-    right: 20px;
-    float: right;
-    width: 400px;
-    height: 22px
+	position:absolute;
+	top:2px;
+	right:0;
+	float:right;
+	width:400px;
+	height:22px
 }
-
 .compat-status-progressbar {
-    width: 400px;
-    opacity: .9;
-    border: 0;
-    background: linear-gradient(to right,rgba(255,255,255,.0),rgba(49,152,255,.2));
-    direction: rtl;
-    border-radius: 10px;
-    overflow: hidden;
-    height: 10px
+	width:400px;
+	opacity:.9;
+	border:0;
+	background:linear-gradient(to right,rgba(255,255,255,.0),rgba(49,152,255,.2));
+	direction:rtl;
+	border-radius:10px;
+	height:10px
 }
-
 .compat-status-progressbar::-webkit-progress-value {
-    border-radius: 4px
+	border-radius:4px
 }
-
 .compat-search-character {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%
+	position:absolute;
+	top:0;
+	right:0;
+	width:100%;
+	height:100%;
+	background:rgba(122,179,255,.1)
 }
-
 .compat-search-character:hover {
-    color: #fff;
-    background: #3198ff
+	background:rgba(122,179,255,.2);
+	transform:scale(1.1)
 }
-
 #compat-history-description {
-    font-family: arial;
-    font-size: 14px
+	font-family:arial;
+	font-size:14px
 }
-
 #compat-history-months {
-    font-family: arial;
-    font-size: 13px
+	font-family:arial;
+	font-size:13px
 }
-
 #compat-history-options {
-    font-family: arial;
-    font-size: 13px
+	font-family:arial;
+	font-size:13px
 }
-
 #compat-author {
-    position: relative;
-    width: 100%;
-    margin-bottom: 20px;
-    color: #fff;
-    background: #4c5bd7;
-    border-radius: 4px;
-    padding-top: 10px
+	position:relative;
+	width:100%;
+	margin-bottom:20px;
+	color:#fff;
+	background:#4c5bd7;
+	border-radius:4px;
+	padding-top:10px
 }
-
 #compat-author p {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 20px;
-    padding-left: 24px;
-    padding-bottom: 10px
+	font-family:arial;
+	font-size:12px;
+	line-height:20px;
+	padding-left:24px;
+	padding-bottom:10px
 }
-
 #compat-author a {
-    color: #fff!important
+	color:#fff!important
 }
-
 #compat-author:hover a {
-    text-decoration: underline
+	text-decoration:underline
 }
-
 .compat-tvalidity-title {
-    font-family: arial;
-    font-size: 13px
+	font-family:arial;
+	font-size:13px
 }
-
 .color-red {
-    color: #e74c3c !important;
+	color:#e74c3c!important
 }
-
 .color-green {
-    color: #2ecc71 !important;
+	color:#2ecc71!important
 }
-
 .compat-tvalidity-list {
-    font-family: arial;
-    font-size: 12px;
-    color: #e74c3c
+	font-family:arial;
+	font-size:12px;
+	color:#e74c3c
 }
-
 .compat-debugpw {
-    font-size: 10px;
-    padding: 1px 2px;
-    color: #34495e;
-    border-radius: 3px;
-    background-color: #ecf0f1
+	font-size:10px;
+	padding:1px 2px;
+	color:#34495e;
+	border-radius:3px;
+	background-color:#ecf0f1
 }
-
 .divTable {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 29px;
-    display: table;
-    overflow: hidden;
-    width: 99.7%;
-    background: #fff;
-    color: #616161;
-    border-radius: 4px;
-    border: solid 1px rgba(0,0,0,.08);
+	font-family:arial;
+	font-size:12px;
+	line-height:29px;
+	display:table;
+	overflow:hidden;
+	width:99.7%;
+	color:#616161;
+	border-radius:4px
 }
-
 .divTableHeading {
-    font-weight: 700;
-    display: table-header-group;
-    color: #616161;
-    background-color: #fff
+	font-weight:700;
+	display:table-header-group;
+	color:#616161
 }
-
 .divTableHeading,.divTableBody {
-    padding-left: 10px
+	padding-left:10px
 }
-
 .divTableBody {
-    display: table-row-group
+	display:table-row-group
 }
-
 .divTableRow {
-    display: table-row
+	display:table-row
 }
-
 .divTableRow:nth-child(2n+1) {
-    background: rgba(122,179,255,.05)
+	background:rgba(122,179,255,.05)
 }
-
 .divTableRow:hover {
-    background-color: rgba(0,102,204,.1)
+	background-color:rgba(0,102,204,.1)
 }
-
 .divTableCell,.divTableHead {
-    display: table-cell;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 30px
+	display:table-cell;
+	padding-top:1px;
+	padding-bottom:1px;
+	padding-left:10px
 }
-
 .compat-icon-media {
-    position: relative;
-    z-index: 1;
-    float: left;
-    width: 18px;
-    height: 18px;
-    margin-top: 1px;
-    margin-right: 9px;
-    padding: 4px
+	position:relative;
+	z-index:1;
+	float:left;
+	width:18px;
+	height:18px;
+	margin-top:1px;
+	margin-right:9px;
+	padding:4px
 }
-
 .compat-icon-flag {
-    position: relative;
-    z-index: 1;
-    float: left;
-    margin-top: 8px;
-    margin-right: 9px;
-    height: 12px
+	position:relative;
+	z-index:1;
+	float:left;
+	margin-top:8px;
+	margin-right:9px;
+	height:12px
 }
-
 .builds-icon {
-    position: relative;
-    z-index: 1;
-    float: left;
-    width: 16px;
-    height: 16px;
-    margin-top: 3px;
-    margin-right: 8px;
-    padding: 4px 0
+	position:relative;
+	z-index:1;
+	float:left;
+	width:16px;
+	height:16px;
+	margin-top:3px;
+	margin-right:8px;
+	padding:4px 0
 }
-
 .compat-icon-media:hover {
-    background: rgba(49,152,255,.3);
-    border-radius: 100%
+	background:rgba(49,152,255,.3);
+	border-radius:100%
 }
-
 #compat-con-search {
-    font-family: arial;
-    font-weight: 700;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    margin: 0;
-    padding: 0;
-    border-collapse: collapse
+	font-family:arial;
+	left:0;
+	width:100%;
+	height:40px;
+	margin:0;
+	padding:0;
+	overflow:hidden
 }
-
 #compat-con-search tr {
-    border: 0!important
+	border:0!important
 }
-
 #compat-con-search tr td {
-    font-size: 14px;
-    line-height: 40px;
-    position: relative;
-    height: 100%;
-    cursor: pointer;
-    text-align: center;
-    color: #616161
+	font-size:14px;
+	line-height:38px;
+	position:relative;
+	height:100%;
+	cursor:pointer;
+	text-align:center;
+	color:#616161
 }
-
 .compat-status-container {
-    overflow: hidden;
-    margin-top: 16px;
-    margin-bottom: 14px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0,0,0,.05)
+	overflow:hidden;
+	margin-top:16px;
+	margin-bottom:22px;
+	padding-top:12px;
+	border-top:1px solid rgba(0,0,0,.05)
 }
-
 #title1 {
-    display: inline
+	display:inline
 }
-
 #title2 {
-    font-weight: 400;
-    display: inline;
-    float: right;
-    text-align: right;
-    font-size: 12px
+	font-family:arial;
+	font-weight:400;
+	display:inline;
+	float:right;
+	text-align:right;
+	font-size:14px
 }
-
 #title2 a {
-    background: rgba(0,128,255,.1);
-    padding: 4px 8px;
-    margin-left: 7px;
-    border-radius: 4px
+	background:rgba(0,128,255,.1);
+	padding:4px 8px;
+	margin-left:7px;
+	border-radius:4px
 }
-
 #title2 a:hover {
-    background: rgba(0,128,255,.2)
+	background:rgba(0,128,255,.2)
 }
-
 #compat-con-searchbox {
-    position: relative;
-    width: 100%;
-    height: 40px;
-    background-color: rgba(122,179,255,.1)
+	position:relative;
+	width:100%;
+	height:40px;
+	background-color:rgba(122,179,255,.1);
+	border-radius:40px;
+	margin-bottom:18px;
+	margin-top:20px;
+	overflow:hidden;
 }
-
 #searchbox {
-    position: absolute;
-    float: left;
-    width: 100%;
-    height: 100%
+	position:absolute;
+	float:left;
+	width:100%;
+	height:100%;
+	overflow:hidden
 }
-
 #searchbox-field {
-    font-size: 14px;
-    font-family: arial;
-    width: 100%;
-    height: 100%;
-    color: #3198ff;
-    border: 0;
-    font-weight: 700;
-    background: rgba(122,179,255,.01);
-    transition: .1s ease-in-out;
-    outline-color: transparent
+	font-size:14px;
+	font-family:arial;
+	width:100%;
+	height:100%;
+	color:#3198ff;
+	border:0;
+	background:rgba(122,179,255,.01);
+	transition:.1s ease-in-out;
+	outline-color:transparent
 }
-
 input:focus {
-    background: rgba(122,179,255,.1)!important;
-    outline-color: transparent;
-    transition: .1s ease-in-out
+	background:rgba(122,179,255,.1)!important;
+	outline-color:transparent;
+	transition:.1s ease-in-out
 }
-
 input {
-    height: 100%;
-    padding-left: 24px;
-    color: #616161;
-    border: 0
+	height:100%;
+	padding-left:24px;
+	color:#616161;
+	border:0
 }
-
 #compat-searchbox-button {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    cursor: pointer;
-    opacity: 0
+	position:relative;
+	display:block;
+	width:100%;
+	height:100%;
+	margin:0 auto;
+	cursor:pointer;
+	opacity:0
 }
-
 #compat-searchbox-div {
-    line-height: 40px;
-    position: absolute;
-    right: 1px;
-    float: right;
-    width: 60px;
-    height: 100%;
-    color: #fff;
-    background: url(/img/icons/menu/search.png) no-repeat center;
-    background-size: 18px
+	line-height:40px;
+	position:absolute;
+	right:1px;
+	float:right;
+	width:40px;
+	height:100%;
+	color:#fff;
+	background:url(/img/icons/menu/search.png) no-repeat center;
+	background-size:14px;
+	border-radius: 100%;
 }
-
 #compat-searchbox-div:hover {
-    cursor: pointer;
-    background: #3198ff url(/img/icons/menu/search-h.png) no-repeat center;
-    background-size: 18px
+	cursor:pointer;
+	background:#3198ff url(/img/icons/menu/search-h.png) no-repeat center;
+	background-size:14px
 }
-
 #compat-con-pages {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 42px;
-    position: relative;
-    height: auto;
-    min-height: 30px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #616161;
-    background: #fff;
-    border-radius: 4px
+	font-family:arial;
+	font-size:12px;
+	line-height:42px;
+	position:relative;
+	height:auto;
+	min-height:30px;
+	margin-top:20px;
+	margin-bottom:20px;
+	text-align:center;
+	color:#616161;
+	border-radius:4px
 }
-
 #compat-con-pages a {
-    padding: 8px;
-    color: #3198ff
+	padding:8px;
+	color:#3198ff
 }
-
 #compat-con-pages a:hover {
-    width: 22px;
-    text-decoration: none;
-    color: #fff;
-    background: #3198ff
+	width:22px;
+	text-decoration:none;
+	color:#fff;
+	background:#3198ff
 }
-
 #compat-hdr-left {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 35px;
-    position: relative;
-    width: 210px;
-    margin-top: -15px;
-    margin-left: 24px;
-    text-align: left;
-    color: #616161
+	font-family:arial;
+	font-size:12px;
+	line-height:35px;
+	position:relative;
+	width:210px;
+	margin-top:-15px;
+	text-align:left;
+	color:#616161
 }
-
 #builds-hdr-left {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 35px;
-    position: relative;
-    width: 210px;
-    margin-top: -15px;
-    margin-left: 24px;
-    text-align: left;
-    color: #616161;
-    margin-bottom: 10px
+	font-family:arial;
+	font-size:12px;
+	line-height:35px;
+	position:relative;
+	width:210px;
+	margin-top:-15px;
+	text-align:left;
+	color:#616161;
+	margin-bottom:10px
 }
-
 #compat-hdr-left2 {
-    font-family: arial;
-    font-size: 12px;
-    line-height: 35px;
-    position: relative;
-    width: 210px;
-    margin-top: -20px;
-    margin-left: 24px;
-    text-align: left;
-    color: #616161
+	font-family:arial;
+	font-size:12px;
+	line-height:35px;
+	position:relative;
+	width:210px;
+	margin-top:-20px;
+	margin-left:24px;
+	text-align:left;
+	color:#616161
 }
-
 #compat-hdr-right {
-    font-family: arial;
-    font-size: 12px;
-    float: right;
-    width: auto;
-    margin-top: -28px;
-    margin-right: 20px;
-    text-align: right;
-    color: #616161
+	font-family:arial;
+	font-size:12px;
+	float:right;
+	width:auto;
+	margin-top:-28px;
+	margin-right:0;
+	text-align:right;
+	color:#616161
 }
-
 #compat-hdr-right a {
-    line-height: 22px;
-    position: relative;
-    width: auto;
-    height: 20px;
-    margin-left: 6px;
-    padding: 5px 10px;
-    text-align: center;
-    color: #fff;
-    opacity: .95
+	line-height:22px;
+	position:relative;
+	width:auto;
+	height:20px;
+	margin-left:6px;
+	padding:5px 10px;
+	text-align:center;
+	color:#fff;
+	opacity:.95;
+	border-radius:4px
 }
-
 #compat-hdr-right a:hover {
-    opacity: .8;
-    color: #fff
+	opacity:.8;
+	color:#fff
 }
-
 #compat-hdr-right b {
-    color: #fff
+	color:#fff
 }
-
 #compat-hdr-right a:nth-child(1) {
-    background: #3198ff
+	background:#3198ff
 }
-
 #compat-hdr-right a:nth-child(2) {
-    background: #1ebc61
+	background:#1ebc61
 }
-
 #compat-hdr-right a:nth-child(3) {
-    background: #f9b32f
+	background:#f9b32f
 }
-
 #compat-hdr-right a:nth-child(4) {
-    background: #e08a1e
+	background:#e08a1e
 }
-
 #compat-hdr-right a:nth-child(5) {
-    background: #e74c3c
+	background:#e74c3c
 }
-
 #compat-hdr-right a:nth-child(6) {
-    background: #455556
+	background:#455556
 }
-
 .compat-tx1-criteria {
-    font-family: arial;
-    font-size: 14px;
-    line-height: 24px;
-    position: relative;
-    width: 100%;
-    height: auto;
-    margin-bottom: 20px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    text-align: center;
-    color: #616161;
-    background: #fff
+	font-family:arial;
+	font-size:14px;
+	line-height:24px;
+	position:relative;
+	width:100%;
+	height:auto;
+	margin-bottom:20px;
+	padding-top:15px;
+	padding-bottom:15px;
+	text-align:center;
+	color:#616161;
+	background:#fff
 }
-
 .txt-compat-build {
-    line-height: 20px;
-    position: relative;
-    height: 20px;
-    padding: 2px 8px;
-    text-align: center;
-    color: #fff!important;
-    background: #20b2aa
+	line-height:20px;
+	position:relative;
+	height:20px;
+	padding:2px 8px;
+	text-align:center;
+	color:#fff!important;
+	background:#20b2aa
 }
-
 .txt-compat-nobuild {
-    line-height: 20px;
-    position: relative;
-    width: 68px;
-    height: 20px;
-    cursor: pointer;
-    text-align: center;
-    color: #fff!important
+	line-height:20px;
+	position:relative;
+	width:68px;
+	height:20px;
+	cursor:pointer;
+	text-align:center;
+	color:#fff!important
 }
-
 .txt-compat-status {
-    line-height: 18px;
-    position: relative;
-    top: 0;
-    width: 66px;
-    height: 18px;
-    padding: 1px 0;
-    text-align: center;
-    text-transform: none;
-    color: #fff!important;
-    opacity: .95
+	line-height:18px;
+	position:relative;
+	top:0;
+	width:66px;
+	height:18px;
+	padding:1px 0;
+	text-align:center;
+	text-transform:none;
+	color:#fff!important;
+	opacity:.95
 }
-
 .txt-compat-build:hover {
-    opacity: .8
+	opacity:.8
 }
-
 .txt-compat-nobuild:hover {
-    opacity: .8
+	opacity:.8
 }
-
 #compat-progress1::-webkit-progress-bar {
-    background-color: transparent
+	background-color:transparent
 }
-
 #compat-progress1::-webkit-progress-value {
-    background-color: #1ebc61
+	background-color:#1ebc61
 }
-
 #compat-progress1::-moz-progress-bar {
-    background-color: #1ebc61
+	background-color:#1ebc61
 }
-
 #compat-progress2::-webkit-progress-bar {
-    background-color: transparent
+	background-color:transparent
 }
-
 #compat-progress2::-webkit-progress-value {
-    background-color: #f9b32f
+	background-color:#f9b32f
 }
-
 #compat-progress2::-moz-progress-bar {
-    background-color: #f9b32f
+	background-color:#f9b32f
 }
-
 #compat-progress3::-webkit-progress-bar {
-    background-color: transparent
+	background-color:transparent
 }
-
 #compat-progress3::-webkit-progress-value {
-    background-color: #e08a1e
+	background-color:#e08a1e
 }
-
 #compat-progress3::-moz-progress-bar {
-    background-color: #e08a1e
+	background-color:#e08a1e
 }
-
 #compat-progress4::-webkit-progress-bar {
-    background-color: transparent
+	background-color:transparent
 }
-
 #compat-progress4::-webkit-progress-value {
-    background-color: #e74c3c
+	background-color:#e74c3c
 }
-
 #compat-progress4::-moz-progress-bar {
-    background-color: #e74c3c
+	background-color:#e74c3c
 }
-
 #compat-progress5::-webkit-progress-bar {
-    background-color: transparent
+	background-color:transparent
 }
-
 #compat-progress5::-webkit-progress-value {
-    background-color: #455556
+	background-color:#455556
 }
-
 #compat-progress5::-moz-progress-bar {
-    background-color: #455556
+	background-color:#455556
 }
-
-@media screen and (max-width: 1000px) {
-    #compat-hdr-left {
-        font-family:arial!important;
-        font-size: 12px!important;
-        line-height: 28px!important;
-        position: relative!important;
-        width: 100%!important;
-        height: 45px!important;
-        margin-bottom: 15px!important;
-        margin-left: 24px!important;
-        text-align: left!important;
-        color: #616161!important
-    }
-
-    #compat-hdr-left2 {
-        font-family: arial!important;
-        font-size: 12px!important;
-        line-height: 28px!important;
-        position: relative!important;
-        width: 100%!important;
-        height: 45px!important;
-        margin-top: -15px!important;
-        margin-left: 24px!important;
-        text-align: left!important;
-        color: #616161!important
-    }
-
-    #compat-hdr-right {
-        font-family: arial!important;
-        font-size: 11px!important;
-        float: right!important;
-        width: 100%!important;
-        margin-right: 0!important;
-        margin-bottom: 3px!important;
-        text-align: center!important;
-        color: #616161!important;
-        padding-top: 4px!important
-    }
-
-    #compat-hdr-right .highlightedText {
-        font-size: 12px;
-        font-weight: 700
-    }
-
-    .compat-status-progressbar {
-        width: 400px;
-        opacity: .3;
-        border: 0;
-        background-color: transparent;
-        direction: rtl
-    }
-
-    .compat-status-container {
-        margin-top: 45px;
-        margin-bottom: 14px;
-        padding-top: 0
-    }
-
-    .compat-status-text {
-        font-size: 12px!important
-    }
-
-    #title2 {
-        font-size: 12px!important
-    }
-
-    #featured-tx2-block {
-        font-size: 12px!important
-    }
-
-    .page-con-container {
-        margin: auto 15px!important
-    }
+@media screen and (max-width:1000px) {
+	#compat-hdr-left {
+		font-family:arial!important;
+		font-size:12px!important;
+		line-height:28px!important;
+		position:relative!important;
+		width:100%!important;
+		height:45px!important;
+		margin-bottom:15px!important;
+		margin-left:24px!important;
+		text-align:left!important;
+		color:#616161!important
+	}
+	#compat-hdr-left2 {
+		font-family:arial!important;
+		font-size:12px!important;
+		line-height:28px!important;
+		position:relative!important;
+		width:100%!important;
+		height:45px!important;
+		margin-top:-15px!important;
+		margin-left:24px!important;
+		text-align:left!important;
+		color:#616161!important
+	}
+	#compat-hdr-right {
+		font-family:arial!important;
+		font-size:11px!important;
+		float:right!important;
+		width:100%!important;
+		margin-right:0!important;
+		margin-bottom:3px!important;
+		text-align:center!important;
+		color:#616161!important;
+		padding-top:4px!important
+	}
+	#compat-hdr-right .highlightedText {
+		font-size:12px;
+		font-weight:700
+	}
+	.compat-status-progressbar {
+		width:400px;
+		opacity:.3;
+		border:0;
+		background-color:transparent;
+		direction:rtl
+	}
+	.compat-status-container {
+		margin-top:45px;
+		margin-bottom:14px;
+		padding-top:0
+	}
+	.compat-status-text {
+		font-size:12px!important
+	}
+	#title2 {
+		font-size:12px!important
+	}
+	#featured-tx2-block {
+		font-size:12px!important
+	}
+	.page-con-container {
+		margin:auto 15px!important
+	}
 }
-
 .debug-main {
-    font-family: arial;
-    padding-top: 20px;
-    padding-bottom: 20px
+	font-family:arial;
+	padding-top:20px;
+	padding-bottom:20px
 }
-
 #debug-left {
-    width: 18%;
-    float: left
+	width:18%;
+	float:left
 }
-
 #debug-right {
-    width: 80%;
-    float: right
+	width:80%;
+	float:right
 }
-
 #debug-left ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    line-height: 26px
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	width:100%;
+	line-height:26px
 }
-
 #debug-left li a {
-    font-size: 12px;
-    display: block;
-    padding: 4px 8px;
-    text-decoration: none;
-    text-align: center
+	font-size:12px;
+	display:block;
+	padding:4px 8px;
+	text-decoration:none;
+	text-align:center
 }
-
 #debug-left li a:hover {
-    background-color: #555;
-    color: #fff
+	background-color:#555;
+	color:#fff
 }
-
 .highlightedText {
-    font-size: 13px;
-    font-weight: 700
+	font-size:13px;
+	font-weight: 700
 }

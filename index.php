@@ -96,11 +96,11 @@ Profiler::addData("Index: Start");
 			<div class='header-tx1-body fade-up-onstart'>
 				<h1>
 				<?php
-					if (isset($_GET['h']))     { echo "HISTORY"; }
-					elseif (isset($_GET['b'])) { echo "BUILDS"; }
-					elseif (isset($get['a']))  { echo "DEBUG PANEL"; }
-					elseif (isset($get['l']))  { echo "PS3 GAME LIBRARY"; }
-					else                       { echo "COMPATIBILITY"; }
+					if (isset($_GET['h']))     { echo "History"; }
+					elseif (isset($_GET['b'])) { echo "Builds"; }
+					elseif (isset($get['a']))  { echo "Debug Panel"; }
+					elseif (isset($get['l']))  { echo "PS3 Game library"; }
+					else                       { echo "Compatibility"; }
 				?>
 				</h1>
 			</div>
