@@ -22,60 +22,47 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 ?>
 <div class="page-con-container">
 	<div class="page-in-container">
-		<!--End -->
 		<div class="container-con-block darkmode-block">
 			<div class="container-con-wrapper">
+
 				<div class="container-tx1-block compat-title">
 					<p id="title1">Builds History <a href="compatibility?b&rss">(RSS)</a></p>
-					<?php Profiler::addData("Page: Get Menu"); ?>
-					<?php echo getMenu(__FILE__); ?>
+					<?php
+						Profiler::addData("Page: Get Menu");
+						echo getMenu(__FILE__);
+					?>
 				</div>
+
 				<div class="container-tx2-block compat-desc">
 					<p>
 						This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project.
-						<br>
+					<br>
 						Hovering over the build number displays the SHA-256 checksum and the build size.
 					</p>
 				</div>
-			</div>
+
+			</div> <!-- container-con-wrapper -->
+
 			<div id="builds-hdr-left">
-				<p>
-					<?php Profiler::addData("Page: Get Results Per Page"); ?>
-					Results per page <?php echo Builds::getResultsPerPage(); ?>
-				</p>
+				<?php Profiler::addData("Page: Print Results Per Page"); ?>
+				<p>Results per page <?php Builds::printResultsPerPage(); ?></p>
 			</div>
-			<!--
-			<div id="compat-hdr-right">
-				<p>
-					Right
-				</p>
-			</div>
-			-->
-		</div>
+
+		</div> <!-- container-con-block -->
 
 		<?php
-			echo Builds::getTableMessages();
-			if (is_null($error)) echo "<div class=\"divTable builds-table\">";
+			Profiler::addData("Page: Print Messages");
+			Builds::printMessages();
 
-			Profiler::addData("Page: Display Table Headers");
-			echo Builds::getTableHeaders();
-			Profiler::addData("Page: Display Table Content");
-			echo Builds::getTableContent();
+			Profiler::addData("Page: Print Table");
+			Builds::printTable();
 
-			if (is_null($error)) echo "</div>";
+			Profiler::addData("Page: Print Pages Counter");
+			Builds::printPagesCounter();
+
+			Profiler::addData("End");
+			echo getFooter();
 		?>
 
-		<div id="compat-con-pages">
-			<p class="div-pagecounter">
-				<?php
-					Profiler::addData("Page: Pages Counter");
-					echo Builds::getPagesCounter();
-				?>
-			</p>
-		</div>
-
-		<?php Profiler::addData("End"); ?>
-		<?php echo getFooter(); ?>
-		<!--End -->
-	</div>
-</div>
+	</div> <!-- page-in-container -->
+</div> <!-- page-con-container -->

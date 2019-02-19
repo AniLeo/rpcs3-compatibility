@@ -41,7 +41,8 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
 					</p>
 				</div>
-			</div>
+
+			</div> <!-- container-con-wrapper -->
 
 			<div id="compat-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>

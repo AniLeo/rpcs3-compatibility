@@ -181,7 +181,7 @@ public static function printTable() {
 	global $games, $error, $a_status, $c_github;
 
 	if (!is_null($error))
-		return;
+		return "";
 
 	// Start table
 	echo "<div class=\"divTable\">";
@@ -201,14 +201,13 @@ public static function printTable() {
 	foreach ($games as $game) {
 
 		$media = '';
-		$multiple = false;
 
 		echo "<div class=\"divTableRow\">";
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
 		foreach ($game->IDs as $ID) {
-			if ($multiple)
+			if (!empty($cell))
 				$cell .= "<br>";
 
 			$cell .= getThread(getGameRegion($ID[0], false), $ID[1]);
@@ -216,8 +215,6 @@ public static function printTable() {
 
 			if ($media == '')
 				$media = getGameMediaIcon($ID[0]);
-
-			$multiple = true;
 		}
 		echo "<div class=\"divTableCell\">{$cell}</div>";
 
@@ -246,17 +243,17 @@ public static function printTable() {
 }
 
 
-/*****************
- * Pages Counter *
- *****************/
+/************************
+ * Print: Pages Counter *
+ ************************/
 public static function printPagesCounter() {
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
 
-	echo '<div id="compat-con-pages">';
+	echo "<div id=\"compat-con-pages\">";
 	echo getPagesCounter($pages, $currentPage, $extra);
-	echo '</div>';
+	echo "</div>";
 }
 
 /*

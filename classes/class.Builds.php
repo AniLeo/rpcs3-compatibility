@@ -26,22 +26,38 @@ if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Com
 class Builds {
 
 
-public static function getResultsPerPage() {
-	return resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true), "b&");
+/***************************
+ * Print: Results per Page *
+ ***************************/
+public static function printResultsPerPage() {
+	echo resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true), "b&");
 }
 
 
-public static function getTableMessages() {
+/*******************
+ * Print: Messages *
+ *******************/
+public static function printMessages() {
 	global $error;
-	if (!is_null($error)) { return "<p class=\"compat-tx1-criteria\">{$error}</p>"; }
+
+	if (!is_null($error))
+	 	echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
 }
 
 
-public static function getTableHeaders() {
-	global $error;
+/*****************
+ * Print: Table  *
+ *****************/
+public static function printTable() {
+	global $c_github, $builds, $error;
 
-	if (!is_null($error)) return "";
+	if (!is_null($error))
+		return "";
 
+	// Start table
+	echo "<div class=\"divTable\">";
+
+	// Print table headers
 	$headers = array(
 		'Pull Request' => 1,
 		'Author' => 0,
@@ -49,18 +65,10 @@ public static function getTableHeaders() {
 		'Build Date' => 4,
 		'Download' => 0
 	);
-	return getTableHeaders($headers, 'b&');
-}
+	echo getTableHeaders($headers, 'b&');
 
-
-public static function getTableContent() {
-	global $c_github, $builds, $error;
-
-	if (!is_null($error)) return "";
-
-	// Initialize string
-	$s_tablecontent = "";
-
+	// Print table body
+	echo "<div class=\"divTableBody\">";
 	foreach($builds as $build) {
 
 		// Length of additions text
@@ -87,24 +95,24 @@ public static function getTableContent() {
 		}
 		$version = !empty($version) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"{$version}\">$build->version</span>" : $build->version;
 
-		$s_tablecontent .= "<div class=\"divTableRow\">";
+	 	echo "<div class=\"divTableRow\">";
 
 		/* Cell 1: PR */
 		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 2: Author */
 		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">{$build->author}</a>";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */
 		$cell = "<span style='color:#4cd137;'>+{$build->additions}</span>";
 		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$build->deletions}</span>";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 4: Diffdate and Fulldate */
 		$cell = "{$build->diffdate} ({$build->fulldate})";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
 		$cell = $version;
@@ -112,22 +120,26 @@ public static function getTableContent() {
 			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
 		if (!is_null($build->url_linux))
 			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
-		$s_tablecontent .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
-		$s_tablecontent .= "</div>".PHP_EOL;
-
+		echo "</div>";
 	}
-
-	return "<div class=\"divTableBody\">".PHP_EOL."{$s_tablecontent}</div>";
+	echo "</div>";	// End table body
+	echo "</div>";	// End table
 }
 
 
-public static function getPagesCounter() {
+/************************
+ * Print: Pages Counter *
+ ************************/
+public static function printPagesCounter() {
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
 
-	return getPagesCounter($pages, $currentPage, "b&{$extra}");
+	echo "<div id=\"compat-con-pages\">";
+	echo getPagesCounter($pages, $currentPage, "b&{$extra}");
+	echo "</div>";
 }
 
 
