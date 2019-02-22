@@ -25,87 +25,96 @@ if (!@include_once(__DIR__."/../objects/HistoryEntry.php")) throw new Exception(
 class History {
 
 
-public static function getHistoryDescription() {
+/**********************
+ * Print: Description *
+ **********************/
+public static function printDescription() {
 	global $get, $a_histdates, $a_currenthist;
 
-	$s_desc = "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
+	echo "<p id=\"compat-history-description\">";
+	echo "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
 	if ($get['h'] == $a_currenthist[0]) {
-		$s_desc .= "since <b>{$a_currenthist[1]}</b>.";
+		echo "since <b>{$a_currenthist[1]}</b>.";
 	} else {
 		$v = $a_histdates[$get['h']];
 		$m1 = monthNumberToName($v[0]['m']);
 		$m2 = monthNumberToName($v[1]['m']);
-		$s_desc .= "from <b>{$m1} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$m2} {$v[1]['d']}, {$v[1]['y']}</b>.";
+		echo "from <b>{$m1} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$m2} {$v[1]['d']}, {$v[1]['y']}</b>.";
 	}
 
-	return "<p id='compat-history-description'>{$s_desc}</p>";
+	echo "</p>";
 }
 
 
-public static function getHistoryMonths() {
+/*****************
+ * Print: Months *
+ *****************/
+public static function printMonths() {
 	global $get, $a_histdates, $a_currenthist;
 
-	$s_months = "<strong>Month Selection</strong><br>";
 	$spacer = "&nbsp;&#8226;&nbsp;";
-
 	$watchdog = '';
 
-	foreach($a_histdates as $k => $v) {
+	echo "<p id=\"compat-history-months\">";
 
+	echo "<strong>Month Selection</strong><br>";
+
+	foreach($a_histdates as $k => $v) {
 		$month = monthNumberToName(substr($k, -2));
 		$year  = substr($k, 0, 4);
 
 		if ($watchdog != $year) {
-			if ($watchdog != '') { $s_months .= "<br>"; }
-			$s_months .= "<strong>{$year}:</strong>&nbsp;";
+			if ($watchdog != '')
+				echo "<br>";
+			echo "<strong>{$year}:</strong>&nbsp;";
 			$watchdog = $year;
 		}
 
-		$m = "<a href=\"?h={$k}\">{$month}</a>";
-
-		$s_months .= highlightText($m, $get['h'] == $k);
-		if ($month != "December" && $v != end($a_histdates)) { $s_months .= $spacer; }
+		echo highlightText("<a href=\"?h={$k}\">{$month}</a>", $get['h'] == $k);
+		if ($month != "December" && $v != end($a_histdates))
+			echo $spacer;
 	}
 
-	$s_months .= "<br><strong>Current:</strong>&nbsp;";
+	echo "<br><strong>Current:</strong>&nbsp;";
 
 	$month = monthNumberToName(substr($a_currenthist[0], -2));
 	$year = substr($a_currenthist[0], 0, 4);
 
-	$m = "<a href=\"?h\">{$month} {$year}</a>";
+	echo highlightText("<a href=\"?h\">{$month} {$year}</a>", $get['h'] == $a_currenthist[0]);
 
-	$s_months .= highlightText($m, $get['h'] == $a_currenthist[0]);
-
-	return "<p id='compat-history-months'>{$s_months}</p>";
+	echo "</p>";
 }
 
 
-public static function getHistoryOptions() {
+/******************
+ * Print: Options *
+ ******************/
+public static function printOptions() {
 	global $get, $a_currenthist;
 
-	if ($get['h'] != $a_currenthist[0]) { $h = "={$get['h']}"; }
-	else                                { $h = ""; }
-
-	$o1 = "<a href=\"?h{$h}\">Show all entries</a>";
-	$o2 = "<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>";
-	$o3 = "<a href=\"?h{$h}&m=n\">Show only new entries</a>";
+	$h = $get['h'] != $a_currenthist[0] ? "={$get['h']}" : "";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
-	$s_options = highlightText($o1, $get['m'] == "");
-	$s_options .= " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
+	echo "<p id=\"compat-history-options\">";
 
-	$s_options .= highlightText($o2, $get['m'] == "c");
-	$s_options .= " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
+	echo highlightText("<a href=\"?h{$h}\">Show all entries</a>", $get['m'] == "");
+ 	echo " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
 
-	$s_options .= highlightText($o3, $get['m'] == "n");
-	$s_options .= " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
+	echo highlightText("<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>", $get['m'] == "c");
+	echo " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
 
-	return "<p id='compat-history-options'>{$s_options}</p>";
+	echo highlightText("<a href=\"?h{$h}&m=n\">Show only new entries</a>", $get['m'] == "n");
+	echo " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
+
+	echo "</p>";
 }
 
 
-public static function getTableHeaders($full = true) {
+/***********************
+ * Print: Table Header *
+ ***********************/
+public static function printTableHeader($full = true) {
 	if ($full) {
 		$headers = array(
 			'Game Regions' => 0,
@@ -124,91 +133,90 @@ public static function getTableHeaders($full = true) {
 		);
 	}
 
-	return getTableHeaders($headers, 'h');
+	echo getTableHeaders($headers, 'h');
 }
 
 
-public static function getTableContent($array) {
+/************************
+ * Print: Table Content *
+ ************************/
+public static function printTableContent($array) {
 	global $a_status;
 
-	// Initialize string
-	$s_content = "";
+	echo "<div class=\"divTableBody\">";
 
 	foreach ($array as $entry) {
-		$s_content .= "<div class='divTableRow'>";
+		echo "<div class=\"divTableRow\">";
 
 		// Cell 1: Regions
-		$cell = "";
-		$cell .= getThread(getGameRegion($entry->IDs[0], false).$entry->IDs[0], $entry->IDs[1]);
+		$cell = getThread(getGameRegion($entry->IDs[0], false).$entry->IDs[0], $entry->IDs[1]);
 		$media = getGameMediaIcon($entry->IDs[0], false);
-		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
 		$cell = "{$media}{$entry->title}";
 		if (!is_null($entry->title2)) {
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})";
 		}
-		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 3: New Status
 		$cell = '';
 		if (!is_null($entry->new_status))
 			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->new_status]['color']};\">{$a_status[$entry->new_status]['name']}</div>";
-		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 4: New Date
 		$cell = $entry->new_date;
-		$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"divTableCell\">{$cell}</div>";
 
 		// Cell 5: Old Status (If existent)
 		if (!is_null($entry->old_status)) {
 			$cell = '';
 			if (!is_null($entry->old_status))
 				$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->old_status]['color']};\">{$a_status[$entry->old_status]['name']}</div>";
-			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+			echo "<div class=\"divTableCell\">{$cell}</div>";
 		}
 
 		// Cell 6: Old Date (If existent)
 		if (!is_null($entry->old_date)) {
 			$cell = $entry->old_date;
-			$s_content .= "<div class=\"divTableCell\">{$cell}</div>";
+			echo "<div class=\"divTableCell\">{$cell}</div>";
 		}
 
-		$s_content .= "</div>".PHP_EOL;
+		echo "</div>";
 	}
 
-	return "<div class='divTableBody'>".PHP_EOL."{$s_content}</div>";
+	echo "</div>";
 }
 
 
-public static function getHistoryContent() {
+/******************
+ * Print: Content *
+ ******************/
+public static function printContent() {
 	global $a_existing, $a_new, $error_existing, $error_new;
-
-	// Initialize string
-	$s_content = "";
 
 	// Existing entries table
 	if ($error_existing != "") {
-		$s_content .= "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
+		echo "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
 	} elseif (!is_null($a_existing)) {
-		$s_content .= "<div class='divTable history-table'>";
-		$s_content .= self::getTableHeaders();
-		$s_content .= self::getTableContent($a_existing);
-		$s_content .= "</div><br>";
+		echo "<div class=\"divTable\">";
+		self::printTableHeader();
+		self::printTableContent($a_existing);
+		echo "</div><br>";
 	}
 
 	// New entries table
 	if ($error_new != "") {
-		$s_content .= "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
+		echo "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
 	} elseif (!is_null($a_new)) {
-		$s_content .= "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
-		$s_content .= "<div class='divTable history-table'>";
-		$s_content .= self::getTableHeaders(false);
-		$s_content .= self::getTableContent($a_new);
-		$s_content .= "</div><br>";
+		echo "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
+		echo "<div class=\"divTable\">";
+		self::printTableHeader(false);
+		self::printTableContent($a_new);
+		echo "</div><br>";
 	}
-
-	return $s_content;
 }
 
 

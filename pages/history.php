@@ -22,11 +22,9 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 ?>
 <div class="page-con-container">
 	<div class="page-in-container">
-	<!-- container-con-block -->
 		<div class="container-con-block darkmode-block">
-
-			<!-- container-con-wrapper -->
 			<div class="container-con-wrapper" style="padding-bottom:1px">
+
 				<div class="container-tx1-block compat-title">
 					<p id="title1">Compatibility List History</p>
 					<?php
@@ -34,22 +32,20 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 						echo getMenu(__FILE__);
 					?>
 				</div>
+
 				<div class="container-tx2-block compat-desc">
 					<?php
-						Profiler::addData("Page: Get History Description");
-						echo History::getHistoryDescription();
-					?>
-					<br>
-					<?php
-						Profiler::addData("Page: Get History Months");
-						echo History::getHistoryMonths();
-					?>
-					<br>
-					<?php
-						Profiler::addData("Page: Get History Options");
-						echo History::getHistoryOptions();
+						Profiler::addData("Page: Print Description");
+						History::printDescription();
+
+						Profiler::addData("Page: Print Options");
+						History::printOptions();
+
+						Profiler::addData("Page: Print Months");
+						History::printMonths();
 					?>
 				</div>
+
 			</div> <!-- container-con-wrapper -->
 
 			<?php
@@ -61,13 +57,16 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 				echo generateStatusModule(false);
 			}
 			?>
-		</div> <!-- container-con-wrapper -->
+
+		</div> <!-- container-con-block -->
+
 		<?php
-			Profiler::addData("Page: Get History Content");
-			echo History::getHistoryContent();
+			Profiler::addData("Page: Print Content");
+			History::printContent();
 
 			Profiler::addData("End");
 			echo getFooter();
 		?>
-	</div> <!-- container-con-block -->
-</div>
+
+	</div> <!-- page-in-container -->
+</div> <!-- page-con-container -->

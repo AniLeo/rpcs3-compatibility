@@ -65,7 +65,8 @@
 }
 #compat-history-months {
 	font-family:arial;
-	font-size:13px
+	font-size:13px;
+	padding-top:16px
 }
 #compat-history-options {
 	font-family:arial;
