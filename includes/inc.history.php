@@ -42,9 +42,7 @@ $error_rss = "";
 
 // Main part of the query
 $cmd_main = "SELECT * FROM `game_history`
-LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key`
-LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key` ";
-
+LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key` ";
 
 // Generate date part of the query
 if ($get['h'] == $a_currenthist[0]) {
@@ -58,8 +56,10 @@ if ($get['h'] == $a_currenthist[0]) {
 
 // Existing entries
 Profiler::addData("Inc: Check Existing Entries");
-if (!isset($_GET['rss']) && ($get['m'] == "c" || $get['m'] == "")) {
-  $q_existing = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NOT NULL {$cmd_date}
+if ($get['m'] == "c" || $get['m'] == "") {
+  $q_existing = mysqli_query($db, "{$cmd_main}
+  LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key`
+  WHERE `old_status` IS NOT NULL {$cmd_date}
   ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC; ");
 
   if (!$q_existing) {
@@ -77,8 +77,10 @@ if (!isset($_GET['rss']) && ($get['m'] == "c" || $get['m'] == "")) {
 
 // New entries
 Profiler::addData("Inc: Check New Entries");
-if (!isset($_GET['rss']) && ($get['m'] == "n" || $get['m'] == "")) {
-  $q_new = mysqli_query($db, "{$cmd_main} WHERE `old_status` IS NULL {$cmd_date}
+if ($get['m'] == "n" || $get['m'] == "") {
+  $q_new = mysqli_query($db, "{$cmd_main}
+  LEFT JOIN `game_id` ON `game_history`.`new_gid` = `game_id`.`gid`
+  WHERE `old_status` IS NULL {$cmd_date}
   ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC; ");
 
   if (!$q_new) {
@@ -91,28 +93,6 @@ if (!isset($_GET['rss']) && ($get['m'] == "n" || $get['m'] == "")) {
 
   while ($row = mysqli_fetch_object($q_new))
     $a_new[] = HistoryEntry::rowToHistoryEntry($row);
-}
-
-
-// RSS - Existing/New entries
-if (isset($_GET['rss'])) {
-  $cmd_rss = "";
-  if ($get['m'] == "c")     { $cmd_rss .= " AND `old_status` IS NOT NULL "; }
-  elseif ($get['m'] == "n") { $cmd_rss .= " AND `old_status` IS NULL "; }
-
-  $q_rss = mysqli_query($db, "{$cmd_main} WHERE `game_title` IS NOT NULL {$cmd_rss} {$cmd_date}
-  ORDER BY new_date DESC, new_status ASC, -old_status DESC, game_title ASC; ");
-
-  if (!$q_rss) {
-    $error_rss = "Please try again. If this error persists, please contact the RPCS3 team.";
-  } elseif (mysqli_num_rows($q_rss) === 0) {
-    $error_rss = "No newer entries were reported and/or reviewed yet for this period of time.";
-  }
-
-  $a_rss = array();
-
-  while ($row = mysqli_fetch_object($q_rss))
-    $a_rss[] = HistoryEntry::rowToHistoryEntry($row);
 }
 
 

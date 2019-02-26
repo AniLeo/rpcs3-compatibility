@@ -99,7 +99,7 @@ public static function printOptions() {
 	echo "<p id=\"compat-history-options\">";
 
 	echo highlightText("<a href=\"?h{$h}\">Show all entries</a>", $get['m'] == "");
- 	echo " <a href=\"?h{$h}&rss\">(RSS)</a>{$spacer}";
+ 	echo "{$spacer}";
 
 	echo highlightText("<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>", $get['m'] == "c");
 	echo " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
@@ -220,53 +220,53 @@ public static function printContent() {
 }
 
 
-public static function getHistoryRSS() {
-	global $a_rss, $error_rss;
+public static function printHistoryRSS() {
+	global $a_new, $a_existing, $error_new, $error_existing;
 
-	// Should be unreachable, function should never be called without set $_GET['rss']
-	if ($error_rss == "" && is_null($a_rss)) return;
+	// Should be unreachable, function is always called when one of the modes is set
+	if (is_null($a_new) && is_null($a_existing)) return;
 
+	$error = $error_new != "" ? $error_new : $error_existing;
+	$title = !is_null($a_new) ? "New additions" : "Updates";
 	$url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 
-	$rssfeed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
 	<channel>
-	<title>RPCS3 Compatibility List History's RSS feed</title>
+	<title>RPCS3 Compatibility List History - {$title}</title>
 	<link>https://rpcs3.net/compatibility?h</link>
 	<description>For more information about RPCS3 visit https://rpcs3.net</description>
 	<language>en-uk</language>
 	<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
 
-	if ($error_rss != "") {
-		$rssfeed .= "
-			<item>
-				<title><![CDATA[{$error_rss}]]></title>
-				<description>{$error_rss}</description>
-				<pubDate>".date('r', time())."</pubDate>
-			</item>";
-	} else {
-		foreach ($a_rss as $key => $entry) {
-			$rssfeed .= "
-			<item>
-				<title><![CDATA[{$entry->title}]]></title>
-				<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>";
-
-			if ($entry->old_status !== NULL) {
-				$rssfeed .= "<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>";
-			} else {
-				$rssfeed .= "<description>New entry for {$entry->new_status} ({$entry->new_date})</description>";
-			}
-
-			$rssfeed .= "<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
-			</item>";
+	if ($error != "") {
+		echo "<item>
+						<title><![CDATA[{$error}]]></title>
+						<description>{$error}</description>
+						<pubDate>".date('r', time())."</pubDate>
+					</item>";
+	} elseif (!is_null($a_new)) {
+		foreach ($a_new as $key => $entry) {
+			echo "<item>
+						<title><![CDATA[{$entry->title}]]></title>
+						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
+						<description>New entry for {$entry->new_status} ({$entry->new_date})</description>
+						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
+						</item>";
+		}
+	} elseif (!is_null($a_existing)) {
+		foreach ($a_existing as $key => $entry) {
+			echo "<item>
+						<title><![CDATA[{$entry->title}]]></title>
+						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
+						<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>
+						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
+						</item>";
 		}
 	}
 
-	$rssfeed .= "
-	</channel>
+	echo "</channel>
 	</rss>";
-
-	return $rssfeed;
 }
 
 } // End of Class

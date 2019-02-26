@@ -68,6 +68,7 @@ CREATE TABLE `game_history` (
   `old_date` date DEFAULT NULL,
   `new_status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `new_date` date NOT NULL,
+  `new_gid` varchar(9) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 

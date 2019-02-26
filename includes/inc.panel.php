@@ -371,8 +371,8 @@ function compatibilityUpdater() {
 				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: {$game}<br><br>";
 
 			// Log change to game history
-			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_status`, `new_date`) VALUES
-			({$key}, '{$game['status']}', '{$game['last_update']}');");
+			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
+			({$key}, '".mysqli_real_escape_string($db, $game['gid'])."', '{$game['status']}', '{$game['last_update']}');");
 		}
 
 		/*
@@ -512,5 +512,4 @@ function mergeGames() {
 	}
 
 	echo "</p>"; // End paragraph
-
 }

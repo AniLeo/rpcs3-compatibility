@@ -34,19 +34,20 @@ if (isset($_GET['rss'])) {
 		header('Content-Type: text/xml');
 		$Builds = new Builds();
 		echo $Builds->getBuildsRSS();
+		// No need to load the rest of the page.
+		exit();
 
-	} else /*if (isset($_GET['h']))*/ {
+	} elseif (isset($_GET['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
 
 		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: text/xml');
 		$History = new History();
-		echo $History->getHistoryRSS();
+		$History->printHistoryRSS();
+		// No need to load the rest of the page.
+		exit();
 
 	}
-
-	// No need to load the rest of the page.
-	exit();
 
 }
 
