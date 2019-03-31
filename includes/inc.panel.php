@@ -469,12 +469,15 @@ function mergeGames() {
 
 	echo "<p>"; // Start paragraph
 
-	echo "<b>Game 1: {$game1->title} (status: {$a_status[$game1->status]['name']}, pr: {$game1->pr}, date: {$game1->date})</b><br>";
+	$alternative1 = !is_null($game1->title2) ? "(alternative: {$game1->title2})" : "";
+	$alternative2 = !is_null($game2->title2) ? "(alternative: {$game2->title2})" : "";
+
+	echo "<b>Game 1: {$game1->title} {$alternative1} (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$game1->pr}, date: {$game1->date})</b><br>";
 		foreach ($game1->IDs as $id)
 			echo "- {$id[0]} (tid: $id[1])<br>";
 	echo "<br>";
 
-	echo "<b>Game 2: {$game2->title} (status: {$a_status[$game2->status]['name']}, pr: {$game2->pr}, date: {$game2->date})</b><br>";
+	echo "<b>Game 2: {$game2->title} {$alternative2} (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$game2->pr}, date: {$game2->date})</b><br>";
 		foreach ($game2->IDs as $id)
 			echo "- {$id[0]} (tid: $id[1])<br>";
 	echo "<br>";
@@ -493,6 +496,10 @@ function mergeGames() {
 		// If the update date is the same, pick the one with the most recent PR
 		$newKey = $game1->pr > $game2->pr ? $game1->key : $game2->key;
 		$oldKey = $game1->pr > $game2->pr ? $game2->key : $game1->key;
+	} else if ($game1->pr == $game2->pr) {
+		// If PRs are the same, pick the one with the oldest update date
+		$newKey = $time1 < $time2 ? $game1->key : $game2->key;
+		$oldKey = $time1 < $time2 ? $game2->key : $game1->key;
 	} else {
 		// If the update date differs, pick the one with the most recent update date
 		$newKey = $time1 > $time2 ? $game1->key : $game2->key;
