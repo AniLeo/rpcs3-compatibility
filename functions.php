@@ -752,7 +752,7 @@ function getJSON($url) {
 		$headers = array("Authorization: token ".gh_token);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	} else {
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0");
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0");
 	}
 
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -823,4 +823,62 @@ function getStatusID($name) {
 // PHP 7.2 TODO: Use PHP_OS_FAMILY instead
 function isWindows() {
 	return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+}
+
+
+// cURL XML document and return the result as (HttpCode, JSON)
+function curlXML($url, &$cr = null) {
+	// Use existing cURL resource or create a temporary one
+	if ($cr != null)
+		$ch = $cr;
+	else
+		$ch = curl_init();
+
+	// Set the required cURL flags
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0");
+	curl_setopt($ch, CURLOPT_URL, $url);
+
+	// Get the response and httpcode of that response
+	$result = curl_exec($ch);
+	$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+	// Convert from XML to JSON
+	$result = simplexml_load_string($result);
+	$result = json_encode($result);
+	$result = json_decode($result, true);
+
+	// Close the temporary cURL resource
+	if ($cr == null)
+		curl_close($ch);
+
+	return array('httpcode' => $httpcode, 'result' => $result);
+}
+
+
+// Returns empty for no update, 'X.XX' string for the latest existing update
+function getLatestGameUpdateVer($gid) {
+	// cURL the PS3 Game Update API
+	$curl = curlXML("https://a0.ww.np.dl.playstation.net/tpl/np/{$gid}/{$gid}-ver.xml");
+	$json = $curl['result'];
+
+	// No updates
+	if ((!$json && $curl['httpcode'] == 200) || $curl['httpcode'] == 404)
+		return "";
+
+	// Some other HTTPCode that needs handling
+	if ($curl['httpcode'] != 200)
+		return null;
+
+	// Has multiple updates, pick the latest one
+	if (array_key_exists(0, $json['tag']['package']))
+		return $json['tag']['package'][sizeof($json['tag']['package'])-1]['@attributes']['version'];
+
+	// Has a single update
+	if (array_key_exists("version", $json['tag']['package']['@attributes']))
+		return $json['tag']['package']['@attributes']['version'];
+
+	// Unknown error that needs handling
+	return null;
 }

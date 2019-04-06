@@ -89,5 +89,6 @@ DROP TABLE IF EXISTS `game_id`;
 CREATE TABLE `game_id` (
   `key` int(11) NOT NULL,
   `gid` varchar(9) NOT NULL,
-  `tid` int(11) NOT NULL
+  `tid` int(11) NOT NULL,
+  `latest_ver` varchar(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

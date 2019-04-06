@@ -496,3 +496,24 @@ function cacheWikiIDs() {
 
 	mysqli_close($db);
 }
+
+
+function cacheGameLatestVer() {
+	$db = getDatabase();
+  //  WHERE `latest_ver` IS NULL
+	$q_ids = mysqli_query($db, "SELECT * FROM `game_id`;");
+	while ($row = mysqli_fetch_object($q_ids)) {
+		// Get latest game update ver for this game
+		$updateVer = getLatestGameUpdateVer($row->gid);
+
+		// If we failed to get the latest version from the API
+		if (is_null($updateVer)) {
+			echo "<b>Error:</b> Could not fetch game latest version for {$row->gid}.<br><br>";
+			continue;
+		}
+
+		// Insert Game and Thread IDs on the ID table
+		$q_insert = mysqli_query($db, "UPDATE `game_id` SET `latest_ver`='".mysqli_real_escape_string($db, $updateVer)."' WHERE `gid`='{$row->gid}';");
+	}
+	mysqli_close($db);
+}

@@ -363,8 +363,18 @@ function compatibilityUpdater() {
 			ORDER BY `key` DESC LIMIT 1");
 			$key = mysqli_fetch_object($q_fetchkey)->key;
 
+			// Get latest game update ver for this game
+			$updateVer = getLatestGameUpdateVer($game['gid']);
+
+			if (is_null($updateVer)) {
+				echo "<b>Error:</b> Could not fetch game latest version for {$game['gid']}.<br><br>";
+				$c_insert = "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$game['gid']}', {$tid}); ";
+			} else {
+				$c_insert = "INSERT INTO `game_id` (`key`, `gid`, `tid`, `latest_ver`) VALUES ({$key}, '{$game['gid']}', {$tid}, '".mysqli_real_escape_string($db, $updateVer)."'); ";
+			}
+
 			// Insert Game and Thread IDs on the ID table
-			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$game['gid']}', {$tid}); ");
+			$q_insert = mysqli_query($db, $c_insert);
 
 			// Sanity check, this should be unreachable
 			if ($key == NULL)
