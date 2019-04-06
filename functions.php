@@ -634,17 +634,17 @@ function cidr_match($ip, $range) {
 		$mask = $array[1];
 		$addr = str_repeat("f", $mask / 4);
 		switch ($mask % 4) {
-	  	case 0:
-	    	break;
-	  	case 1:
-	    	$addr .= "8";
-	    	break;
-	  	case 2:
-	    	$addr .= "c";
-	    	break;
-	  	case 3:
-	    	$addr .= "e";
-	    	break;
+			case 0:
+				break;
+			case 1:
+				$addr .= "8";
+				break;
+			case 2:
+				$addr .= "c";
+				break;
+			case 3:
+				$addr .= "e";
+				break;
 		}
 		$addr = str_pad($addr, 32, '0');
 		$addr = pack("H*" , $addr);
@@ -653,7 +653,7 @@ function cidr_match($ip, $range) {
 		// IPv4
 		list($subnet, $bits) = explode('/', $range);
 		if ($bits === null)
-        $bits = 32;
+				$bits = 32;
 		$ip = ip2long($ip);
 		$subnet = ip2long($subnet);
 		$mask = -1 << (32 - $bits);
