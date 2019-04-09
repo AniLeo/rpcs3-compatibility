@@ -51,7 +51,7 @@ function exportDatabase() {
 			);
 
 			if (!is_null($id[2]))
-				$a_data['latest'] = $id[2];
+				$a_data['update'] = $id[2];
 
 			$results['results'][$id[0]] = $a_data;
 		}

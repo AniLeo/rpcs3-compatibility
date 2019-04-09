@@ -500,8 +500,8 @@ function cacheWikiIDs() {
 
 function cacheGameLatestVer() {
 	$db = getDatabase();
-  //  WHERE `latest_ver` IS NULL
-	$q_ids = mysqli_query($db, "SELECT * FROM `game_id`;");
+	
+	$q_ids = mysqli_query($db, "SELECT * FROM `game_id` WHERE `latest_ver` IS NULL;");
 	while ($row = mysqli_fetch_object($q_ids)) {
 		// Get latest game update ver for this game
 		$updateVer = getLatestGameUpdateVer($row->gid);
