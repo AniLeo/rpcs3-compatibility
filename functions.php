@@ -742,26 +742,6 @@ function monthNumberToName($month) {
 }
 
 
-function getJSON($url) {
-	$ch = curl_init();
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as string
-
-	if (strpos($url, 'github.com') !== false) {
-		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
-		$headers = array("Authorization: token ".gh_token);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-	} else {
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0");
-	}
-
-	curl_setopt($ch, CURLOPT_URL, $url);
-	$result = curl_exec($ch);
-	curl_close($ch);
-	return json_decode($result);
-}
-
-
 function dumpVar($var) {
 	echo "<br>";
 	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
@@ -826,13 +806,42 @@ function isWindows() {
 }
 
 
+// cURL JSON document and return the result as (HttpCode, JSON)
+function curlJSON($url, &$cr) {
+	// Use existing cURL resource or create a temporary one
+	$ch = ($cr != null) ? $cr : curl_init();
+
+	// Set the required cURL flags
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
+	curl_setopt($ch, CURLOPT_URL, $url);
+	if (strpos($url, 'github.com') !== false) {
+		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
+	} else {
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0");
+	}
+
+	// Get the response and httpcode of that response
+	$result = curl_exec($ch);
+	$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+	// Decode JSON
+	$result = json_decode($result);
+
+	// Close the temporary cURL resource or reset the given cURL resource
+	if ($cr == null)
+		curl_close($ch);
+	else
+		curl_reset($cr);
+
+	return array('httpcode' => $httpcode, 'result' => $result);
+}
+
+
 // cURL XML document and return the result as (HttpCode, JSON)
 function curlXML($url, &$cr = null) {
 	// Use existing cURL resource or create a temporary one
-	if ($cr != null)
-		$ch = $cr;
-	else
-		$ch = curl_init();
+	$ch = ($cr != null) ? $cr : curl_init();
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
@@ -849,9 +858,11 @@ function curlXML($url, &$cr = null) {
 	$result = json_encode($result);
 	$result = json_decode($result, true);
 
-	// Close the temporary cURL resource
+	// Close the temporary cURL resource or reset the given cURL resource
 	if ($cr == null)
 		curl_close($ch);
+	else
+		curl_reset($cr);
 
 	return array('httpcode' => $httpcode, 'result' => $result);
 }

@@ -26,6 +26,7 @@ if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Ga
 
 function cacheBuilds($full = false) {
 	$db = getDatabase();
+	$cr = curl_init();
 
 	if (!$full) {
 		set_time_limit(60*5); // 5 minute limit
@@ -45,12 +46,13 @@ function cacheBuilds($full = false) {
 	// repo:rpcs3/rpcs3, is:pr, is:merged, merged:>$date, sort=updated (asc)
 	// TODO: Sort by merged date whenever it's available on the GitHub API
 	$url = "https://api.github.com/search/issues?q=repo:rpcs3/rpcs3+is:pr+is:merged+sort:updated-asc+merged:%3E{$date}";
-	$search = getJSON($url);
+	$search = curlJSON($url, $cr)['result'];
 
 	// API Call Failed or no PRs to cache, end here
 	// TODO: Log and handle API call fails differently depending on the fail
 	if (!isset($search->total_count) || $search->total_count == 0) {
 		mysqli_close($db);
+		curl_close($cr);
 		return;
 	}
 
@@ -89,7 +91,7 @@ function cacheBuilds($full = false) {
 			}
 
 			// Grab pull request information from GitHub REST API (v3)
-			$pr_info = getJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}");
+			$pr_info = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr)['result'];
 
 			// Check if we aren't rate limited
 			if (!array_key_exists('merge_commit_sha', $pr_info)) {
@@ -118,10 +120,10 @@ function cacheBuilds($full = false) {
 			}
 
 			// Windows build metadata
-			$info_release_win = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}");
+			$info_release_win = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr)['result'];
 
 			// Linux build metadata
-			$info_release_linux = getJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}");
+			$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
 
 			// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
 			if (isset($info_release_win->message) || isset($info_release_linux->message)) {
@@ -181,10 +183,11 @@ function cacheBuilds($full = false) {
 		}
 
 		if ($i <= $pages)
-			$search = getJSON("{$url}&page={$i}");
+			$search = curlJSON("{$url}&page={$i}", $cr)['result'];
 
 	}
 	mysqli_close($db);
+	curl_close($cr);
 }
 
 
@@ -433,7 +436,7 @@ function cacheStatusCount() {
 function cacheContributor($username) {
 	$db = getDatabase();
 
-	$info_contributor = getJSON("https://api.github.com/users/{$username}");
+	$info_contributor = curlJSON("https://api.github.com/users/{$username}")['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
 	if (!isset($info_contributor->message)) {
@@ -500,7 +503,7 @@ function cacheWikiIDs() {
 
 function cacheGameLatestVer() {
 	$db = getDatabase();
-	
+
 	$q_ids = mysqli_query($db, "SELECT * FROM `game_id` WHERE `latest_ver` IS NULL;");
 	while ($row = mysqli_fetch_object($q_ids)) {
 		// Get latest game update ver for this game
