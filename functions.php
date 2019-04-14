@@ -807,14 +807,15 @@ function isWindows() {
 
 
 // cURL JSON document and return the result as (HttpCode, JSON)
-function curlJSON($url, &$cr) {
+function curlJSON($url, &$cr = null) {
 	// Use existing cURL resource or create a temporary one
 	$ch = ($cr != null) ? $cr : curl_init();
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
 	curl_setopt($ch, CURLOPT_URL, $url);
-	if (strpos($url, 'github.com') !== false) {
+	if (strlen($url) >= 23 && substr($url, 0, 23) === "https://api.github.com/") {
+		// We're cURLing the GitHub API, set GitHub Auth Token on headers
 		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
 	} else {
