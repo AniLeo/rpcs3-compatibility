@@ -266,7 +266,9 @@ function compatibilityUpdater() {
 			echo "- Commit: <span style='color:{$status_commit}'>{$short_commit}</span> {$date_commit}<br>";
 			echo "<br>";
 
-		} elseif ($tid == $row->tid && $sid != $cur_game->status) {
+		} elseif ($tid == $row->tid && ($sid != $cur_game->status || $sid == 3 || $sid == 4 || $sid == 5)) {
+			// Same status updates currently being tested
+			// For now only allowed on Intro, Loadable and Nothing games
 
 			// This game entry was already checked before in this script
 			// Update with the new information
@@ -309,9 +311,10 @@ function compatibilityUpdater() {
 				foreach ($a_commits as $key => $value) {
 					if (stripos($post->message, (string)$key) !== false) {
 						// If current commit is newer than the previously recorded one, replace
+						// TODO: Check distance between commit date and post here
 						if (($a_updates[$cur_game->key]['commit'] === 0) ||
 						($a_updates[$cur_game->key]['commit'] !== 0 && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) < strtotime($value[1]))) {
-							// echo "<b>Commit Replacement:</b> {$a_updates[$cur_game->key]['commit']} (".strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]).") for commit {$value[0]} ($value[1])<br><br>";
+							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $value[0] $post->username <br>";
 							$a_updates[$cur_game->key]['commit'] = $value[0];
 							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
 							$a_updates[$cur_game->key]['author'] = $post->username;
@@ -321,20 +324,30 @@ function compatibilityUpdater() {
 				}
 			}
 
+			// If the new date is older than the current date (meaning there's no valid report post)
+			// Or no new commit was found
+			// Or the distance between commit date and post is bigger than 2 weeks
+			// then ignore this entry and continue
+			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
+				$a_updates[$cur_game->key]['commit'] === 0 ||
+				strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) > 604804) {
+				unset($a_updates[$cur_game->key]);
+				continue;
+			}
+
 			// Green for existing commit, Red for non-existing commit
-			$status_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? 'green' : 'red';
+			$new_status_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? 'green' : 'red';
+			$old_status_commit = $cur_game->pr !== 0 ? 'green' : 'red';
 			$short_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? substr($a_updates[$cur_game->key]['commit'], 0, 8) : 0;
 			$date_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? "({$a_commits[$short_commit][1]})" : "";
 
 			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid:".getThread($row->tid, $row->tid).", author:{$a_updates[$cur_game->key]['author']})<br>";
-			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span> <-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']}</span><br>";
-			echo "- Commit: <span style='color:{$status_commit}'>{$short_commit}</span> {$date_commit}<br>";
+			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
+						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
+			echo "- Commit: <span style='color:{$new_status_commit}'>{$short_commit}</span> {$date_commit}
+						<-- <span style='color:{$old_status_commit}'>".substr($cur_game->commit, 0, 8)."</span> ({$cur_game->date})<br>";
 			echo "<br>";
 
-		} else {
-			// TODO: Updates within the same status
-			// echo "<b>Skipping:</b> {$row->subject} {$tid}<br><br>";
-			continue;
 		}
 
 	}
