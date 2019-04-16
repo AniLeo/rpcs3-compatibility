@@ -141,11 +141,11 @@ function compatibilityUpdater() {
 	set_time_limit(300);
 	$db = getDatabase();
 
-	// Timestamp of last list update
+	// Timestamp of the penultimate list update
 	end($a_histdates);
 	$lastkey = key($a_histdates);
 	reset($a_histdates);
-	$ts_lastupdate = strtotime("{$a_histdates[$lastkey][1]['y']}-{$a_histdates[$lastkey][1]['m']}-{$a_histdates[$lastkey][1]['d']}");
+	$ts_lastupdate = strtotime("{$a_histdates[$lastkey][0]['y']}-{$a_histdates[$lastkey][0]['m']}-{$a_histdates[$lastkey][0]['d']}");
 
 	// Store forumID -> statusID
 	// Generate WHERE condition for our query
