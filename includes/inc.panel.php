@@ -504,27 +504,35 @@ function mergeGames() {
 
 	if ($time1 == $time2 && $game1->pr != $game2->pr) {
 		// If the update date is the same, pick the one with the most recent PR
-		$newKey = $game1->pr > $game2->pr ? $game1->key : $game2->key;
-		$oldKey = $game1->pr > $game2->pr ? $game2->key : $game1->key;
+		$new = $game1->pr > $game2->pr ? $game1 : $game2;
+		$old = $game1->pr > $game2->pr ? $game2 : $game1;
 	} else if ($game1->pr == $game2->pr) {
 		// If PRs are the same, pick the one with the oldest update date
-		$newKey = $time1 < $time2 ? $game1->key : $game2->key;
-		$oldKey = $time1 < $time2 ? $game2->key : $game1->key;
+		$new = $time1 < $time2 ? $game1 : $game2;
+		$old = $time1 < $time2 ? $game2 : $game1;
 	} else {
 		// If the update date differs, pick the one with the most recent update date
-		$newKey = $time1 > $time2 ? $game1->key : $game2->key;
-		$oldKey = $time1 > $time2 ? $game2->key : $game1->key;
+		$new = $time1 > $time2 ? $game1 : $game2;
+		$old = $time1 > $time2 ? $game2 : $game1;
 	}
+
 
 	// Update: Set both game keys to the same previous picked key
 	if (isset($_POST['mergeConfirm'])) {
-		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$oldKey}')");
-		mysqli_query($db, "UPDATE `game_id` SET `key`='{$newKey}' WHERE (`key`='{$oldKey}')");
-		mysqli_query($db, "UPDATE `game_history` SET `game_key`='{$newKey}' WHERE (`game_key`='{$oldKey}')");
+		// Copy alternative title to new entry if necessary
+		if (!is_null($old->title2) && is_null($new->title2))
+			mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");
+		// Move IDs from the older entry to the newer entry
+		mysqli_query($db, "UPDATE `game_id` SET `key`='{$new->key}' WHERE (`key`='{$old->key}');");
+		// Reassociate old entry history updates to the newer entry
+		mysqli_query($db, "UPDATE `game_history` SET `game_key`='{$new->key}' WHERE (`game_key`='{$old->key}');");
+		// Delete older entry
+		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$old->key}');");
 		// Recache status counts for general search
 		cacheStatusCount();
 		// Recache status modules
 		cacheStatusModules();
+
 		echo "<b>Games successfully merged!</b><br>";
 	}
 
