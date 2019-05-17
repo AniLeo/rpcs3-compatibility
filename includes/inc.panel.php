@@ -251,7 +251,7 @@ function compatibilityUpdater() {
 					if (stripos($post->message, (string)$key) !== false) {
 						$a_inserts[$row->tid]['commit'] = $value[0];
 						$a_inserts[$row->tid]['last_update'] = date('Y-m-d', $post->dateline);
-						break;
+						break 2;
 					}
 				}
 			}
