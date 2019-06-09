@@ -256,10 +256,11 @@ function validateGet($db = null) {
 	}
 
 	// Searchbox (sf deprecated, use g instead)
-	if (isset($_GET['g']) && !empty($_GET['g']) && isValid($_GET['g'])) {
+	if (!isset($_GET['g']) && isset($_GET['sf'])) {
+		$_GET['g'] = $_GET['sf'];
+	}
+	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g'])) {
 		$get['g'] = $_GET['g'];
-	} elseif (isset($_GET['sf']) && !empty($_GET['sf']) && isValid($_GET['sf'])) {
-		$get['g'] = $_GET['sf'];
 	}
 
 	// Date
