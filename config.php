@@ -106,7 +106,7 @@ $a_regions = array(
 
 // Region flags
 $a_flags = array(
-"A" => "/img/icons/compat/CN.png", // Asia
+"A" => "/img/icons/compat/AS.png", // Asia
 "E" => "/img/icons/compat/EU.png", // Europe
 "H" => "/img/icons/compat/HK.png", // Hong Kong
 "K" => "/img/icons/compat/KR.png", // Korea
