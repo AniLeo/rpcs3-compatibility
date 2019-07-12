@@ -49,7 +49,7 @@ class Build {
 	public $url_linux;        // String
 
 
-	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files,
+	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files, $buildjob,
 	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux) {
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
@@ -92,7 +92,7 @@ class Build {
 			$this->sizeMB_win = !is_null($this->size_win) ? round(((int)$this->size_win) / 1024 / 1024, 1) : 0;
 		}
 
-		if (!is_null($filename_win)) {
+		if (!is_null($filename_win) && is_null($buildjob)) {
 			$this->filename_win = $filename_win;
 			$this->url_win = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
 		}
@@ -123,7 +123,8 @@ class Build {
 		* @return object $build     Build fetched from given Row
 		*/
 	public static function rowToBuild($row, &$a_contributors) {
-		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime, $row->additions, $row->deletions, $row->changed_files,
+		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
+		$row->additions, $row->deletions, $row->changed_files, $row->buildjob,
 		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux);
 	}
 
