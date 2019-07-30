@@ -33,7 +33,8 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
 	*/
 function getDatabase() {
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
-	if (!$db) return null;
+	if (!$db)
+		trigger_error("[Compat] Database: Connection could not be established", E_USER_ERROR);
 	mysqli_set_charset($db, 'utf8mb4');
 	return $db;
 }
@@ -322,7 +323,10 @@ function countGames($db = null, $query = '') {
 
 	if ($query == 'all') {
 		// Unique game count
-		return mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS c FROM game_list"))->c;
+		$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list`; ");
+		if (!$q_unique)
+			return 0;
+		return mysqli_fetch_object($q_unique)->c;
 	}
 
 	if ($query == '') {
@@ -340,6 +344,12 @@ function countGames($db = null, $query = '') {
 		// Query defined, return count of games with searched parameters
 		$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;");
 	}
+
+	if ($close)
+		mysqli_close($db);
+
+	if (!$q_gen)
+		return 0;
 
 	// Zero-fill the array keys that are going to be used
 	$scount[0][0] = 0;
@@ -367,10 +377,6 @@ function countGames($db = null, $query = '') {
 	// If no status is specified, fill status-specified array normally
 	if ($get['s'] == 0) {
 		$scount[0] = $scount[1];
-	}
-
-	if ($close) {
-		mysqli_close($db);
 	}
 
 	return $scount;
@@ -614,6 +620,9 @@ function isWhitelisted($db = null) {
 	if ($close) {
 		mysqli_close($db);
 	}
+
+	if (!$q_ip)
+		return false;
 
 	return mysqli_num_rows($q_ip) === 1;
 }

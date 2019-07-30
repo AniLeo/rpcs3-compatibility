@@ -81,10 +81,36 @@ RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22
 **/
-if (!@include_once(__DIR__.'/../../lib/module/metadata/head.compat.php')) throw new Exception("Compat: head.compat.php is missing. Failed to include head.compat.php");
 $start_time = getTime();
 Profiler::addData("Index: Start");
 ?>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<title>RPCS3 - Compatibility List</title>
+<meta charset=UTF-8>
+<meta name="description" content="RPCS3 is an open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows and Linux.">
+<meta name="keywords" content="rpcs3, ps3, playstation 3, emulator, nekotekina, compatibility list">
+<meta name="author" content="RPCS3">
+<meta name="copyright" content="RPCS3">
+<?php
+if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
+				trigger_error("[Compat] Integration: sys-meta not found", E_USER_WARNING);
+
+if (!@include(__DIR__.'/../../lib/module/sys-css.php')) {
+	trigger_error("[Compat] Integration: sys-css not found", E_USER_WARNING);
+	echo "<link rel=\"stylesheet\" href=\"compat.css\"/>";
+} else {
+	echo "<link rel=\"stylesheet\" href=\"/lib/compat/compat.css\"/>";
+}
+
+if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
+	trigger_error("[Compat] Integration: sys-js not found", E_USER_WARNING);
+?>
+</head>
+<body>
+<?php if (!@include(__DIR__.'/../../lib/module/sys-php.php'))
+				trigger_error("[Compat] Integration: sys-php not found", E_USER_WARNING); ?>
 <div class="page-con-content">
 	<div class="header-con-head">
 		<div class="header-img-head dynamic-banner">
@@ -118,7 +144,6 @@ Profiler::addData("Index: Start");
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}
 					?>
-
 				</p>
 			</div>
 		</div>
@@ -133,4 +158,7 @@ Profiler::addData("Index: Start");
 	}
 	?>
 </div>
-<?php if (!@include_once(__DIR__.'/../../lib/module/metadata/footer.compat.php')) throw new Exception("Compat: footer.compat.php is missing. Failed to include footer.compat.php"); ?>
+<?php if (!@include(__DIR__.'/../../lib/module/ui-main-footer.php'))
+				trigger_error("[Compat] Integration: ui-main-footer not found", E_USER_WARNING); ?>
+</body>
+</html>
