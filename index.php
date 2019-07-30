@@ -95,7 +95,7 @@ Profiler::addData("Index: Start");
 <meta name="copyright" content="RPCS3">
 <?php
 if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
-				trigger_error("[Compat] Integration: sys-meta not found", E_USER_WARNING);
+	trigger_error("[Compat] Integration: sys-meta not found", E_USER_WARNING);
 
 if (!@include(__DIR__.'/../../lib/module/sys-css.php')) {
 	trigger_error("[Compat] Integration: sys-css not found", E_USER_WARNING);

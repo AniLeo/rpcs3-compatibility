@@ -262,6 +262,9 @@ function validateGet($db = null) {
 	}
 	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g'])) {
 		$get['g'] = $_GET['g'];
+		// Trim all unnecessary double spaces
+		while (strpos($get['g'], "  ") !== false)
+			$get['g'] = str_replace("  ", " ", $get['g']);
 	}
 
 	// Date
