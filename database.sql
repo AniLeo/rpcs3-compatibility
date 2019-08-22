@@ -10,6 +10,7 @@ CREATE TABLE `game_list` (
 	`build_commit` varchar(64) NOT NULL,
 	`wiki` int(11) DEFAULT NULL,
 	`last_update` date NOT NULL,
+	`network` tinyint(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`key`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 

@@ -311,6 +311,7 @@ function validateGet($db = null) {
 
 
 // Select the count of games in each status, subjective to query restrictions
+// TODO: Rewrite with one extra internal layer of data for page counting
 function countGames($db = null, $query = '') {
 	global $get, $a_status;
 
@@ -326,7 +327,7 @@ function countGames($db = null, $query = '') {
 
 	if ($query == 'all') {
 		// Unique game count
-		$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list`; ");
+		$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list` WHERE `network` = 0 OR (`network` = 1 && `status` <= 2); ");
 		if (!$q_unique)
 			return 0;
 		return mysqli_fetch_object($q_unique)->c;
@@ -340,12 +341,12 @@ function countGames($db = null, $query = '') {
 			$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
 			return $a_count;
 		} else {
-			$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list GROUP BY status;");
+			$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) GROUP BY status;");
 		}
 
 	} else {
 		// Query defined, return count of games with searched parameters
-		$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE ({$query}) GROUP BY status;");
+		$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) AND ({$query}) GROUP BY status;");
 	}
 
 	if ($close)

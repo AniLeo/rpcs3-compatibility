@@ -15,6 +15,13 @@
 	height:10px;
 	border-radius:100%
 }
+.compat-network-icon {
+	position:relative;
+	top:2px;
+	width:14px;
+	height:14px;
+	left:2px
+}
 .compat-status-text {
 	font-family:arial;
 	font-size:14px;

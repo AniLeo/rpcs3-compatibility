@@ -218,9 +218,11 @@ public static function printTable() {
 		}
 		echo "<div class=\"divTableCell\">{$cell}</div>";
 
-		// Cell 2: Game Media and Titles
+		// Cell 2: Game Media, Titles and Network
 		$title = !is_null($game->wikiID) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wikiTitle}\">{$game->title}</a>" : $game->title;
 		$cell = "{$media}{$title}";
+		if ($game->network === 1)
+			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
 		if (!is_null($game->title2))
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
 		echo "<div class=\"divTableCell\">{$cell}</div>";
@@ -317,7 +319,8 @@ public static function APIv1() {
 			'date' => $game->date,
 			'thread' => (int) $id[1],
 			'commit' => $game->commit,
-			'pr' => (int) $game->pr
+			'pr' => $game->pr,
+			'network' => $game->network
 			);
 		}
 	}

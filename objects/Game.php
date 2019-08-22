@@ -30,11 +30,12 @@ class Game {
 	public $date;       // String
 	public $commit;     // String
 	public $pr;         // Int
+	public $network;    // Int
 	public $wikiID;     // Int
 	public $wikiTitle;  // String
 	public $IDs;        // [(String, Int, String)]
 
-	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit) {
+	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit, $network) {
 
 		$this->key = $key;
 
@@ -46,17 +47,19 @@ class Game {
 
 		$this->date = $date;
 
-		if (!is_null($a_wiki) && !is_null($wiki)) {
-			$this->wikiID = $wiki;
-			$this->wikiTitle = urlencode($a_wiki[$wiki]);
-		}
-
 		if (!is_null($a_cache) && ($shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache))) {
 			$this->commit = $shortcommit;
 			$this->pr     = 0;
 		} else {
 			$this->commit = $a_cache[substr($shortcommit, 0, 7)][0];
-			$this->pr     = $a_cache[substr($shortcommit, 0, 7)][1];
+			$this->pr     = (int) $a_cache[substr($shortcommit, 0, 7)][1];
+		}
+
+		$this->network = (int) $network;
+
+		if (!is_null($a_wiki) && !is_null($wiki)) {
+			$this->wikiID = (int) $wiki;
+			$this->wikiTitle = urlencode($a_wiki[$wiki]);
 		}
 
 		if (!is_null($a_ids))
@@ -78,7 +81,7 @@ class Game {
 		* @return object $game      Game fetched from given Row
 		*/
 	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki) {
-		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit);
+		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit, $row->network);
 	}
 
 	/**

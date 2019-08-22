@@ -414,7 +414,7 @@ function cacheStatusCount() {
 	$a_cache = array();
 
 	// Fetch general count per status
-	$q_status = mysqli_query($db, "SELECT status+0 AS sid, count(*) AS c FROM game_list GROUP BY status;");
+	$q_status = mysqli_query($db, "SELECT status+0 AS sid, count(*) AS c FROM game_list WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) GROUP BY status;");
 
 	$a_cache[0][0] = 0;
 
