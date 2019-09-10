@@ -227,27 +227,27 @@ function validateGet($db = null) {
 	$get['m'] = '';
 
 	// PS3 Games List
-	if (isset($_GET['l'])) {
+	if (isset($_GET['l']) && !is_array($_GET['l'])) {
 		$get['l'] = $_GET['l'];
 	}
 
 	// Results per page
-	if (isset($_GET['r']) && in_array($_GET['r'], $a_pageresults)) {
+	if (isset($_GET['r']) && !is_array($_GET['r']) && in_array($_GET['r'], $a_pageresults)) {
 		$get['r'] = $_GET['r'];
 	}
 
 	// Status
-	if (isset($_GET['s']) && ($_GET['s'] == 0 || array_key_exists($_GET['s'], $a_status))) {
+	if (isset($_GET['s']) && !is_array($_GET['s']) && ($_GET['s'] == 0 || array_key_exists($_GET['s'], $a_status))) {
 		$get['s'] = $_GET['s'];
 	}
 
 	// Order by
-	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd')) {
+	if (isset($_GET['o']) && !is_array($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd')) {
 		$get['o'] = $_GET['o'];
 	}
 
 	// Character
-	if (isset($_GET['c'])) {
+	if (isset($_GET['c']) && !is_array($_GET['c'])) {
 		// If it is a single alphabetic character
 		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1)) {
 			$get['c'] = strtolower($_GET['c']);
@@ -257,10 +257,10 @@ function validateGet($db = null) {
 	}
 
 	// Searchbox (sf deprecated, use g instead)
-	if (!isset($_GET['g']) && isset($_GET['sf'])) {
+	if (!isset($_GET['g']) && !is_array($_GET['sf']) && isset($_GET['sf'])) {
 		$_GET['g'] = $_GET['sf'];
 	}
-	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g'])) {
+	if (isset($_GET['g']) && !is_array($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g'])) {
 		$get['g'] = $_GET['g'];
 		// Trim all unnecessary double spaces
 		while (strpos($get['g'], "  ") !== false)
@@ -268,27 +268,27 @@ function validateGet($db = null) {
 	}
 
 	// Date
-	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
+	if (isset($_GET['d']) && !is_array($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
 		$get['d'] = $_GET['d'];
 	}
 
 	// Media type
-	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media)) {
+	if (isset($_GET['t']) && !is_array($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media)) {
 		$get['t'] = strtolower($_GET['t']);
 	}
 
 	// Region
-	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
+	if (isset($_GET['f']) && !is_array($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
 		$get['f'] = strtolower($_GET['f']);
 	}
 
 	// History
-	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
+	if (isset($_GET['h']) && !is_array($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
 		$get['h'] = $_GET['h'];
 	}
 
 	// History mode
-	if (isset($_GET['m']) && ($_GET['m'] == "c" || $_GET['m'] == "n")) {
+	if (isset($_GET['m']) && !is_array($_GET['m']) && ($_GET['m'] == "c" || $_GET['m'] == "n")) {
 		$get['m'] = strtolower($_GET['m']);
 	}
 
@@ -302,7 +302,7 @@ function validateGet($db = null) {
 	}
 
 	// Admin debug mode
-	if (isset($_GET['a']) && $get['w']) {
+	if (isset($_GET['a']) && !is_array($_GET['a']) && $get['w']) {
 		$get['a'] = $_GET['a'];
 	}
 
