@@ -31,7 +31,7 @@ return_code
      0 - No newer build found
      1 - Newer build found
 */
-function checkForUpdates($commit) {
+function checkForUpdates($commit = '') {
 
 	// Standalone maintenance mode
 	$maintenance = false;
@@ -42,19 +42,13 @@ function checkForUpdates($commit) {
 	}
 
 	// If commit length is smaller than 7 chars
-	if (!ctype_alnum($commit) || strlen($commit) < 7) {
+	if (!empty($commit) && (!ctype_alnum($commit) || strlen($commit) < 7)) {
 		$results['return_code'] = -3;
 		return $results;
 	}
 
-	$db = getDatabase();
-
-	$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
-
-	// Get user build information
-	$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
-
-	mysqli_close($db);
+	// Default return code
+	$results['return_code'] = 0;
 
 	// Get latest build information
 	$latest = Build::getLast();
@@ -69,15 +63,24 @@ function checkForUpdates($commit) {
 	$results['latest_build']['linux']['size'] = $latest->size_linux;
 	$results['latest_build']['linux']['checksum'] = $latest->checksum_linux;
 
-	// Check if the build exists as a master build
-	if (mysqli_num_rows($q_check) === 0) {
-		$results['return_code'] = -1;	// Current build not found
-	} else {
-		$r_check = mysqli_fetch_object($q_check);
-		$results['current_build']['pr'] = (int) $r_check->pr;
-		$results['current_build']['datetime'] = $r_check->merge_datetime;
-		$results['current_build']['version'] = $r_check->version;
-		$results['return_code'] = $r_check->pr != $latest->pr ? 1 : 0;
+	if (!empty($commit)) {
+		// Get user build information
+		$db = getDatabase();
+		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
+		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
+		mysqli_close($db);
+
+		// Check if the build exists as a master build
+		if (mysqli_num_rows($q_check) === 0) {
+			$results['return_code'] = -1;	// Current build not found
+		} else {
+			$r_check = mysqli_fetch_object($q_check);
+			$results['current_build']['pr'] = (int) $r_check->pr;
+			$results['current_build']['datetime'] = $r_check->merge_datetime;
+			$results['current_build']['version'] = $r_check->version;
+			if ((int) $r_check->pr !== $latest->pr)
+				$results['return_code'] = 1;
+		}
 	}
 
 	return $results;
@@ -95,7 +98,7 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-if (isset($_GET['c']) && !is_array($_GET['c'])) {
+if (!isset($_GET['c']) || (isset($_GET['c']) && !is_array($_GET['c']))) {
 	header('Content-Type: application/json');
 	echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
 }
