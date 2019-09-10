@@ -197,8 +197,9 @@ $a_histdates = array(
 	'2019_04' => array(array('y' => 2019, 'm' => 04, 'd' => 01),  array('y' => 2019, 'm' => 04,  'd' => 30)),
 	'2019_05' => array(array('y' => 2019, 'm' => 05, 'd' => 01),  array('y' => 2019, 'm' => 05,  'd' => 31)),
 	'2019_06' => array(array('y' => 2019, 'm' => 06, 'd' => 01),  array('y' => 2019, 'm' => 06,  'd' => 30)),
-	'2019_07' => array(array('y' => 2019, 'm' => 07, 'd' => 01),  array('y' => 2019, 'm' => 07,  'd' => 31))
+	'2019_07' => array(array('y' => 2019, 'm' => 07, 'd' => 01),  array('y' => 2019, 'm' => 07,  'd' => 31)),
+	'2019_08' => array(array('y' => 2019, 'm' => 08, 'd' => 01),  array('y' => 2019, 'm' => 08,  'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2019_08', 'August 1st, 2019', '2019-08-01');
+$a_currenthist = array('2019_09', 'September 1st, 2019', '2019-09-01');
