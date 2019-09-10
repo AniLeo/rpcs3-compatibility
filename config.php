@@ -38,8 +38,8 @@ $c_profiler = true; // Profiling mode
 
 // Default value for results per page
 // Builds: 25 | Compat and Library = 50;
-if (isset($_GET['b']))	{ $c_pageresults = 25; }
-else										{ $c_pageresults = 50; }
+if (isset($_GET['b']) && !is_array($_GET['b'])) { $c_pageresults = 25; }
+else                                            { $c_pageresults = 50; }
 
 // Allowed values for results per page
 $a_pageresults = array(25, 50, 100, 200);

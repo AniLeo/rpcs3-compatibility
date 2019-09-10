@@ -277,7 +277,7 @@ gameID
 */
 
 public static function APIv1() {
-	global $c_maintenance, $games, $info, $error, $l_title, $a_status;
+	global $c_maintenance, $games, $info, $error, $l_title, $a_status, $get;
 
 	// Array to returned, then encoded in JSON
 	$results = array();
@@ -293,7 +293,7 @@ public static function APIv1() {
 		return $results;
 	}
 
-	if (isset($_GET['g']) && !empty($_GET['g']) && !isValid($_GET['g'])) {
+	if (!isset($get['g']) && isset($_GET['g'])) {
 		$results['return_code'] = -3;
 		return $results;
 	}

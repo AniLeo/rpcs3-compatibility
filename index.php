@@ -26,9 +26,9 @@ $get = validateGet();
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
 
 // RSS Feed Request
-if (isset($_GET['rss'])) {
+if (isset($_GET['rss']) && !is_array($_GET['rss'])) {
 
-	if (isset($_GET['b'])) {
+	if (isset($_GET['b']) && !is_array($_GET['b'])) {
 
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: text/xml');
@@ -37,7 +37,7 @@ if (isset($_GET['rss'])) {
 		// No need to load the rest of the page.
 		exit();
 
-	} elseif (isset($_GET['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
+	} elseif (isset($_GET['h']) && !is_array($_GET['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
 
 		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
@@ -52,10 +52,10 @@ if (isset($_GET['rss'])) {
 }
 
 // JSON API Request
-if (isset($_GET['api'])) {
+if (isset($_GET['api']) && !is_array($_GET['api'])) {
 
 	// API: v1
-	if ($_GET['api'] == 'v1') {
+	if ($_GET['api'] === "v1") {
 
 		if (isset($_GET['export'])) {
 			if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
@@ -123,11 +123,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 			<div class='header-tx1-body fade-up-onstart'>
 				<h1>
 				<?php
-					if (isset($_GET['h']))     { echo "History"; }
-					elseif (isset($_GET['b'])) { echo "Builds"; }
-					elseif (isset($get['a']))  { echo "Debug Panel"; }
-					elseif (isset($get['l']))  { echo "PS3 Game library"; }
-					else                       { echo "Compatibility"; }
+					if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History"; }
+					elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "Builds"; }
+					elseif (isset($get['a']))                           { echo "Debug Panel"; }
+					elseif (isset($get['l']))                           { echo "PS3 Game library"; }
+					else                                                { echo "Compatibility"; }
 				?>
 				</h1>
 			</div>
@@ -135,11 +135,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 				<p>
 					<?php
 					if (!$c_maintenance || $get['w']) {
-						if (isset($_GET['h']))     { echo "History of the updates made to the compatibility list"; }
-						elseif (isset($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
-						elseif (isset($get['a']))  { echo "Super cool compatibility list debug control panel"; }
-						elseif (isset($get['l']))  { echo "List of all existing PS3 games known to mankind"; }
-						else                       { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
+						if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History of the updates made to the compatibility list"; }
+						elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
+						elseif (isset($get['a']))                           { echo "Super cool compatibility list debug control panel"; }
+						elseif (isset($get['l']))                           { echo "List of all existing PS3 games known to mankind"; }
+						else                                                { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}
@@ -150,11 +150,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 	</div>
 	<?php
 	if (!$c_maintenance || $get['w']) {
-		if (isset($_GET['h']))     { include 'pages/history.php'; }
-		elseif (isset($_GET['b'])) { include 'pages/builds.php'; }
-		elseif (isset($get['a']))  { include 'pages/panel.php'; }
-		elseif (isset($get['l']))  { include 'pages/library.php'; }
-		else                       { include 'pages/compat.php'; }
+		if (isset($_GET['h']) && !is_array($_GET['h']))     { include 'pages/history.php'; }
+		elseif (isset($_GET['b']) && !is_array($_GET['b'])) { include 'pages/builds.php'; }
+		elseif (isset($get['a']))                           { include 'pages/panel.php'; }
+		elseif (isset($get['l']))                           { include 'pages/library.php'; }
+		else                                                { include 'pages/compat.php'; }
 	}
 	?>
 </div>

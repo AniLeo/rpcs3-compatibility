@@ -513,7 +513,7 @@ function getMenu($file) {
 
 // Get current page user is on
 function getCurrentPage($pages) {
-	if (isset($_GET['p'])) {
+	if (isset($_GET['p']) && !is_array($_GET['p'])) {
 		$currentPage = (int) $_GET['p'];
 		if ($currentPage > $pages) { $currentPage = 1; }
 	} else { $currentPage = 1; }

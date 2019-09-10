@@ -95,7 +95,7 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-if (isset($_GET['c'])) {
+if (isset($_GET['c']) && !is_array($_GET['c'])) {
 	header('Content-Type: application/json');
 	echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
 }
