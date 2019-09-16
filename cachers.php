@@ -109,6 +109,7 @@ function cacheBuilds($full = false) {
 			$deletions = $pr_info->deletions;
 			$changed_files = $pr_info->changed_files;
 
+			// Currently unused
 			$type = "branch";
 
 			$aid = cacheContributor($author);
@@ -138,17 +139,32 @@ function cacheBuilds($full = false) {
 				continue;
 			}
 
-			// Windows: Checksum, Size, Filename
+			// Filename
+			$filename_win = $info_release_win->assets[0]->name;
+			$filename_linux = $info_release_linux->assets[0]->name;
+			if (empty($filename_win) || empty($filename_linux)) {
+				continue;
+			}
+
+			// Checksum and Size
 			$fileinfo_win = explode(';', $info_release_win->body);
 			$checksum_win = strtoupper($fileinfo_win[0]);
-			$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]))*1024*1024;
-			$filename_win = $info_release_win->assets[0]->name;
+			$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
+			if (strpos($fileinfo_win[1], "MB") !== false) {
+				$size_win *= 1024 * 1024;
+			} elseif (strpos($fileinfo_win[1], "KB") !== false) {
+				$size_win *= 1024;
+			}
 
-			// Linux: Checksum, Size, Filename
 			$fileinfo_linux = explode(';', $info_release_linux->body);
 			$checksum_linux = strtoupper($fileinfo_linux[0]);
-			$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]))*1024*1024;
-			$filename_linux = $info_release_linux->assets[0]->name;
+			$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]));
+			if (strpos($fileinfo_linux[1], "MB") !== false) {
+				$size_linux *= 1024 * 1024;
+			} elseif (strpos($fileinfo_linux[1], "KB") !== false) {
+				$size_linux *= 1024;
+			}
+
 
 			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) == 1) {
 				$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
