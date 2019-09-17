@@ -211,16 +211,17 @@ function validateGet($db = null) {
 	// Start new $get array
 	$get = array();
 
+	// TODO: Parse those here
 	// rss - Global
 	// api - Global
 
 	// Set default values
 	$get['r'] = $c_pageresults;
 	$get['s'] = 0; // All
-	$get['o'] = '';
+	$get['o'] = "";
 	$get['c'] = '';
 	$get['g'] = "";
-	$get['d'] = '';
+	$get['d'] = "";
 	$get['f'] = '';
 	$get['t'] = '';
 	$get['h'] = $a_currenthist[0];
@@ -233,12 +234,12 @@ function validateGet($db = null) {
 
 	// Results per page
 	if (isset($_GET['r']) && !is_array($_GET['r']) && in_array($_GET['r'], $a_pageresults)) {
-		$get['r'] = $_GET['r'];
+		$get['r'] = (int) $_GET['r'];
 	}
 
 	// Status
-	if (isset($_GET['s']) && !is_array($_GET['s']) && ($_GET['s'] == 0 || array_key_exists($_GET['s'], $a_status))) {
-		$get['s'] = $_GET['s'];
+	if (isset($_GET['s']) && !is_array($_GET['s']) && ((int) $_GET['s'] === 0 || array_key_exists($_GET['s'], $a_status))) {
+		$get['s'] = (int) $_GET['s'];
 	}
 
 	// Order by
@@ -268,7 +269,7 @@ function validateGet($db = null) {
 	}
 
 	// Date
-	if (isset($_GET['d']) && !is_array($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) == 8 && strpos($_GET['d'], '20') === 0) {
+	if (isset($_GET['d']) && !is_array($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) === 8 && strpos($_GET['d'], '20') === 0) {
 		$get['d'] = $_GET['d'];
 	}
 
@@ -288,7 +289,7 @@ function validateGet($db = null) {
 	}
 
 	// History mode
-	if (isset($_GET['m']) && !is_array($_GET['m']) && ($_GET['m'] == "c" || $_GET['m'] == "n")) {
+	if (isset($_GET['m']) && !is_array($_GET['m']) && ($_GET['m'] == 'c' || $_GET['m'] == 'n')) {
 		$get['m'] = strtolower($_GET['m']);
 	}
 
@@ -311,76 +312,80 @@ function validateGet($db = null) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-// TODO: Rewrite with one extra internal layer of data for page counting
-function countGames($db = null, $query = '') {
+function countGames($db = null, $query = "") {
 	global $get, $a_status;
+
+	// If we're running a general search, use cached count results
+	if ($query === "" && file_exists(__DIR__.'/cache/a_count.json') && $get['s'] === 0) {
+		$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
+		return $a_count;
+	}
 
 	if ($db == null) {
 		$db = getDatabase();
-		if (is_null($db)) {
+		if (is_null($db))
 			return 0; // If there's no database connection, return 0 games
-		}
 		$close = true;
 	} else {
 		$close = false;
 	}
 
-	if ($query == 'all') {
-		// Unique game count
+	// Total game count (without network games)
+	if ($query === "all") {
 		$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list` WHERE `network` = 0 OR (`network` = 1 && `status` <= 2); ");
 		if (!$q_unique)
 			return 0;
-		return mysqli_fetch_object($q_unique)->c;
+		return (int) mysqli_fetch_object($q_unique)->c;
 	}
 
-	if ($query == '') {
+	$and = $query === "" ? " AND ({$query}) " : "";
 
-		// Empty query or general query with order only, all games returned
-		if (file_exists(__DIR__.'/cache/a_count.json') && $get['s'] == 0) {
-			// If we're running a general search, use cached count results
-			$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
-			return $a_count;
-		} else {
-			$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) GROUP BY status;");
-		}
-
-	} else {
-		// Query defined, return count of games with searched parameters
-		$q_gen = mysqli_query($db, "SELECT status+0 AS statusID, count(*) AS c FROM game_list WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) AND ({$query}) GROUP BY status;");
-	}
+	// Without network only games
+	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
+	WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) {$and} GROUP BY `status`;");
+	// With network only games
+	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
+	WHERE (`network` = 0 OR `network` = 1) {$and} GROUP BY `status`;");
 
 	if ($close)
 		mysqli_close($db);
 
-	if (!$q_gen)
+	if (!$q_gen1 || !$q_gen2)
 		return 0;
 
 	// Zero-fill the array keys that are going to be used
-	$scount[0][0] = 0;
-	$scount[1][0] = 0;
+	$scount["status"][0]   = 0;
+	$scount["nostatus"][0] = 0;
+	$scount["network"][0]  = 0; // Derivative of status mode but with network games
 	foreach ($a_status as $id => $status) {
-		$scount[0][$id] = 0;
-		$scount[1][$id] = 0;
+		$scount["status"][$id]   = 0;
+		$scount["nostatus"][$id] = 0;
+		$scount["network"][$id]  = 0;
 	}
 
-	while ($row = mysqli_fetch_object($q_gen)) {
+	while ($row1 = mysqli_fetch_object($q_gen1)) {
+		$sid   = (int) $row1->statusID;
+		$count = (int) $row1->c;
 
-		// For count with specified status, include only results for specified status
-		if ($row->statusID == $get['s']) {
-			$scount[0][$row->statusID] = (int)$row->c;
-			$scount[0][0] = (int)$row->c;
+		$scount["nostatus"][$sid] =  $count;
+		$scount["nostatus"][0]    += $count;
+
+		// For count with specified status, include only results for the specified status
+		// If there is no specified status, replicate nostatus mode
+		if ($get['s'] === 0 || $sid === $get['s']) {
+			$scount["status"][$sid]  =  $count;
+			$scount["status"][0]     += $count;
 		}
-
-		// Add count from status to the array
-		$scount[1][$row->statusID] = (int)$row->c;
-
-		// Instead of querying the database once more add all the previous counts to get the total count
-		$scount[1][0] += $scount[1][$row->statusID];
 	}
 
-	// If no status is specified, fill status-specified array normally
-	if ($get['s'] == 0) {
-		$scount[0] = $scount[1];
+	while ($row2 = mysqli_fetch_object($q_gen2)) {
+		$sid   = (int) $row2->statusID;
+		$count = (int) $row2->c;
+
+		if ($get['s'] === 0 || $sid === $get['s']) {
+			$scount["network"][$sid] =  $count;
+			$scount["network"][0]    += $count;
+		}
 	}
 
 	return $scount;
@@ -535,7 +540,7 @@ function generateStatusModule($getCount = true) {
 	global $a_status;
 
 	// Get games count per status
-	$count = countGames()[0];
+	$count = countGames()["status"];
 
 	// Initialize string
 	$output = "";
@@ -696,7 +701,7 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 	// Combined search: search by character
 	if ($get['c'] != "" && $c) {$combined .= "c={$get['c']}&";}
 	// Combined search: searchbox
-	if ($get['g'] != "" && $scount[0] > 0 && $g) {$combined .= "g=".urlencode($get['g'])."&";}
+	if ($get['g'] != "" && $scount["status"] > 0 && $g) {$combined .= "g=".urlencode($get['g'])."&";}
 	// Combined search: search by media type
 	if ($get['t'] != "" && $t) {$combined .= "t={$get['t']}&";}
 	// Combined search: search by region

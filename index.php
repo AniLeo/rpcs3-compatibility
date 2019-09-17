@@ -21,6 +21,8 @@
 
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
+
+// Parses the GET data before any other code
 $get = validateGet();
 
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.

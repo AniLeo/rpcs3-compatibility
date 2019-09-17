@@ -81,7 +81,8 @@ class Game {
 		* @return object $game      Game fetched from given Row
 		*/
 	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki) {
-		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title, $row->status, $row->last_update, $row->wiki, $row->build_commit, $row->network);
+		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title,
+		$row->status, $row->last_update, $row->wiki, $row->build_commit, $row->network);
 	}
 
 	/**

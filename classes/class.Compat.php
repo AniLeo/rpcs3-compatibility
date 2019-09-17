@@ -114,14 +114,14 @@ public static function printStatusSort() {
 
 	// All statuses
 	echo "<a title=\"Show games from all statuses\" href=\"?{$s_combined}s=0\">";
-	echo highlightText("All ({$scount[1][0]})", $get['s'] === 0);
+	echo highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0);
 	echo "</a>";
 
 	// Individual statuses
 	foreach ($a_status as $id => $status) {
-		echo "<a title=\"{$status['desc']}\" href=\"?{$s_combined}s={$id}\">";
+		echo "<a title=\"{$status["desc"]}\" href=\"?{$s_combined}s={$id}\">";
 		// If it's the currently selected status, highlight it
-		echo highlightText("{$status['name']} ({$scount[1][$id]})", $get['s'] === $id);
+		echo highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id);
 		echo "</a>";
 	}
 }
@@ -180,7 +180,7 @@ public static function printMessages() {
 public static function printTable() {
 	global $games, $error, $a_status, $c_github;
 
-	if (!is_null($error))
+	if (!is_null($error) || is_null($games))
 		return "";
 
 	// Start table

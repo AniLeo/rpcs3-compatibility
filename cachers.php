@@ -166,7 +166,7 @@ function cacheBuilds($full = false) {
 			}
 
 
-			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) == 1) {
+			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1) {
 				$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
 				`commit` = '".mysqli_real_escape_string($db, $commit)."',
 				`type` = '{$type}',

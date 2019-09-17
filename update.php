@@ -51,7 +51,7 @@ function checkForUpdates($commit = '') {
 	$results['return_code'] = 0;
 
 	// Get latest build information
-	$latest = Build::getLast();
+	$latest = Build::getLatest();
 
 	$results['latest_build']['pr'] = $latest->pr;
 	$results['latest_build']['datetime'] = $latest->merge;

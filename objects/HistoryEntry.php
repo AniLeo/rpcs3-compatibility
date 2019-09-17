@@ -59,7 +59,8 @@ class HistoryEntry {
 		* @return object $historyentry			HistoryEntry fetched from given Row
 		*/
 	public static function rowToHistoryEntry($row) {
-		return new HistoryEntry($row->game_title, $row->alternative_title, $row->old_status, $row->new_status, $row->old_date, $row->new_date, $row->gid, $row->tid);
+		return new HistoryEntry($row->game_title, $row->alternative_title, $row->old_status, $row->new_status,
+		$row->old_date, $row->new_date, $row->gid, $row->tid);
 	}
 
 }

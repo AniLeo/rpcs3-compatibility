@@ -54,11 +54,11 @@ $genquery = Compat::generateQuery($get, $db);
 
 // Get game count per status
 Profiler::addData("Inc: Count Games (Search)");
-$scount = countGames($db, $genquery[1]);
+$scount = countGames($db, $genquery["nostatus"]);
 
 // Pages / CurrentPage
 Profiler::addData("Inc: Count Pages");
-$pages = countPages($get, $scount[0][0]);
+$pages = countPages($get, $scount["network"][0]);
 
 Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
@@ -80,7 +80,7 @@ Profiler::addData("Inc: Levenshtein");
 
 // Levenshtein Search (Get the closest result to the searched input)
 // If the main query didn't return anything and game search exists and isn't a Game ID
-if ($q_main && mysqli_num_rows($q_main) == 0 && $get['g'] != '' && !isGameID($get['g'])) {
+if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($get['g'])) {
 
 	$l_title = "";
 	$l_orig = "";
@@ -114,7 +114,7 @@ if ($q_main && mysqli_num_rows($q_main) == 0 && $get['g'] != '' && !isGameID($ge
 
 	// Recalculate Pages / CurrentPage
 	$scount = countGames($db, $genquery);
-	$pages = countPages($get, $scount[0][0]);
+	$pages = countPages($get, $scount["network"][0]);
 	$currentPage = getCurrentPage($pages);
 
 	// Replace faulty search with returned game but keep the original search for display
@@ -129,9 +129,9 @@ $error = NULL;
 $info = NULL;
 if (!$q_main) {
 	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
-} elseif (mysqli_num_rows($q_main) == 0 && isGameID($get['g'])) {
+} elseif (mysqli_num_rows($q_main) === 0 && isGameID($get['g'])) {
 	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
-} elseif ($scount[0][0] == 0) {
+} elseif ($scount["status"][0] === 0) {
 	$error = "No results found for the specified search on the indicated status.";
 } elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && $l_title != "") {
 	$info = "No results found for <i>{$l_orig}</i>. </br>

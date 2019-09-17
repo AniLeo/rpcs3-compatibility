@@ -141,10 +141,6 @@ $a_panel = array(
 		'title' => "Update Commit Cache",
 		'success' => "Forced update on commit cache"
 	),
-	'cacheStatusCount' => array(
-		'title' => "Update Count Cache",
-		'success' => "Forced update on status count cache"
-	),
 	'cacheWikiIDs' => array(
 		'title' => "Update Wiki IDs Cache",
 		'success' => "Forced update on Wiki IDs cache"

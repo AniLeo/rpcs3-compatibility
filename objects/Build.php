@@ -129,14 +129,14 @@ class Build {
 	}
 
 	/**
-		* queryToBuilds
+		* queryToBuild
 		* Obtains array of Builds from given MySQL Query.
 		*
 		* @param object  $query        The MySQL Query (returned by mysqli_query())
 		*
 		* @return object $array        Array of Builds fetched from given Query
 		*/
-	public static function queryToBuilds($query) {
+	public static function queryToBuild($query) {
 		$db = getDatabase();
 
 		$a_contributors = array();
@@ -154,12 +154,12 @@ class Build {
 	}
 
 	/**
-		* getLast
+		* getLatest
 		* Obtains the most recent Build.
 		*
 		* @return object $build        Most recent build
 		*/
-	public static function getLast() {
+	public static function getLatest() {
 		$db = getDatabase();
 		$query = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC LIMIT 1;");
 		if (mysqli_num_rows($query) === 0) return null;
