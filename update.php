@@ -89,6 +89,7 @@ function checkForUpdates($commit = '') {
 
 
 /*
+API v1
 Check for updated builds with provided commit
 
 return_code
@@ -98,7 +99,9 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-if (!isset($_GET['c']) || (isset($_GET['c']) && !is_array($_GET['c']))) {
-	header('Content-Type: application/json');
-	echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
+if (isset($_GET['api']) && !is_array($_GET['api']) && $_GET['api'] === "v1") {
+	if (!isset($_GET['c']) || (isset($_GET['c']) && !is_array($_GET['c']))) {
+		header('Content-Type: application/json');
+		echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
+	}
 }
