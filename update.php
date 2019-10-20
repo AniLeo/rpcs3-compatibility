@@ -68,17 +68,24 @@ function checkForUpdates($commit = '') {
 		$db = getDatabase();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
 		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
+		$current = Build::queryToBuild($q_check);
 		mysqli_close($db);
 
 		// Check if the build exists as a master build
-		if (mysqli_num_rows($q_check) === 0) {
+		if (empty($current)) {
 			$results['return_code'] = -1;	// Current build not found
 		} else {
-			$r_check = mysqli_fetch_object($q_check);
-			$results['current_build']['pr'] = (int) $r_check->pr;
-			$results['current_build']['datetime'] = $r_check->merge_datetime;
-			$results['current_build']['version'] = $r_check->version;
-			if ((int) $r_check->pr !== $latest->pr)
+			$current = $current[0];
+			$results['current_build']['pr'] = $current->pr;
+			$results['current_build']['datetime'] = $current->merge;
+			$results['current_build']['version'] = $current->version;
+			$results['current_build']['windows']['download'] = $current->url_win;
+			$results['current_build']['windows']['size'] = $current->size_win;
+			$results['current_build']['windows']['checksum'] = $current->checksum_win;
+			$results['current_build']['linux']['download'] = $current->url_linux;
+			$results['current_build']['linux']['size'] = $current->size_linux;
+			$results['current_build']['linux']['checksum'] = $current->checksum_linux;
+			if ($r_check->pr !== $current->pr)
 				$results['return_code'] = 1;
 		}
 	}
