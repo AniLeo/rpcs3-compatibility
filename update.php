@@ -85,7 +85,7 @@ function checkForUpdates($commit = '') {
 			$results['current_build']['linux']['download'] = $current->url_linux;
 			$results['current_build']['linux']['size'] = $current->size_linux;
 			$results['current_build']['linux']['checksum'] = $current->checksum_linux;
-			if ($r_check->pr !== $current->pr)
+			if ($latest->pr !== $current->pr)
 				$results['return_code'] = 1;
 		}
 	}
