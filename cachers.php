@@ -73,7 +73,7 @@ function cacheBuilds($full = false) {
 
 		while ($a < $pr_limit) {
 
-			$pr = $search->items[$a]->number;
+			$pr = (int)$search->items[$a]->number;
 			$a++;	// Prepare for next PR
 
 			// If PR was already checked in this run, skip it
@@ -90,111 +90,7 @@ function cacheBuilds($full = false) {
 				continue;
 			}
 
-			// Grab pull request information from GitHub REST API (v3)
-			$pr_info = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr)['result'];
-
-			// Check if we aren't rate limited
-			if (!array_key_exists('merge_commit_sha', $pr_info)) {
-				continue;
-			}
-
-			// Merge time, Creation Time, Commit SHA, Author
-			$merge_datetime = $pr_info->merged_at;
-			$start_datetime = $pr_info->created_at;
-			$commit = $pr_info->merge_commit_sha;
-			$author = $pr_info->user->login;
-
-			// Additions, Deletions, Changed Files
-			$additions = $pr_info->additions;
-			$deletions = $pr_info->deletions;
-			$changed_files = $pr_info->changed_files;
-
-			// Currently unused
-			$type = "branch";
-
-			$aid = cacheContributor($author);
-			// Checking author information failed
-			// TODO: This should probably be logged, as other API call fails
-			if ($aid == 0) {
-				echo "Error: Checking author information failed";
-				continue;
-			}
-
-			// Windows build metadata
-			$info_release_win = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr)['result'];
-
-			// Linux build metadata
-			$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
-
-			// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
-			if (isset($info_release_win->message) || isset($info_release_linux->message)) {
-				continue;
-			}
-
-			// Version name
-			$version = $info_release_win->name;
-
-			// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
-			if (!(strpos($version, '-') !== false)) {
-				continue;
-			}
-
-			// Filename
-			$filename_win = $info_release_win->assets[0]->name;
-			$filename_linux = $info_release_linux->assets[0]->name;
-			if (empty($filename_win) || empty($filename_linux)) {
-				continue;
-			}
-
-			// Checksum and Size
-			$fileinfo_win = explode(';', $info_release_win->body);
-			$checksum_win = strtoupper($fileinfo_win[0]);
-			$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
-			if (strpos($fileinfo_win[1], "MB") !== false) {
-				$size_win *= 1024 * 1024;
-			} elseif (strpos($fileinfo_win[1], "KB") !== false) {
-				$size_win *= 1024;
-			}
-
-			$fileinfo_linux = explode(';', $info_release_linux->body);
-			$checksum_linux = strtoupper($fileinfo_linux[0]);
-			$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]));
-			if (strpos($fileinfo_linux[1], "MB") !== false) {
-				$size_linux *= 1024 * 1024;
-			} elseif (strpos($fileinfo_linux[1], "KB") !== false) {
-				$size_linux *= 1024;
-			}
-
-
-			if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1) {
-				$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
-				`commit` = '".mysqli_real_escape_string($db, $commit)."',
-				`type` = '{$type}',
-				`author` = '".mysqli_real_escape_string($db, $aid)."',
-				`start_datetime` = '{$start_datetime}',
-				`merge_datetime` = '{$merge_datetime}',
-				`version` = '".mysqli_real_escape_string($db, $version)."',
-				`additions` = '{$additions}',
-				`deletions` = '{$deletions}',
-				`changed_files` = '{$changed_files}',
-				`size_win` = '".mysqli_real_escape_string($db, $size_win)."',
-				`checksum_win` = '".mysqli_real_escape_string($db, $checksum_win)."',
-				`filename_win` = '".mysqli_real_escape_string($db, $filename_win)."',
-				`size_linux` = '".mysqli_real_escape_string($db, $size_linux)."',
-				`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
-				`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."'
-				WHERE `pr` = '{$pr}' LIMIT 1;");
-			} else {
-				$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
-				(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `version`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
-				VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '{$type}', '".mysqli_real_escape_string($db, $aid)."', '{$start_datetime}', '{$merge_datetime}',
-				'".mysqli_real_escape_string($db, $version)."', '{$additions}', '{$deletions}', '{$changed_files}',
-				'".mysqli_real_escape_string($db, $size_win)."', '".mysqli_real_escape_string($db, $checksum_win)."', '".mysqli_real_escape_string($db, $filename_win)."',
-				'".mysqli_real_escape_string($db, $size_linux)."', '".mysqli_real_escape_string($db, $checksum_linux)."', '".mysqli_real_escape_string($db, $filename_linux)."'); ");
-			}
-
-			// Recache commit => pr cache
-			cacheCommitCache();
+			cacheBuild($pr);
 
 		}
 
@@ -204,6 +100,131 @@ function cacheBuilds($full = false) {
 	}
 	mysqli_close($db);
 	curl_close($cr);
+}
+
+
+function cacheBuild($pr) {
+	// Malformed ID
+	if (!is_int($pr) || $pr <= 0) {
+		return;
+	}
+
+	$cr = curl_init();
+
+	// Grab pull request information from GitHub REST API (v3)
+	$pr_info = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr)['result'];
+
+	// Check if we aren't rate limited
+	if (!array_key_exists('merge_commit_sha', $pr_info)) {
+		curl_close($cr);
+		return;
+	}
+
+	// Merge time, Creation Time, Commit SHA, Author
+	$merge_datetime = $pr_info->merged_at;
+	$start_datetime = $pr_info->created_at;
+	$commit = $pr_info->merge_commit_sha;
+	$author = $pr_info->user->login;
+
+	// Additions, Deletions, Changed Files
+	$additions = (int) $pr_info->additions;
+	$deletions = (int) $pr_info->deletions;
+	$changed_files = (int) $pr_info->changed_files;
+
+	// Currently unused
+	$type = "branch";
+
+	$aid = cacheContributor($author);
+	// Checking author information failed
+	// TODO: This should probably be logged, as other API call fails
+	if ($aid == 0) {
+		echo "Error: Checking author information failed";
+		curl_close($cr);
+		return;
+	}
+
+	// Windows build metadata
+	$info_release_win = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr)['result'];
+
+	// Linux build metadata
+	$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
+
+	// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
+	if (isset($info_release_win->message) || isset($info_release_linux->message)) {
+		curl_close($cr);
+		return;
+	}
+
+	// Version name
+	$version = $info_release_win->name;
+
+	// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
+	if (!(strpos($version, '-') !== false)) {
+		curl_close($cr);
+		return;
+	}
+
+	// Filename
+	$filename_win = $info_release_win->assets[0]->name;
+	$filename_linux = $info_release_linux->assets[0]->name;
+	if (empty($filename_win) || empty($filename_linux)) {
+		curl_close($cr);
+		return;
+	}
+
+	// Checksum and Size
+	$fileinfo_win = explode(';', $info_release_win->body);
+	$checksum_win = strtoupper($fileinfo_win[0]);
+	$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
+	if (strpos($fileinfo_win[1], "MB") !== false) {
+		$size_win *= 1024 * 1024;
+	} elseif (strpos($fileinfo_win[1], "KB") !== false) {
+		$size_win *= 1024;
+	}
+
+	$fileinfo_linux = explode(';', $info_release_linux->body);
+	$checksum_linux = strtoupper($fileinfo_linux[0]);
+	$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]));
+	if (strpos($fileinfo_linux[1], "MB") !== false) {
+		$size_linux *= 1024 * 1024;
+	} elseif (strpos($fileinfo_linux[1], "KB") !== false) {
+		$size_linux *= 1024;
+	}
+
+	$db = getDatabase();
+
+	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1) {
+		$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
+		`commit` = '".mysqli_real_escape_string($db, $commit)."',
+		`type` = '".mysqli_real_escape_string($db, $type)."',
+		`author` = '".mysqli_real_escape_string($db, $aid)."',
+		`start_datetime` = '".mysqli_real_escape_string($db, $start_datetime)."',
+		`merge_datetime` = '".mysqli_real_escape_string($db, $merge_datetime)."',
+		`version` = '".mysqli_real_escape_string($db, $version)."',
+		`additions` = '{$additions}',
+		`deletions` = '{$deletions}',
+		`changed_files` = '{$changed_files}',
+		`size_win` = '".mysqli_real_escape_string($db, $size_win)."',
+		`checksum_win` = '".mysqli_real_escape_string($db, $checksum_win)."',
+		`filename_win` = '".mysqli_real_escape_string($db, $filename_win)."',
+		`size_linux` = '".mysqli_real_escape_string($db, $size_linux)."',
+		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
+		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."'
+		WHERE `pr` = '{$pr}' LIMIT 1;");
+	} else {
+		$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
+		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `version`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
+		VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '".mysqli_real_escape_string($db, $type)."', '".mysqli_real_escape_string($db, $aid)."',
+		'".mysqli_real_escape_string($db, $start_datetime)."', '".mysqli_real_escape_string($db, $merge_datetime)."',
+		'".mysqli_real_escape_string($db, $version)."', '{$additions}', '{$deletions}', '{$changed_files}',
+		'".mysqli_real_escape_string($db, $size_win)."', '".mysqli_real_escape_string($db, $checksum_win)."', '".mysqli_real_escape_string($db, $filename_win)."',
+		'".mysqli_real_escape_string($db, $size_linux)."', '".mysqli_real_escape_string($db, $checksum_linux)."', '".mysqli_real_escape_string($db, $filename_linux)."'); ");
+	}
+
+	// Recache commit => pr cache
+	cacheCommitCache();
+
+	mysqli_close($db);
 }
 
 
