@@ -48,7 +48,7 @@ $a_pageresults = array(25, 50, 100, 200);
 $a_status = array(
 	1 => array(
 		'name' => "Playable",
-		'desc' => "Games that can be played from start to finish with playable performance and no game breaking glitches",
+		'desc' => "Games that can be completed with playable performance and no game breaking glitches",
 		'color' => "1ebc61",
 		'fid' => 5
 	),
