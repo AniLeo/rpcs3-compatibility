@@ -54,7 +54,7 @@ $genquery = Compat::generateQuery($get, $db);
 
 // Get game count per status
 Profiler::addData("Inc: Count Games (Search)");
-$scount = countGames($db, $genquery["nostatus"]);
+$scount = countGames($db, $genquery[1]);
 
 // Pages / CurrentPage
 Profiler::addData("Inc: Count Pages");

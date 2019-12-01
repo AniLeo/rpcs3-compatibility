@@ -87,7 +87,7 @@ public static function generateQuery($get, &$db) {
 	}
 
 	// QUERYGEN: Status
-	if ($get['s'] != 0) {
+	if ($get['s'] !== 0) {
 		if ($and) { $status .= " AND "; }
 		$status .= " `status` = {$get['s']} ";
 		$and = true;

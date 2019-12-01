@@ -416,8 +416,6 @@ function compatibilityUpdater() {
 
 		// Recache commit cache as new additions may contain new commits
 		cacheCommitCache();
-		// Recache status counts for general search
-		cacheStatusCount();
 		// Recache initials cache
 		cacheInitials();
 		// Recache status modules
@@ -541,8 +539,6 @@ function mergeGames() {
 		mysqli_query($db, "UPDATE `game_history` SET `game_key`='{$new->key}' WHERE (`game_key`='{$old->key}');");
 		// Delete older entry
 		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$old->key}');");
-		// Recache status counts for general search
-		cacheStatusCount();
 		// Recache status modules
 		cacheStatusModules();
 

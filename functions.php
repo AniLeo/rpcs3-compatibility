@@ -315,12 +315,6 @@ function validateGet($db = null) {
 function countGames($db = null, $query = "") {
 	global $get, $a_status;
 
-	// If we're running a general search, use cached count results
-	if ($query === "" && file_exists(__DIR__.'/cache/a_count.json') && $get['s'] === 0) {
-		$a_count = json_decode(file_get_contents(__DIR__.'/cache/a_count.json'), true);
-		return $a_count;
-	}
-
 	if ($db == null) {
 		$db = getDatabase();
 		if (is_null($db))
@@ -338,11 +332,11 @@ function countGames($db = null, $query = "") {
 		return (int) mysqli_fetch_object($q_unique)->c;
 	}
 
-	$and = $query === "" ? " AND ({$query}) " : "";
+	$and = $query === "" ? "" : " AND ({$query}) ";
 
 	// Without network only games
 	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
-	WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) {$and} GROUP BY `status`;");
+	WHERE (`network` = 0 OR (`network` = 1 && `status` <= 2)) {$and} GROUP BY `status`;");
 	// With network only games
 	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
 	WHERE (`network` = 0 OR `network` = 1) {$and} GROUP BY `status`;");
