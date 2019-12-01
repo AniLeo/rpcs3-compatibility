@@ -122,7 +122,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 		<div class="header-con-diffuse">
 		</div>
 		<div class='header-con-body fade-up-onstart'>
-			<div class='header-tx1-body fade-up-onstart'>
+			<div class='header-tx1-body fade-up-onstart pulsate'>
 				<h1>
 				<?php
 					if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History"; }

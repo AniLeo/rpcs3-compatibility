@@ -295,13 +295,13 @@ input {
 	width:40px;
 	height:100%;
 	color:#fff;
-	background:url(/img/icons/menu/search.png) no-repeat center;
+	background:url(/img/icons/compat/search.png) no-repeat center;
 	background-size:14px;
 	border-radius: 100%;
 }
 #compat-searchbox-div:hover {
 	cursor:pointer;
-	background:#3198ff url(/img/icons/menu/search-h.png) no-repeat center;
+	background:#3198ff url(/img/icons/menu/compat-h.png) no-repeat center;
 	background-size:14px
 }
 #compat-con-pages {

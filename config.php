@@ -82,15 +82,15 @@ $a_status = array(
 $a_media = array(
 	'B' => array(
 		'name' => "Blu-Ray",
-		'icon' => "/img/icons/list/rom.png"
+		'icon' => "/img/icons/compat/rom.png"
 	),
 	'N' => array(
 		'name' => "Digital (PSN)",
-		'icon' => "/img/icons/list/psn.png"
+		'icon' => "/img/icons/compat/psn.png"
 	),
 	'X' => array(
 		'name' => "Blu-Ray + Extras",
-		'icon' => "/img/icons/list/rom.png"
+		'icon' => "/img/icons/compat/rom.png"
 	)
 );
 
