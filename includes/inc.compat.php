@@ -91,7 +91,8 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($g
 	$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
 	while ($row = mysqli_fetch_object($q_lev)) {
 		$titles[] = $row->game_title;
-		$titles[] = $row->alternative_title;
+		if (!is_null($row->alternative_title))
+			$titles[] = $row->alternative_title;
 	}
 
 	// Calculate proximity for each database entry
