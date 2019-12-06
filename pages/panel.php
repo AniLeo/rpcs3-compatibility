@@ -31,7 +31,10 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					<?php echo getMenu(__FILE__); ?>
 				</div>
 
-				<div id="debug-left" class="debug-main">
+			</div>
+
+			<div style="display:flex">
+				<div class="debug-main">
 					<ul>
 						<?php
 							foreach ($a_panel as $function => $data) {
@@ -41,7 +44,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					</ul>
 				</div>
 
-				<div id="debug-right" class="debug-main">
+				<div class="debug-main">
 					<!--
 					<form action="?a=generatePassword" method="post">
 						<p style="font-size: 12px;">
@@ -58,14 +61,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 					<br>
 					<?php runFunctions(); ?>
 				</div>
+			</div>
 
-			</div>
-			<!--
-			<div id="compat-hdr-right">
-			</div>
-			<div id="compat-hdr-left">
-			</div>
-			-->
 		</div>
 
 		<?php echo getFooter(); ?>

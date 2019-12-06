@@ -571,29 +571,21 @@ input {
 	padding-top:20px;
 	padding-bottom:20px
 }
-#debug-left {
-	width:18%;
-	float:left
-}
-#debug-right {
-	width:80%;
-	float:right
-}
-#debug-left ul {
+.debug-main ul {
 	list-style-type:none;
 	margin:0;
 	padding:0;
 	width:100%;
 	line-height:26px
 }
-#debug-left li a {
+.debug-main li a {
 	font-size:12px;
 	display:block;
 	padding:4px 8px;
 	text-decoration:none;
 	text-align:center
 }
-#debug-left li a:hover {
+.debug-main li a:hover {
 	background-color:#555;
 	color:#fff
 }
