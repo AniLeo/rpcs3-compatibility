@@ -224,12 +224,10 @@ function compatibilityUpdater() {
 		if ($tid == null) {
 
 			// Extract game title from thread title
-			$title = str_replace(" [{$gid}]", "", "{$row->subject}");
+			$title = str_replace("[{$gid}]", "", "{$row->subject}");
 
-			// Handle PBKAC: When user can't properly format title
-			if (substr($title, -2) == ' -')
-				$title = substr($title, 0, -2);
-			if (substr($title, -1) == ' ')
+			// Remove space before GID and Handle PBKAC: When user can't properly format title
+			while (substr($title, -1) === ' ' || substr($title, -1) === '-')
 				$title = substr($title, 0, -1);
 
 			$a_inserts[$row->tid] = array(
