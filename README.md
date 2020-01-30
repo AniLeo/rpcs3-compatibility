@@ -19,10 +19,10 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 - **Forum Sync:** The list is able to be synced with MyBB based forums and automatically updated via the debug control panel after a review on the new submissions is done.
 
 ## Requirements
-- [PHP 5.6 or PHP 7](https://secure.php.net/downloads.php)
+- [PHP 7.2+](https://secure.php.net/downloads.php)
 - [MySQL 5.6](https://dev.mysql.com/downloads/mysql/5.6.html) or [MariaDB 10.1](https://downloads.mariadb.org/mariadb/10.1)
 - [RPCS3.net](https://rpcs3.net) [(Source Code)](https://github.com/DAGINATSUKO/www-rpcs3) - Place files inside lib/compat directory on the main website's source.
 
 ## License
 This project is licensed under the GNU GPLv2 license. This software may be modified/distributed for commercial or private use but changes to the source code must be published under the same license, containing a copy of the license and a copyright notice.
-<br>Developed by [AniLeo](https://github.com/AniLeo) at ani-leo@outlook.com (C) 2017-2018.
+<br>Developed by [AniLeo](https://github.com/AniLeo) at ani-leo@outlook.com (C) 2017-2020.

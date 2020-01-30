@@ -65,7 +65,7 @@ class Profiler {
 
     $ret = "<p><b>".self::$title."</b><br>";
 
-    if (!isWindows()) {
+    if (PHP_OS_FAMILY !== "Windows") {
       $load = sys_getloadavg();
       $ret .= "<p>";
       $ret .= "Load (1m): {$load[0]}<br>";
