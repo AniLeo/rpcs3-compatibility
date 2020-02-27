@@ -142,7 +142,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 			<div class='header-tx2-body fade-up-onstart'>
 				<p>
 					<?php
-					if (!$c_maintenance || $get['w']) {
+					if (!$c_maintenance || $get['w'] != NULL) {
 						if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History of the updates made to the compatibility list"; }
 						elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
 						elseif (isset($get['a']))                           { echo "Super cool compatibility list debug control panel"; }
@@ -157,7 +157,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 		</div>
 	</div>
 	<?php
-	if (!$c_maintenance || $get['w']) {
+	if (!$c_maintenance || $get['w'] != NULL) {
 		if (isset($_GET['h']) && !is_array($_GET['h']))     { include 'pages/history.php'; }
 		elseif (isset($_GET['b']) && !is_array($_GET['b'])) { include 'pages/builds.php'; }
 		elseif (isset($get['a']))                           { include 'pages/panel.php'; }

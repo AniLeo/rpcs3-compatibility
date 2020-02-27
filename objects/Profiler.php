@@ -32,7 +32,7 @@ class Profiler {
   public static function setTitle($title) {
     global $get, $c_profiler;
 
-    if (!$get['w'] || !$c_profiler)
+    if ($get['w'] == NULL || !$c_profiler)
       return;
 
     if (!isset(self::$mem_start))
@@ -44,7 +44,7 @@ class Profiler {
   public static function addData($description) {
     global $get, $c_profiler;
 
-    if (!$get['w'] || !$c_profiler)
+    if ($get['w'] == NULL || !$c_profiler)
       return;
 
     if (!isset(self::$mem_start))
@@ -60,7 +60,7 @@ class Profiler {
   public static function getDataHTML() {
     global $get, $c_profiler;
 
-    if (!$get['w'] || !$c_profiler || is_null(self::$data) || empty(self::$data))
+    if ($get['w'] == NULL || !$c_profiler || is_null(self::$data) || empty(self::$data))
       return "";
 
     $ret = "<p><b>".self::$title."</b><br>";

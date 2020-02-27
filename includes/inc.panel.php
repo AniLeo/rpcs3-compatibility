@@ -26,8 +26,6 @@ if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat:
 
 /*
 TODO: Login system
-TODO: Self-made sessions system
-TODO: User permissions system
 TODO: Log commands with run time and datetime
 
 if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
@@ -136,7 +134,7 @@ function checkInvalidThreads() {
 
 
 function compatibilityUpdater() {
-	global $a_histdates, $a_status, $a_regions;
+	global $a_histdates, $a_status, $a_regions, $get;
 
 	set_time_limit(300);
 	$db = getDatabase();
@@ -354,6 +352,12 @@ function compatibilityUpdater() {
 
 	if (isset($_POST['updateCompatibility'])) {
 
+		// Permissions: Update
+		if (array_search("debug.update", $get['w']) === false) {
+			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
+			return;
+		}
+
 		/*
 			Inserts
 		*/
@@ -434,7 +438,7 @@ function compatibilityUpdater() {
 
 
 function mergeGames() {
-	global $a_status;
+	global $a_status, $get;
 
 	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
 	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
@@ -528,6 +532,13 @@ function mergeGames() {
 
 	// Update: Set both game keys to the same previous picked key
 	if (isset($_POST['mergeConfirm'])) {
+
+		// Permissions: debug.update
+		if (array_search("debug.update", $get['w']) === false) {
+			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
+			return;
+		}
+
 		// Copy alternative title to new entry if necessary
 		if (!is_null($old->title2) && is_null($new->title2))
 			mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");

@@ -293,18 +293,18 @@ function validateGet($db = null) {
 		$get['m'] = strtolower($_GET['m']);
 	}
 
-	// Is whitelisted?
-	$get['w'] = isWhitelisted($db) ? true : false;
+	// Get debug permissions, if any
+	$get['w'] = getDebugPermissions($db);
 
 	// Enable error reporting for admins
-	if ($get['w']) {
+	if ($get['w'] != NULL) {
 		error_reporting(E_ALL);
 		ini_set('display_errors', 1);
-	}
 
-	// Admin debug mode
-	if (isset($_GET['a']) && !is_array($_GET['a']) && $get['w']) {
-		$get['a'] = $_GET['a'];
+		// Admin debug mode
+		if (isset($_GET['a']) && !is_array($_GET['a']) && array_search("debug.view", $get['w']) !== false) {
+			$get['a'] = $_GET['a'];
+		}
 	}
 
 	return $get;
@@ -478,7 +478,7 @@ function getFooter() {
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
 
-	if ($get['w']) {
+	if ($get['w'] != NULL) {
 		// Maintenance mode information
 		$s .= "<p>Maintenance mode: ";
 		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
@@ -504,7 +504,7 @@ function getMenu($file) {
 	if ($file != "history") { $menu .= "<a href='?h'>Compatibility List History</a>"; }
 	if ($file != "builds") 	{ $menu .= "<a href='?b'>RPCS3 Builds History</a>";	}
 	if ($file != "library") { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
-	if ($get['w'] && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
+	if ($get['w'] != NULL && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
 
 	return "<p id='title2'>{$menu}</p>";
 }
@@ -567,118 +567,44 @@ function generateStatusModule($getCount = true) {
 }
 
 
-// Checks if IP is on whitelist
-function isWhitelisted($db = null) {
+// Checks if user has debug permissions
+// TODO: Login system
+function getDebugPermissions($db = null) {
+	if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"])) {
+		return null;
+	}
+
 	if ($db == null) {
 		$db = getDatabase();
 		if ($db == null) {
-			return false; // If there's no database connection, just assume user isn't whitelisted
+			return null; // If there's no database connection, just assume user isn't whitelisted
 		}
 		$close = true;
 	} else {
 		$close = false;
 	}
 
-	if (isset($_SERVER["HTTP_CF_CONNECTING_IP"]) && !empty($_SERVER["HTTP_CF_CONNECTING_IP"])) {
-		// Cloudflare IPv4 & IPv6 ranges
-		// https://www.cloudflare.com/ips/
-		$a_cloudflare = array(
-		"103.21.244.0/22",
-		"103.22.200.0/22",
-		"103.31.4.0/22",
-		"104.16.0.0/12",
-		"108.162.192.0/18",
-		"131.0.72.0/22",
-		"141.101.64.0/18",
-		"162.158.0.0/15",
-		"172.64.0.0/13",
-		"173.245.48.0/20",
-		"188.114.96.0/20",
-		"190.93.240.0/20",
-		"197.234.240.0/22",
-		"198.41.128.0/17",
-		"2400:cb00::/32",
-		"2405:b500::/32",
-		"2606:4700::/32",
-		"2803:f800::/32",
-		"2c0f:f248::/32",
-		"2a06:98c0::/29");
+	$q_debug = mysqli_query($db, "SELECT * FROM `debug_whitelist` WHERE `token` = '".mysqli_real_escape_string($db, $_COOKIE["debug"])."' LIMIT 1; ");
 
-		// Check if request comes from a CloudFlare Server
-		$found = false;
-		foreach ($a_cloudflare as $ip_cloudflare)
-			if (cidr_match($_SERVER["REMOTE_ADDR"], $ip_cloudflare))
-				$found = true;
+	if (is_null($q_debug) || mysqli_num_rows($q_debug) === 0)
+		return null;
 
-		// Bad request (or CloudFlare has new servers)
-		if (!$found)
-			return false;
-		$ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
+	$row = mysqli_fetch_object($q_debug);
+	$permissons = array();
+
+	if (strpos($row->permissions, ',') === false) {
+		$permissions[0] = $row->permissions;
 	} else {
-		$ip = $_SERVER["REMOTE_ADDR"];
+		$permissions = explode(',', $row->permissions);
 	}
 
-	$q_ip = mysqli_query($db, "SELECT * FROM `ip_whitelist` WHERE `ip` = '".mysqli_real_escape_string($db, $ip)."' LIMIT 1; ");
-
-	if ($close) {
+	if ($close)
 		mysqli_close($db);
-	}
 
-	if (!$q_ip)
-		return false;
+	if (is_null($permissions) || !is_array($permissions))
+		return null;
 
-	return mysqli_num_rows($q_ip) === 1;
-}
-
-
-// Checks if a given IPv4 or IPv6 is within a given CIDR
-// https://stackoverflow.com/a/594134
-// https://stackoverflow.com/a/7952169
-function cidr_match($ip, $range) {
-	// IP and given CIDR are different IP versions
-	if (isIPv6($ip) != isIPv6($range))
-		return false;
-
-	if (isIPv6($ip)) {
-		// IPv6
-		$array = explode('/', $range, 2);
-		$ip = inet_pton($ip);
-		$range = inet_pton($array[0]);
-		$mask = $array[1];
-		$addr = str_repeat("f", $mask / 4);
-		switch ($mask % 4) {
-			case 0:
-				break;
-			case 1:
-				$addr .= "8";
-				break;
-			case 2:
-				$addr .= "c";
-				break;
-			case 3:
-				$addr .= "e";
-				break;
-		}
-		$addr = str_pad($addr, 32, '0');
-		$addr = pack("H*" , $addr);
-		return ($ip & $addr) == $range;
-	} else {
-		// IPv4
-		list($subnet, $bits) = explode('/', $range);
-		if ($bits === null)
-				$bits = 32;
-		$ip = ip2long($ip);
-		$subnet = ip2long($subnet);
-		$mask = -1 << (32 - $bits);
-		$subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
-		return ($ip & $mask) == $subnet;
-	}
-}
-
-
-// Simple IPv6 check (IPv4 never has : and IPv6 always has it)
-function isIPv6($ip) {
-	return strpos($ip, ':') !== false;
+	return $permissions;
 }
 
 
@@ -809,13 +735,6 @@ function getStatusID($name) {
 	}
 
 	return null;
-}
-
-
-// Check if OS is Windows
-// PHP 7.2 TODO: Use PHP_OS_FAMILY instead
-function isWindows() {
-	return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
 
 

@@ -50,12 +50,12 @@ CREATE TABLE `initials_cache` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
--- Table structure for `ip_whitelist`
+-- Table structure for `debug_whitelist`
 -- ----------------------------
-DROP TABLE IF EXISTS `ip_whitelist`;
-CREATE TABLE `ip_whitelist` (
-	`uid` int(11) NOT NULL,
-	`ip` varchar(64) NOT NULL
+DROP TABLE IF EXISTS `debug_whitelist`;
+CREATE TABLE `debug_whitelist` (
+  `token` varchar(255) NOT NULL,
+  `permissions` varchar(255) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
