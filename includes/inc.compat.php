@@ -132,7 +132,7 @@ if (!$q_main) {
 	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
 } elseif (mysqli_num_rows($q_main) === 0 && isGameID($get['g'])) {
 	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
-} elseif ($scount["status"][0] === 0) {
+} elseif ($scount["network"][0] === 0) {
 	$error = "No results found for the specified search on the indicated status.";
 } elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && $l_title != "") {
 	$info = "No results found for <i>{$l_orig}</i>. </br>
