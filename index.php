@@ -120,12 +120,16 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 <?php if (!@include(__DIR__.'/../../lib/module/sys-php.php'))
 				trigger_error("[Compat] Integration: sys-php not found", E_USER_WARNING); ?>
 <div class="page-con-content">
-	<div class="header-con-head">
-		<div class="header-img-head dynamic-banner">
+	<div class="header-con-head darkmode-header">
+		<div id="particles-js-1">
 		</div>
-		<div class="header-con-overlay darkmode-header">
-		</div>
-		<div class="header-con-diffuse">
+		<div class="wavebar-con-container">
+			<div class="wavebar-con-wrap">
+				<div class="wavebar-svg-object">
+				</div>
+				<div class="wavebar-svg-object">
+				</div>
+			</div>
 		</div>
 		<div class='header-con-body fade-up-onstart'>
 			<div class='header-tx1-body fade-up-onstart pulsate'>
