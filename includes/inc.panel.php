@@ -480,12 +480,12 @@ function mergeGames() {
 		return;
 	}
 
-	if ($game1->key == $game2->key) {
+	if ($game1->key === $game2->key) {
 		echo "<p><b>Error:</b> Both Game IDs belong to the same Game Entry</p>";
 		return;
 	}
 
-	if (substr($game1->IDs[0][0], 0, 1) != substr($game2->IDs[0][0], 0, 1)) {
+	if (substr($game1->IDs[0][0], 0, 1) !== substr($game2->IDs[0][0], 0, 1)) {
 		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
 		return;
 	}
@@ -510,16 +510,16 @@ function mergeGames() {
 
 	// If the most recent entry doesn't have a PR and the oldest one has
 	// allow for 1 month tolerance to use the older key if the difference between them is 1 month at max
-	if ($game1->pr == 0 && $game2->pr != 0)
+	if ($game1->pr === 0 && $game2->pr !== 0)
 		$time1 -= 2678400;
-	if ($game1->pr != 0 && $game2->pr == 0)
+	if ($game1->pr !== 0 && $game2->pr === 0)
 		$time2 -= 2678400;
 
-	if ($time1 == $time2 && $game1->pr != $game2->pr) {
+	if ($time1 === $time2 && $game1->pr !== $game2->pr) {
 		// If the update date is the same, pick the one with the most recent PR
 		$new = $game1->pr > $game2->pr ? $game1 : $game2;
 		$old = $game1->pr > $game2->pr ? $game2 : $game1;
-	} else if ($game1->pr == $game2->pr) {
+	} else if ($game1->pr === $game2->pr) {
 		// If PRs are the same, pick the one with the oldest update date
 		$new = $time1 < $time2 ? $game1 : $game2;
 		$old = $time1 < $time2 ? $game2 : $game1;
@@ -542,6 +542,11 @@ function mergeGames() {
 		// Copy alternative title to new entry if necessary
 		if (!is_null($old->title2) && is_null($new->title2))
 			mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");
+		// Copy network flag to new entry if necessary
+		if ($game1->network !== $game2->network) {
+			$network = $game1->network === 0 ? $game2->network : $game1->network;
+			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, $network)."' WHERE `key`='{$new->key}';");
+		}
 		// Move IDs from the older entry to the newer entry
 		mysqli_query($db, "UPDATE `game_id` SET `key`='{$new->key}' WHERE (`key`='{$old->key}');");
 		// Reassociate old entry history updates to the newer entry
