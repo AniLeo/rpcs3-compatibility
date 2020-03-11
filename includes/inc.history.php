@@ -60,7 +60,7 @@ if ($get['m'] == "c" || $get['m'] == "") {
   $q_existing = mysqli_query($db, "{$cmd_main}
   LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key`
   WHERE `old_status` IS NOT NULL {$cmd_date}
-  ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC; ");
+  ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
   if (!$q_existing) {
     $error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
@@ -81,7 +81,7 @@ if ($get['m'] == "n" || $get['m'] == "") {
   $q_new = mysqli_query($db, "{$cmd_main}
   LEFT JOIN `game_id` ON `game_history`.`new_gid` = `game_id`.`gid`
   WHERE `old_status` IS NULL {$cmd_date}
-  ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC; ");
+  ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
   if (!$q_new) {
     $error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
