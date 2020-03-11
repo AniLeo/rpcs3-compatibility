@@ -221,7 +221,7 @@ public static function printContent() {
 
 
 public static function printHistoryRSS() {
-	global $a_new, $a_existing, $error_new, $error_existing;
+	global $a_status, $a_new, $a_existing, $error_new, $error_existing;
 
 	// Should be unreachable, function is always called when one of the modes is set
 	if (is_null($a_new) && is_null($a_existing)) return;
@@ -250,7 +250,7 @@ public static function printHistoryRSS() {
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
 						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
-						<description>New entry for {$entry->new_status} ({$entry->new_date})</description>
+						<description>New entry for {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
 						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 						</item>";
 		}
@@ -259,7 +259,7 @@ public static function printHistoryRSS() {
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
 						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
-						<description>Updated from {$entry->old_status} ({$entry->old_date}) to {$entry->new_status} ({$entry->new_date})</description>
+						<description>Updated from {$a_status[$entry->old_status]["name"]} ({$entry->old_date}) to {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
 						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 						</item>";
 		}
