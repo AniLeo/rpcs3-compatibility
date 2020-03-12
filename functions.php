@@ -477,7 +477,7 @@ function getFooter() {
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
-	$s = "<div id=\"compat-author\"><p>{$s}</p></div>";
+	$s = "<div class=\"compat-footer\"><p>{$s}</p></div>";
 
 	// Debug output
 	if ($get['w'] != NULL) {
@@ -510,7 +510,7 @@ function getMenu($file) {
 	if ($file != "library") { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
 	if ($get['w'] != NULL && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
 
-	return "<p id='title2'>{$menu}</p>";
+	return "<div class=\"compat-menu\">{$menu}</div>";
 }
 
 

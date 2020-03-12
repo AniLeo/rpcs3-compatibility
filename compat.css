@@ -80,7 +80,7 @@
 	font-family:arial;
 	font-size:13px
 }
-#compat-author {
+.compat-footer {
 	position:relative;
 	width:100%;
 	height:46px;
@@ -90,13 +90,13 @@
 	border-radius:6px;
 	margin-bottom:20px
 }
-#compat-author p {
+.compat-footer p {
 	font-family:arial;
 	font-size:14px;
 	line-height:46px;
 	padding-bottom:10px
 }
-#compat-author a {
+.compat-footer a {
 	color:#fff;
 	text-decoration:underline
 }
@@ -245,18 +245,13 @@
 	padding-top:24px;
 	border-top:1px solid rgba(0,0,0,.05)
 }
-#title1 {
-	display:inline
-}
-#title2 {
+.compat-menu {
 	font-family:arial;
 	font-weight:400;
-	display:inline;
-	float:right;
 	text-align:right;
 	font-size:14px
 }
-#title2 a {
+.compat-menu a {
 	padding:8px 10px;
 	margin-left:6px;
 	border-radius:30px;
@@ -265,7 +260,7 @@
 	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1)
 }
-#title2 a:hover {
+.compat-menu a:hover {
 	color:#0074e7
 }
 #compat-con-searchbox {
@@ -344,7 +339,7 @@ input {
 	background:url(/img/icons/menu/search-h.png) no-repeat center;
 	background-size:16px
 }
-#compat-con-pages {
+.compat-con-pages {
 	font-family:arial;
 	font-size:14px;
 	font-weight:700;
@@ -359,7 +354,7 @@ input {
 	border-radius:6px;
 	background:rgba(0,102,204,.04)
 }
-#compat-con-pages a {
+.compat-con-pages a {
 	padding:3px 12px;
 	font-weight:100;
 	border-radius:6px;
@@ -370,7 +365,7 @@ input {
 	font-weight:700;
 	color:#000
 }
-#compat-con-pages a:hover {
+.compat-con-pages a:hover {
 	width:22px;
 	border:solid 2px transparent!important;
 	text-decoration:none!important;
@@ -620,7 +615,7 @@ input {
 	.compat-status-text {
 		font-size:12px!important
 	}
-	#title2 {
+	.compat-menu a {
 		font-size:12px!important
 	}
 	#featured-tx2-block {

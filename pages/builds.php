@@ -25,8 +25,8 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		<div class="container-con-block darkmode-block">
 			<div class="container-con-wrapper">
 
-				<div class="container-tx1-block compat-title">
-					<p id="title1">Builds History <a href="compatibility?b&rss">(RSS)</a></p>
+				<div class="container-tx1-block">
+					<p>Builds History <a href="compatibility?b&rss">(RSS)</a></p>
 					<?php
 						Profiler::addData("Page: Get Menu");
 						echo getMenu(__FILE__);

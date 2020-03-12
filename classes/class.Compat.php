@@ -253,7 +253,7 @@ public static function printPagesCounter() {
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
 
-	echo "<div id=\"compat-con-pages\">";
+	echo "<div class=\"compat-con-pages\">";
 	echo getPagesCounter($pages, $currentPage, $extra);
 	echo "</div>";
 }

@@ -27,8 +27,8 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 
 			<!-- container-con-wrapper -->
 			<div class="container-con-wrapper">
-				<div class="container-tx1-block compat-title">
-					<p id="title1">PS3 Game Library</p>
+				<div class="container-tx1-block">
+					<p>PS3 Game Library</p>
 					<?php
 						Profiler::addData("Page: Get Menu");
 						echo getMenu(__FILE__);
@@ -100,7 +100,7 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 			Library::getTestedContents();
 		?>
 
-		<div id="compat-con-pages">
+		<div class="compat-con-pages">
 			<p class="div-pagecounter">
 				<?php
 					Profiler::addData("Page: Get Pages Counter");

@@ -26,8 +26,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 		<div class="container-con-block darkmode-block">
 			<div class="container-con-wrapper">
 
-				<div class="container-tx1-block compat-title">
-					<p id="title1">Debug Panel</p>
+				<div class="container-tx1-block">
+					<p>Debug Panel</p>
 					<?php echo getMenu(__FILE__); ?>
 				</div>
 
