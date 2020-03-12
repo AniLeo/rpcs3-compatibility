@@ -477,8 +477,11 @@ function getFooter() {
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
+	$s = "<div id=\"compat-author\"><p>{$s}</p></div>";
 
+	// Debug output
 	if ($get['w'] != NULL) {
+		$s .= "<div class=\"compat-profiler\">";
 		// Maintenance mode information
 		$s .= "<p>Maintenance mode: ";
 		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
@@ -486,9 +489,10 @@ function getFooter() {
 
 		// Profiler information
 		$s .= Profiler::getDataHTML();
+		$s .= "</div>";
 	}
 
-	return "<div id=\"compat-author\"><p>{$s}</p></div>";
+	return $s;
 }
 
 

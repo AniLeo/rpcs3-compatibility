@@ -33,27 +33,18 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 
 			</div>
 
-			<div style="display:flex">
-				<div class="debug-main">
+			<div class="debug-main">
+				<div class="debug-main-menu">
 					<ul>
 						<?php
 							foreach ($a_panel as $function => $data) {
-								echo "<li><a href=\"?a={$function}\">{$data['title']}</a></li>";
+								echo "<div class=\"debug-menu-button\"><a href=\"?a={$function}\">{$data['title']}</a></div>";
 							}
 						?>
 					</ul>
 				</div>
 
-				<div class="debug-main">
-					<!--
-					<form action="?a=generatePassword" method="post">
-						<p style="font-size: 12px;">
-							<b>Generate secure password:</b>&nbsp;
-							<input class="compat-debugpw" type="password" name="pw" size="16" maxlength="32" />
-							<br>
-						</p>
-					</form>
-					-->
+				<div class="debug-main-content">
 					<?php
 						if ($get['a'] != 'checkInvalidThreads')
 							checkInvalidThreads();
