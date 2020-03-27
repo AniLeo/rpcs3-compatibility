@@ -159,9 +159,14 @@ function cacheBuild($pr) {
 	$version = $info_release_win->name;
 
 	// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
-	if (!(strpos($version, '-') !== false)) {
+	if (strpos($version, '-') === false) {
 		curl_close($cr);
 		return;
+	}
+
+	// Truncate apostrophes on version name if they exist
+	if (strpos($version, '\'') !== false) {
+		$version = str_replace('\'', '', $version);
 	}
 
 	// Filename
