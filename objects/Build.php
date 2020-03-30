@@ -32,6 +32,7 @@ class Build {
 	public $additions;  // Int
 	public $deletions;  // Int
 	public $files;      // Int
+	public $broken;     // Int
 
 	public $fulldate;   // String
 	public $diffdate;   // String
@@ -50,7 +51,7 @@ class Build {
 
 
 	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files, $buildjob,
-	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux) {
+	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux, $broken) {
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
 
@@ -111,6 +112,12 @@ class Build {
 			$this->url_linux = "https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-{$this->commit}/{$this->filename_linux}";
 		}
 
+		if (!is_null($broken)) {
+			$this->broken = (int) $broken;
+		} else {
+			$this->broken = 0;
+		}
+
 	}
 
 
@@ -125,7 +132,7 @@ class Build {
 	public static function rowToBuild($row, &$a_contributors) {
 		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
 		$row->additions, $row->deletions, $row->changed_files, $row->buildjob,
-		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux);
+		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, $row->broken);
 	}
 
 	/**
@@ -161,7 +168,7 @@ class Build {
 		*/
 	public static function getLatest() {
 		$db = getDatabase();
-		$query = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC LIMIT 1;");
+		$query = mysqli_query($db, "SELECT * FROM `builds` WHERE `broken` IS NULL OR `broken` != 1 ORDER BY `merge_datetime` DESC LIMIT 1;");
 		if (mysqli_num_rows($query) === 0) return null;
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
