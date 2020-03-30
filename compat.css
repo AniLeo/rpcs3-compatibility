@@ -46,7 +46,7 @@
 	height:12px;
 	border-radius:24px;
 	overflow:hidden;
-	padding-right:10px
+	padding-right:10px;
 }
 .compat-status-progressbar {
 	width:400px;
@@ -54,7 +54,8 @@
 	background:linear-gradient(to right,rgba(255,255,255,.0),rgba(49,152,255,.2));
 	direction:rtl;
 	vertical-align:4px;
-	height:12px
+	height:12px;
+	border-radius: 24px;
 }
 .compat-search-character {
 	position:absolute;
@@ -86,9 +87,9 @@
 	height:46px;
 	color:#fff;
 	text-align:center;
-	background:-webkit-linear-gradient(-135deg,#002a87 25%,#9340ff 100%);
+	background: #4e34c9;
 	border-radius:6px;
-	margin-bottom:20px
+	margin-bottom:20px;
 }
 .compat-footer p {
 	font-family:arial;
@@ -261,19 +262,19 @@
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1)
 }
 .compat-menu a:hover {
-	color:#0074e7
+	color:#0074e7 !important;
 }
 #compat-con-searchbox {
 	position:relative;
 	height:44px;
-	border-radius:48px;
+	border-radius: 6px;
 	margin-bottom:24px;
 	margin-top:20px;
 	overflow:hidden;
 	border:solid 2px #0080ff!important;
 	background:-webkit-linear-gradient(-135deg,#49a4ff 25%,#0074e7 100%);
 	-webkit-box-shadow:0 10px 16px 0 rgba(0,116,231,.2);
-	box-shadow:0 10px 16px 0 rgba(0,116,231,.2)
+	box-shadow:0 10px 16px 0 rgba(0,116,231,.2);
 }
 #compat-con-searchbox:hover {
 	border:solid 2px #80bfff!important
@@ -528,46 +529,51 @@ input {
 	background-color:transparent
 }
 #compat-progress1::-webkit-progress-value {
-	background-color:#1ebc61
+	background-color:#1ebc61;
+	border-radius: 24px;
 }
 #compat-progress1::-moz-progress-bar {
-	background-color:#1ebc61
+	background-color:#1ebc61;
 }
 #compat-progress2::-webkit-progress-bar {
-	background-color:transparent
+	background-color:transparent;
 }
 #compat-progress2::-webkit-progress-value {
-	background-color:#f9b32f
+	background-color:#f9b32f;
+	border-radius: 24px;
 }
 #compat-progress2::-moz-progress-bar {
-	background-color:#f9b32f
+	background-color:#f9b32f;
 }
 #compat-progress3::-webkit-progress-bar {
-	background-color:transparent
+	background-color:transparent;
 }
 #compat-progress3::-webkit-progress-value {
-	background-color:#e08a1e
+	background-color:#e08a1e;
+	border-radius: 24px;
 }
 #compat-progress3::-moz-progress-bar {
-	background-color:#e08a1e
+	background-color:#e08a1e;
 }
 #compat-progress4::-webkit-progress-bar {
-	background-color:transparent
+	background-color:transparent;
 }
 #compat-progress4::-webkit-progress-value {
-	background-color:#e74c3c
+	background-color:#e74c3c;
+	border-radius: 24px;
 }
 #compat-progress4::-moz-progress-bar {
-	background-color:#e74c3c
+	background-color:#e74c3c;
 }
 #compat-progress5::-webkit-progress-bar {
-	background-color:transparent
+	background-color:transparent;
 }
 #compat-progress5::-webkit-progress-value {
-	background-color:#455556
+	background-color:#455556;
+	border-radius: 24px;
 }
 #compat-progress5::-moz-progress-bar {
-	background-color:#455556
+	background-color:#455556;
 }
 @media screen and (max-width:1000px) {
 	#compat-hdr-left {
