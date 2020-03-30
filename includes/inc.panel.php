@@ -27,16 +27,6 @@ if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat:
 /*
 TODO: Login system
 TODO: Log commands with run time and datetime
-
-if ($get['a'] == 'generatePassword' && isset($_POST['pw'])) {
-	$startA = getTime();
-	$cost = 13;
-	$iterations = pow(2, $cost);
-	$salt = substr(strtr(base64_encode(openssl_random_pseudo_bytes(22)), '+', '.'), 0, 22);
-	$pass = crypt($_POST['pw'], '$2y$'.$cost.'$'.$salt);
-	$finishA = getTime();
-	$message = "<p class=\"compat-tx1-criteria\"><b>Debug mode:</b> Hashed and salted secure password generated with {$iterations} iterations (".round(($finishA - $startA), 4)."s).<br><b>Password:</b> {$pass}<br><b>Salt:</b> {$salt}</p>";
-}
 */
 
 
@@ -322,13 +312,16 @@ function compatibilityUpdater() {
 
 			// If the new date is older than the current date (meaning there's no valid report post)
 			// Or no new commit was found
-			// Or the distance between commit date and post is bigger than 2 weeks
 			// then ignore this entry and continue
 			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
-				$a_updates[$cur_game->key]['commit'] === 0 ||
-				strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) > 604804) {
+				$a_updates[$cur_game->key]['commit'] === 0) {
 				unset($a_updates[$cur_game->key]);
 				continue;
+			}
+
+			// Check if the distance between commit date and post is bigger than 4 weeks
+			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) > 4 * 604804) {
+				echo "<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>";
 			}
 
 			// Green for existing commit, Red for non-existing commit
@@ -528,7 +521,6 @@ function mergeGames() {
 		$new = $time1 > $time2 ? $game1 : $game2;
 		$old = $time1 > $time2 ? $game2 : $game1;
 	}
-
 
 	// Update: Set both game keys to the same previous picked key
 	if (isset($_POST['mergeConfirm'])) {
