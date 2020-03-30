@@ -77,7 +77,7 @@ function checkInvalidThreads() {
 	}
 
 	$a_threads = array();
-	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid` FROM `rpcs3_forums`.`mybb_threads` WHERE {$where}; ");
+	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid` FROM `rpcs3_forums`.`mybb_threads` WHERE ({$where}) AND `visible` > 0; ");
 
 	while ($row = mysqli_fetch_object($q_threads)) {
 		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
@@ -165,7 +165,7 @@ function compatibilityUpdater() {
 	// Get all threads since the end of the last compatibility period
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) && `closed` NOT LIKE '%moved%' && `lastpost` > {$ts_lastupdate};");
+	WHERE ({$where}) && `visible` > 0 && `closed` NOT LIKE '%moved%' && `lastpost` > {$ts_lastupdate};");
 
 	// Get all games in the database
 	$a_games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"));
