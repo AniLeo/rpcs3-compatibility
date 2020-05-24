@@ -67,9 +67,8 @@ function checkForUpdates($commit = '') {
 		// Get user build information
 		$db = getDatabase();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
-		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;" );
+		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
 		$current = Build::queryToBuild($q_check);
-		mysqli_close($db);
 
 		// Check if the build exists as a master build
 		if (empty($current)) {
@@ -85,11 +84,17 @@ function checkForUpdates($commit = '') {
 			$results['current_build']['linux']['download'] = $current->url_linux;
 			$results['current_build']['linux']['size'] = $current->size_linux;
 			$results['current_build']['linux']['checksum'] = $current->checksum_linux;
-			if ($latest->pr !== $current->pr)
+
+			if ($latest->pr !== $current->pr) {
+				mysqli_query($db, "UPDATE `builds` SET `ping_outdated` = `ping_outdated` + 1 WHERE `pr` = {$current->pr} LIMIT 1;");
 				$results['return_code'] = 1;
+			} else {
+				mysqli_query($db, "UPDATE `builds` SET `ping_updated` = `ping_updated` + 1 WHERE `pr` = {$current->pr} LIMIT 1;");
+			}
 		}
 	}
 
+	mysqli_close($db);
 	return $results;
 
 }
