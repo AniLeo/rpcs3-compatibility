@@ -117,19 +117,59 @@ public static function printOptions() {
 public static function printTableHeader($full = true) {
 	if ($full) {
 		$headers = array(
-			'Game Regions' => 0,
-			'Game Title' => 0,
-			'New Status' => 0,
-			'New Date' => 0,
-			'Old Status' => 0,
-			'Old Date' => 0
+			array(
+				'name' => 'Game Regions',
+				'class' => 'compat-table-cell compat-table-cell-gameid',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Game Title',
+				'class' => 'compat-table-cell',
+				'sort' => 0
+			),
+			array(
+				'name' => 'New Status',
+				'class' => 'compat-table-cell compat-table-cell-status',
+				'sort' => 0
+			),
+			array(
+				'name' => 'New Date',
+				'class' => 'compat-table-cell compat-table-cell-date',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Old Status',
+				'class' => 'compat-table-cell compat-table-cell-status',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Old Date',
+				'class' => 'compat-table-cell compat-table-cell-date',
+				'sort' => 0
+			)
 		);
 	} else {
 		$headers = array(
-			'Game Regions' => 0,
-			'Game Title' => 0,
-			'Status' => 0,
-			'Date' => 0
+			array(
+				'name' => 'Game Regions',
+				'class' => 'compat-table-cell compat-table-cell-gameid',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Game Title',
+				'class' => 'compat-table-cell',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Status',
+				'class' => 'compat-table-cell compat-table-cell-status',
+				'sort' => 0
+			),
+			array(
+				'name' => 'Date',
+				'class' => 'compat-table-cell compat-table-cell-date',
+				'sort' => 0
+			)
 		);
 	}
 
@@ -143,51 +183,47 @@ public static function printTableHeader($full = true) {
 public static function printTableContent($array) {
 	global $a_status;
 
-	echo "<div class=\"divTableBody\">";
-
 	foreach ($array as $entry) {
-		echo "<div class=\"divTableRow\">";
+		echo "<div class=\"compat-table-row\">";
 
 		// Cell 1: Regions
 		$cell = getThread(getGameRegion($entry->IDs[0], false).$entry->IDs[0], $entry->IDs[1]);
 		$media = getGameMediaIcon($entry->IDs[0], false);
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
 		$cell = "{$media}{$entry->title}";
 		if (!is_null($entry->title2)) {
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})";
 		}
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		// Cell 3: New Status
 		$cell = '';
 		if (!is_null($entry->new_status))
 			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->new_status]['color']};\">{$a_status[$entry->new_status]['name']}</div>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
 
 		// Cell 4: New Date
 		$cell = $entry->new_date;
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell compat-table-cell-date\">{$cell}</div>";
 
 		// Cell 5: Old Status (If existent)
 		if (!is_null($entry->old_status)) {
 			$cell = '';
 			if (!is_null($entry->old_status))
 				$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->old_status]['color']};\">{$a_status[$entry->old_status]['name']}</div>";
-			echo "<div class=\"divTableCell\">{$cell}</div>";
+			echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
 		}
 
 		// Cell 6: Old Date (If existent)
 		if (!is_null($entry->old_date)) {
 			$cell = $entry->old_date;
-			echo "<div class=\"divTableCell\">{$cell}</div>";
+			echo "<div class=\"compat-table-cell compat-table-cell-date\">{$cell}</div>";
 		}
 
 		echo "</div>";
 	}
-
-	echo "</div>";
 }
 
 
@@ -201,10 +237,12 @@ public static function printContent() {
 	if ($error_existing != "") {
 		echo "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
 	} elseif (!is_null($a_existing)) {
-		echo "<div class=\"divTable\">";
+		echo "<div class=\"compat-table-outside\">";
+		echo "<div class=\"compat-table-inside\">";
 		self::printTableHeader();
 		self::printTableContent($a_existing);
-		echo "</div><br>";
+		echo "</div>";
+		echo "</div>";
 	}
 
 	// New entries table
@@ -212,10 +250,12 @@ public static function printContent() {
 		echo "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
 	} elseif (!is_null($a_new)) {
 		echo "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
-		echo "<div class=\"divTable\">";
+		echo "<div class=\"compat-table-outside\">";
+		echo "<div class=\"compat-table-inside\">";
 		self::printTableHeader(false);
 		self::printTableContent($a_new);
-		echo "</div><br>";
+		echo "</div>";
+		echo "</div>";
 	}
 }
 

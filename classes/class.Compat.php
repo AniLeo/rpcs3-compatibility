@@ -184,25 +184,41 @@ public static function printTable() {
 		return "";
 
 	// Start table
-	echo "<div class=\"divTable\">";
+	echo "<div class=\"compat-table-outside\">";
+	echo "<div class=\"compat-table-inside\">";
 
 	// Print table headers
 	$extra = combinedSearch(true, true, true, true, false, true, true, false);
 	$headers = array(
-		'Game IDs' => 0,
-		'Game Title' => 2,
-		'Status' => 3,
-		'Updated on' => 4
+		array(
+			'name' => 'Game IDs',
+			'class' => 'compat-table-cell compat-table-cell-gameid',
+			'sort' => 0
+		),
+		array(
+			'name' => 'Game Title',
+			'class' => 'compat-table-cell',
+			'sort' => 2
+		),
+		array(
+			'name' => 'Status',
+			'class' => 'compat-table-cell compat-table-cell-status',
+			'sort' => 3
+		),
+		array(
+			'name' => 'Updated',
+			'class' => 'compat-table-cell compat-table-cell-updated',
+			'sort' => 4
+		)
 	);
 	echo getTableHeaders($headers, $extra);
 
 	// Print table body
-	echo "<div class=\"divTableBody\">";
 	foreach ($games as $game) {
 
 		$media = '';
 
-		echo "<div class=\"divTableRow\">";
+		echo "<div class=\"compat-table-row\">";
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
@@ -216,7 +232,7 @@ public static function printTable() {
 			if ($media == '')
 				$media = getGameMediaIcon($ID[0]);
 		}
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Game Media, Titles and Network
 		$title = !is_null($game->wikiID) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wikiTitle}\">{$game->title}</a>" : $game->title;
@@ -225,23 +241,25 @@ public static function printTable() {
 			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
 		if (!is_null($game->title2))
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		// Cell 3: Status
 		$cell = '';
 		if (!is_null($game->status))
 			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$game->status]['color']};\">{$a_status[$game->status]['name']}</div>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
 
 		// Cell 4: Last Test
-		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>&nbsp;&nbsp;&nbsp;";
-		$cell .= $game->pr == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$game->pr}'>Pull #{$game->pr}</a>)";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>";
+		$cell .= $game->pr == 0 ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$c_github}/pull/{$game->pr}'>#{$game->pr}</a>)";
+		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
 
 		echo "</div>";
 	}
-	echo "</div>";	// End table body
-	echo "</div>";	// End table
+
+	// End table
+	echo "</div>";
+	echo "</div>";
 }
 
 

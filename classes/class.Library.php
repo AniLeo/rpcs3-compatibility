@@ -41,13 +41,14 @@ public static function getTestedContents() {
 	$start = $get['r']*$currentPage-$get['r']+1;
 	$end = ($pages == $currentPage) ? max(array_keys($a_db)) : $get['r']*$currentPage;
 
-	echo "<div class=\"divTable library-table\">
-	<div class=\"divTableHeading\">
-		<div class=\"divTableHead\">ID</div>
-		<div class=\"divTableHead\">Title</div>
-		<div class=\"divTableHead\">Last Tested</div>
-	</div>
-	<div class=\"divTableBody\">";
+	echo "<div class=\"compat-table-outside\">
+	<div class=\"compat-table-inside\">";
+
+	echo "<div class=\"compat-table-header\">
+		<div class=\"compat-table-cell compat-table-cell-gameid\">ID</div>
+		<div class=\"compat-table-cell\">Title</div>
+		<div class=\"compat-table-cell compat-table-cell-updated\">Last Tested</div>
+	</div>";
 
 	foreach (range($start, $end) as $i) {
 		$gameID = key($a_db[$i]);
@@ -55,16 +56,16 @@ public static function getTestedContents() {
 
 		if (!array_key_exists($gameID, $a_games)) {
 			echo "
-			<div class=\"divTableRow\">
-				<div class=\"divTableCell\" style='color:#e74c3c;'>"
-				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;
+			<div class=\"compat-table-row\">
+				<div class=\"compat-table-cell compat-table-cell-gameid\" style='color:#e74c3c;'>"
+				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."
 				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameID}</a>
 				</div>
-				<div class=\"divTableCell\"  style='color:#e74c3c'>"
-				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				<div class=\"compat-table-cell\"  style='color:#e74c3c'>"
+				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."
 				<a style='color:#e74c3c;' href='http://www.gametdb.com/PS3/{$gameID}' target='_blank'>{$gameTitle}</a>
 				</div>
-				<div class=\"divTableCell\"  style='color:#e74c3c;'>Untested</div>
+				<div class=\"compat-table-cell compat-table-cell-updated\" style='color:#e74c3c;'>Untested</div>
 			</div>";
 		} else {
 
@@ -72,23 +73,24 @@ public static function getTestedContents() {
 			$color = (time() - strtotime($a_games[$gameID]['last_update']) > 60*60*24*30*6) ? '#f39c12' : '#27ae60';
 
 			echo "
-			<div class=\"divTableRow\">
-				<div class=\"divTableCell\" style='color:{$color};'>"
-				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."&nbsp;&nbsp;
+			<div class=\"compat-table-row\">
+				<div class=\"compat-table-cell compat-table-cell-gameid\" style='color:{$color};'>"
+				.getGameRegion($gameID, true, 'l&'.combinedSearch(false, false, false, false, false, true, false, false))."
 				".getThread($gameID, $a_games[$gameID]['thread'])."
 				</div>
-				<div class=\"divTableCell\" style='color:{$color}'>"
-				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."&nbsp;&nbsp;
+				<div class=\"compat-table-cell\" style='color:{$color}'>"
+				.getGameMediaIcon($gameID, true, 'l&'.combinedSearch(false, false, false, false, true, false, false, false))."
 				".getThread($a_games[$gameID]['title'], $a_games[$gameID]['thread'])."
 				</div>
-				<div class=\"divTableCell\"style='color:{$color};'>
+				<div class=\"compat-table-cell compat-table-cell-updated\"style='color:{$color};'>
 				{$a_games[$gameID]['last_update']}&nbsp;&nbsp;&nbsp;";
-				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>Pull #{$a_games[$gameID]['pr']}</a>)";
+				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>#{$a_games[$gameID]['pr']}</a>)";
 
 				echo "</div>
 			</div>";
 		}
 	}
+
 	echo "</div>
 	</div>";
 }

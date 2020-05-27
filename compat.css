@@ -131,43 +131,59 @@
 	border-radius:3px;
 	background-color:#ecf0f1
 }
-.divTable {
+.compat-table-outside {
+	width:100%;
+	display:flex;
+	justify-content:space-between;
+}
+.compat-table-inside {
+	width:100%;
+	margin:1px;
+}
+.compat-table-header {
+	font-weight:700;
 	font-family:arial;
 	font-size:14px;
 	line-height:32px;
-	display:table;
 	overflow:hidden;
-	width:100%;
 	color:#000;
-	border-radius:6px
+	margin:1px;
+	display:flex;
 }
-.divTableHeading {
-	font-weight:700;
-	display:table-header-group;
-	color:#000
+.compat-table-row {
+	font-family:arial;
+	font-size:14px;
+	line-height:32px;
+	overflow:hidden;
+	color:#000;
+	margin:1px;
+	display:flex;
 }
-.divTableHeading,.divTableBody {
-	padding-left:10px
-}
-.divTableBody {
-	display:table-row-group
-}
-.divTableRow {
-	display:table-row
-}
-.divTableRow:nth-child(2n+1) {
+.compat-table-row:nth-child(2n) {
 	background:rgba(0,102,204,.04)
 }
-.divTableRow:hover {
+.compat-table-row:hover {
 	background-color:rgba(0,102,204,.1)
 }
-.divTableCell,.divTableHead {
-	display:table-cell;
-	padding-left:6px;
+.compat-table-cell {
 	padding-top:5px;
-	padding-bottom:5px
+	padding-bottom:5px;
+	padding-left:5px;
+	width:100%;
 }
-.divTableCell img {
+.compat-table-cell-gameid {
+	width:300px;
+}
+.compat-table-cell-status {
+	width:200px;
+}
+.compat-table-cell-updated {
+	width:250px;
+}
+.compat-table-cell-date {
+	width:200px;
+}
+.compat-table-cell img {
 	width:22px;
 	height:auto
 }

@@ -55,20 +55,40 @@ public static function printTable() {
 		return "";
 
 	// Start table
-	echo "<div class=\"divTable\">";
+	echo "<div class=\"compat-table-outside\">";
+	echo "<div class=\"compat-table-inside\">";
 
 	// Print table headers
 	$headers = array(
-		'Pull Request' => 1,
-		'Author' => 0,
-		'Lines of Code' => 0,
-		'Build Date' => 4,
-		'Download' => 0
+		array(
+			'name' => 'Pull Request',
+			'class' => 'compat-table-cell',
+			'sort' => 1
+		),
+		array(
+			'name' => 'Author',
+			'class' => 'compat-table-cell',
+			'sort' => 0
+		),
+		array(
+			'name' => 'Lines of Code',
+			'class' => 'compat-table-cell',
+			'sort' => 0
+		),
+		array(
+			'name' => 'Build Date',
+			'class' => 'compat-table-cell',
+			'sort' => 4
+		),
+		array(
+			'name' => 'Download',
+			'class' => 'compat-table-cell',
+			'sort' => 0
+		)
 	);
 	echo getTableHeaders($headers, 'b&');
 
 	// Print table body
-	echo "<div class=\"divTableBody\">";
 	foreach($builds as $build) {
 
 		// Length of additions text
@@ -95,24 +115,24 @@ public static function printTable() {
 		}
 		$version = !empty($version) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"{$version}\">$build->version</span>" : $build->version;
 
-	 	echo "<div class=\"divTableRow\">";
+	 	echo "<div class=\"compat-table-row\">";
 
 		/* Cell 1: PR */
 		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 2: Author */
 		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">{$build->author}</a>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */
 		$cell = "<span style='color:#4cd137;'>+{$build->additions}</span>";
 		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$build->deletions}</span>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 4: Diffdate and Fulldate */
 		$cell = "{$build->diffdate} ({$build->fulldate})";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
 		$cell = $version;
@@ -120,12 +140,14 @@ public static function printTable() {
 			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
 		if (!is_null($build->url_linux))
 			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
-		echo "<div class=\"divTableCell\">{$cell}</div>";
+		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		echo "</div>";
 	}
-	echo "</div>";	// End table body
-	echo "</div>";	// End table
+
+	// End table
+	echo "</div>";
+	echo "</div>";
 }
 
 

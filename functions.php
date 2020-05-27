@@ -111,12 +111,12 @@ function getGameRegion($gid, $url = true, $extra = '') {
 
 	// Allow for filter resetting by clicking the flag again
 	if ($get['f'] == strtolower($l) && $url) {
-		return "<a href=\"?{$ex}\"><img title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$ex}\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	}
 
 	if ($url) {
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 	} else {
 		// Returns unclickable flag
 		return "<img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"$a_flags[$l]\">";
@@ -450,20 +450,17 @@ function getPagesCounter($pages, $currentPage, $extra) {
 function getTableHeaders($headers, $extra = '') {
 	global $get;
 
-	$tableHead_open  = "<div class=\"divTableHead\">";
-	$tableHead_close = "</div>";
-
 	// Initialize string
 	$s_tableheaders = "";
 
-	foreach ($headers as $k => $v) {
-		if     ($v == 0)              { $s_tableheaders .= "{$tableHead_open}{$k}{$tableHead_close}"; }
-		elseif ($get['o'] == "{$v}a") { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}o={$v}d\">{$k} &nbsp; &#8593;</a>{$tableHead_close}"; }
-		elseif ($get['o'] == "{$v}d") { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}\">{$k} &nbsp; &#8595;</a>{$tableHead_close}"; }
-		else                          { $s_tableheaders .= "{$tableHead_open}<a href =\"?{$extra}o={$v}a\">{$k}</a>{$tableHead_close}"; }
+	foreach ($headers as $i => $header) {
+		if     ($header['sort'] === 0)              { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
+		elseif ($get['o'] === "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
+		elseif ($get['o'] === "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
+		else                                        { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
 	}
 
-	return "<div class=\"divTableHeading\">{$s_tableheaders}</div>";
+	return "<div class=\"compat-table-header\">{$s_tableheaders}</div>";
 }
 
 
