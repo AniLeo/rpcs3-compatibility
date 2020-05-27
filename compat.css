@@ -140,6 +140,9 @@
 	width:100%;
 	margin:1px;
 }
+.compat-table-checkbox {
+	display: none;
+}
 .compat-table-header {
 	font-weight:700;
 	font-family:arial;
@@ -186,6 +189,17 @@
 .compat-table-cell img {
 	width:22px;
 	height:auto
+}
+.compat-table-dropdown {
+	display:none;
+	padding-left:5px;
+}
+.compat-table-inside > input[type=checkbox] {
+	display:none;
+	height:auto;
+}
+.compat-table-inside > input[type=checkbox]:checked + .compat-table-dropdown {
+	display:block;
 }
 .compat-icon-media {
 	position:relative;

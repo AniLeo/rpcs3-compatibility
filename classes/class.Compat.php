@@ -218,7 +218,7 @@ public static function printTable() {
 
 		$media = '';
 
-		echo "<div class=\"compat-table-row\">";
+		echo "<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">";
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
@@ -253,6 +253,28 @@ public static function printTable() {
 		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>";
 		$cell .= $game->pr == 0 ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$c_github}/pull/{$game->pr}'>#{$game->pr}</a>)";
 		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
+
+		echo "</label>";
+
+		// Dropdown
+		echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
+		echo "<div class=\"compat-table-row compat-table-dropdown\">";
+
+		$count_id = count($game->IDs);
+		foreach ($game->IDs as $i => $ID) {
+			if (!is_null($ID[2]) && !empty($ID[2]))
+			{
+				echo "{$ID[0]}'s latest known version is <b>{$ID[2]}</b>";
+			}
+			else
+			{
+				echo "{$ID[0]} has no known updates";
+			}
+			if ($count_id !== $i + 1)
+			{
+				echo ", ";
+			}
+		}
 
 		echo "</div>";
 	}
