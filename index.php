@@ -148,7 +148,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 					<?php
 					if (!$c_maintenance || $get['w'] != NULL) {
 						if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History of the updates made to the compatibility list"; }
-						elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "History of RPCS3 Windows builds per merged pull request"; }
+						elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "History of RPCS3 builds per merged pull request"; }
 						elseif (isset($get['a']))                           { echo "Super cool compatibility list debug control panel"; }
 						elseif (isset($get['l']))                           { echo "List of all existing PS3 games known to mankind"; }
 						else                                                { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
