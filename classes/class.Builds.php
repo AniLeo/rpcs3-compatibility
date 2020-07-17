@@ -182,7 +182,7 @@ public static function getBuildsRSS() {
 					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
 					<link>{$c_github}/pull/{$build->pr}</link>
 					<comments>{$c_github}/pull/{$build->pr}</comments>
-					<author>{$build->author}</author>
+					<dc:creator>{$build->author}</dc:creator>
 				</item>
 		";
 	}
@@ -191,14 +191,14 @@ public static function getBuildsRSS() {
 	$url = str_replace('&', '&amp;', $url);
 
 	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
+	<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">
 		<channel>
 			<title>RPCS3 Builds History's RSS feed</title>
 			<link>https://rpcs3.net/compatibility?b</link>
 			<description>For more information about RPCS3 visit https://rpcs3.net</description>
 			<language>en-uk</language>
 			<category>Emulation</category>
-			<atom:link href=\"{$url}\" rel=\"self\" type=\"text/xml\" />
+			<atom:link href=\"{$url}\" rel=\"self\" type=\"application/atom+xml\" />
 				{$rssfeed}
 			</channel>
 	</rss>";
