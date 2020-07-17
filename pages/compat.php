@@ -38,7 +38,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently.
 						Be sure to check this page often to follow the latest updates.
 					<br>
-						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
+						<span id="jump">Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.</span>
 					<br>
 						Online only games on Intro, Loadable and Nothing statuses are listed with a lightning icon but not part of any game count.
 					</p>
@@ -67,7 +67,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 
 			<?php Profiler::addData("Page: Display Searchbox"); ?>
 			<div id="compat-con-searchbox">
-				<form method="get" id="game-search">
+				<form method="get" id="game-search" action="#jump">
 					<div id="searchbox">
 						<input id="searchbox-field" name="g" type="text" value="<?php if($get['g'] !== "" && $scount["status"] > 0) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
 					</div>

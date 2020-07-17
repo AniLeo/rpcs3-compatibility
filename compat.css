@@ -1,3 +1,6 @@
+html {
+	scroll-behavior:smooth;
+}
 .compat-status-main {
 	position:relative;
 	width:100%;
