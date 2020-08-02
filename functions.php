@@ -317,7 +317,7 @@ function countGames($db = null, $query = "") {
 
 	if ($db == null) {
 		$db = getDatabase();
-		if (is_null($db))
+		if ($db->connect_errno)
 			return 0; // If there's no database connection, return 0 games
 		$close = true;
 	} else {
@@ -448,10 +448,10 @@ function getTableHeaders($headers, $extra = '') {
 	$s_tableheaders = "";
 
 	foreach ($headers as $i => $header) {
-		if     ($header['sort'] === 0)              { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
-		elseif ($get['o'] === "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
-		elseif ($get['o'] === "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
-		else                                        { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
+		if     ($header['sort'] === 0)             { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
+		elseif ($get['o'] == "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
+		elseif ($get['o'] == "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
+		else                                       { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
 	}
 
 	return "<div class=\"compat-table-header\">{$s_tableheaders}</div>";
@@ -581,7 +581,7 @@ function getDebugPermissions($db = null) {
 
 	$q_debug = mysqli_query($db, "SELECT * FROM `debug_whitelist` WHERE `token` = '".mysqli_real_escape_string($db, $_COOKIE["debug"])."' LIMIT 1; ");
 
-	if (is_null($q_debug) || mysqli_num_rows($q_debug) === 0)
+	if (mysqli_num_rows($q_debug) === 0)
 		return null;
 
 	$row = mysqli_fetch_object($q_debug);
@@ -596,7 +596,7 @@ function getDebugPermissions($db = null) {
 	if ($close)
 		mysqli_close($db);
 
-	if (is_null($permissions) || !is_array($permissions))
+	if (!is_array($permissions))
 		return null;
 
 	return $permissions;

@@ -141,7 +141,7 @@ class Build {
 		*
 		* @param object  $query        The MySQL Query (returned by mysqli_query())
 		*
-		* @return object $array        Array of Builds fetched from given Query
+		* @return array  $array        Array of Builds fetched from given Query
 		*/
 	public static function queryToBuild($query) {
 		$db = getDatabase();
@@ -164,7 +164,7 @@ class Build {
 		* getLatest
 		* Obtains the most recent Build.
 		*
-		* @return object $build        Most recent build
+		* @return ?object $build        Most recent build
 		*/
 	public static function getLatest() {
 		$db = getDatabase();

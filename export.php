@@ -36,7 +36,7 @@ function exportDatabase() {
 	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"), false, false);
 	mysqli_close($db);
 
-	if (is_null($games)) {
+	if (empty($games)) {
 		$results['return_code'] = -1;
 		return $results;
 	}

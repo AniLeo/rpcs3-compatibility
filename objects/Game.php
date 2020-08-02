@@ -93,7 +93,7 @@ class Game {
 		* @param bool    $commitData   Whether to include commit related data
 		* @param bool    $wikiData     Whether to include wiki related data
 		*
-		* @return object $array        Array of Games fetched from given Query
+		* @return array  $array        Array of Games fetched from given Query
 		*/
 	public static function queryToGames($query, $commitData = true, $wikiData = true) {
 		$db = getDatabase();
