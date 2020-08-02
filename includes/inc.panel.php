@@ -113,11 +113,11 @@ function checkInvalidThreads() {
 	}
 
 	if ($invalid > 0) {
-		echo "<p class='compat-tvalidity-title color-red'><b>Attention required! {$invalid} Invalid threads detected<br><br></b></p>";
+		echo "<p class='debug-tvalidity-title color-red'><b>Attention required! {$invalid} Invalid threads detected<br><br></b></p>";
 		if ($get['a'] == 'checkInvalidThreads')
 			echo $output;
 	} else {
-		echo "<p class='compat-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
+		echo "<p class='debug-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
 	}
 
 }

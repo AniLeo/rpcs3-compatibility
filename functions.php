@@ -481,7 +481,7 @@ function getFooter() {
 		$s .= "<div class=\"compat-profiler\">";
 		// Maintenance mode information
 		$s .= "<p>Maintenance mode: ";
-		$s .= $c_maintenance ? "<span style='color:green'><b>ON</b></span>" : "<span style='color:red'><b>OFF</b></span>";
+		$s .= $c_maintenance ? "<span class=\"color-green\"><b>ON</b></span>" : "<span class\"color-red\"><b>OFF</b></span>";
 		$s .= "</p>";
 
 		// Profiler information
