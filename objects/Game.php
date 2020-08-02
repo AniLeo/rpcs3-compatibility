@@ -158,17 +158,22 @@ class Game {
 	public static function sort(&$array, $type, $order) {
 		global $a_status;
 
+		if ($order !== 'a' && $order !== 'd')
+		{
+			return;
+		}
+
 		$sorted = array();
 
 		/*
 		 * Game Title and Date
 		 */
-		if ($type == 2 || $type == 4) {
+		if ($type === 2 || $type === 4) {
 
 			// Temporary arrays to store game titles and original keys respectively
 			$values = array();
 
-			if ($type == 2) {
+			if ($type === 2) {
 				foreach ($array as $key => $game)
 					$values[$key] = $game->title;
 			} else {
@@ -180,7 +185,7 @@ class Game {
 			natcasesort($values);
 
 			// Reverse array if we want DESC order
-			if ($order == 'd')
+			if ($order === 'd')
 				$values = array_reverse($values);
 
 			// Move all entries from given array to a new sorted array in the correct order
@@ -194,17 +199,17 @@ class Game {
 		 */
 		if ($type == 3) {
 
-			if ($order == 'a') {
+			if ($order === 'a') {
 				$i = 1;
 				$limit = count($a_status);
-			} elseif ($order == 'd') {
+			} else /* if ($order === 'd') */ {
 				$i = count($a_status);
 				$limit = 1;
 			}
 
-			for ($i; $order == 'a' ? $i <= $limit : $i >= $limit; $order == 'a' ? $i++ : $i--) {
+			for ($i; $order === 'a' ? $i <= $limit : $i >= $limit; $order === 'a' ? $i++ : $i--) {
 				foreach ($array as $key => $game) {
-					if ($game->status == $i) {
+					if ($game->status === $i) {
 						$sorted[] = $game;
 						unset($array[$key]);
 					}

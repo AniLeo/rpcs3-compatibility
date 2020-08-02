@@ -92,9 +92,9 @@ function checkForUpdates($commit = '') {
 				mysqli_query($db, "UPDATE `builds` SET `ping_updated` = `ping_updated` + 1 WHERE `pr` = {$current->pr} LIMIT 1;");
 			}
 		}
+		mysqli_close($db);
 	}
 
-	mysqli_close($db);
 	return $results;
 
 }

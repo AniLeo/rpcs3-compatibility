@@ -134,7 +134,7 @@ if (!$q_main) {
 	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
 } elseif ($scount["network"][0] === 0) {
 	$error = "No results found for the specified search on the indicated status.";
-} elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && $l_title != "") {
+} elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig)) {
 	$info = "No results found for <i>{$l_orig}</i>. </br>
 	Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.";
 }

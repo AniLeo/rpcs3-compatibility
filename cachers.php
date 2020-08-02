@@ -35,7 +35,7 @@ function cacheBuilds($full = false) {
 		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
 		$row = mysqli_fetch_object($mergeDateQuery);
 		$date = date_format(date_create($row->date), 'Y-m-d');
-	} elseif ($full) {
+	} else /* if ($full) */ {
 		// This can take a while to do...
 		set_time_limit(60*60); // 1 hour limit
 		// Start from indicated date (2015-08-10 for first PR with AppVeyor CI)
@@ -242,6 +242,14 @@ function cacheInitials() {
 	$words_whitelisted = array("hd");
 
 	$q_initials = mysqli_query($db, "SELECT DISTINCT(`game_title`), `alternative_title` FROM `game_list`;");
+
+	// No games present in the database
+	if (mysqli_num_rows($q_initials) < 1)
+	{
+		return;
+	}
+
+	$a_titles = array();
 
 	while ($row = mysqli_fetch_object($q_initials)) {
 		$a_titles[] = $row->game_title;
@@ -481,24 +489,23 @@ function cacheContributor($username) {
 	$info_contributor = curlJSON("https://api.github.com/users/{$username}")['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
-	if (!isset($info_contributor->message)) {
+	if (!isset($info_contributor->message) && isset($info_contributor->id)) {
 
-		$aid = $info_contributor->id;
-		$q_contributor = mysqli_query($db, "SELECT * FROM contributors WHERE id = ".mysqli_real_escape_string($db, $aid)." LIMIT 1; ");
+		$q_contributor = mysqli_query($db, "SELECT * FROM `contributors` WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id)." LIMIT 1; ");
 
 		if (mysqli_num_rows($q_contributor) === 0) {
 			// Contributor not yet cached on contributors table.
-			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`) VALUES (".mysqli_real_escape_string($db, $aid).", '".mysqli_real_escape_string($db, $username)."');");
+			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`) VALUES (".mysqli_real_escape_string($db, $info_contributor->id).", '".mysqli_real_escape_string($db, $username)."');");
 		} elseif (mysqli_fetch_object($q_contributor)->username != $username) {
 			// Contributor on contributors table but changed GitHub username.
-			mysqli_query($db, "UPDATE `contributors` SET `username` = '".mysqli_real_escape_string($db, $username)."' WHERE `id` = ".mysqli_real_escape_string($db, $aid).";");
+			mysqli_query($db, "UPDATE `contributors` SET `username` = '".mysqli_real_escape_string($db, $username)."' WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id).";");
 		}
 
 	}
 
 	mysqli_close($db);
 
-	return !isset($info_contributor->message) ? $aid : 0;
+	return !isset($info_contributor->message) && isset($info_contributor->id) ? $info_contributor->id : 0;
 }
 
 
