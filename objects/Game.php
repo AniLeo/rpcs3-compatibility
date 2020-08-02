@@ -153,7 +153,6 @@ class Game {
 		* @param int     $type    Type of sorting (2:Title, 3:Status, 4:Date)
 		* @param string  $order   Order of sorting (a:ASC, d:DESC)
 		*
-		* @return object $array   Sorted array of Games
 		*/
 	public static function sort(&$array, $type, $order) {
 		global $a_status;

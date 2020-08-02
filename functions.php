@@ -386,12 +386,6 @@ function countGames($db = null, $query = "") {
 }
 
 
-function getTime() {
-	$t = explode(' ', microtime());
-	return $t[1] + $t[0];
-}
-
-
 function getPagesCounter($pages, $currentPage, $extra) {
 	global $c_pagelimit;
 
@@ -468,7 +462,7 @@ function getFooter() {
 	global $c_maintenance, $get, $start_time;
 
 	// Total time in miliseconds
-	$total_time = round((getTime() - $start_time)*1000,2);
+	$total_time = round((microtime(true) - $start_time)*1000,2);
 
 	$s = "Compatibility list developed and maintained by
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
@@ -481,7 +475,7 @@ function getFooter() {
 		$s .= "<div class=\"compat-profiler\">";
 		// Maintenance mode information
 		$s .= "<p>Maintenance mode: ";
-		$s .= $c_maintenance ? "<span class=\"color-green\"><b>ON</b></span>" : "<span class\"color-red\"><b>OFF</b></span>";
+		$s .= $c_maintenance ? "<span class=\"color-green\"><b>ON</b></span>" : "<span class=\"color-red\"><b>OFF</b></span>";
 		$s .= "</p>";
 
 		// Profiler information
@@ -720,9 +714,9 @@ function isGameID($string) {
 // Runs a function while keeping track of the time it takes to run
 // Returns amount of time in seconds
 function runFunctionWithCronometer($function) {
-	$start = getTime();
+	$start = microtime(true);
 	$function();
-	$finish = getTime();
+	$finish = microtime(true);
 	return round(($finish - $start), 4); // Seconds
 }
 

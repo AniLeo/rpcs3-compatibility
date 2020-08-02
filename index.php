@@ -89,7 +89,7 @@ RPCS3.net Compatibility List by AniLeo
 https://github.com/AniLeo
 2017.01.22
 **/
-$start_time = getTime();
+$start_time = microtime(true);
 Profiler::addData("Index: Start");
 ?>
 <!DOCTYPE html>

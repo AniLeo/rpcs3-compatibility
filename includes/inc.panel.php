@@ -385,8 +385,11 @@ function compatibilityUpdater() {
 			$q_insert = mysqli_query($db, $c_insert);
 
 			// Sanity check, this should be unreachable
-			if ($key == NULL)
-				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: {$game}<br><br>";
+			if ($key === NULL)
+			{
+				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: <br><br>";
+				dumpVar($game);
+			}
 
 			// Log change to game history
 			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
