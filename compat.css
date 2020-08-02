@@ -1,5 +1,11 @@
+/* Smooth page jumps */
 html {
 	scroll-behavior:smooth;
+}
+/* Define the default font for the
+   highest Compatibility container */
+.page-con-container {
+	font-family:Roboto-Regular;
 }
 .compat-status-main {
 	position:relative;
@@ -29,7 +35,6 @@ html {
 	left:2px
 }
 .compat-status-text {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:30px;
 	position:relative;
@@ -72,16 +77,13 @@ html {
 	transform:scale(1.1)
 }
 #compat-history-description {
-	font-family:Roboto-Regular;
 	font-size:14px
 }
 #compat-history-months {
-	font-family:Roboto-Regular;
 	font-size:13px;
 	padding-top:16px
 }
 #compat-history-options {
-	font-family:Roboto-Regular;
 	font-size:13px
 }
 .compat-footer {
@@ -95,7 +97,6 @@ html {
 	margin-bottom:20px;
 }
 .compat-footer p {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:46px;
 	padding-bottom:10px
@@ -105,7 +106,6 @@ html {
 	text-decoration:underline
 }
 .compat-tvalidity-title {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	padding-left: 10px;
 	padding-top: 12px;
@@ -123,7 +123,6 @@ html {
 	color:#2ecc71!important
 }
 .compat-tvalidity-list {
-	font-family:Roboto-Regular;
 	font-size:12px;
 	color:#e74c3c
 }
@@ -148,7 +147,6 @@ html {
 }
 .compat-table-header {
 	font-weight:700;
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:32px;
 	overflow:hidden;
@@ -157,7 +155,6 @@ html {
 	display:flex;
 }
 .compat-table-row {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:32px;
 	overflow:hidden;
@@ -244,7 +241,6 @@ html {
 	transform:scale(1.1)
 }
 #compat-con-search {
-	font-family:Roboto-Regular;
 	left:0;
 	width:100%;
 	height:48px;
@@ -280,7 +276,6 @@ html {
 	border-top:1px solid rgba(0,0,0,.05)
 }
 .compat-menu {
-	font-family:Roboto-Regular;
 	font-weight:400;
 	text-align:right;
 	font-size:14px
@@ -322,7 +317,6 @@ html {
 #searchbox-field {
 	font-size:16px;
 	padding-left:50px;
-	font-family:Roboto-Regular;
 	height:100%;
 	width:100%;
 	color:#fff;
@@ -374,7 +368,6 @@ input {
 	background-size:16px
 }
 .compat-con-pages {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	font-weight:700;
 	line-height:60px;
@@ -407,7 +400,6 @@ input {
 	background:#0074e7!important
 }
 #compat-hdr-left {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:15px;
 	position:relative;
@@ -425,7 +417,6 @@ input {
 	color:#000
 }
 #builds-hdr-left {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:35px;
 	position:relative;
@@ -437,7 +428,6 @@ input {
 	margin-bottom:10px
 }
 #compat-hdr-left2 {
-	font-family:Roboto-Regular;
 	font-size:12px;
 	line-height:35px;
 	position:relative;
@@ -448,7 +438,6 @@ input {
 	color:#000
 }
 #compat-hdr-right {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	float:right;
 	width:auto;
@@ -506,7 +495,6 @@ input {
 	color:#455556
 }
 .compat-tx1-criteria {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	line-height:24px;
 	position:relative;
@@ -613,7 +601,6 @@ input {
 		margin-bottom:37px!important
 	}
 	#compat-hdr-left2 {
-		font-family:Roboto-Regular!important;
 		font-size:12px!important;
 		line-height:28px!important;
 		position:relative!important;
@@ -625,7 +612,6 @@ input {
 		color:#000!important
 	}
 	#compat-hdr-right {
-		font-family:Roboto-Regular!important;
 		font-size:11px!important;
 		float:right!important;
 		width:100%!important;
@@ -665,7 +651,6 @@ input {
 	}
 }
 .debug-main {
-	font-family:Roboto-Regular;
 	font-size:14px;
 	padding-top:20px;
 	padding-bottom:20px;
@@ -685,7 +670,6 @@ input {
 .compat-profiler {
     background: #191f36 !important;
     border-radius: 6px;
-    font-family: Roboto-Regular;
     padding: 14px 14px;
     margin-bottom: 20px;
     font-size: 14px;
