@@ -196,6 +196,9 @@ function cacheBuild($pr) {
 		$size_linux *= 1024;
 	}
 
+	$size_win = (string) $size_win;
+	$size_linux = (string) $size_linux;
+
 	$db = getDatabase();
 
 	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1) {
@@ -403,17 +406,17 @@ function cacheLibraryStatistics() {
 
 	// Open tested.txt and write number of tested games in one line
 	$f_tested = fopen(__DIR__.'/cache/tested.txt', 'w');
-	fwrite($f_tested, $tested);
+	fwrite($f_tested, (string) $tested);
 	fclose($f_tested);
 
 	// Open untested.txt and write number of untested games in one line
 	$f_untested = fopen(__DIR__.'/cache/untested.txt', 'w');
-	fwrite($f_untested, $untested);
+	fwrite($f_untested, (string) $untested);
 	fclose($f_untested);
 
 	// Open all.txt and write number of all Game IDs in database in one line
 	$f_all = fopen(__DIR__.'/cache/all.txt', 'w');
-	fwrite($f_all, $all);
+	fwrite($f_all, (string) $all);
 	fclose($f_all);
 }
 
