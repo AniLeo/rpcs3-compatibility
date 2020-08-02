@@ -113,7 +113,7 @@ public static function printTable() {
 			if (!empty($version)) $version .= "\n";
 			$version .= "Linux Size: {$build->sizeMB_linux} MB";
 		}
-		$version = !empty($version) ? "<span style=\"border-bottom: 1px dotted #3198ff;\" title=\"{$version}\">$build->version</span>" : $build->version;
+		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">$build->version</span>" : $build->version;
 
 	 	echo "<div class=\"compat-table-row\">";
 

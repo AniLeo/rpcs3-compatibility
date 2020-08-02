@@ -23,7 +23,7 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 <div class="page-con-container">
 	<div class="page-in-container">
 		<div class="container-con-block darkmode-block">
-			<div class="container-con-wrapper" style="padding-bottom:1px">
+			<div class="container-con-wrapper">
 
 				<div class="container-tx1-block">
 					<p>Compatibility List History</p>

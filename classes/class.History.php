@@ -58,8 +58,6 @@ public static function printMonths() {
 
 	echo "<p id=\"compat-history-months\">";
 
-	echo "<strong>Month Selection</strong><br>";
-
 	foreach($a_histdates as $k => $v) {
 		$month = monthNumberToName(substr($k, -2));
 		$year  = substr($k, 0, 4);

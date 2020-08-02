@@ -37,9 +37,10 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 					<p>
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently.
 						Be sure to check this page often to follow the latest updates.
-					<br>
-						<span id="jump">Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.</span>
-					<br>
+						<br>
+						<span id="jump"></span>
+						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
+						<br>
 						Online only games on Intro, Loadable and Nothing statuses are listed with a lightning icon but not part of any game count.
 					</p>
 				</div>

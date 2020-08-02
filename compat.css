@@ -1,11 +1,14 @@
 /* Smooth page jumps */
 html {
-	scroll-behavior:smooth;
+	scroll-behavior:smooth
 }
 /* Define the default font for the
    highest Compatibility container */
 .page-con-container {
-	font-family:Roboto-Regular;
+	font-family:Roboto-Regular
+}
+.compat-builds-version {
+	border-bottom:1px dotted #3198ff
 }
 .compat-status-main {
 	position:relative;
@@ -81,7 +84,7 @@ html {
 }
 #compat-history-months {
 	font-size:13px;
-	padding-top:16px
+	margin-top:12px;
 }
 #compat-history-options {
 	font-size:13px
@@ -95,6 +98,7 @@ html {
 	background: #4e34c9;
 	border-radius:6px;
 	margin-bottom:20px;
+	margin-top:20px
 }
 .compat-footer p {
 	font-size:14px;
@@ -270,9 +274,9 @@ html {
 	color:#000
 }
 .compat-status-container {
-	margin-top:24px;
-	margin-bottom:20px;
-	padding-top:24px;
+	margin-top:12px;
+	margin-bottom:12px;
+	padding-top:12px;
 	border-top:1px solid rgba(0,0,0,.05)
 }
 .compat-menu {
@@ -375,7 +379,6 @@ input {
 	height:auto;
 	min-height:30px;
 	margin-top:20px;
-	margin-bottom:20px;
 	text-align:center;
 	color:#000;
 	border-radius:6px;
@@ -632,11 +635,6 @@ input {
 		background-color:transparent;
 		direction:rtl
 	}
-	.compat-status-container {
-		margin-top:45px;
-		margin-bottom:14px;
-		padding-top:0
-	}
 	.compat-status-text {
 		font-size:12px!important
 	}
@@ -668,16 +666,16 @@ input {
 	color: #0080ff
 }
 .compat-profiler {
-    background: #191f36 !important;
-    border-radius: 6px;
-    padding: 14px 14px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #fff;
-    line-height: 24px;
-    border: solid 2px #2f3a65;
+	background: #191f36 !important;
+	border-radius: 6px;
+	padding: 14px 14px;
+	margin-bottom: 20px;
+	font-size: 14px;
+	color: #fff;
+	line-height: 24px;
+	border: solid 2px #2f3a65;
 }
-.compat-profiler p:nth-child(1), p:nth-child(3), p:nth-child(4), p:nth-child(5), p:nth-child(1n+2) {
+.compat-profiler p:nth-child(1) p:nth-child(3) p:nth-child(4) p:nth-child(5) p:nth-child(1n+2) {
 	background: rgba(0, 0, 0, 0.1);
 	margin-bottom:20px;
 	padding-left:10px;
