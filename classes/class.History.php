@@ -34,7 +34,7 @@ public static function printDescription() {
 	echo "<p id=\"compat-history-description\">";
 	echo "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
-	if ($get['h'] == $a_currenthist[0]) {
+	if ($get['h'] === $a_currenthist[0]) {
 		echo "since <b>{$a_currenthist[1]}</b>.";
 	} else {
 		$v = $a_histdates[$get['h']];
@@ -69,7 +69,7 @@ public static function printMonths() {
 			$watchdog = $year;
 		}
 
-		echo highlightText("<a href=\"?h={$k}\">{$month}</a>", $get['h'] == $k);
+		echo highlightText("<a href=\"?h={$k}\">{$month}</a>", $get['h'] === $k);
 		if ($month != "December" && $v != end($a_histdates))
 			echo $spacer;
 	}
@@ -79,7 +79,7 @@ public static function printMonths() {
 	$month = monthNumberToName(substr($a_currenthist[0], -2));
 	$year = substr($a_currenthist[0], 0, 4);
 
-	echo highlightText("<a href=\"?h\">{$month} {$year}</a>", $get['h'] == $a_currenthist[0]);
+	echo highlightText("<a href=\"?h\">{$month} {$year}</a>", $get['h'] === $a_currenthist[0]);
 
 	echo "</p>";
 }
@@ -91,7 +91,7 @@ public static function printMonths() {
 public static function printOptions() {
 	global $get, $a_currenthist;
 
-	$h = $get['h'] != $a_currenthist[0] ? "={$get['h']}" : "";
+	$h = $get['h'] !== $a_currenthist[0] ? "={$get['h']}" : "";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
 	echo "<p id=\"compat-history-options\">";

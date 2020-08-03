@@ -24,7 +24,7 @@ if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects
 
 // Check if we're running PHP 7.2 or above
 if (phpversion()[0] < 7 || (phpversion()[0] == 7 && phpversion()[2] < 2)) {
-	trigger_error("[Compat] Initialization: Incompatible PHP version. This application requires PHP 7.2+", E_USER_ERROR);
+	trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 7.2+", E_USER_ERROR);
 	die();
 }
 
@@ -34,9 +34,9 @@ $get = validateGet();
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
 
 // RSS Feed Request
-if (isset($_GET['rss']) && !is_array($_GET['rss'])) {
+if (isset($get['rss'])) {
 
-	if (isset($_GET['b']) && !is_array($_GET['b'])) {
+	if (isset($get['b'])) {
 
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: text/xml');
@@ -45,9 +45,8 @@ if (isset($_GET['rss']) && !is_array($_GET['rss'])) {
 		// No need to load the rest of the page.
 		exit();
 
-	} elseif (isset($_GET['h']) && !is_array($_GET['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
+	} elseif (isset($get['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
 
-		// Default to History RSS when parameter is not set
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: text/xml');
 		$History = new History();
@@ -60,10 +59,10 @@ if (isset($_GET['rss']) && !is_array($_GET['rss'])) {
 }
 
 // JSON API Request
-if (isset($_GET['api']) && !is_array($_GET['api'])) {
+if (isset($get['api'])) {
 
 	// API: v1
-	if ($_GET['api'] === "v1") {
+	if ($get['api'] === "v1") {
 
 		if (isset($_GET['export'])) {
 			if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
@@ -103,22 +102,22 @@ Profiler::addData("Index: Start");
 <meta name="copyright" content="RPCS3">
 <?php
 if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
-	trigger_error("[Compat] Integration: sys-meta not found", E_USER_WARNING);
+	trigger_error("[COMPAT] Integration: sys-meta not found", E_USER_WARNING);
 
 if (!@include(__DIR__.'/../../lib/module/sys-css.php')) {
-	trigger_error("[Compat] Integration: sys-css not found", E_USER_WARNING);
+	trigger_error("[COMPAT] Integration: sys-css not found", E_USER_WARNING);
 	echo "<link rel=\"stylesheet\" href=\"compat.css\"/>";
 } else {
 	echo "<link rel=\"stylesheet\" href=\"/lib/compat/compat.css\"/>";
 }
 
 if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
-	trigger_error("[Compat] Integration: sys-js not found", E_USER_WARNING);
+	trigger_error("[COMPAT] Integration: sys-js not found", E_USER_WARNING);
 ?>
 </head>
 <body>
 <?php if (!@include(__DIR__.'/../../lib/module/sys-php.php'))
-				trigger_error("[Compat] Integration: sys-php not found", E_USER_WARNING); ?>
+				trigger_error("[COMPAT] Integration: sys-php not found", E_USER_WARNING); ?>
 <div class="page-con-content">
 	<div class="banner-con-container darkmode-header">
 		<div id="object-particles">
@@ -135,11 +134,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 			<div class='banner-tx1-title fade-up-onstart pulsate'>
 				<h1>
 				<?php
-					if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History"; }
-					elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "Builds"; }
-					elseif (isset($get['a']))                           { echo "Debug Panel"; }
-					elseif (isset($get['l']))                           { echo "PS3 Game library"; }
-					else                                                { echo "Compatibility"; }
+					if     (isset($get['h'])) { echo "History"; }
+					elseif (isset($get['b'])) { echo "Builds"; }
+					elseif (isset($get['a'])) { echo "Debug Panel"; }
+					elseif (isset($get['l'])) { echo "PS3 Game library"; }
+					else                      { echo "Compatibility"; }
 				?>
 				</h1>
 			</div>
@@ -147,11 +146,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 				<p>
 					<?php
 					if (!$c_maintenance || $get['w'] != NULL) {
-						if (isset($_GET['h']) && !is_array($_GET['h']))     { echo "History of the updates made to the compatibility list"; }
-						elseif (isset($_GET['b']) && !is_array($_GET['b'])) { echo "History of RPCS3 builds per merged pull request"; }
-						elseif (isset($get['a']))                           { echo "Super cool compatibility list debug control panel"; }
-						elseif (isset($get['l']))                           { echo "List of all existing PS3 games known to mankind"; }
-						else                                                { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
+						if     (isset($get['h'])) { echo "History of the updates made to the compatibility list"; }
+						elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
+						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
+						elseif (isset($get['l'])) { echo "List of all existing PS3 games known to mankind"; }
+						else                      { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}
@@ -162,15 +161,15 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 	</div>
 	<?php
 	if (!$c_maintenance || $get['w'] != NULL) {
-		if (isset($_GET['h']) && !is_array($_GET['h']))     { include 'pages/history.php'; }
-		elseif (isset($_GET['b']) && !is_array($_GET['b'])) { include 'pages/builds.php'; }
-		elseif (isset($get['a']))                           { include 'pages/panel.php'; }
-		elseif (isset($get['l']))                           { include 'pages/library.php'; }
-		else                                                { include 'pages/compat.php'; }
+		if     (isset($get['h'])) { include 'pages/history.php'; }
+		elseif (isset($get['b'])) { include 'pages/builds.php'; }
+		elseif (isset($get['a'])) { include 'pages/panel.php'; }
+		elseif (isset($get['l'])) { include 'pages/library.php'; }
+		else                      { include 'pages/compat.php'; }
 	}
 	?>
 </div>
 <?php if (!@include(__DIR__.'/../../lib/module/ui-main-footer.php'))
-				trigger_error("[Compat] Integration: ui-main-footer not found", E_USER_WARNING); ?>
+				trigger_error("[COMPAT] Integration: ui-main-footer not found", E_USER_WARNING); ?>
 </body>
 </html>

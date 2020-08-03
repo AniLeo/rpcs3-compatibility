@@ -302,7 +302,7 @@ html {
 	transition:.1s ease-in-out;
 	outline-color:transparent
 }
-input::-webkit-input-placeholder, input::-moz-placeholder, input:-ms-input-placeholder {
+input::placeholder {
 	color:#fff
 }
 input {

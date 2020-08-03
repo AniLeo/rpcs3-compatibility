@@ -39,13 +39,18 @@ $error_existing = "";
 $error_new = "";
 $error_rss = "";
 
+// Default date value
+if ($get['h'] === true)
+{
+  $get['h']	= $a_currenthist[0];
+}
 
 // Main part of the query
 $cmd_main = "SELECT * FROM `game_history`
 LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key` ";
 
 // Generate date part of the query
-if ($get['h'] == $a_currenthist[0]) {
+if ($get['h'] === $a_currenthist[0]) {
   $cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
 } else {
   $cmd_date = " AND `new_date` BETWEEN
