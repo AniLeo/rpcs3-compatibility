@@ -50,38 +50,38 @@ if(!@include_once(__DIR__.'/../includes/inc.library.php')) throw new Exception("
 
 						<?php Profiler::addData("Page: Generate Filters"); ?>
 						Filter by region:
-						<?php if ($get['f'] == 'a') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'a') { echo '<b>'; } ?>
 						<a href='?l&f=a&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Asia</a>
-						<?php if ($get['f'] == 'a') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'a') { echo '</b>'; } ?>
 						•
-						<?php if ($get['f'] == 'e') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'e') { echo '<b>'; } ?>
 						<a href='?l&f=e&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Europe</a>
-						<?php if ($get['f'] == 'e') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'e') { echo '</b>'; } ?>
 						•
-						<?php if ($get['f'] == 'h') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'h') { echo '<b>'; } ?>
 						<a href='?l&f=h&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Hong Kong</a>
-						<?php if ($get['f'] == 'h') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'h') { echo '</b>'; } ?>
 						•
-						<?php if ($get['f'] == 'k') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'k') { echo '<b>'; } ?>
 						<a href='?l&f=k&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Korea</a>
-						<?php if ($get['f'] == 'k') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'k') { echo '</b>'; } ?>
 						•
-						<?php if ($get['f'] == 'j') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'j') { echo '<b>'; } ?>
 						<a href='?l&f=j&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>Japan</a>
-						<?php if ($get['f'] == 'j') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'j') { echo '</b>'; } ?>
 						•
-						<?php if ($get['f'] == 'u') { echo'<b>'; } ?>
+						<?php if ($get['f'] === 'u') { echo '<b>'; } ?>
 						<a href='?l&f=u&<?php echo combinedSearch(false, false, false, false, false, true, false, false); ?>'>USA</a>
-						<?php if ($get['f'] == 'u') { echo'</b>'; } ?>
+						<?php if ($get['f'] === 'u') { echo '</b>'; } ?>
 						<br>
 						Filter by media:
-						<?php if ($get['t'] == 'b') { echo'<b>'; } ?>
+						<?php if ($get['t'] === 'b') { echo '<b>'; } ?>
 						<a href='?l&t=b&<?php echo combinedSearch(false, false, false, false, true, false, false, false); ?>'>Blu-Ray</a>
-						<?php if ($get['t'] == 'b') { echo'</b>'; } ?>
+						<?php if ($get['t'] === 'b') { echo '</b>'; } ?>
 						•
-						<?php if ($get['t'] == 'n') { echo'<b>'; } ?>
+						<?php if ($get['t'] === 'n') { echo '<b>'; } ?>
 						<a href='?l&t=n&<?php echo combinedSearch(false, false, false, false, true, false, false, false); ?>'>Network (PSN)</a>
-						<?php if ($get['t'] == 'n') { echo'</b>'; } ?>
+						<?php if ($get['t'] === 'n') { echo '</b>'; } ?>
 					</p>
 				</div>
 			</div> <!-- container-con-wrapper -->

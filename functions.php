@@ -52,7 +52,8 @@ function getDatabase() {
 	*
 	* @return string
 	*/
-function getGameMediaIcon($gid, $url = true, $extra = '') {
+function getGameMediaIcon(string $gid, bool $url = true, string $extra = '') : string
+{
 	global $a_media, $get;
 
 	// First letter of Game ID
@@ -88,7 +89,6 @@ function getGameMediaIcon($gid, $url = true, $extra = '') {
 	* Obtains Game Region by checking Game ID's third character.
 	* Returns Game Region as a clickable or non-clickable flag image,
 	*  empty string if Game Region is invalid/unknown.
-	* Icon flags from https://www.iconfinder.com/iconsets/famfamfam_flag_icons
 	*
 	* @param string $gid GameID: 9 character ID that identifies a game
 	* @param bool   $url Whether to return Game Region as a clickable(1) or non-clickable(0) flag
@@ -96,7 +96,8 @@ function getGameMediaIcon($gid, $url = true, $extra = '') {
 	*
 	* @return string
 	*/
-function getGameRegion($gid, $url = true, $extra = '') {
+function getGameRegion(string $gid, bool $url = true, string $extra = '') : string
+{
 	global $a_flags, $get;
 
 	$l = substr($gid, 2, 1);
@@ -134,7 +135,8 @@ function getGameRegion($gid, $url = true, $extra = '') {
 	*
 	* @return string
 	*/
-function getGameType($gid) {
+function getGameType(string $gid) : string
+{
 	// Physical
 	if (substr($gid, 0, 1) == "B" || substr($gid, 0, 1) == "X") {
 		if (substr($gid, 3, 1) == "D")  { return "Demo"; }             // Demo
@@ -149,8 +151,8 @@ function getGameType($gid) {
 		if (substr($gid, 3, 1) == "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
 	}
 
-		// We don't care about the other types as they won't be listed
-		return "";
+	// We don't care about the other types as they won't be listed
+	return "";
 }
 
 
@@ -161,16 +163,17 @@ function getGameType($gid) {
 	* Returns provided text wrapped around a hyperlink for the thread
 	*
 	* @param string $text
-	* @param string $tid ThreadID
+	* @param int    $tid ThreadID
 	*
 	* @return string
 	*/
-function getThread($text, $tid) {
+function getThread(string $text, int $tid) : string
+{
 	global $c_forum;
 
 	// The thread should never be 0. All games MUST have a thread.
-	if ($tid != "0") { return "<a href=\"{$c_forum}/thread-{$tid}.html\">{$text}</a>"; }
-	else             { return $text; }
+	if ($tid != 0) { return "<a href=\"{$c_forum}/thread-{$tid}.html\">{$text}</a>"; }
+	else           { return $text; }
 }
 
 
@@ -185,7 +188,8 @@ function getThread($text, $tid) {
 	*
 	* @return bool
 	*/
-function isValid($str) {
+function isValid(string $str) : bool
+{
 	return !preg_match("/[^A-Za-z0-9.#&~;:\* \/\'-]/", $str);
 }
 
@@ -200,12 +204,14 @@ function isValid($str) {
 	*
 	* @return string
 	*/
-function highlightText($str, $cond = true) {
+function highlightText(string $str, bool $cond = true)
+{
 	return $cond ? "<span class=\"highlightedText\">{$str}</span>" : $str;
 }
 
 
-function validateGet($db = null) {
+function validateGet($db = null) : array
+{
 	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
 
 	// Start new $get array for sanitized input
@@ -348,7 +354,7 @@ function validateGet($db = null) {
 	// Enable error reporting for admins
 	if ($get['w'] != NULL) {
 		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		ini_set('display_errors', '1');
 
 		// Admin debug mode
 		if (isset($_GET['a']) && array_search("debug.view", $get['w']) !== false) {
@@ -361,7 +367,8 @@ function validateGet($db = null) {
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($db = null, $query = "") {
+function countGames($db = null, string $query = "") /*: int|array (PHP 8.0)*/
+{
 	global $get, $a_status;
 
 	if ($db == null) {
@@ -435,7 +442,8 @@ function countGames($db = null, $query = "") {
 }
 
 
-function getPagesCounter($pages, $currentPage, $extra) {
+function getPagesCounter(int $pages, int $currentPage, string $extra) : string
+{
 	global $c_pagelimit;
 
 	// Initialize string
@@ -486,11 +494,11 @@ function getPagesCounter($pages, $currentPage, $extra) {
 	}
 
 	return $s_pagescounter;
-
 }
 
 
-function getTableHeaders($headers, $extra = '') {
+function getTableHeaders(array $headers, string $extra = '') : string
+{
 	global $get;
 
 	// Initialize string
@@ -507,7 +515,8 @@ function getTableHeaders($headers, $extra = '') {
 }
 
 
-function getFooter() {
+function getFooter() : string
+{
 	global $c_maintenance, $get, $start_time;
 
 	// Total time in miliseconds
@@ -537,7 +546,8 @@ function getFooter() {
 
 
 // File path where the menu was called from
-function getMenu($file) {
+function getMenu(string $file) : string
+{
 	global $get;
 
 	$file = basename($file, '.php');
@@ -555,7 +565,8 @@ function getMenu($file) {
 
 
 // Get current page user is on
-function getCurrentPage($pages) {
+function getCurrentPage(int $pages) : int
+{
 	global $get;
 
 	// No specific page set or page bigger or smaller than what's possible
@@ -567,7 +578,8 @@ function getCurrentPage($pages) {
 
 
 // Calculate the number of pages according selected status and results per page
-function countPages($get, $count) {
+function countPages(array $get, int $count) : int
+{
 	return ceil($count / $get['r']);
 }
 
@@ -575,7 +587,8 @@ function countPages($get, $count) {
 /*****************
  * Status Module *
  *****************/
-function generateStatusModule($getCount = true) {
+function generateStatusModule(bool $getCount = true) : string
+{
 	global $a_status;
 
 	// Get games count per status
@@ -614,7 +627,8 @@ function generateStatusModule($getCount = true) {
 
 // Checks if user has debug permissions
 // TODO: Login system
-function getDebugPermissions($db = null) {
+function getDebugPermissions($db = null) : ?array
+{
 	if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"])) {
 		return null;
 	}
@@ -653,7 +667,8 @@ function getDebugPermissions($db = null) {
 }
 
 
-function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
+function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
+{
 	global $get, $scount, $c_pageresults;
 
 	// Initialize string
@@ -680,7 +695,8 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) {
 }
 
 
-function getDateDiff($datetime) {
+function getDateDiff($datetime) : string
+{
 	$diff = time() - strtotime($datetime);
 	$days = floor($diff / 86400);
 
@@ -700,39 +716,21 @@ function getDateDiff($datetime) {
 }
 
 
-// Based on https://stackoverflow.com/a/9826656
-// Returns false if any of the limits aren't contained on $string
-function get_string_between($string, $start, $end) {
-	// Return position of initial limit in our string
-	// If position doesn't exist, then return false as string doesn't contain our start limit
-	if (!($inipos = strpos($string, $start)))
-		return false;
-
-	// Add length of start limit, so our start position is the character AFTER the start limit
-		$inipos += strlen($start);
-
-	// Look for end string position starting on initial position (offset)
-	// If position doesn't exist, then return false as string doesn't contain our end limit
-		if (!($endpos = strpos($string, $end, $inipos)))
-		return false;
-
-	// Start on 'start limit position' and return string with substring length
-		return substr($string, $inipos, $endpos-$inipos /*substring length*/);
+function monthNumberToName(int $month) : string
+{
+	return DateTime::createFromFormat('!m', (string) $month)->format('F');
 }
 
 
-function monthNumberToName($month) {
-	return DateTime::createFromFormat('!m', $month)->format('F');
-}
-
-
-function dumpVar($var) {
+function dumpVar($var) : void
+{
 	echo "<br>";
 	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
 }
 
 
-function resultsPerPage($combinedSearch, $extra = "") {
+function resultsPerPage(string $combinedSearch, string $extra = "") : string
+{
 	global $a_pageresults, $get;
 
 	$s_pageresults = "";
@@ -753,17 +751,20 @@ function resultsPerPage($combinedSearch, $extra = "") {
 // Checks whether indicated string is a Game ID or not
 // Game ID validation: is alphanumeric, len = 9, last 5 characters are digits,
 // 3rd character represents a valid region and 1st character represents a valid media
-function isGameID($string) {
+function isGameID(string $string) : bool
+{
 	global $a_flags, $a_media;
 
 	return ctype_alnum($string) && strlen($string) == 9 && is_numeric(substr($string, 4, 5)) &&
-	array_key_exists(strtoupper(substr($string, 2, 1)), $a_flags) && array_key_exists(strtoupper(substr($string, 0, 1)), $a_media);
+	array_key_exists(strtoupper(substr($string, 2, 1)), $a_flags) &&
+	array_key_exists(strtoupper(substr($string, 0, 1)), $a_media);
 }
 
 
 // Runs a function while keeping track of the time it takes to run
 // Returns amount of time in seconds
-function runFunctionWithCronometer($function) {
+function runFunctionWithCronometer(string $function) : float
+{
 	$start = microtime(true);
 	$function();
 	$finish = microtime(true);
@@ -772,11 +773,13 @@ function runFunctionWithCronometer($function) {
 
 
 // Gets status ID for a respective status title
-function getStatusID($name) {
+function getStatusID(string $name) : ?int
+{
 	global $a_status;
 
 	foreach ($a_status as $id => $status) {
-		if ($name == $status['name']) { return $id; }
+		if ($name === $status['name'])
+			return $id;
 	}
 
 	return null;
@@ -784,7 +787,9 @@ function getStatusID($name) {
 
 
 // cURL JSON document and return the result as (HttpCode, JSON)
-function curlJSON($url, &$cr = null) {
+// Note: Resources can't be type hinted
+function curlJSON(string $url, &$cr = null) : array
+{
 	// Use existing cURL resource or create a temporary one
 	$ch = ($cr != null) ? $cr : curl_init();
 
@@ -817,14 +822,16 @@ function curlJSON($url, &$cr = null) {
 
 
 // cURL XML document and return the result as (HttpCode, JSON)
-function curlXML($url, &$cr = null) {
+// Note: Resources can't be type hinted
+function curlXML(string $url, &$cr = null) : array
+{
 	// Use existing cURL resource or create a temporary one
 	$ch = ($cr != null) ? $cr : curl_init();
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0");
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0");
 	curl_setopt($ch, CURLOPT_URL, $url);
 
 	// Get the response and httpcode of that response
@@ -846,8 +853,12 @@ function curlXML($url, &$cr = null) {
 }
 
 
-// Returns empty for no update, 'X.XX' string for the latest existing update
-function getLatestGameUpdateVer($gid) {
+// Returns:
+// - Empty for no update
+// - 'X.XX' string for the latest existing update
+// - null for unexpected behavior (TODO: Finish)
+function getLatestGameUpdateVer(string $gid) : ?string
+{
 	// cURL the PS3 Game Update API
 	$curl = curlXML("https://a0.ww.np.dl.playstation.net/tpl/np/{$gid}/{$gid}-ver.xml");
 	$json = $curl['result'];
@@ -873,7 +884,7 @@ function getLatestGameUpdateVer($gid) {
 }
 
 
-function printHTMLForm(/*string*/ $action, /*string*/ $method, /*array*/ $inputs, /*array*/ $buttons) /*: bool*/
+function printHTMLForm(string $action, string $method, array $inputs, array $buttons) : bool
 {
 	// Unsupported methods
 	if ($method !== "POST" && $method !== "GET")

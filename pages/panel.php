@@ -48,7 +48,7 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 
 				<div class="debug-main-content">
 					<?php
-						if ($get['a'] != 'checkInvalidThreads')
+						if ($get['a'] !== 'checkInvalidThreads')
 							checkInvalidThreads();
 					?>
 					<br>

@@ -25,12 +25,14 @@ if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat:
 class Library {
 
 
-public static function getResultsPerPage() {
+public static function getResultsPerPage() : string
+{
 	return resultsPerPage(combinedSearch(false, false, false, false, true, true, false, false), "l&");
 }
 
 
-public static function getTestedContents() {
+public static function getTestedContents() : void
+{
 	global $get, $pages, $currentPage, $a_db, $c_github, $a_games;
 
 	if (!$a_db) {
@@ -39,7 +41,7 @@ public static function getTestedContents() {
 	}
 
 	$start = $get['r']*$currentPage-$get['r']+1;
-	$end = ($pages == $currentPage) ? max(array_keys($a_db)) : $get['r']*$currentPage;
+	$end = ($pages === $currentPage) ? max(array_keys($a_db)) : $get['r']*$currentPage;
 
 	echo "<div class=\"compat-table-outside\">
 	<div class=\"compat-table-inside\">";
@@ -96,7 +98,8 @@ public static function getTestedContents() {
 }
 
 
-public static function getPagesCounter() {
+public static function getPagesCounter() : string
+{
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, false, false, false, true, true, false, false);
@@ -105,7 +108,8 @@ public static function getPagesCounter() {
 }
 
 
-public static function getGameCount($type) {
+public static function getGameCount(string $type) : int
+{
 	// Only allow access to all, tested and untested files
 	if (!($type == 'all' || $type == 'tested' || $type == 'untested'))
 		return 0;
@@ -118,7 +122,7 @@ public static function getGameCount($type) {
 		return 0;
 
 	// Assign file content to a temporary variable before returning, so we can close the handle first
-	$count = fgets($handle);
+	$count = (int) fgets($handle);
 
 	// Close opened handle before returning
 	fclose($handle);

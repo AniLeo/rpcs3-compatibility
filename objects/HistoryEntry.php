@@ -31,8 +31,8 @@ class HistoryEntry {
 	public $new_date;			// Date
 	public $IDs;					// (String, Int)
 
-	function __construct($maintitle, $alternativetitle, $oldstatus, $newstatus, $olddate, $newdate, $gid, $tid) {
-
+	function __construct($maintitle, $alternativetitle, $oldstatus, $newstatus, $olddate, $newdate, $gid, $tid)
+	{
 		$this->title = $maintitle;
 		if (!is_null($alternativetitle))
 			$this->title2 = $alternativetitle;
@@ -46,7 +46,6 @@ class HistoryEntry {
 		$this->new_date = $newdate;
 
 		$this->IDs = array($gid, $tid);
-
 	}
 
 
@@ -58,7 +57,8 @@ class HistoryEntry {
 		*
 		* @return object $historyentry			HistoryEntry fetched from given Row
 		*/
-	public static function rowToHistoryEntry($row) {
+	public static function rowToHistoryEntry($row)
+	{
 		return new HistoryEntry($row->game_title, $row->alternative_title, $row->old_status, $row->new_status,
 		$row->old_date, $row->new_date, $row->gid, $row->tid);
 	}

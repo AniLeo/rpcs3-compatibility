@@ -53,7 +53,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</div>
 			<div id="compat-hdr-right">
 				<?php Profiler::addData("Page: Print Status Sort"); ?>
-				<p>Sort By <?php echo Compat::printStatusSort(); ?></p>
+				<p>Sort By <?php Compat::printStatusSort(); ?></p>
 			</div>
 
 			<?php

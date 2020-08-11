@@ -1,4 +1,5 @@
 # Contribution Guidelines
 
-* **NO Javascript code.**
-* Please don't rewrite/refactor big parts of my code.
+* **NO Javascript code!**
+* Function indentation uses Allman style
+* Please don't rewrite/refactor big parts of my code

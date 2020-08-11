@@ -35,8 +35,8 @@ class Game {
 	public $wikiTitle;  // String
 	public $IDs;        // [(String, Int, String)]
 
-	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit, $network) {
-
+	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit, $network)
+	{
 		$this->key = $key;
 
 		$this->title = $maintitle;
@@ -65,7 +65,6 @@ class Game {
 		if (!is_null($a_ids))
 			foreach ($a_ids[$key] as $id)
 				$this->IDs[] = $id;
-
 	}
 
 
@@ -80,7 +79,8 @@ class Game {
 		*
 		* @return object $game      Game fetched from given Row
 		*/
-	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki) {
+	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki)
+	{
 		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title,
 		$row->status, $row->last_update, $row->wiki, $row->build_commit, $row->network);
 	}
@@ -95,7 +95,8 @@ class Game {
 		*
 		* @return array  $array        Array of Games fetched from given Query
 		*/
-	public static function queryToGames($query, $commitData = true, $wikiData = true) {
+	public static function queryToGames($query, bool $commitData = true, bool $wikiData = true) : array
+	{
 		$db = getDatabase();
 
 		$a_games = array();
@@ -154,7 +155,8 @@ class Game {
 		* @param string  $order   Order of sorting (a:ASC, d:DESC)
 		*
 		*/
-	public static function sort(&$array, $type, $order) {
+	public static function sort(&$array, int $type, string $order)
+	{
 		global $a_status;
 
 		if ($order !== 'a' && $order !== 'd')

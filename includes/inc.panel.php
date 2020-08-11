@@ -30,7 +30,8 @@ TODO: Log commands with run time and datetime
 */
 
 
-function runFunctions() {
+function runFunctions() : void
+{
 	global $get, $a_panel;
 
 	echo "<div style=\"font-size:12px;\">";
@@ -44,8 +45,8 @@ function runFunctions() {
 	echo "</div>";
 }
 
-
-function checkInvalidThreads() {
+function checkInvalidThreads() : void
+{
 	global $a_status, $get;
 
 	$db = getDatabase();
@@ -119,11 +120,10 @@ function checkInvalidThreads() {
 	} else {
 		echo "<p class='debug-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
 	}
-
 }
 
-
-function compatibilityUpdater() {
+function compatibilityUpdater() : void
+{
 	global $a_histdates, $a_status, $a_regions, $get;
 
 	set_time_limit(300);
@@ -429,11 +429,9 @@ function compatibilityUpdater() {
 	}
 
 	mysqli_close($db);
-
 }
 
-
-function refreshBuild()
+function refreshBuild() : void
 {
 	global $get;
 
@@ -452,7 +450,8 @@ function refreshBuild()
 	cacheBuild($pr);
 }
 
-function mergeGames() {
+function mergeGames() : void
+{
 	global $a_status, $get;
 
 	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";

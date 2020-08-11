@@ -28,8 +28,8 @@ class Compat {
 
 
 // Generates query from given GET parameters
-public static function generateQuery($get, &$db) {
-
+public static function generateQuery(array $get, &$db) : array
+{
 	if ($db == null) {
 		$db = getDatabase();
 		$close = true;
@@ -106,7 +106,8 @@ public static function generateQuery($get, &$db) {
 /**********************
  * Print: Status Sort *
  **********************/
-public static function printStatusSort() {
+public static function printStatusSort() : void
+{
 	global $a_status, $scount, $get;
 
 	// Get combined search parameters
@@ -130,7 +131,8 @@ public static function printStatusSort() {
 /***************************
  * Print: Results per page *
  ***************************/
-public static function printResultsPerPage() {
+public static function printResultsPerPage() : void
+{
 	echo resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
 }
 
@@ -138,7 +140,8 @@ public static function printResultsPerPage() {
 /***************************
  * Print: Character search *
  ***************************/
-public static function printCharSearch() {
+public static function printCharSearch() : void
+{
 	global $get;
 
 	// Get combined search parameters
@@ -164,7 +167,8 @@ public static function printCharSearch() {
 /*******************
  * Print: Messages *
  *******************/
-public static function printMessages() {
+public static function printMessages() : void
+{
 	global $info, $error;
 
 	if (!is_null($info))
@@ -177,11 +181,12 @@ public static function printMessages() {
 /*****************
  * Print: Table  *
  *****************/
-public static function printTable() {
+public static function printTable() : void
+{
 	global $games, $error, $a_status, $c_github;
 
 	if (!is_null($error) || is_null($games))
-		return "";
+		return;
 
 	// Start table
 	echo "<div class=\"compat-table-outside\">";
@@ -288,7 +293,8 @@ public static function printTable() {
 /************************
  * Print: Pages Counter *
  ************************/
-public static function printPagesCounter() {
+public static function printPagesCounter() : void
+{
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
@@ -316,7 +322,8 @@ gameID
 		yyyy-mm-dd
 */
 
-public static function APIv1() {
+public static function APIv1() : array
+{
 	global $c_maintenance, $games, $info, $error, $l_title, $a_status, $get;
 
 	// Array to returned, then encoded in JSON

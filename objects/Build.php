@@ -51,7 +51,8 @@ class Build {
 
 
 	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files, $buildjob,
-	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux, $broken) {
+	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux, $broken)
+	{
 		$this->pr = (Int) $pr;
 		$this->commit = (String) $commit;
 
@@ -129,7 +130,8 @@ class Build {
 		*
 		* @return object $build     Build fetched from given Row
 		*/
-	public static function rowToBuild($row, &$a_contributors) {
+	public static function rowToBuild($row, &$a_contributors)
+	{
 		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
 		$row->additions, $row->deletions, $row->changed_files, $row->buildjob,
 		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, $row->broken);
@@ -143,7 +145,8 @@ class Build {
 		*
 		* @return array  $array        Array of Builds fetched from given Query
 		*/
-	public static function queryToBuild($query) {
+	public static function queryToBuild($query) : array
+	{
 		$db = getDatabase();
 
 		$a_contributors = array();
@@ -166,7 +169,8 @@ class Build {
 		*
 		* @return ?object $build        Most recent build
 		*/
-	public static function getLatest() {
+	public static function getLatest()
+	{
 		$db = getDatabase();
 		$query = mysqli_query($db, "SELECT * FROM `builds` WHERE `broken` IS NULL OR `broken` != 1 ORDER BY `merge_datetime` DESC LIMIT 1;");
 		if (mysqli_num_rows($query) === 0) return null;

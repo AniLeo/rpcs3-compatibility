@@ -25,14 +25,14 @@ if (!@include_once("objects/Build.php")) throw new Exception("Compat: Build.php 
 
 /*
 return_code
-    -3 - Illegal search
-    -2 - Maintenance mode
-    -1 - Current build is not a master build
-     0 - No newer build found
-     1 - Newer build found
+	-3 - Illegal search
+	-2 - Maintenance mode
+	-1 - Current build is not a master build
+	 0 - No newer build found
+	 1 - Newer build found
 */
-function checkForUpdates($commit = '') {
-
+function checkForUpdates(string $commit = '') : array
+{
 	// Standalone maintenance mode
 	$maintenance = false;
 

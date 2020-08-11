@@ -28,7 +28,8 @@ class History {
 /**********************
  * Print: Description *
  **********************/
-public static function printDescription() {
+public static function printDescription() : void
+{
 	global $get, $a_histdates, $a_currenthist;
 
 	echo "<p id=\"compat-history-description\">";
@@ -50,7 +51,8 @@ public static function printDescription() {
 /*****************
  * Print: Months *
  *****************/
-public static function printMonths() {
+public static function printMonths() : void
+{
 	global $get, $a_histdates, $a_currenthist;
 
 	$spacer = "&nbsp;&#8226;&nbsp;";
@@ -88,7 +90,8 @@ public static function printMonths() {
 /******************
  * Print: Options *
  ******************/
-public static function printOptions() {
+public static function printOptions() : void
+{
 	global $get, $a_currenthist;
 
 	$h = $get['h'] !== $a_currenthist[0] ? "={$get['h']}" : "";
@@ -112,7 +115,8 @@ public static function printOptions() {
 /***********************
  * Print: Table Header *
  ***********************/
-public static function printTableHeader($full = true) {
+public static function printTableHeader(bool $full = true) : void
+{
 	if ($full) {
 		$headers = array(
 			array(
@@ -178,7 +182,8 @@ public static function printTableHeader($full = true) {
 /************************
  * Print: Table Content *
  ************************/
-public static function printTableContent($array) {
+public static function printTableContent(array $array) : void
+{
 	global $a_status;
 
 	foreach ($array as $entry) {
@@ -228,7 +233,8 @@ public static function printTableContent($array) {
 /******************
  * Print: Content *
  ******************/
-public static function printContent() {
+public static function printContent() : void
+{
 	global $a_existing, $a_new, $error_existing, $error_new;
 
 	// Existing entries table
@@ -258,7 +264,8 @@ public static function printContent() {
 }
 
 
-public static function printHistoryRSS() {
+public static function printHistoryRSS() : void
+{
 	global $a_status, $a_new, $a_existing, $error_new, $error_existing;
 
 	// Should be unreachable, function is always called when one of the modes is set

@@ -29,7 +29,8 @@ class Builds {
 /***************************
  * Print: Results per Page *
  ***************************/
-public static function printResultsPerPage() {
+public static function printResultsPerPage() : void
+{
 	echo resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true), "b&");
 }
 
@@ -37,7 +38,8 @@ public static function printResultsPerPage() {
 /*******************
  * Print: Messages *
  *******************/
-public static function printMessages() {
+public static function printMessages() : void
+{
 	global $error;
 
 	if (!is_null($error))
@@ -48,11 +50,12 @@ public static function printMessages() {
 /*****************
  * Print: Table  *
  *****************/
-public static function printTable() {
+public static function printTable() : void
+{
 	global $c_github, $builds, $error;
 
 	if (!is_null($error))
-		return "";
+		return;
 
 	// Start table
 	echo "<div class=\"compat-table-outside\">";
@@ -154,7 +157,8 @@ public static function printTable() {
 /************************
  * Print: Pages Counter *
  ************************/
-public static function printPagesCounter() {
+public static function printPagesCounter() : void
+{
 	global $pages, $currentPage;
 
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
@@ -165,7 +169,8 @@ public static function printPagesCounter() {
 }
 
 
-public static function getBuildsRSS() {
+public static function getBuildsRSS() : string
+{
 	global $info, $builds, $c_github;
 
 	if (!is_null($info)) { return $info; }

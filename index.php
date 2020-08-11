@@ -22,9 +22,9 @@
 if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
 
-// Check if we're running PHP 7.2 or above
-if (phpversion()[0] < 7 || (phpversion()[0] == 7 && phpversion()[2] < 2)) {
-	trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 7.2+", E_USER_ERROR);
+// Check if we're running PHP 7.4 or above
+if (phpversion()[0] < 7 || ((int) phpversion()[0] === 7 && phpversion()[2] < 4)) {
+	trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 7.4+", E_USER_ERROR);
 	die();
 }
 
