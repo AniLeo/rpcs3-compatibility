@@ -47,7 +47,7 @@ class Game {
 
 		$this->date = $date;
 
-		if (!is_null($a_cache) && ($shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache))) {
+		if (is_null($a_cache) || $shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache)) {
 			$this->commit = $shortcommit;
 			$this->pr     = 0;
 		} else {
