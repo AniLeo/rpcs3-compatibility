@@ -433,19 +433,39 @@ function compatibilityUpdater() {
 }
 
 
+function refreshBuild()
+{
+	global $get;
+
+	$pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
+
+	$inputs = array();
+	$inputs[] = array("name" => "pr", "type" => "text", "value" => $pr, "placeholder" => "Pull Request #");
+	$buttons = array();
+	$buttons[] = array("name" => "refreshBuild", "type" => "submit", "value" => "Refresh");
+
+	printHTMLForm("", "POST", $inputs, $buttons);
+
+	if (!isset($_POST["refreshBuild"]))
+		return;
+
+	cacheBuild($pr);
+}
+
 function mergeGames() {
 	global $a_status, $get;
 
 	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
 	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
 
-	echo "<form action=\"\" method=\"post\">
-					<input name=\"gid1\" type=\"text\" value=\"{$gid1}\" placeholder=\"Game ID 1\"><br>
-					<input name=\"gid2\" type=\"text\" value=\"{$gid2}\" placeholder=\"Game ID 2\"><br>
-					<br>
-					<button name=\"mergeRequest\" type=\"submit\">Merge Request</button>
-					<button name=\"mergeConfirm\" type=\"submit\">Merge Confirm</button>
-				</form><br>";
+	$inputs = array();
+	$inputs[] = array("name" => "gid1", "type" => "text", "value" => $gid1, "placeholder" => "Game ID 1");
+	$inputs[] = array("name" => "gid2", "type" => "text", "value" => $gid2, "placeholder" => "Game ID 2");
+	$buttons = array();
+	$buttons[] = array("name" => "mergeRequest", "type" => "submit", "value" => "Merge Request");
+	$buttons[] = array("name" => "mergeConfirm", "type" => "submit", "value" => "Merge Confirm");
+
+	printHTMLForm("", "POST", $inputs, $buttons);
 
 	if (!isset($_POST['mergeRequest']) && !isset($_POST['mergeConfirm']))
 		return;

@@ -125,6 +125,10 @@ $a_panel = array(
 		'title' => "Update Build Cache",
 		'success' => "Forced update on builds cache"
 	),
+	'refreshBuild' => array(
+		'title' => "Refresh Build",
+		'success' => "Refreshed build"
+	),
 	'cacheInitials' => array(
 		'title' => "Update Initials Cache",
 		'success' => "Forced update on initials cache"

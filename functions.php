@@ -871,3 +871,27 @@ function getLatestGameUpdateVer($gid) {
 	// Unknown error that needs handling
 	return null;
 }
+
+
+function printHTMLForm(/*string*/ $action, /*string*/ $method, /*array*/ $inputs, /*array*/ $buttons) /*: bool*/
+{
+	// Unsupported methods
+	if ($method !== "POST" && $method !== "GET")
+		return false;
+
+	// Missing inputs or submission buttons
+	if (empty($inputs) || empty($buttons))
+		return false;
+
+	echo "<form action=\"{$action}\" method=\"{$method}\">";
+
+	foreach ($inputs as $input)
+		echo "<input name=\"{$input["name"]}\" type=\"{$input["type"]}\" value=\"{$input["value"]}\" placeholder=\"{$input["placeholder"]}\"><br>";
+
+	foreach ($buttons as $button)
+		echo "<button name=\"{$button["name"]}\" type=\"{$button["type"]}\">{$button["value"]}</button><br>";
+
+	echo "</form>";
+
+	return true;
+}
