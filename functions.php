@@ -906,3 +906,24 @@ function printHTMLForm(string $action, string $method, array $inputs, array $but
 
 	return true;
 }
+
+
+// Based on https://stackoverflow.com/a/9826656
+function get_string_between(string $string, string $start, string $end) /* : bool|string */
+{
+	// Return position of initial limit in our string
+	// If position doesn't exist, then return false as string doesn't contain our start limit
+	if (!($inipos = strpos($string, $start)))
+		return false;
+
+	// Add length of start limit, so our start position is the character AFTER the start limit
+	$inipos += strlen($start);
+
+	// Look for end string position starting on initial position (offset)
+	// If position doesn't exist, then return false as string doesn't contain our end limit
+	if (!($endpos = strpos($string, $end, $inipos)))
+		return false;
+
+	// Start on 'start limit position' and return string with substring length
+	return substr($string, $inipos, $endpos - $inipos /*substring length*/);
+}

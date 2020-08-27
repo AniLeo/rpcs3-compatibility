@@ -525,8 +525,6 @@ function cacheWikiIDs() : void
 {
 	$db = getDatabase();
 
-	$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
-
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 	$a_games = Game::queryToGames($q_games);
 
@@ -583,4 +581,54 @@ function cacheGameLatestVer() : void
 		$q_insert = mysqli_query($db, "UPDATE `game_id` SET `latest_ver`='".mysqli_real_escape_string($db, $updateVer)."' WHERE `gid`='{$row->gid}';");
 	}
 	mysqli_close($db);
+}
+
+
+function cachePatches() : void
+{
+	$db = getDatabase();
+
+	// Select all page IDs present on game list
+	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
+	LEFT JOIN `rpcs3_compatibility`.`game_list` ON `page`.`page_id` = `game_list`.`wiki`
+	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
+	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
+	LEFT JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+	WHERE `page`.`page_namespace` = 0 AND `game_list`.`wiki` IS NOT NULL; ");
+
+	// No wiki pages, return here
+	if (mysqli_num_rows($q_wiki) === 0)
+		return;
+
+	// Results array [id, text]
+	$a_wiki = array();
+	while ($row = mysqli_fetch_object($q_wiki))
+		$a_wiki[] = array($row->page_id, $row->text);
+
+	// Disabled by default, but it's disabled here again in case it's enabled
+	ini_set("yaml.decode_php", 0);
+
+	foreach ($a_wiki as $i => $result)
+	{
+		// Discard wiki pages with no patches
+		if (strpos($result[1], "<pre id=\"patch\" class=\"mw-collapsible mw-collapsed\">") === false)
+		{
+			unset($a_wiki[$i]);
+			continue;
+		}
+
+		$txt_patch = get_string_between($result[1], "<pre id=\"patch\" class=\"mw-collapsible mw-collapsed\">", "</pre>");
+		$yml_patch = yaml_parse($txt_patch);
+
+		// Discard patches with invalid YAML syntax
+		if ($yml_patch === false)
+		{
+			echo "Invalid YAML syntax on Wiki Page {$result[0]}".PHP_EOL;
+			continue;
+		}
+
+		// Insert patch on the DB if entry doesn't exist
+		$db_patch = mysqli_real_escape_string($db, $txt_patch);
+		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`) VALUES ({$result[0]}, '{$db_patch}'); ");
+	}
 }
