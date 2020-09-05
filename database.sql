@@ -93,3 +93,14 @@ CREATE TABLE `game_id` (
   `tid` int(11) NOT NULL,
   `latest_ver` varchar(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for game_patch
+-- ----------------------------
+DROP TABLE IF EXISTS `game_patch`;
+CREATE TABLE `game_patch` (
+  `wiki_id` int(11) NOT NULL,
+  `patch` mediumtext NOT NULL,
+  `version` varchar(4) NOT NULL,
+  PRIMARY KEY (`wiki_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

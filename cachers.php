@@ -600,35 +600,68 @@ function cachePatches() : void
 	if (mysqli_num_rows($q_wiki) === 0)
 		return;
 
+	// Disabled by default, but it's disabled here again in case it's enabled
+	ini_set("yaml.decode_php", 0);
+
 	// Results array [id, text]
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
-		$a_wiki[] = array($row->page_id, $row->text);
-
-	// Disabled by default, but it's disabled here again in case it's enabled
-	ini_set("yaml.decode_php", 0);
+		$a_wiki[] = array("id" => $row->page_id, "text" => $row->text);
 
 	foreach ($a_wiki as $i => $result)
 	{
 		// Discard wiki pages with no patches
-		if (strpos($result[1], "<pre id=\"patch\" class=\"mw-collapsible mw-collapsed\">") === false)
+		if (strpos($result["text"], "<pre id=\"patch\"") === false)
 		{
 			unset($a_wiki[$i]);
 			continue;
 		}
 
-		$txt_patch = get_string_between($result[1], "<pre id=\"patch\" class=\"mw-collapsible mw-collapsed\">", "</pre>");
+		// Get patch header information which is stored in the classes of the pre tag
+		$header = get_string_between($result["text"], "<pre id=\"patch\"", ">");
+
+		// Invalid information header
+		if (!is_string($header) || !empty($header))
+		{
+			echo "Invalid patch header syntax on Wiki Page {$result["id"]} <br>";
+			unset($a_wiki[$i]);
+			continue;
+		}
+
+		// Get the three characters representing the version number after "version-"
+		$version = substr($header, strpos($header, "version-") + strlen("version-"), 3);
+
+		// Check if patch version syntax is valid (number, underscore, number)
+		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || !$version[1] !== '_' || !ctype_digit($version[2]))
+		{
+			echo "Invalid patch version syntax on Wiki Page {$result["id"]} <br>";
+			unset($a_wiki[$i]);
+			continue;
+		}
+
+		// Grab the YAML code between the designated HTML tags
+		$txt_patch = get_string_between($result["text"], ">", "</pre>");
+
+		// Remove the first newline from the patch which comes after the opening pre tag
+		$txt_patch = substr($txt_patch, 1);
+
+		// Remove the last newline from the patch which comes before the closing pre tag
+		$txt_patch = substr($txt_patch, 0, -1);
+
+		// Validate whether the YAML code we fetched has valid YAML syntax
 		$yml_patch = yaml_parse($txt_patch);
 
 		// Discard patches with invalid YAML syntax
 		if ($yml_patch === false)
 		{
-			echo "Invalid YAML syntax on Wiki Page {$result[0]}".PHP_EOL;
+			echo "Invalid YAML syntax on Wiki Page {$result["id"]} <br>";
+			unset($a_wiki[$i]);
 			continue;
 		}
 
 		// Insert patch on the DB if entry doesn't exist
 		$db_patch = mysqli_real_escape_string($db, $txt_patch);
-		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`) VALUES ({$result[0]}, '{$db_patch}'); ");
+		$db_version = mysqli_real_escape_string($db, $version);
+		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`, `version`) VALUES ({$result["id"]}, '{$db_patch}', '{$db_version}'); ");
 	}
 }

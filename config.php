@@ -164,6 +164,10 @@ $a_panel = array(
 	'mergeGames' => array(
 		'title' => "Merge Games",
 		'success' => "Ran game merger"
+	),
+	'cachePatches' => array(
+		'title' => "Cache Patches",
+		'success' => "Forced update on game patches cache"
 	)
 );
 
