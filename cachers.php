@@ -589,7 +589,7 @@ function cachePatches() : void
 	$db = getDatabase();
 
 	// Select all page IDs present on game list
-	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
+	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, `page_touched`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
 	LEFT JOIN `rpcs3_compatibility`.`game_list` ON `page`.`page_id` = `game_list`.`wiki`
 	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
 	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
@@ -606,7 +606,7 @@ function cachePatches() : void
 	// Results array [id, text]
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
-		$a_wiki[] = array("id" => $row->page_id, "text" => $row->text);
+		$a_wiki[] = array("id" => $row->page_id, "text" => $row->text, "date" => $row->page_touched);
 
 	foreach ($a_wiki as $i => $result)
 	{
@@ -617,11 +617,17 @@ function cachePatches() : void
 			continue;
 		}
 
+		// Start of patch section
+		$start = strpos($result["text"], "===Patches===");
+
+		// Remove everything before start of patch section
+		$result["text"] = substr($result["text"], $start);
+
 		// Get patch header information which is stored in the classes of the pre tag
 		$header = get_string_between($result["text"], "<pre id=\"patch\"", ">");
 
 		// Invalid information header
-		if (!is_string($header) || !empty($header))
+		if (!is_string($header) || empty($header))
 		{
 			echo "Invalid patch header syntax on Wiki Page {$result["id"]} <br>";
 			unset($a_wiki[$i]);
@@ -632,7 +638,7 @@ function cachePatches() : void
 		$version = substr($header, strpos($header, "version-") + strlen("version-"), 3);
 
 		// Check if patch version syntax is valid (number, underscore, number)
-		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || !$version[1] !== '_' || !ctype_digit($version[2]))
+		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '_' || !ctype_digit($version[2]))
 		{
 			echo "Invalid patch version syntax on Wiki Page {$result["id"]} <br>";
 			unset($a_wiki[$i]);
@@ -662,6 +668,8 @@ function cachePatches() : void
 		// Insert patch on the DB if entry doesn't exist
 		$db_patch = mysqli_real_escape_string($db, $txt_patch);
 		$db_version = mysqli_real_escape_string($db, $version);
-		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`, `version`) VALUES ({$result["id"]}, '{$db_patch}', '{$db_version}'); ");
+		$db_date = mysqli_real_escape_string($db, $result["date"]);
+		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`, `version`, `touched`)
+		VALUES ({$result["id"]}, '{$db_patch}', '{$db_version}', '{$db_date}'); ");
 	}
 }
