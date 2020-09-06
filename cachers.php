@@ -645,6 +645,9 @@ function cachePatches() : void
 			continue;
 		}
 
+		// Turn version into MAJOR.MINOR instead of MAJOR_MINOR
+		$version = "{$version[0]}.{$version[2]}";
+
 		// Grab the YAML code between the designated HTML tags
 		$txt_patch = get_string_between($result["text"], ">", "</pre>");
 
@@ -669,7 +672,7 @@ function cachePatches() : void
 		$db_patch = mysqli_real_escape_string($db, $txt_patch);
 		$db_version = mysqli_real_escape_string($db, $version);
 		$db_date = mysqli_real_escape_string($db, $result["date"]);
-		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `patch`, `version`, `touched`)
-		VALUES ({$result["id"]}, '{$db_patch}', '{$db_version}', '{$db_date}'); ");
+		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
+		VALUES ({$result["id"]}, '{$db_version}', '{$db_date}', '{$db_patch}'); ");
 	}
 }

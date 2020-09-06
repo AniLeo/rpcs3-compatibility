@@ -27,15 +27,21 @@ if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Ga
 // TODO: Version GET parameter
 function exportGamePatches() : array
 {
-	global $c_maintenance, $a_status;
+	global $c_maintenance, $a_status, $get;
 
 	if ($c_maintenance) {
 		$results['return_code'] = -2;
 		return $results;
 	}
 
+	if (!isset($get['v'])) {
+		$results['return_code'] = -3;
+		return $results;
+	}
+
 	$db = getDatabase();
-	$patches = mysqli_query($db, "SELECT * FROM `game_patch` WHERE `version` = '1_2' ORDER BY `wiki_id` ASC; ");
+	$db_version = mysqli_real_escape_string($db, $get['v']);
+	$patches = mysqli_query($db, "SELECT * FROM `game_patch` WHERE `version` = '{$db_version}' ORDER BY `wiki_id` ASC; ");
 	mysqli_close($db);
 
 	if (mysqli_num_rows($patches) === 0)
@@ -45,13 +51,20 @@ function exportGamePatches() : array
 	}
 
 	$results['return_code'] = 0;
-	$results['version'] = "1_2";
-	$results['patch'] = "";
+	$results['version'] = $get['v'];
+	$results['sha256'] = "";
 
+	// Generate a valid patch file
+	$results['patch'] = "Version: {$results['version']}\n";
 	while ($row = mysqli_fetch_object($patches))
 	{
+		$results['patch'] .= "\n";
 		$results['patch'] .= $row->patch;
+		$results['patch'] .= "\n";
 	}
+
+	// Hash the returned results
+	$results['sha256'] = hash('sha256', $results['patch']);
 
 	return $results;
 }

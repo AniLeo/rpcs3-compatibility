@@ -100,8 +100,8 @@ CREATE TABLE `game_id` (
 DROP TABLE IF EXISTS `game_patch`;
 CREATE TABLE `game_patch` (
   `wiki_id` int(11) NOT NULL,
-  `patch` mediumtext NOT NULL,
   `version` varchar(4) NOT NULL,
   `touched` binary(14) NOT NULL,
-  PRIMARY KEY (`wiki_id`)
+  `patch` mediumtext NOT NULL,
+  PRIMARY KEY (`wiki_id`,`version`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

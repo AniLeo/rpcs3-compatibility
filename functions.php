@@ -348,6 +348,11 @@ function validateGet($db = null) : array
 		$get['m'] = strtolower($_GET['m']);
 	}
 
+	// Version for Patch System
+	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2])) {
+		$get['v'] = $_GET['v'];
+	}
+
 	// Get debug permissions, if any
 	$get['w'] = getDebugPermissions($db);
 
