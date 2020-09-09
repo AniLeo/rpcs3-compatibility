@@ -611,7 +611,7 @@ function cachePatches() : void
 	foreach ($a_wiki as $i => $result)
 	{
 		// Discard wiki pages with no patches
-		if (strpos($result["text"], "<pre id=\"patch\"") === false)
+		if (strpos($result["text"], "{{patch") === false)
 		{
 			unset($a_wiki[$i]);
 			continue;
@@ -623,8 +623,8 @@ function cachePatches() : void
 		// Remove everything before start of patch section
 		$result["text"] = substr($result["text"], $start);
 
-		// Get patch header information which is stored in the classes of the pre tag
-		$header = get_string_between($result["text"], "<pre id=\"patch\"", ">");
+		// Get patch header information
+		$header = get_string_between($result["text"], "{{patch", "|content");
 
 		// Invalid information header
 		if (!is_string($header) || empty($header))
@@ -635,27 +635,26 @@ function cachePatches() : void
 		}
 
 		// Get the three characters representing the version number after "version-"
-		$version = substr($header, strpos($header, "version-") + strlen("version-"), 3);
+		$version = substr($header, strpos($header, "version = ") + strlen("version = "), 3);
 
 		// Check if patch version syntax is valid (number, underscore, number)
-		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '_' || !ctype_digit($version[2]))
+		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '.' || !ctype_digit($version[2]))
 		{
 			echo "Invalid patch version syntax on Wiki Page {$result["id"]} <br>";
 			unset($a_wiki[$i]);
 			continue;
 		}
 
-		// Turn version into MAJOR.MINOR instead of MAJOR_MINOR
-		$version = "{$version[0]}.{$version[2]}";
-
 		// Grab the YAML code between the designated HTML tags
-		$txt_patch = get_string_between($result["text"], ">", "</pre>");
+		$txt_patch = get_string_between($result["text"], "|content =", "}}");
 
-		// Remove the first newline from the patch which comes after the opening pre tag
-		$txt_patch = substr($txt_patch, 1);
+		// Remove any spacing and newlines before the beginning of the patch
+		while (ctype_space($txt_patch[0]))
+			$txt_patch = substr($txt_patch, 1);
 
-		// Remove the last newline from the patch which comes before the closing pre tag
-		$txt_patch = substr($txt_patch, 0, -1);
+		// Remove any spacing and newlines before the end of the patch
+		while (ctype_space($txt_patch[-1]))
+			$txt_patch = substr($txt_patch, 0, -1);
 
 		// Validate whether the YAML code we fetched has valid YAML syntax
 		$yml_patch = yaml_parse($txt_patch);
@@ -668,11 +667,27 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Insert patch on the DB if entry doesn't exist
-		$db_patch = mysqli_real_escape_string($db, $txt_patch);
-		$db_version = mysqli_real_escape_string($db, $version);
+		$db_id = mysqli_real_escape_string($db, $result["id"]);
 		$db_date = mysqli_real_escape_string($db, $result["date"]);
-		$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
-		VALUES ({$result["id"]}, '{$db_version}', '{$db_date}', '{$db_patch}'); ");
+		$db_version = mysqli_real_escape_string($db, $version);
+		$db_patch = mysqli_real_escape_string($db, $txt_patch);
+
+		// Check if patch for current wiki_id, version pair exists, if it does fetch page touch date
+		$q_select = mysqli_query($db, "SELECT `wiki_id`, `version`, `touched` FROM `rpcs3_compatibility`.`game_patch`
+		WHERE `wiki_id` = '{$db_id}' AND `version` = '{$db_version}'; ");
+
+		// No existing patch found, insert new patch
+		if (mysqli_num_rows($q_select) === 0)
+		{
+			$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
+			VALUES ('{$db_id}', '{$db_version}', '{$db_date}', '{$db_patch}'); ");
+		}
+
+		// Existing patch found with older touch date, update it
+		else if ($db_date !== mysqli_fetch_object($q_select)->touched)
+		{
+			$q_update = mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_patch` SET `touched` = '{$db_date}', `patch` = '{$db_patch}'
+			WHERE `wiki_id` = '{$db_id}' AND `version` = '{$db_version}'; ");
+		}
 	}
 }

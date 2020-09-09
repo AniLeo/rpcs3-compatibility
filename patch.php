@@ -24,7 +24,17 @@ if (!@include_once('functions.php')) throw new Exception("Compat: functions.php 
 if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
-// TODO: Version GET parameter
+/*
+API v1
+Check for game patches
+
+return_code
+	-3 - Illegal search
+	-2 - Maintenance mode
+	-1 - No patches found for the specified version
+	 0 - Newer patch found
+	 1 - No newer patches found when hash is specified
+*/
 function exportGamePatches() : array
 {
 	global $c_maintenance, $a_status, $get;
@@ -65,6 +75,13 @@ function exportGamePatches() : array
 
 	// Hash the returned results
 	$results['sha256'] = hash('sha256', $results['patch']);
+
+	if (isset($get['sha256']) && $results['sha256'] === strtolower($get['sha256']))
+	{
+		// Client hash matches our patch, no new patch found
+		unset($results['patch']);
+		$results['return_code'] = 1;
+	}
 
 	return $results;
 }

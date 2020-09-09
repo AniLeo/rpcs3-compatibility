@@ -348,9 +348,14 @@ function validateGet($db = null) : array
 		$get['m'] = strtolower($_GET['m']);
 	}
 
-	// Version for Patch System
+	// Patch system: Version
 	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2])) {
 		$get['v'] = $_GET['v'];
+	}
+
+	// Patch system: Sha256
+	if (isset($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256'])) {
+		$get['sha256'] = $_GET['sha256'];
 	}
 
 	// Get debug permissions, if any
