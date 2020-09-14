@@ -528,11 +528,14 @@ function cacheWikiIDs() : void
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 	$a_games = Game::queryToGames($q_games);
 
+	// Fetch all game patches that contain a Game ID
 	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
 	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
 	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
 	LEFT JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-	WHERE `page_namespace` = 0; ");
+	WHERE `page_namespace` = 0
+	HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
+
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
 		$a_wiki[] = array($row->page_id, $row->text);
@@ -546,16 +549,24 @@ function cacheWikiIDs() : void
 		foreach ($game->IDs as $id) {
 			foreach ($a_wiki as $wiki) {
 				if (strpos($wiki[1], $id[0]) !== false) {
-					$a_found[] = array($game->title, $wiki[0]);
+					$a_found[] = array('wiki_id' => $wiki[0], 'title' => $game->title);
 					break 2;
 				}
 			}
 		}
 	}
 
+
+
+	// Update compatibility list entries with the found Wiki IDs
 	// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
-	foreach ($a_found as $entry) {
-		$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki`={$entry[1]} WHERE (`game_title`='".mysqli_real_escape_string($db, $entry[0])."');");
+	foreach ($a_found as $entry)
+	{
+		$db_id = mysqli_real_escape_string($db, $entry['wiki_id']);
+		$db_title = mysqli_real_escape_string($db, $entry['title']);
+		
+		$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
+		WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
 	}
 
 	mysqli_close($db);
