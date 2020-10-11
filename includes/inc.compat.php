@@ -124,7 +124,7 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($g
 }
 
 
-// Check if query succeded and storing is required, stores messages for error/information printing
+// Check if query succeeded and storing is required, stores messages for error/information printing
 Profiler::addData("Inc: Check Search Status");
 $error = NULL;
 $info = NULL;

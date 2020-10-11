@@ -57,7 +57,7 @@ $buildsQuery = mysqli_query($db, $buildsCommand);
 Profiler::addData("Inc: Close Database Connection");
 mysqli_close($db);
 
-// Check if query succeded and storing is required, stores messages for error printing
+// Check if query succeeded and storing is required, stores messages for error printing
 Profiler::addData("Inc: Check Query Status");
 $error = NULL;
 if (!$buildsQuery)                            { $error = "Please try again. If this error persists, please contact the RPCS3 team."; }

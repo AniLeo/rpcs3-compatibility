@@ -529,7 +529,7 @@ function getFooter() : string
 {
 	global $c_maintenance, $get, $start_time;
 
-	// Total time in miliseconds
+	// Total time in milliseconds
 	$total_time = round((microtime(true) - $start_time)*1000,2);
 
 	$s = "Compatibility list developed and maintained by
