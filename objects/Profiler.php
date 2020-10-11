@@ -54,7 +54,7 @@ class Profiler {
 
 		self::$data[] = array(
 			'desc' => $description,
-			'time' => microtime(true) * 1000,                   // Miliseconds
+			'time' => microtime(true) * 1000,                   // Milliseconds
 			'mem'  => round(memory_get_usage(false)/1024, 2));  // KBs
 		self::$size++;
 	}
