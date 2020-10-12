@@ -461,7 +461,7 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 
 	// IF no results are found then the amount of pages is 0
 	// Returns no results found message
-	if ($pages == 0)
+	if ($pages === 0)
 		return "No results found using the selected search criteria.";
 
 	// Shows current page and total pages
@@ -486,18 +486,18 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 			$p = ($i < 10) ? "0{$i}" : "{$i}";
 
 			// Highlights the page if it's the one we're currently in
-			$s_pagescounter .= highlightText($p, $i == $currentPage);
+			$s_pagescounter .= highlightText($p, $i === $currentPage);
 
 			$s_pagescounter .= "</a>&nbsp;&#32;";
 
 		}
 		// First page
-		elseif ($i == 1) {
-			$s_pagescounter .= "<a href=\"?{$extra}p=$i\">01</a>&nbsp;&#32;";
+		elseif ($i === 1) {
+			$s_pagescounter .= "<a href=\"?{$extra}p={$i}\">01</a>&nbsp;&#32;";
 			if ($currentPage != $c_pagelimit+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
 		}
 		// Last page
-		elseif ($pages == $i) {
+		elseif ($pages === $i) {
 			$s_pagescounter .= "...&nbsp;&#32;<a href=\"?{$extra}p=$pages\">$pages</a>&nbsp;&#32;";
 		}
 

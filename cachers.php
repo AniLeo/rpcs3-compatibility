@@ -564,7 +564,7 @@ function cacheWikiIDs() : void
 	{
 		$db_id = mysqli_real_escape_string($db, $entry['wiki_id']);
 		$db_title = mysqli_real_escape_string($db, $entry['title']);
-		
+
 		$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
 		WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
 	}
@@ -617,10 +617,10 @@ function cachePatches() : void
 	// Disabled by default, but it's disabled here again in case it's enabled
 	ini_set("yaml.decode_php", 0);
 
-	// Results array [id, text, date]
+	// Results array [id, title, text, date]
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
-		$a_wiki[] = array("id" => $row->page_id, "text" => $row->text, "date" => $row->page_touched);
+		$a_wiki[] = array("id" => $row->page_id, "title" => $row->page_title, "text" => $row->text, "date" => $row->page_touched);
 
 	// Select all game patches currently on database
 	$q_patch = mysqli_query($db, "SELECT `wiki_id`, `version`, `touched` FROM `rpcs3_compatibility`.`game_patch`; ");
@@ -648,7 +648,7 @@ function cachePatches() : void
 		// Invalid information header
 		if (!is_string($header) || empty($header))
 		{
-			echo "Invalid patch header syntax on Wiki Page {$result["id"]} <br>";
+			echo "Invalid patch header syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
 			unset($a_wiki[$i]);
 			continue;
 		}
@@ -659,7 +659,14 @@ function cachePatches() : void
 		// Check if patch version syntax is valid (number, underscore, number)
 		if (!is_string($type) || strlen($type) !== 3 || !ctype_alpha($type))
 		{
-			echo "Invalid patch type syntax on Wiki Page {$result["id"]} <br>";
+			echo "Invalid patch type syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+			unset($a_wiki[$i]);
+			continue;
+		}
+
+		// Only accept PPU and SPU main patches
+		if ($type !== "PPU" && $type !== "SPU")
+		{
 			unset($a_wiki[$i]);
 			continue;
 		}
@@ -677,7 +684,7 @@ function cachePatches() : void
 		// Check if patch version syntax is valid (number, underscore, number)
 		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '.' || !ctype_digit($version[2]))
 		{
-			echo "Invalid patch version syntax on Wiki Page {$result["id"]} <br>";
+			echo "Invalid patch version syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
 			unset($a_wiki[$i]);
 			continue;
 		}
@@ -699,7 +706,7 @@ function cachePatches() : void
 		// Discard patches with invalid YAML syntax
 		if ($yml_patch === false)
 		{
-			echo "Invalid YAML syntax on Wiki Page {$result["id"]} <br>";
+			echo "Invalid YAML syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
 			unset($a_wiki[$i]);
 			continue;
 		}

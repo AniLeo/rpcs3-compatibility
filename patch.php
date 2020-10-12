@@ -78,7 +78,7 @@ function exportGamePatches() : array
 
 	if (isset($get['sha256']) && $results['sha256'] === strtolower($get['sha256']))
 	{
-		// Client hash matches our patch, no new patch found
+		// Client hash matches match our patch, no new patch found
 		unset($results['patch']);
 		$results['return_code'] = 1;
 	}
