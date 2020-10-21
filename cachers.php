@@ -495,7 +495,7 @@ function cacheWikiIDs() : void
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 	$a_games = Game::queryToGames($q_games);
 
-	// Fetch all game patches that contain a Game ID
+	// Fetch all wiki pages that contain a Game ID
 	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
 	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
 	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
@@ -505,25 +505,32 @@ function cacheWikiIDs() : void
 
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
-		$a_wiki[] = array($row->page_id, $row->text);
+	{
+		$matches = array();
+		preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
+		$matches = $matches[0];
 
-	$a_found = array();
-
-	// For every game
-	// For every ID
-	// Look for the ID on all wiki pages
-	foreach ($a_games as $game) {
-		foreach ($game->game_item as $item) {
-			foreach ($a_wiki as $wiki) {
-				if (strpos($wiki[1], $item->game_id) !== false) {
-					$a_found[] = array('wiki_id' => $wiki[0], 'title' => $game->title);
-					break 2;
-				}
-			}
+		foreach ($matches as $match)
+		{
+			$a_wiki[$match] = $row->page_id;
 		}
 	}
 
+	$a_found = array();
 
+	// For every Game
+	// For every GameItem
+	foreach ($a_games as $game)
+	{
+		foreach ($game->game_item as $item)
+		{
+			if (isset($a_wiki[$item->game_id]))
+			{
+				$a_found[] = array('wiki_id' => $a_wiki[$item->game_id], 'title' => $game->title);
+				break;
+			}
+		}
+	}
 
 	// Update compatibility list entries with the found Wiki IDs
 	// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
