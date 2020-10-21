@@ -23,13 +23,13 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class HistoryEntry {
 
-	public $title;				// String
-	public $title2;				// String
-	public $old_status;		// Int
-	public $new_status;		// Int
-	public $old_date;			// Date
-	public $new_date;			// Date
-	public $IDs;					// (String, Int)
+	public $title;       // String
+	public $title2;      // String
+	public $old_status;  // Int
+	public $new_status;  // Int
+	public $old_date;    // Date
+	public $new_date;    // Date
+	public $IDs;         // ("gid" => String, "tid" => Int)
 
 	function __construct($maintitle, $alternativetitle, $oldstatus, $newstatus, $olddate, $newdate, $gid, $tid)
 	{
@@ -45,7 +45,7 @@ class HistoryEntry {
 		$this->new_status = getStatusID($newstatus);
 		$this->new_date = $newdate;
 
-		$this->IDs = array($gid, $tid);
+		$this->IDs = array("gid" => $gid, "tid" => $tid);
 	}
 
 

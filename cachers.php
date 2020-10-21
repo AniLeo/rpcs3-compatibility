@@ -548,7 +548,7 @@ function cacheWikiIDs() : void
 	foreach ($a_games as $game) {
 		foreach ($game->IDs as $id) {
 			foreach ($a_wiki as $wiki) {
-				if (strpos($wiki[1], $id[0]) !== false) {
+				if (strpos($wiki[1], $id["gid"]) !== false) {
 					$a_found[] = array('wiki_id' => $wiki[0], 'title' => $game->title);
 					break 2;
 				}

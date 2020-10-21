@@ -459,6 +459,9 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 	// Initialize string
 	$s_pagescounter = "";
 
+	if (!empty($extra))
+		$extra .= "&";
+
 	// IF no results are found then the amount of pages is 0
 	// Returns no results found message
 	if ($pages === 0)
@@ -513,6 +516,9 @@ function getTableHeaders(array $headers, string $extra = '') : string
 
 	// Initialize string
 	$s_tableheaders = "";
+
+	if (!empty($extra))
+		$extra .= "&";
 
 	foreach ($headers as $i => $header) {
 		if     ($header['sort'] === 0)             { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
@@ -676,32 +682,31 @@ function getDebugPermissions($db = null) : ?array
 	return $permissions;
 }
 
-
+// results, status, character, searchbox, media, region, date, order
 function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
 {
 	global $get, $scount, $c_pageresults;
 
-	// Initialize string
-	$combined = "";
+	$query = array();
 
 	// Combined search: results per page
-	if ($get['r'] != $c_pageresults && $r) {$combined .= "r={$get['r']}&";}
+	if ($get['r'] !== $c_pageresults && $r)              { $query['r'] = $get['r']; }
 	// Combined search: sort by status
-	if ($get['s'] != 0 && $s) {$combined .= "s={$get['s']}&";}
+	if ($get['s'] !== 0 && $s)                           { $query['s'] = $get['s']; }
 	// Combined search: search by character
-	if ($get['c'] != "" && $c) {$combined .= "c={$get['c']}&";}
+	if ($get['c'] !== "" && $c)                          { $query['c'] = $get['c']; }
 	// Combined search: searchbox
-	if ($get['g'] != "" && $scount["status"] > 0 && $g) {$combined .= "g=".urlencode($get['g'])."&";}
+	if ($get['g'] !== "" && $scount["status"] > 0 && $g) { $query['g'] = $get['g']; }
 	// Combined search: search by media type
-	if ($get['t'] != "" && $t) {$combined .= "t={$get['t']}&";}
+	if ($get['t'] !== "" && $t)                          { $query['t'] = $get['t']; }
 	// Combined search: search by region
-	if ($get['f'] != "" && $f) {$combined .= "f={$get['f']}&";}
+	if ($get['f'] !== "" && $f)                          { $query['f'] = $get['f']; }
 	// Combined search: date search
-	if ($get['d'] != "" && $d) {$combined .= "d={$get['d']}&";}
+	if ($get['d'] !== "" && $d)                          { $query['d'] = $get['d']; }
 	// Combined search: order by
-	if ($get['o'] != "" && $o) {$combined .= "o={$get['o']}&";}
+	if ($get['o'] !== "" && $o)                          { $query['o'] = $get['o']; }
 
-	return $combined;
+	return http_build_query($query);
 }
 
 
@@ -746,7 +751,7 @@ function resultsPerPage(string $combinedSearch, string $extra = "") : string
 	$s_pageresults = "";
 
 	foreach ($a_pageresults as $pageresult) {
-		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}r={$pageresult}\">";
+		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}&r={$pageresult}\">";
 		// If the current selected item, highlight
 		$s_pageresults .= highlightText($pageresult, $get['r'] == $pageresult);
 		$s_pageresults .= "</a>";

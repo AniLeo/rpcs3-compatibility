@@ -51,10 +51,10 @@ function exportDatabase() : array
 				'date' => $game->date
 			);
 
-			if (!is_null($id[2]))
-				$a_data['update'] = $id[2];
+			if (!is_null($id["latest"]))
+				$a_data['update'] = $id["latest"];
 
-			$results['results'][$id[0]] = $a_data;
+			$results['results'][$id["gid"]] = $a_data;
 		}
 	}
 

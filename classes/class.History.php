@@ -190,8 +190,8 @@ public static function printTableContent(array $array) : void
 		echo "<div class=\"compat-table-row\">";
 
 		// Cell 1: Regions
-		$cell = getThread(getGameRegion($entry->IDs[0], false).$entry->IDs[0], $entry->IDs[1]);
-		$media = getGameMediaIcon($entry->IDs[0], false);
+		$cell = getThread(getGameRegion($entry->IDs["gid"], false).$entry->IDs["gid"], $entry->IDs["tid"]);
+		$media = getGameMediaIcon($entry->IDs["gid"], false);
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
@@ -294,7 +294,7 @@ public static function printHistoryRSS() : void
 		foreach ($a_new as $key => $entry) {
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
-						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
+						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs["gid"]}_{$entry->new_date}</guid>
 						<description>New entry for {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
 						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 						</item>";
@@ -303,7 +303,7 @@ public static function printHistoryRSS() : void
 		foreach ($a_existing as $key => $entry) {
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
-						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs[0]}_{$entry->new_date}</guid>
+						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->IDs["gid"]}_{$entry->new_date}</guid>
 						<description>Updated from {$a_status[$entry->old_status]["name"]} ({$entry->old_date}) to {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
 						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 						</item>";

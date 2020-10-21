@@ -89,24 +89,24 @@ function checkInvalidThreads() : void
 
 	foreach ($a_games as $game) {
 		foreach ($game->IDs as $id) {
-			if (!array_key_exists($id[1], $a_threads)) {
+			if (!array_key_exists($id["tid"], $a_threads)) {
 				$output .= "<p class='compat-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$id[1]}: [{$id[0]}] {$game->title}", $id[1])." doesn't exist.<br>";
-				$output .= "- Compat: {$game->title} [{$id[0]}]<br>";
+				$output .= "Thread ".getThread("{$id["tid"]}: [{$id["gid"]}] {$game->title}", $id["tid"])." doesn't exist.<br>";
+				$output .= "- Compat: {$game->title} [{$id["gid"]}]<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($id[0] != $a_threads[$id[1]][0]) {
+			} elseif ($id["gid"] != $a_threads[$id["tid"]][0]) {
 				$output .= "<p class='compat-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$id[1]}: [{$id[0]}] {$game->title}", $id[1])." is incorrect.<br>";
-				$output .= "- Compat: {$game->title} [{$id[0]}]<br>";
-				$output .= "- Forums: {$a_threads[$id[1]][0]}<br>";
+				$output .= "Thread ".getThread("{$id["tid"]}: [{$id["gid"]}] {$game->title}", $id["tid"])." is incorrect.<br>";
+				$output .= "- Compat: {$game->title} [{$id["gid"]}]<br>";
+				$output .= "- Forums: {$a_threads[$id["tid"]][0]}<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($game->status != $a_threads[$id[1]][1]) {
+			} elseif ($game->status != $a_threads[$id["tid"]][1]) {
 				$output .= "<p class='compat-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$id[1]}: [{$id[0]}] {$game->title}", $id[1])." is in the wrong section.<br>";
+				$output .= "Thread ".getThread("{$id["tid"]}: [{$id["gid"]}] {$game->title}", $id["tid"])." is in the wrong section.<br>";
 				$output .= "- Compat: {$a_status[$game->status]['name']} <br>";
-				$output .= "- Forums: {$a_status[$a_threads[$id[1]][1]]['name']}<br>";
+				$output .= "- Forums: {$a_status[$a_threads[$id["tid"]][1]]['name']}<br>";
 				$output .= "</p>";
 				$invalid++;
 			}
@@ -195,8 +195,8 @@ function compatibilityUpdater() : void
 		$cur_game = null;
 		foreach($a_games as $game) {
 			foreach($game->IDs as $id) {
-				if ($id[0] == $gid) {
-					$tid = $id[1];
+				if ($id["gid"] === $gid) {
+					$tid = $id["tid"];
 					$cur_game = $game;
 				}
 			}
@@ -500,7 +500,7 @@ function mergeGames() : void
 		return;
 	}
 
-	if (substr($game1->IDs[0][0], 0, 1) !== substr($game2->IDs[0][0], 0, 1)) {
+	if (substr($game1->IDs["gid"][0], 0, 1) !== substr($game2->IDs["gid"][0], 0, 1)) {
 		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
 		return;
 	}
@@ -512,12 +512,12 @@ function mergeGames() : void
 
 	echo "<b>Game 1: {$game1->title} {$alternative1} (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$game1->pr}, date: {$game1->date})</b><br>";
 		foreach ($game1->IDs as $id)
-			echo "- {$id[0]} (tid: $id[1])<br>";
+			echo "- {$id["gid"]} (tid: {$id["tid"]})<br>";
 	echo "<br>";
 
 	echo "<b>Game 2: {$game2->title} {$alternative2} (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$game2->pr}, date: {$game2->date})</b><br>";
 		foreach ($game2->IDs as $id)
-			echo "- {$id[0]} (tid: $id[1])<br>";
+			echo "- {$id["gid"]} (tid: {$id["tid"]})<br>";
 	echo "<br>";
 
 	$time1 = strtotime($game1->date);

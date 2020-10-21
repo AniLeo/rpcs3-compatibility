@@ -33,7 +33,7 @@ class Game {
 	public $network;    // Int
 	public $wikiID;     // Int
 	public $wikiTitle;  // String
-	public $IDs;        // [(String, Int, String)]
+	public $IDs;        // [("gid" => String, "tid" => Int, "latest" => String)]
 
 	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit, $network)
 	{
@@ -136,7 +136,7 @@ class Game {
 
 		$a_ids = array();
 		while ($row = mysqli_fetch_object($q_ids))
-			$a_ids[$row->key][] = array($row->gid, $row->tid, $row->latest_ver);
+			$a_ids[$row->key][] = array("gid" => $row->gid, "tid" => $row->tid, "latest" => $row->latest_ver);
 
 		mysqli_data_seek($query, 0);
 		while ($row = mysqli_fetch_object($query))

@@ -61,9 +61,9 @@ if ($a_db) {
 	$a_games = array();
 	foreach ($games as $game)
 		foreach ($game->IDs as $id)
-			$a_games[$id[0]] = array(
+			$a_games[$id["gid"]] = array(
 				'title' => $game->title,
-				'thread' => $id[1],
+				'thread' => $id["tid"],
 				'last_update' => $game->date,
 				'pr' => $game->pr
 			);

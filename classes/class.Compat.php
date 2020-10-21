@@ -231,11 +231,11 @@ public static function printTable() : void
 			if (!empty($cell))
 				$cell .= "<br>";
 
-			$cell .= getThread(getGameRegion($ID[0], false), $ID[1]);
-			$cell .= getThread($ID[0], $ID[1]);
+			$cell .= getThread(getGameRegion($ID["gid"], false), $ID["tid"]);
+			$cell .= getThread($ID["gid"], $ID["tid"]);
 
 			if ($media == '')
-				$media = getGameMediaIcon($ID[0]);
+				$media = getGameMediaIcon($ID["gid"]);
 		}
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
@@ -267,13 +267,13 @@ public static function printTable() : void
 
 		$count_id = count($game->IDs);
 		foreach ($game->IDs as $i => $ID) {
-			if (!is_null($ID[2]) && !empty($ID[2]))
+			if (!is_null($ID["latest"]) && !empty($ID["latest"]))
 			{
-				echo "{$ID[0]}'s latest known version is <b>{$ID[2]}</b>";
+				echo "{$ID["gid"]}'s latest known version is <b>{$ID["latest"]}</b>";
 			}
 			else
 			{
-				echo "{$ID[0]} has no known updates";
+				echo "{$ID["gid"]} has no known updates";
 			}
 			if ($count_id !== $i + 1)
 			{
@@ -358,13 +358,13 @@ public static function APIv1() : array
 
 	foreach ($games as $game) {
 		foreach ($game->IDs as $id) {
-			$results['results'][$id[0]] = array(
+			$results['results'][$id["gid"]] = array(
 			'title' => $game->title,
 			'alternative-title' => $game->title2,
 			'wiki-title' => $game->wikiTitle,
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
-			'thread' => (int) $id[1],
+			'thread' => (int) $id["tid"],
 			'commit' => $game->commit,
 			'pr' => $game->pr,
 			'network' => $game->network
