@@ -496,7 +496,7 @@ function cacheWikiIDs() : void
 	$a_games = Game::queryToGames($q_games);
 
 	// Fetch all wiki pages that contain a Game ID
-	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
+	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
 	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
 	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
 	LEFT JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
@@ -508,15 +508,12 @@ function cacheWikiIDs() : void
 	{
 		$matches = array();
 		preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
-		$matches = $matches[0];
 
-		foreach ($matches as $match)
+		foreach ($matches[0] as $match)
 		{
 			$a_wiki[$match] = $row->page_id;
 		}
 	}
-
-	$a_found = array();
 
 	// For every Game
 	// For every GameItem
@@ -524,23 +521,21 @@ function cacheWikiIDs() : void
 	{
 		foreach ($game->game_item as $item)
 		{
-			if (isset($a_wiki[$item->game_id]))
+			if (!isset($a_wiki[$item->game_id]))
 			{
-				$a_found[] = array('wiki_id' => $a_wiki[$item->game_id], 'title' => $game->title);
-				break;
+				continue;
 			}
+
+			// Update compatibility list entries with the found Wiki IDs
+			// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
+			$db_id    = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
+			$db_title = mysqli_real_escape_string($db, $game->title);
+
+			$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
+			WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
+
+			break;
 		}
-	}
-
-	// Update compatibility list entries with the found Wiki IDs
-	// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
-	foreach ($a_found as $entry)
-	{
-		$db_id = mysqli_real_escape_string($db, $entry['wiki_id']);
-		$db_title = mysqli_real_escape_string($db, $entry['title']);
-
-		$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
-		WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
 	}
 
 	mysqli_close($db);
