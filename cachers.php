@@ -497,10 +497,10 @@ function cacheWikiIDs() : void
 
 	// Fetch all wiki pages that contain a Game ID
 	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
-	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
-	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
-	LEFT JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-	WHERE `page_namespace` = 0
+	INNER JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
+	INNER JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
+	INNER JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+	WHERE `page`.`page_namespace` = 0
 	HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
 
 	$a_wiki = array();
@@ -516,7 +516,8 @@ function cacheWikiIDs() : void
 	}
 
 	// Cached game titles
-	$a_cached = array();
+	$a_cached  = array();
+	$q_updates = "";
 
 	// For every Game
 	// For every GameItem
@@ -525,22 +526,27 @@ function cacheWikiIDs() : void
 		foreach ($game->game_item as $item)
 		{
 			// Didn't find Game ID on any wiki pages or already cached this title in this run
-			if (!isset($a_wiki[$item->game_id]) || in_array($game->title, $a_cached) || in_array($game->title2, $a_cached))
+			if (!isset($a_wiki[$item->game_id]) || in_array($game->title, $a_cached) || (!is_null($game->title2) && in_array($game->title2, $a_cached)))
 			{
 				continue;
 			}
 
 			// Update compatibility list entries with the found Wiki IDs
 			// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
-			$db_id    = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
-			$db_title = mysqli_real_escape_string($db, $game->title);
+			$db_id      = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
+			$db_title   = mysqli_real_escape_string($db, $game->title);
 
-			$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
-			WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
+			$q_updates .= "UPDATE `game_list` SET `wiki` = '{$db_id}'
+			WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}'; ";
 
 			$a_cached[] = $game->title;
 			break;
 		}
+	}
+
+	if (!empty($q_updates))
+	{
+		mysqli_multi_query($db, $q_updates);
 	}
 
 	mysqli_close($db);
