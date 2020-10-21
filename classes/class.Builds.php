@@ -143,6 +143,8 @@ public static function printTable() : void
 			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
 		if (!is_null($build->url_linux))
 			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
+		if ($build->broken === 1)
+			$cell = "<s>{$cell}</s>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		echo "</div>";
@@ -179,6 +181,10 @@ public static function getBuildsRSS() : string
 	$rssfeed = "";
 
 	foreach ($builds as $build) {
+		// Skip broken builds
+		if ($build->broken === 1)
+			continue;
+
 		$rssfeed .= "
 				<item>
 					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
