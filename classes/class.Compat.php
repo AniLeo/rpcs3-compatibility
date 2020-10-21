@@ -113,6 +113,9 @@ public static function printStatusSort() : void
 	// Get combined search parameters
 	$s_combined = combinedSearch(true, false, true, true, false, true, true, true);
 
+	if (!empty($s_combined))
+		$s_combined .= "&";
+
 	// All statuses
 	echo "<a title=\"Show games from all statuses\" href=\"?{$s_combined}s=0\">";
 	echo highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0);
@@ -256,7 +259,7 @@ public static function printTable() : void
 
 		// Cell 4: Last Test
 		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>";
-		$cell .= $game->pr == 0 ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$c_github}/pull/{$game->pr}'>#{$game->pr}</a>)";
+		$cell .= is_null($game->pr) ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$c_github}/pull/{$game->pr}'>#{$game->pr}</a>)";
 		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
 
 		echo "</label>";
@@ -365,8 +368,8 @@ public static function APIv1() : array
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
 			'thread' => (int) $id["tid"],
-			'commit' => $game->commit,
-			'pr' => $game->pr,
+			'commit' => is_null($game->commit) ? 0 : $game->commit,
+			'pr' => is_null($game->pr) ? 0 : $game->pr,
 			'network' => $game->network
 			);
 		}

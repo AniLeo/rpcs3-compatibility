@@ -86,7 +86,7 @@ public static function getTestedContents() : void
 				</div>
 				<div class=\"compat-table-cell compat-table-cell-updated\"style='color:{$color};'>
 				{$a_games[$gameID]['last_update']}&nbsp;&nbsp;&nbsp;";
-				echo $a_games[$gameID]['pr'] == 0 ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>#{$a_games[$gameID]['pr']}</a>)";
+				echo is_null($a_games[$gameID]['pr']) ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>#{$a_games[$gameID]['pr']}</a>)";
 
 				echo "</div>
 			</div>";

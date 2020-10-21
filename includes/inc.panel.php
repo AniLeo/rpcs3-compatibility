@@ -150,7 +150,7 @@ function compatibilityUpdater() : void
 	$q_commits = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
 	while ($row = mysqli_fetch_object($q_commits))
-		$a_commits[substr($row->commit, 0, 8)] = array($row->commit, $row->merge_datetime);
+		$a_commits[substr($row->commit, 0, 8)] = array("pr" => $row->pr, "commit" => $row->commit, "merge" => $row->merge_datetime);
 
 	// Get all threads since the end of the last compatibility period
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
@@ -222,7 +222,8 @@ function compatibilityUpdater() : void
 				'gid' => $gid,
 				'game_title' => $title,
 				'status' => $sid,
-				'commit' => 0,
+				'commit' => null,
+				'pr' => null,
 				'last_update' => date('Y-m-d', $row->lastpost),
 				'author' => $row->username
 			);
@@ -235,7 +236,8 @@ function compatibilityUpdater() : void
 			while ($post = mysqli_fetch_object($q_post)) {
 				foreach ($a_commits as $key => $value) {
 					if (stripos($post->message, (string)$key) !== false) {
-						$a_inserts[$row->tid]['commit'] = $value[0];
+						$a_inserts[$row->tid]['commit'] = $value["commit"];
+						$a_inserts[$row->tid]['pr'] = $value["pr"];
 						$a_inserts[$row->tid]['last_update'] = date('Y-m-d', $post->dateline);
 						break 2;
 					}
@@ -243,9 +245,9 @@ function compatibilityUpdater() : void
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$status_commit = $a_inserts[$row->tid]['commit'] !== 0 ? 'green' : 'red';
-			$short_commit = $a_inserts[$row->tid]['commit'] !== 0 ? substr($a_inserts[$row->tid]['commit'], 0, 8) : 0;
-			$date_commit = $a_inserts[$row->tid]['commit'] !== 0 ? "({$a_commits[$short_commit][1]})" : "";
+			$status_commit = !is_null($a_inserts[$row->tid]['commit']) ? 'green' : 'red';
+			$short_commit  = !is_null($a_inserts[$row->tid]['commit']) ? substr($a_inserts[$row->tid]['commit'], 0, 8) : "null";
+			$date_commit   = !is_null($a_inserts[$row->tid]['commit']) ? "({$a_commits[$short_commit]["merge"]})" : "";
 
 			echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).", author:{$a_inserts[$row->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
@@ -264,11 +266,10 @@ function compatibilityUpdater() : void
 				if ($a_updates[$cur_game->key]['status'] < $sid) {
 					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
 					continue;
-				} elseif ($a_updates[$cur_game->key]['commit'] === 0) {
+				} elseif (is_null($a_updates[$cur_game->key]['commit'])) {
 					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$gid}<br><br>";
 					$a_updates[$cur_game->key]['gid'] = $gid;
 					$a_updates[$cur_game->key]['status'] = $sid;
-					$a_updates[$cur_game->key]['commit'] = 0;
 					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
 				}
 
@@ -278,7 +279,8 @@ function compatibilityUpdater() : void
 					'gid' => $gid,
 					'game_title' => $cur_game->title,
 					'status' => $sid,
-					'commit' => 0,
+					'commit' => null,
+					'pr' => null,
 					'last_update' => date('Y-m-d', $row->lastpost),
 					'action' => 'mov',
 					'old_date' => $cur_game->date,
@@ -298,10 +300,11 @@ function compatibilityUpdater() : void
 					if (stripos($post->message, (string)$key) !== false) {
 						// If current commit is newer than the previously recorded one, replace
 						// TODO: Check distance between commit date and post here
-						if (($a_updates[$cur_game->key]['commit'] === 0) ||
-						($a_updates[$cur_game->key]['commit'] !== 0 && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) < strtotime($value[1]))) {
-							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $value[0] $post->username <br>";
-							$a_updates[$cur_game->key]['commit'] = $value[0];
+						if ((is_null($a_updates[$cur_game->key]['commit'])) ||
+						(!is_null($a_updates[$cur_game->key]['commit']) && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)]["merge"]) < strtotime($value["merge"]))) {
+							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $value["commit"] $post->username <br>";
+							$a_updates[$cur_game->key]['commit'] = $value["commit"];
+							$a_updates[$cur_game->key]['pr'] = $value["pr"];
 							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
 							$a_updates[$cur_game->key]['author'] = $post->username;
 							break 2;
@@ -314,27 +317,28 @@ function compatibilityUpdater() : void
 			// Or no new commit was found
 			// then ignore this entry and continue
 			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
-				$a_updates[$cur_game->key]['commit'] === 0) {
+				is_null($a_updates[$cur_game->key]['commit'])) {
 				unset($a_updates[$cur_game->key]);
 				continue;
 			}
 
 			// Check if the distance between commit date and post is bigger than 4 weeks
-			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)][1]) > 4 * 604804) {
+			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)]["merge"]) > 4 * 604804) {
 				echo "<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>";
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$new_status_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? 'green' : 'red';
-			$old_status_commit = $cur_game->pr !== 0 ? 'green' : 'red';
-			$short_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? substr($a_updates[$cur_game->key]['commit'], 0, 8) : 0;
-			$date_commit = $a_updates[$cur_game->key]['commit'] !== 0 ? "({$a_commits[$short_commit][1]})" : "";
+			$new_status_commit = !is_null($a_updates[$cur_game->key]['commit']) ? 'green' : 'red';
+			$old_status_commit = !is_null($cur_game->pr) ? 'green' : 'red';
+			$short_commit      = !is_null($a_updates[$cur_game->key]['commit']) ? substr($a_updates[$cur_game->key]['commit'], 0, 8) : "null";
+			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$short_commit]["merge"]})" : "";
+			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
 			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid:".getThread($row->tid, $row->tid).", author:{$a_updates[$cur_game->key]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
 			echo "- Commit: <span style='color:{$new_status_commit}'>{$short_commit}</span> {$date_commit}
-						<-- <span style='color:{$old_status_commit}'>".substr($cur_game->commit, 0, 8)."</span> ({$cur_game->date})<br>";
+						<-- <span style='color:{$old_status_commit}'>{$old_commit}</span> ({$cur_game->date})<br>";
 			echo "<br>";
 
 		}
@@ -356,9 +360,10 @@ function compatibilityUpdater() : void
 		*/
 		foreach ($a_inserts as $tid => $game) {
 			// Insert new entry on the game list
-			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `last_update`, `status`) VALUES
+			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr` `last_update`, `status`) VALUES
 			('".mysqli_real_escape_string($db, $game['game_title'])."',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
+			'".mysqli_real_escape_string($db, $game['pr'])."',
 			'{$game['last_update']}',
 			'{$game['status']}');");
 
@@ -366,6 +371,7 @@ function compatibilityUpdater() : void
 			$q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
 			`game_title` = '".mysqli_real_escape_string($db, $game['game_title'])."' AND
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
+			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."' AND
 			`last_update` = '{$game['last_update']}' AND
 			`status` = {$game['status']}
 			ORDER BY `key` DESC LIMIT 1");
@@ -402,9 +408,10 @@ function compatibilityUpdater() : void
 		foreach ($a_updates as $key => $game) {
 			// Update entry parameters on game list
 			$q_update = mysqli_query($db, "UPDATE `game_list` SET
-			`build_commit`='".mysqli_real_escape_string($db, $game['commit'])."',
-			`last_update`='{$game['last_update']}',
-			`status`='{$game['status']}'
+			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."',
+			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."',
+			`last_update` = '{$game['last_update']}',
+			`status` = '{$game['status']}'
 			WHERE `key` = {$key};");
 
 			// Log change to game history
@@ -412,8 +419,6 @@ function compatibilityUpdater() : void
 			({$key}, '{$game['old_status']}', '{$game['old_date']}', '{$game['status']}', '{$game['last_update']}'); ");
 		}
 
-		// Recache commit cache as new additions may contain new commits
-		cacheCommitCache();
 		// Recache initials cache
 		cacheInitials();
 		// Recache status modules
@@ -510,12 +515,15 @@ function mergeGames() : void
 	$alternative1 = !is_null($game1->title2) ? "(alternative: {$game1->title2})" : "";
 	$alternative2 = !is_null($game2->title2) ? "(alternative: {$game2->title2})" : "";
 
-	echo "<b>Game 1: {$game1->title} {$alternative1} (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$game1->pr}, date: {$game1->date})</b><br>";
+	$pr1 = !is_null($game1->pr) ? $game1->pr : "null";
+	$pr2 = !is_null($game2->pr) ? $game2->pr : "null";
+
+	echo "<b>Game 1: {$game1->title} {$alternative1} (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$pr1}, date: {$game1->date})</b><br>";
 		foreach ($game1->IDs as $id)
 			echo "- {$id["gid"]} (tid: {$id["tid"]})<br>";
 	echo "<br>";
 
-	echo "<b>Game 2: {$game2->title} {$alternative2} (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$game2->pr}, date: {$game2->date})</b><br>";
+	echo "<b>Game 2: {$game2->title} {$alternative2} (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$pr2}, date: {$game2->date})</b><br>";
 		foreach ($game2->IDs as $id)
 			echo "- {$id["gid"]} (tid: {$id["tid"]})<br>";
 	echo "<br>";
@@ -525,13 +533,14 @@ function mergeGames() : void
 
 	// If the most recent entry doesn't have a PR and the oldest one has
 	// allow for 1 month tolerance to use the older key if the difference between them is 1 month at max
-	if ($game1->pr === 0 && $game2->pr !== 0)
+	if (is_null($game1->pr) && !is_null($game2->pr))
 		$time1 -= 2678400;
-	if ($game1->pr !== 0 && $game2->pr === 0)
+	if (!is_null($game1->pr) && is_null($game2->pr))
 		$time2 -= 2678400;
 
 	if ($time1 === $time2 && $game1->pr !== $game2->pr) {
 		// If the update date is the same, pick the one with the most recent PR
+		// TODO: Check for null cases
 		$new = $game1->pr > $game2->pr ? $game1 : $game2;
 		$old = $game1->pr > $game2->pr ? $game2 : $game1;
 	} else if ($game1->pr === $game2->pr) {

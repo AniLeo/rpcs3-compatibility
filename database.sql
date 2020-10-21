@@ -3,14 +3,15 @@
 -- ----------------------------
 DROP TABLE IF EXISTS `game_list`;
 CREATE TABLE `game_list` (
-	`key` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Don''t need a primary key, just for good practice',
+	`key` int(11) NOT NULL AUTO_INCREMENT,
 	`game_title` varchar(128) NOT NULL,
 	`alternative_title` varchar(128) DEFAULT NULL,
 	`status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
-	`build_commit` varchar(64) NOT NULL,
-	`wiki` int(11) DEFAULT NULL,
 	`last_update` date NOT NULL,
 	`network` tinyint(1) NOT NULL DEFAULT '0',
+	`wiki` int(11) DEFAULT NULL,
+	`pr` int(11) DEFAULT NULL,
+	`build_commit` varchar(64) DEFAULT NULL,
 	PRIMARY KEY (`key`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 

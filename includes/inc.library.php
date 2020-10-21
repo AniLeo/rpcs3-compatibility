@@ -57,7 +57,7 @@ if ($a_db) {
 	Profiler::addData("Profiler: Get All Database Game Entries");
 	// Get all games in the database (ID => Data)
 	$db = getDatabase();
-	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`"), true, false);
+	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`"), false);
 	$a_games = array();
 	foreach ($games as $game)
 		foreach ($game->IDs as $id)

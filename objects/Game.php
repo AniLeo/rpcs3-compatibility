@@ -35,25 +35,21 @@ class Game {
 	public $wikiTitle;  // String
 	public $IDs;        // [("gid" => String, "tid" => Int, "latest" => String)]
 
-	function __construct(&$a_ids, &$a_cache, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $wiki, $shortcommit, $network)
+	function __construct(&$a_ids, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $network, $wiki, $pr, $commit)
 	{
 		$this->key = $key;
 
 		$this->title = $maintitle;
-		if (!is_null($alternativetitle))
-			$this->title2 = $alternativetitle;
+		$this->title2 = $alternativetitle;
 
 		$this->status = getStatusID($status);
 
 		$this->date = $date;
 
-		if (is_null($a_cache) || $shortcommit == '0' || !array_key_exists(substr($shortcommit, 0, 7), $a_cache)) {
-			$this->commit = $shortcommit;
-			$this->pr     = 0;
-		} else {
-			$this->commit = $a_cache[substr($shortcommit, 0, 7)][0];
-			$this->pr     = (int) $a_cache[substr($shortcommit, 0, 7)][1];
-		}
+		$this->commit = $commit;
+
+		if (!is_null($pr))
+			$this->pr = (int) $pr;
 
 		$this->network = (int) $network;
 
@@ -74,15 +70,14 @@ class Game {
 		*
 		* @param object  $row       The MySQL Row (returned by mysqli_fetch_object($query))
 		* @param object  $a_ids     Array containing key => Game and Thread IDs to be included on the Game object
-		* @param object  $a_cache   Commit => PR cache
 		* @param object  $a_wiki    Wiki Page ID => Page Title cache
 		*
 		* @return object $game      Game fetched from given Row
 		*/
-	public static function rowToGame($row, &$a_ids, &$a_cache, &$a_wiki)
+	public static function rowToGame($row, &$a_ids, &$a_wiki)
 	{
-		return new Game($a_ids, $a_cache, $a_wiki, $row->key, $row->game_title, $row->alternative_title,
-		$row->status, $row->last_update, $row->wiki, $row->build_commit, $row->network);
+		return new Game($a_ids, $a_wiki, $row->key, $row->game_title, $row->alternative_title,
+		$row->status, $row->last_update, $row->network, $row->wiki, $row->pr, $row->build_commit);
 	}
 
 	/**
@@ -90,12 +85,11 @@ class Game {
 		* Obtains array of Games from given MySQL Query.
 		*
 		* @param object  $query        The MySQL Query (returned by mysqli_query())
-		* @param bool    $commitData   Whether to include commit related data
 		* @param bool    $wikiData     Whether to include wiki related data
 		*
 		* @return array  $array        Array of Games fetched from given Query
 		*/
-	public static function queryToGames($query, bool $commitData = true, bool $wikiData = true) : array
+	public static function queryToGames($query, bool $wikiData = true) : array
 	{
 		$db = getDatabase();
 
@@ -103,12 +97,6 @@ class Game {
 
 		if (mysqli_num_rows($query) === 0)
 			return $a_games;
-
-		if ($commitData) {
-			$a_cache = file_exists(__DIR__.'/../cache/a_commits.json') ? json_decode(file_get_contents(__DIR__.'/../cache/a_commits.json'), true) : cacheCommitCache();
-		} else {
-			$a_cache = NULL;
-		}
 
 		if ($wikiData) {
 			$a_wiki = array();
@@ -140,7 +128,7 @@ class Game {
 
 		mysqli_data_seek($query, 0);
 		while ($row = mysqli_fetch_object($query))
-			$a_games[] = self::rowToGame($row, $a_ids, $a_cache, $a_wiki);
+			$a_games[] = self::rowToGame($row, $a_ids, $a_wiki);
 
 		mysqli_close($db);
 		return $a_games;
