@@ -54,7 +54,7 @@ function exportDatabase() : array
 			if (!is_null($item->update))
 				$a_data['update'] = $item->update;
 
-			$results['results'][$item->update] = $a_data;
+			$results['results'][$item->game_id] = $a_data;
 		}
 	}
 

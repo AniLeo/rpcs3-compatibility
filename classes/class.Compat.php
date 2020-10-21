@@ -273,11 +273,11 @@ public static function printTable() : void
 		{
 			if (!is_null($item->update) && !empty($item->update))
 			{
-				echo "{$item->update}'s latest known version is <b>{$item->update}</b>";
+				echo "{$item->game_id}'s latest known version is <b>{$item->update}</b>";
 			}
 			else
 			{
-				echo "{$item->update} has no known updates";
+				echo "{$item->game_id} has no known updates";
 			}
 			if ($count_id !== $i + 1)
 			{
