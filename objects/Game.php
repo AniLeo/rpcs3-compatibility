@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 
 
 class Game {
@@ -33,7 +34,7 @@ class Game {
 	public $network;    // Int
 	public $wikiID;     // Int
 	public $wikiTitle;  // String
-	public $IDs;        // [("gid" => String, "tid" => Int, "latest" => String)]
+	public $game_item;  // GameItem[]
 
 	function __construct(&$a_ids, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $network, $wiki, $pr, $commit)
 	{
@@ -60,7 +61,7 @@ class Game {
 
 		if (!is_null($a_ids))
 			foreach ($a_ids[$key] as $id)
-				$this->IDs[] = $id;
+				$this->game_item[] = $id;
 	}
 
 
@@ -124,7 +125,7 @@ class Game {
 
 		$a_ids = array();
 		while ($row = mysqli_fetch_object($q_ids))
-			$a_ids[$row->key][] = array("gid" => $row->gid, "tid" => $row->tid, "latest" => $row->latest_ver);
+			$a_ids[$row->key][] = new GameItem($row->gid, $row->tid, $row->latest_ver);
 
 		mysqli_data_seek($query, 0);
 		while ($row = mysqli_fetch_object($query))

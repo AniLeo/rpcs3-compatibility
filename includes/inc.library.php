@@ -60,10 +60,10 @@ if ($a_db) {
 	$games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`"), false);
 	$a_games = array();
 	foreach ($games as $game)
-		foreach ($game->IDs as $id)
-			$a_games[$id["gid"]] = array(
+		foreach ($game->game_item as $item)
+			$a_games[$item->game_id] = array(
 				'title' => $game->title,
-				'thread' => $id["tid"],
+				'thread' => $item->tid,
 				'last_update' => $game->date,
 				'pr' => $game->pr
 			);

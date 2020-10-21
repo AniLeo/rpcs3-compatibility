@@ -230,15 +230,15 @@ public static function printTable() : void
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
-		foreach ($game->IDs as $ID) {
+		foreach ($game->game_item as $item) {
 			if (!empty($cell))
 				$cell .= "<br>";
 
-			$cell .= getThread(getGameRegion($ID["gid"], false), $ID["tid"]);
-			$cell .= getThread($ID["gid"], $ID["tid"]);
+			$cell .= getThread(getGameRegion($item->game_id, false), $item->thread_id);
+			$cell .= getThread($item->game_id, $item->thread_id);
 
 			if ($media == '')
-				$media = getGameMediaIcon($ID["gid"]);
+				$media = getGameMediaIcon($item->game_id);
 		}
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
@@ -268,15 +268,16 @@ public static function printTable() : void
 		echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
 		echo "<div class=\"compat-table-row compat-table-dropdown\">";
 
-		$count_id = count($game->IDs);
-		foreach ($game->IDs as $i => $ID) {
-			if (!is_null($ID["latest"]) && !empty($ID["latest"]))
+		$count_id = count($game->game_item);
+		foreach ($game->game_item as $i => $item)
+		{
+			if (!is_null($item->update) && !empty($item->update))
 			{
-				echo "{$ID["gid"]}'s latest known version is <b>{$ID["latest"]}</b>";
+				echo "{$item->update}'s latest known version is <b>{$item->update}</b>";
 			}
 			else
 			{
-				echo "{$ID["gid"]} has no known updates";
+				echo "{$item->update} has no known updates";
 			}
 			if ($count_id !== $i + 1)
 			{
@@ -360,14 +361,14 @@ public static function APIv1() : array
 	}
 
 	foreach ($games as $game) {
-		foreach ($game->IDs as $id) {
-			$results['results'][$id["gid"]] = array(
+		foreach ($game->game_item as $item) {
+			$results['results'][$item->game_id] = array(
 			'title' => $game->title,
 			'alternative-title' => $game->title2,
 			'wiki-title' => $game->wikiTitle,
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
-			'thread' => (int) $id["tid"],
+			'thread' => (int) $item->thread_id,
 			'commit' => is_null($game->commit) ? 0 : $game->commit,
 			'pr' => is_null($game->pr) ? 0 : $game->pr,
 			'network' => $game->network

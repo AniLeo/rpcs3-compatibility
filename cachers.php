@@ -513,9 +513,9 @@ function cacheWikiIDs() : void
 	// For every ID
 	// Look for the ID on all wiki pages
 	foreach ($a_games as $game) {
-		foreach ($game->IDs as $id) {
+		foreach ($game->game_item as $item) {
 			foreach ($a_wiki as $wiki) {
-				if (strpos($wiki[1], $id["gid"]) !== false) {
+				if (strpos($wiki[1], $item->game_id) !== false) {
 					$a_found[] = array('wiki_id' => $wiki[0], 'title' => $game->title);
 					break 2;
 				}

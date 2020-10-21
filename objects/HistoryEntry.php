@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 
 
 class HistoryEntry {
@@ -29,7 +30,7 @@ class HistoryEntry {
 	public $new_status;  // Int
 	public $old_date;    // Date
 	public $new_date;    // Date
-	public $IDs;         // ("gid" => String, "tid" => Int)
+	public $game_item;   // GameItem
 
 	function __construct($maintitle, $alternativetitle, $oldstatus, $newstatus, $olddate, $newdate, $gid, $tid)
 	{
@@ -45,7 +46,7 @@ class HistoryEntry {
 		$this->new_status = getStatusID($newstatus);
 		$this->new_date = $newdate;
 
-		$this->IDs = array("gid" => $gid, "tid" => $tid);
+		$this->game_item = new GameItem($gid, $tid, null);
 	}
 
 

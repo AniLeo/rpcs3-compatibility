@@ -45,16 +45,16 @@ function exportDatabase() : array
 	$results['return_code'] = 0;
 
 	foreach ($games as $game) {
-		foreach ($game->IDs as $id) {
+		foreach ($game->game_item as $item) {
 			$a_data = array(
 				'status' => $a_status[$game->status]['name'],
 				'date' => $game->date
 			);
 
-			if (!is_null($id["latest"]))
-				$a_data['update'] = $id["latest"];
+			if (!is_null($item->update))
+				$a_data['update'] = $item->update;
 
-			$results['results'][$id["gid"]] = $a_data;
+			$results['results'][$item->update] = $a_data;
 		}
 	}
 
