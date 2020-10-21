@@ -515,13 +515,17 @@ function cacheWikiIDs() : void
 		}
 	}
 
+	// Cached game titles
+	$a_cached = array();
+
 	// For every Game
 	// For every GameItem
 	foreach ($a_games as $game)
 	{
 		foreach ($game->game_item as $item)
 		{
-			if (!isset($a_wiki[$item->game_id]))
+			// Didn't find Game ID on any wiki pages or already cached this title in this run
+			if (!isset($a_wiki[$item->game_id]) || in_array($game->title, $a_cached) || in_array($game->title2, $a_cached))
 			{
 				continue;
 			}
@@ -534,6 +538,7 @@ function cacheWikiIDs() : void
 			$q_update = mysqli_query($db, "UPDATE `game_list` SET `wiki` = '{$db_id}'
 			WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}';");
 
+			$a_cached[] = $game->title;
 			break;
 		}
 	}
