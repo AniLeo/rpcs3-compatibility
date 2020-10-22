@@ -150,9 +150,9 @@ CREATE TABLE `game_update_package` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_paramsfo`;
 CREATE TABLE `game_update_paramsfo` (
-  `titleid` varchar(16) NOT NULL,
+  `titleid` varchar(9) NOT NULL,
   `package_version` varchar(16) NOT NULL,
-  `paramsfo_type` varchar(16) NOT NULL,
+  `paramsfo_type` varchar(32) NOT NULL,
   `paramsfo_title` varchar(255) NOT NULL,
   PRIMARY KEY (`titleid`,`package_version`,`paramsfo_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
@@ -162,9 +162,9 @@ CREATE TABLE `game_update_paramsfo` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_paramhip`;
 CREATE TABLE `game_update_paramhip` (
-  `titleid` varchar(9) DEFAULT NULL,
-  `package_version` varchar(16) DEFAULT NULL,
-  `paramhip_type` varchar(64) DEFAULT NULL,
-  `paramhip_url` varchar(255) DEFAULT NULL,
+  `titleid` varchar(9) NOT NULL,
+  `package_version` varchar(16) NOT NULL,
+  `paramhip_type` varchar(32) NOT NULL,
+  `paramhip_url` varchar(255) NOT NULL,
 	PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
