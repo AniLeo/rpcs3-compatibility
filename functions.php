@@ -31,11 +31,14 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
 	*
 	* @return object Connection to MySQL Server
 	*/
-function getDatabase() {
-	$db = mysqli_connect(db_host, db_user, db_pass, db_name, db_port);
+function getDatabase() : mysqli
+{
+	$db = mysqli_connect(db_host, db_user, db_pass, db_name, (int) db_port);
+
 	if (!$db)
 		trigger_error("[COMPAT] Database: Connection could not be established", E_USER_ERROR);
-	mysqli_set_charset($db, 'utf8mb4');
+
+	mysqli_set_charset($db, "utf8mb4");
 	return $db;
 }
 
@@ -52,7 +55,7 @@ function getDatabase() {
 	*
 	* @return string
 	*/
-function getGameMediaIcon(string $gid, bool $url = true, string $extra = '') : string
+function getGameMediaIcon(string $gid, bool $url = true, string $extra = "") : string
 {
 	global $a_media, $get;
 
@@ -60,20 +63,25 @@ function getGameMediaIcon(string $gid, bool $url = true, string $extra = '') : s
 	$l = substr($gid, 0, 1);
 
 	// If it's not a valid / known region then we return an empty string
-	if (!array_key_exists($l, $a_media)) {
-		return '';
-	}
+	if (!array_key_exists($l, $a_media))
+		return "";
 
 	$img = "<img title=\"{$a_media[$l]['name']}\" alt=\"{$a_media[$l]['name']}\" src=\"{$a_media[$l]['icon']}\" class=\"compat-icon-media\">";
+	$ex  = "";
 
-	// Get the module we're on so we can reset back to the correct module
-	$ex = $extra != '' ? substr($extra, 0, 1) : '';
+	if (!empty($extra))
+	{
+		// Get the module we're on so we can reset back to the correct module
+		$ex     = substr($extra, 0, 1);
+		$extra .= "&";
+	}
 
-	if ($url) {
+	if ($url)
+	{
 		// Allow for filter resetting by clicking the icon again
-		if ($get['t'] == strtolower($l)) {
+		if ($get['t'] === strtolower($l))
 			return "<a href=\"?{$ex}\">{$img}</a>";
-		}
+
 		// Returns clickable icon for type (media) search
 		return "<a href=\"?{$extra}t=".strtolower($l)."\">{$img}</a>";
 	}
@@ -96,29 +104,30 @@ function getGameMediaIcon(string $gid, bool $url = true, string $extra = '') : s
 	*
 	* @return string
 	*/
-function getGameRegion(string $gid, bool $url = true, string $extra = '') : string
+function getGameRegion(string $gid, bool $url = true, string $extra = "") : string
 {
 	global $a_flags, $get;
 
 	$l = substr($gid, 2, 1);
 
 	// If it's not a valid / known region then we return an empty string
-	if (!array_key_exists($l, $a_flags)) {
+	if (!array_key_exists($l, $a_flags))
 		return "";
-	}
 
 	// Get the module we're on so we can reset back to the correct module
-	$ex = $extra != '' ? substr($extra, 0, 1) : '';
+	$ex = !empty($extra) ? substr($extra, 0, 1) : '';
 
-	// Allow for filter resetting by clicking the flag again
-	if ($get['f'] == strtolower($l) && $url) {
-		return "<a href=\"?{$ex}\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
-	}
+	if ($url)
+	{
+		// Allow for filter resetting by clicking the flag again
+		if ($get['f'] === strtolower($l))
+			return "<a href=\"?{$ex}\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
 
-	if ($url) {
 		// Returns clickable flag for region (flag) search
 		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
-	} else {
+	}
+	else
+	{
 		// Returns unclickable flag
 		return "<img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"$a_flags[$l]\">";
 	}
@@ -138,17 +147,21 @@ function getGameRegion(string $gid, bool $url = true, string $extra = '') : stri
 function getGameType(string $gid) : string
 {
 	// Physical
-	if (substr($gid, 0, 1) == "B" || substr($gid, 0, 1) == "X") {
-		if (substr($gid, 3, 1) == "D")  { return "Demo"; }             // Demo
-		if (substr($gid, 3, 1) == "M")  { return "Malayan Release"; }  // Malayan Release
-		if (substr($gid, 3, 1) == "S")  { return "Retail Release"; }   // Retail Release
+	if (substr($gid, 0, 1) === "B" || substr($gid, 0, 1) === "X")
+	{
+		if (substr($gid, 3, 1) === "D")  { return "Demo"; }             // Demo
+		if (substr($gid, 3, 1) === "M")  { return "Malayan Release"; }  // Malayan Release
+		if (substr($gid, 3, 1) === "S")  { return "Retail Release"; }   // Retail Release
 	}
 	// Digital
-	if (substr($gid, 0, 1) == "N") {
-		if (substr($gid, 3, 1) == "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
-		if (substr($gid, 3, 1) == "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
-		if (substr($gid, 3, 1) == "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
-		if (substr($gid, 3, 1) == "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
+	else if (substr($gid, 0, 1) === "N")
+	{
+		if (substr($gid, 3, 1) === "A")  { return "First Party PS3"; }  // First Party PS3 (Demo/Retail)
+		if (substr($gid, 3, 1) === "B")  { return "Licensed PS3"; }     // Licensed PS3 (Demo/Retail)
+		if (substr($gid, 3, 1) === "C")  { return "First Party PS2"; }  // First Party PS2 Classic (Demo/Retail)
+		if (substr($gid, 3, 1) === "D")  { return "Licensed PS2"; }     // Licensed PS2 (Demo/Retail)
+		if (substr($gid, 3, 1) === "E")  { return "First Party PS1"; }  // First Party PS1 Classic (Demo/Retail)
+		if (substr($gid, 3, 1) === "F")  { return "Licensed PS1"; }     // Licensed PS1 (Demo/Retail)
 	}
 
 	// We don't care about the other types as they won't be listed
@@ -172,8 +185,10 @@ function getThread(string $text, int $tid) : string
 	global $c_forum;
 
 	// The thread should never be 0. All games MUST have a thread.
-	if ($tid != 0) { return "<a href=\"{$c_forum}/thread-{$tid}.html\">{$text}</a>"; }
-	else           { return $text; }
+	if ($tid !== 0)
+		return "<a href=\"{$c_forum}/thread-{$tid}.html\">{$text}</a>";
+
+	return $text;
 }
 
 
@@ -199,8 +214,8 @@ function isValid(string $str) : bool
 	*
 	* Returns provided string with increased size and font-weight
 	*
-	* @param string $str 	Some text
-	* @param bool		$cond	Condition to be met for text to be highlighted
+	* @param string $str  Some text
+	* @param bool   $cond Condition to be met for text to be highlighted
 	*
 	* @return string
 	*/
@@ -210,7 +225,7 @@ function highlightText(string $str, bool $cond = true)
 }
 
 
-function validateGet($db = null) : array
+function validateGet() : array
 {
 	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
 
@@ -359,7 +374,7 @@ function validateGet($db = null) : array
 	}
 
 	// Get debug permissions, if any
-	$get['w'] = getDebugPermissions($db);
+	$get['w'] = getDebugPermissions();
 
 	// Enable error reporting for admins
 	if ($get['w'] != NULL) {
@@ -377,28 +392,11 @@ function validateGet($db = null) : array
 
 
 // Select the count of games in each status, subjective to query restrictions
-function countGames($db = null, string $query = "") /*: int|array (PHP 8.0)*/
+function countGames(mysqli $db, string $query = "") : array
 {
 	global $get, $a_status;
 
-	if ($db == null) {
-		$db = getDatabase();
-		if ($db->connect_errno)
-			return 0; // If there's no database connection, return 0 games
-		$close = true;
-	} else {
-		$close = false;
-	}
-
-	// Total game count (without network games)
-	if ($query === "all") {
-		$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list` WHERE `network` = 0 OR (`network` = 1 && `status` <= 2); ");
-		if (!$q_unique)
-			return 0;
-		return (int) mysqli_fetch_object($q_unique)->c;
-	}
-
-	$and = $query === "" ? "" : " AND ({$query}) ";
+	$and = empty($query) ? "" : " AND ({$query}) ";
 
 	// Without network only games
 	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
@@ -406,12 +404,6 @@ function countGames($db = null, string $query = "") /*: int|array (PHP 8.0)*/
 	// With network only games
 	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
 	WHERE (`network` = 0 OR `network` = 1) {$and} GROUP BY `status`;");
-
-	if ($close)
-		mysqli_close($db);
-
-	if (!$q_gen1 || !$q_gen2)
-		return 0;
 
 	// Zero-fill the array keys that are going to be used
 	$scount["status"][0]   = 0;
@@ -422,6 +414,9 @@ function countGames($db = null, string $query = "") /*: int|array (PHP 8.0)*/
 		$scount["nostatus"][$id] = 0;
 		$scount["network"][$id]  = 0;
 	}
+
+	if (!$q_gen1 || !$q_gen2)
+		return $scount;
 
 	while ($row1 = mysqli_fetch_object($q_gen1)) {
 		$sid   = (int) $row1->statusID;
@@ -452,6 +447,22 @@ function countGames($db = null, string $query = "") /*: int|array (PHP 8.0)*/
 }
 
 
+function count_games_all() : int
+{
+	$db = getDatabase();
+	$ret = 0;
+
+	// Total game count (without network games)
+	$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list` WHERE `network` = 0 OR (`network` = 1 && `status` <= 2); ");
+
+	if ($q_unique && mysqli_num_rows($q_unique) === 1)
+		$ret = (int) mysqli_fetch_object($q_unique)->c;
+
+	mysqli_close($db);
+	return $ret;
+}
+
+
 function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 {
 	global $c_pagelimit;
@@ -479,10 +490,10 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 		$c_pagelimit += $c_pagelimit - ($pages - $currentPage) + 1;
 
 	// Loop for each page link and make it properly clickable until there are no more pages left
-	for ($i = 1; $i <= $pages; $i++) {
-
-		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) ) {
-
+	for ($i = 1; $i <= $pages; $i++)
+	{
+		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) )
+		{
 			$s_pagescounter .= "<a href=\"?{$extra}p=$i\">";
 
 			// Add zero padding if it is a single digit number
@@ -492,25 +503,25 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 			$s_pagescounter .= highlightText($p, $i === $currentPage);
 
 			$s_pagescounter .= "</a>&nbsp;&#32;";
-
 		}
 		// First page
-		elseif ($i === 1) {
+		elseif ($i === 1)
+		{
 			$s_pagescounter .= "<a href=\"?{$extra}p={$i}\">01</a>&nbsp;&#32;";
 			if ($currentPage != $c_pagelimit+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
 		}
 		// Last page
-		elseif ($pages === $i) {
+		elseif ($pages === $i)
+		{
 			$s_pagescounter .= "...&nbsp;&#32;<a href=\"?{$extra}p=$pages\">$pages</a>&nbsp;&#32;";
 		}
-
 	}
 
 	return $s_pagescounter;
 }
 
 
-function getTableHeaders(array $headers, string $extra = '') : string
+function getTableHeaders(array $headers, string $extra = "") : string
 {
 	global $get;
 
@@ -520,11 +531,12 @@ function getTableHeaders(array $headers, string $extra = '') : string
 	if (!empty($extra))
 		$extra .= "&";
 
-	foreach ($headers as $i => $header) {
-		if     ($header['sort'] === 0)             { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
-		elseif ($get['o'] == "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
-		elseif ($get['o'] == "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
-		else                                       { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
+	foreach ($headers as $i => $header)
+	{
+		if     ($header['sort'] === 0)              { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
+		elseif ($get['o'] === "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
+		elseif ($get['o'] === "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
+		else                                        { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
 	}
 
 	return "<div class=\"compat-table-header\">{$s_tableheaders}</div>";
@@ -536,7 +548,7 @@ function getFooter() : string
 	global $c_maintenance, $get, $start_time;
 
 	// Total time in milliseconds
-	$total_time = round((microtime(true) - $start_time)*1000,2);
+	$total_time = round((microtime(true) - $start_time) * 1000, 2);
 
 	$s = "Compatibility list developed and maintained by
 	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
@@ -545,7 +557,8 @@ function getFooter() : string
 	$s = "<div class=\"compat-footer\"><p>{$s}</p></div>";
 
 	// Debug output
-	if ($get['w'] != NULL) {
+	if (!is_null($get['w']))
+	{
 		$s .= "<div class=\"compat-profiler\">";
 		// Maintenance mode information
 		$s .= "<p>Maintenance mode: ";
@@ -570,10 +583,10 @@ function getMenu(string $file) : string
 
 	$menu = "";
 
-	if ($file != "compat") 	{ $menu .= "<a href='?'>Compatibility List</a>"; }
-	if ($file != "history") { $menu .= "<a href='?h'>Compatibility List History</a>"; }
-	if ($file != "builds") 	{ $menu .= "<a href='?b'>RPCS3 Builds History</a>";	}
-	if ($file != "library") { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
+	if ($file != "compat")                     { $menu .= "<a href='?'>Compatibility List</a>"; }
+	if ($file != "history")                    { $menu .= "<a href='?h'>Compatibility List History</a>"; }
+	if ($file != "builds")                     { $menu .= "<a href='?b'>RPCS3 Builds History</a>"; }
+	if ($file != "library")                    { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
 	if ($get['w'] != NULL && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
 
 	return "<div class=\"compat-menu\">{$menu}</div>";
@@ -607,28 +620,34 @@ function generateStatusModule(bool $getCount = true) : string
 {
 	global $a_status;
 
+	$db = getDatabase();
+
 	// Get games count per status
-	$count = countGames()["status"];
+	$count = countGames($db)["status"];
+
+	mysqli_close($db);
 
 	// Initialize string
 	$output = "";
 
 	// Pretty output for readability
-	foreach ($a_status as $id => $status) {
-
+	foreach ($a_status as $id => $status)
+	{
 		$output .= "<div class='compat-status-main'>\n";
 		$output .= "<div class='compat-status-icon' style='background:#{$status['color']}'></div>\n";
 		$output .= "<div class='compat-status-text'>\n";
 		$output .= "<p style='color:#{$status['color']}'><strong>{$status['name']}";
 
-		if ($getCount) {
-			$percentage = round(($count[$id]/$count[0])*100, 2, PHP_ROUND_HALF_UP);
+		if ($getCount)
+		{
+			$percentage = round(($count[$id]/$count[0]) * 100, 2, PHP_ROUND_HALF_UP);
 			$output .= " ({$percentage}%)";
 		}
 
 		$output .= ":</strong></p>&nbsp;&nbsp;{$status['desc']}\n</div>\n";
 
-		if ($getCount) {
+		if ($getCount)
+		{
 			$output .= "<div class='compat-status-progress'>\n";
 			$output .= "<progress class='compat-status-progressbar' id='compat-progress{$id}' style=\"color:#{$status['color']}\" max=\"100\" value=\"{$percentage}\"></progress>\n";
 			$output .= "</div>\n";
@@ -642,22 +661,12 @@ function generateStatusModule(bool $getCount = true) : string
 
 
 // Checks if user has debug permissions
-// TODO: Login system
-function getDebugPermissions($db = null) : ?array
+function getDebugPermissions() : ?array
 {
-	if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"])) {
+	if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"]))
 		return null;
-	}
 
-	if ($db == null) {
-		$db = getDatabase();
-		if ($db == null) {
-			return null; // If there's no database connection, just assume user isn't whitelisted
-		}
-		$close = true;
-	} else {
-		$close = false;
-	}
+	$db = getDatabase();
 
 	$q_debug = mysqli_query($db, "SELECT * FROM `debug_whitelist` WHERE `token` = '".mysqli_real_escape_string($db, $_COOKIE["debug"])."' LIMIT 1; ");
 
@@ -667,14 +676,14 @@ function getDebugPermissions($db = null) : ?array
 	$row = mysqli_fetch_object($q_debug);
 	$permissons = array();
 
-	if (strpos($row->permissions, ',') === false) {
+	if (strpos($row->permissions, ',') === false)
+	{
 		$permissions[0] = $row->permissions;
-	} else {
+	}
+	else
+	{
 		$permissions = explode(',', $row->permissions);
 	}
-
-	if ($close)
-		mysqli_close($db);
 
 	if (!is_array($permissions))
 		return null;
@@ -715,16 +724,22 @@ function getDateDiff($datetime) : string
 	$diff = time() - strtotime($datetime);
 	$days = floor($diff / 86400);
 
-	if ($days == 0) {
+	if ($days === 0)
+	{
 		$hours = floor($diff / 3600);
-		if ($hours == 0) {
+		if ($hours === 0)
+		{
 			$minutes = floor($diff / 60);
-			$diff = $minutes == 1 ? "{$minutes} minute" : "{$minutes} minutes";
-		} else {
-			$diff = $hours == 1   ? "{$hours} hour" : "{$hours} hours";
+			$diff = $minutes === 1 ? "{$minutes} minute" : "{$minutes} minutes";
 		}
-	} else {
-		$diff = $days == 1      ? "{$days} day" : "{$days} days";
+		else
+		{
+			$diff = $hours === 1 ? "{$hours} hour" : "{$hours} hours";
+		}
+	}
+	else
+	{
+		$diff = $days === 1 ? "{$days} day" : "{$days} days";
 	}
 
 	return "{$diff} ago";
@@ -750,7 +765,8 @@ function resultsPerPage(string $combinedSearch, string $extra = "") : string
 
 	$s_pageresults = "";
 
-	foreach ($a_pageresults as $pageresult) {
+	foreach ($a_pageresults as $pageresult)
+	{
 		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}&r={$pageresult}\">";
 		// If the current selected item, highlight
 		$s_pageresults .= highlightText($pageresult, $get['r'] == $pageresult);
@@ -759,6 +775,7 @@ function resultsPerPage(string $combinedSearch, string $extra = "") : string
 		// If not the last value then add a separator for the next value
 		if ($pageresult !== end($a_pageresults)) { $s_pageresults .= "&nbsp;•&nbsp;"; }
 	}
+
 	return $s_pageresults;
 }
 
@@ -792,7 +809,8 @@ function getStatusID(string $name) : ?int
 {
 	global $a_status;
 
-	foreach ($a_status as $id => $status) {
+	foreach ($a_status as $id => $status)
+	{
 		if ($name === $status['name'])
 			return $id;
 	}
@@ -806,16 +824,20 @@ function getStatusID(string $name) : ?int
 function curlJSON(string $url, &$cr = null) : array
 {
 	// Use existing cURL resource or create a temporary one
-	$ch = ($cr != null) ? $cr : curl_init();
+	$ch = (!is_null($cr)) ? $cr : curl_init();
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
 	curl_setopt($ch, CURLOPT_URL, $url);
-	if (strlen($url) >= 23 && substr($url, 0, 23) === "https://api.github.com/") {
+
+	if (strlen($url) >= 23 && substr($url, 0, 23) === "https://api.github.com/")
+	{
 		// We're cURLing the GitHub API, set GitHub Auth Token on headers
 		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
-	} else {
+	}
+	else
+	{
 		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0");
 	}
 
@@ -827,7 +849,7 @@ function curlJSON(string $url, &$cr = null) : array
 	$result = json_decode($result);
 
 	// Close the temporary cURL resource or reset the given cURL resource
-	if ($cr == null)
+	if (is_null($cr))
 		curl_close($ch);
 	else
 		curl_reset($cr);
@@ -841,7 +863,7 @@ function curlJSON(string $url, &$cr = null) : array
 function curlXML(string $url, &$cr = null) : array
 {
 	// Use existing cURL resource or create a temporary one
-	$ch = ($cr != null) ? $cr : curl_init();
+	$ch = (!is_null($cr)) ? $cr : curl_init();
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output

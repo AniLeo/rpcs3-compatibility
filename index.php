@@ -158,7 +158,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 						elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
 						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
 						elseif (isset($get['l'])) { echo "List of all existing PS3 games known to mankind"; }
-						else                      { echo "There are currently ".countGames(null, 'all')." games listed in our database"; }
+						else                      { echo "There are currently ".count_games_all()." games listed in our database"; }
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}

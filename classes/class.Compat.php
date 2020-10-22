@@ -222,22 +222,23 @@ public static function printTable() : void
 	echo getTableHeaders($headers, $extra);
 
 	// Print table body
-	foreach ($games as $game) {
-
+	foreach ($games as $game)
+	{
 		$media = '';
 
 		echo "<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">";
 
 		// Cell 1: Regions and GameIDs
 		$cell = '';
-		foreach ($game->game_item as $item) {
+		foreach ($game->game_item as $item)
+		{
 			if (!empty($cell))
 				$cell .= "<br>";
 
-			$cell .= getThread(getGameRegion($item->game_id, false), $item->thread_id);
+			$cell .= getGameRegion($item->game_id, false);
 			$cell .= getThread($item->game_id, $item->thread_id);
 
-			if ($media == '')
+			if (empty($media))
 				$media = getGameMediaIcon($item->game_id);
 		}
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
