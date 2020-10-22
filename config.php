@@ -145,8 +145,8 @@ $a_panel = array(
 		'title' => "Update Wiki IDs Cache",
 		'success' => "Forced update on Wiki IDs cache"
 	),
-	'cacheGameLatestVer' => array(
-		'title' => "Update LatestVer Cache",
+	'cache_games_updates' => array(
+		'title' => "Update Game Updates Cache",
 		'success' => "Updated latest game version cache"
 	),
 	'checkInvalidThreads' => array(

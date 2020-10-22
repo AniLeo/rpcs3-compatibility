@@ -106,3 +106,65 @@ CREATE TABLE `game_patch` (
   `patch` mediumtext NOT NULL,
   PRIMARY KEY (`wiki_id`,`version`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for game_update_titlepatch
+-- ----------------------------
+DROP TABLE IF EXISTS `game_update_titlepatch`;
+CREATE TABLE `game_update_titlepatch` (
+  `titleid` varchar(9) NOT NULL,
+  `status` varchar(16) DEFAULT NULL,
+  PRIMARY KEY (`titleid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for game_update_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `game_update_tag`;
+CREATE TABLE `game_update_tag` (
+  `name` varchar(16) NOT NULL,
+  `popup` varchar(8) NOT NULL,
+  `signoff` varchar(8) NOT NULL,
+  `hash` varchar(32) NOT NULL,
+  `popup_delay` varchar(16) DEFAULT NULL,
+  `min_system_ver` varchar(16) DEFAULT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for game_update_package
+-- ----------------------------
+DROP TABLE IF EXISTS `game_update_package`;
+CREATE TABLE `game_update_package` (
+  `titleid` varchar(9) NOT NULL,
+  `version` varchar(16) NOT NULL,
+  `size` varchar(16) NOT NULL,
+  `sha1sum` varchar(64) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `ps3_system_ver` varchar(16) DEFAULT NULL,
+  `drm_type` varchar(64) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for game_update_paramsfo
+-- ----------------------------
+DROP TABLE IF EXISTS `game_update_paramsfo`;
+CREATE TABLE `game_update_paramsfo` (
+  `titleid` varchar(16) NOT NULL,
+  `package_version` varchar(16) NOT NULL,
+  `paramsfo_type` varchar(16) NOT NULL,
+  `paramsfo_title` varchar(255) NOT NULL,
+  PRIMARY KEY (`titleid`,`package_version`,`paramsfo_type`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for game_update_paramhip
+-- ----------------------------
+DROP TABLE IF EXISTS `game_update_paramhip`;
+CREATE TABLE `game_update_paramhip` (
+  `titleid` varchar(9) DEFAULT NULL,
+  `package_version` varchar(16) DEFAULT NULL,
+  `paramhip_type` varchar(64) DEFAULT NULL,
+  `paramhip_url` varchar(255) DEFAULT NULL,
+	PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

@@ -858,69 +858,6 @@ function curlJSON(string $url, &$cr = null) : array
 }
 
 
-// cURL XML document and return the result as (HttpCode, JSON)
-// Note: Resources can't be type hinted
-function curlXML(string $url, &$cr = null) : array
-{
-	// Use existing cURL resource or create a temporary one
-	$ch = (!is_null($cr)) ? $cr : curl_init();
-
-	// Set the required cURL flags
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0");
-	curl_setopt($ch, CURLOPT_URL, $url);
-
-	// Get the response and httpcode of that response
-	$result = curl_exec($ch);
-	$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-	// Convert from XML to JSON
-	$result = simplexml_load_string($result);
-	$result = json_encode($result);
-	$result = json_decode($result, true);
-
-	// Close the temporary cURL resource or reset the given cURL resource
-	if ($cr == null)
-		curl_close($ch);
-	else
-		curl_reset($cr);
-
-	return array('httpcode' => $httpcode, 'result' => $result);
-}
-
-
-// Returns:
-// - Empty for no update
-// - 'X.XX' string for the latest existing update
-// - null for unexpected behavior (TODO: Finish)
-function getLatestGameUpdateVer(string $gid) : ?string
-{
-	// cURL the PS3 Game Update API
-	$curl = curlXML("https://a0.ww.np.dl.playstation.net/tpl/np/{$gid}/{$gid}-ver.xml");
-	$json = $curl['result'];
-
-	// No updates
-	if ((!$json && $curl['httpcode'] == 200) || $curl['httpcode'] == 404)
-		return "";
-
-	// Some other HTTPCode that needs handling
-	if ($curl['httpcode'] != 200)
-		return null;
-
-	// Has multiple updates, pick the latest one
-	if (array_key_exists(0, $json['tag']['package']))
-		return $json['tag']['package'][sizeof($json['tag']['package'])-1]['@attributes']['version'];
-
-	// Has a single update
-	if (array_key_exists("version", $json['tag']['package']['@attributes']))
-		return $json['tag']['package']['@attributes']['version'];
-
-	// Unknown error that needs handling
-	return null;
-}
-
-
 function printHTMLForm(string $action, string $method, array $inputs, array $buttons) : bool
 {
 	// Unsupported methods
