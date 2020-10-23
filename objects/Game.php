@@ -50,6 +50,22 @@ class Game
 		$this->wiki_title = $wiki_title;
 	}
 
+	// Get Wiki URL for this Game
+	public function get_wiki_url() : ?string
+	{
+		// Prefer title based URL
+		if (!is_null($this->wiki_title))
+		{
+			return "https://wiki.rpcs3.net/index.php?title={$this->wiki_title}";
+		}
+		// Fallback to ID based URL
+		if (!is_null($this->wiki_id))
+		{
+			return "https://wiki.rpcs3.net/index.php?curid={$this->wiki_id}";
+		}
+		return null;
+	}
+
 	// Import wiki related information to a Game array
 	public static function import_wiki(array &$games) : void
 	{

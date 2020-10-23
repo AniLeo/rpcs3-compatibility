@@ -244,7 +244,8 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Game Media, Titles and Network
-		$title = !is_null($game->wiki_id) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wiki_title}\">{$game->title}</a>" : $game->title;
+		$wiki_url = $game->get_wiki_url();
+		$title = !is_null($wiki_url) ? "<a href=\"{$wiki_url}\">{$game->title}</a>" : $game->title;
 		$cell = "{$media}{$title}";
 		if ($game->network === 1)
 			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
