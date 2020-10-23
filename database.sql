@@ -3,16 +3,16 @@
 -- ----------------------------
 DROP TABLE IF EXISTS `game_list`;
 CREATE TABLE `game_list` (
-	`key` int(11) NOT NULL AUTO_INCREMENT,
-	`game_title` varchar(128) NOT NULL,
-	`alternative_title` varchar(128) DEFAULT NULL,
-	`status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
-	`last_update` date NOT NULL,
-	`network` tinyint(1) NOT NULL DEFAULT '0',
-	`wiki` int(11) DEFAULT NULL,
-	`pr` int(11) DEFAULT NULL,
-	`build_commit` varchar(64) DEFAULT NULL,
-	PRIMARY KEY (`key`)
+  `key` int(11) NOT NULL AUTO_INCREMENT,
+  `game_title` varchar(128) NOT NULL,
+  `alternative_title` varchar(128) DEFAULT NULL,
+  `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
+  `last_update` date NOT NULL,
+  `network` tinyint(1) NOT NULL DEFAULT '0',
+  `wiki` int(11) DEFAULT NULL,
+  `pr` int(11) DEFAULT NULL,
+  `build_commit` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`key`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -45,9 +45,9 @@ CREATE TABLE `builds` (
 -- ----------------------------
 DROP TABLE IF EXISTS `initials_cache`;
 CREATE TABLE `initials_cache` (
-	`game_title` varchar(250) NOT NULL,
-	`initials` varchar(64) NOT NULL,
-	PRIMARY KEY (`game_title`)
+  `game_title` varchar(250) NOT NULL,
+  `initials` varchar(64) NOT NULL,
+  PRIMARY KEY (`game_title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -79,9 +79,9 @@ CREATE TABLE `game_history` (
 -- ----------------------------
 DROP TABLE IF EXISTS `contributors`;
 CREATE TABLE `contributors` (
-	`id` int(11) NOT NULL,
-	`username` varchar(128) NOT NULL,
-	PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL,
+  `username` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -166,6 +166,6 @@ CREATE TABLE `game_update_paramhip` (
   `package_version` varchar(16) NOT NULL,
   `paramhip_type` varchar(32) NOT NULL,
   `paramhip_url` varchar(255) NOT NULL,
-	`paramhip_content` mediumtext NOT NULL,
-	PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
+  `paramhip_content` mediumtext NOT NULL,
+  PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

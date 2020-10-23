@@ -83,7 +83,7 @@ function checkInvalidThreads() : void
 		}
 	}
 
-	$a_games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"));
+	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
 
 	mysqli_close($db);
 
@@ -158,7 +158,7 @@ function compatibilityUpdater() : void
 	WHERE ({$where}) && `visible` > 0 && `closed` NOT LIKE '%moved%' && `lastpost` > {$ts_lastupdate};");
 
 	// Get all games in the database
-	$a_games = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list`;"));
+	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
 
 	// Script data
 	$a_inserts = array();
@@ -483,13 +483,13 @@ function mergeGames() : void
 	$s_gid1 = mysqli_real_escape_string($db, $_POST['gid1']);
 	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
 
-	$game1 = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');"))[0];
+	$game1 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');"))[0];
 	if (empty($game1)) {
 		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
 		return;
 	}
 
-	$game2 = Game::queryToGames(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');"))[0];
+	$game2 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');"))[0];
 	if (empty($game2)) {
 		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
 		return;

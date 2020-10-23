@@ -22,129 +22,101 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 
 
-class Game {
-
+class Game
+{
 	public $key;        // Int
 	public $title;      // String
 	public $title2;     // String
 	public $status;     // Int
 	public $date;       // String
-	public $commit;     // String
-	public $pr;         // Int
 	public $network;    // Int
-	public $wikiID;     // Int
-	public $wikiTitle;  // String
+	public $pr;         // Int
+	public $commit;     // String
+	public $wiki_id;    // Int
+	public $wiki_title; // String
 	public $game_item;  // GameItem[]
 
-	function __construct(&$a_ids, &$a_wiki, $key, $maintitle, $alternativetitle, $status, $date, $network, $wiki, $pr, $commit)
+	function __construct(int $key, string $title, ?string $title2, int $status, string $date, int $network, ?int $pr, ?string $commit, ?int $wiki_id, ?string $wiki_title)
 	{
-		$this->key = $key;
-
-		$this->title = $maintitle;
-		$this->title2 = $alternativetitle;
-
-		$this->status = getStatusID($status);
-
-		$this->date = $date;
-
-		$this->commit = $commit;
-
-		if (!is_null($pr))
-			$this->pr = (int) $pr;
-
-		$this->network = (int) $network;
-
-		if (!is_null($a_wiki) && !is_null($wiki)) {
-			$this->wikiID = (int) $wiki;
-			$this->wikiTitle = urlencode($a_wiki[$wiki]);
-		}
-
-		if (!is_null($a_ids))
-			foreach ($a_ids[$key] as $id)
-				$this->game_item[] = $id;
+		$this->key        = $key;
+		$this->title      = $title;
+		$this->title2     = $title2;
+		$this->status     = $status;
+		$this->date       = $date;
+		$this->commit     = $commit;
+		$this->pr         = $pr;
+		$this->network    = $network;
+		$this->wiki_id    = $wiki_id;
+		$this->wiki_title = $wiki_title;
 	}
 
-
-	/**
-		* rowToGame
-		* Obtains a Game from given MySQL Row.
-		*
-		* @param object  $row       The MySQL Row (returned by mysqli_fetch_object($query))
-		* @param object  $a_ids     Array containing key => Game and Thread IDs to be included on the Game object
-		* @param object  $a_wiki    Wiki Page ID => Page Title cache
-		*
-		* @return object $game      Game fetched from given Row
-		*/
-	public static function rowToGame($row, &$a_ids, &$a_wiki)
-	{
-		return new Game($a_ids, $a_wiki, $row->key, $row->game_title, $row->alternative_title,
-		$row->status, $row->last_update, $row->network, $row->wiki, $row->pr, $row->build_commit);
-	}
-
-	/**
-		* queryToGames
-		* Obtains array of Games from given MySQL Query.
-		*
-		* @param object  $query        The MySQL Query (returned by mysqli_query())
-		* @param bool    $wikiData     Whether to include wiki related data
-		*
-		* @return array  $array        Array of Games fetched from given Query
-		*/
-	public static function queryToGames($query, bool $wikiData = true) : array
+	// Import wiki related information to a Game array
+	public static function import_wiki(array &$games) : void
 	{
 		$db = getDatabase();
 
+		$a_wiki = array();
+		$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title` FROM `rpcs3_wiki`.`page` WHERE `page_namespace` = 0; ");
+
+		while ($row = mysqli_fetch_object($q_wiki))
+		{
+			$a_wiki[$row->page_id] = $row->page_title;
+		}
+
+		foreach ($games as $game)
+		{
+			if (is_null($game->wiki_id))
+				continue;
+
+			$game->wiki_title = $a_wiki[$game->wiki_id];
+		}
+
+		mysqli_close($db);
+	}
+
+	// Import Game Items to a Game array
+	public static function import_game_items(array &$games) : void
+	{
+		$db = getDatabase();
+
+		$a_items = array();
+		$q_items = mysqli_query($db, "SELECT * FROM `game_id` ORDER BY `gid` ASC; ");
+
+		while ($row = mysqli_fetch_object($q_items))
+		{
+			$a_items[$row->key][] = new GameItem($row->gid, $row->tid, $row->latest_ver);
+		}
+
+		foreach ($games as $game)
+		{
+			$game->game_item = $a_items[$game->key];
+		}
+
+		mysqli_close($db);
+	}
+
+	// Returns a Game array from a mysqli_result object
+	public static function query_to_games(mysqli_result $query) : array
+	{
 		$a_games = array();
 
 		if (mysqli_num_rows($query) === 0)
 			return $a_games;
 
-		if ($wikiData) {
-			$a_wiki = array();
-			$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title` FROM `rpcs3_wiki`.`page` WHERE `page_namespace` = 0 ;");
-			while ($row = mysqli_fetch_object($q_wiki))
-				$a_wiki[$row->page_id] = $row->page_title;
-		} else {
-			$a_wiki = NULL;
-		}
-
-		// Get GIDs and TIDs
-		$c_ids = "SELECT * FROM `game_id` WHERE ";
-		for ($i = 0; $row = mysqli_fetch_object($query); $i++) {
-			if ($i > 0)
-				$c_ids .= " OR ";
-			$c_ids .= " `key` = {$row->key} ";
-		}
-		$c_ids .= " ORDER BY `gid` ASC ";
-
-		// All (or most) games being fetch
-		if (mysqli_num_rows($query) > 1000)
-			$q_ids = mysqli_query($db, "SELECT * FROM `game_id` ORDER BY `gid` ASC");
-		else
-			$q_ids = mysqli_query($db, $c_ids);
-
-		$a_ids = array();
-		while ($row = mysqli_fetch_object($q_ids))
-			$a_ids[$row->key][] = new GameItem($row->gid, $row->tid, $row->latest_ver);
-
-		mysqli_data_seek($query, 0);
 		while ($row = mysqli_fetch_object($query))
-			$a_games[] = self::rowToGame($row, $a_ids, $a_wiki);
+		{
+			$a_games[] = new Game($row->key, $row->game_title, $row->alternative_title,
+			getStatusID($row->status), $row->last_update, $row->network, $row->pr, $row->build_commit, $row->wiki, NULL);
+		}
 
-		mysqli_close($db);
+		self::import_game_items($a_games);
+
 		return $a_games;
 	}
 
-	/**
-		* sort
-		* Sorts an array of Games.
-		*
-		* @param object  $array   The Games array that needs sorting
-		* @param int     $type    Type of sorting (2:Title, 3:Status, 4:Date)
-		* @param string  $order   Order of sorting (a:ASC, d:DESC)
-		*
-		*/
-	public static function sort(&$array, int $type, string $order)
+	// Type of sorting (2:Title, 3:Status, 4:Date)
+	// Order of sorting (a:ASC, d:DESC)
+	public static function sort(array &$games, int $type, string $order) : void
 	{
 		global $a_status;
 
@@ -158,16 +130,19 @@ class Game {
 		/*
 		 * Game Title and Date
 		 */
-		if ($type === 2 || $type === 4) {
-
+		if ($type === 2 || $type === 4)
+		{
 			// Temporary arrays to store game titles and original keys respectively
 			$values = array();
 
-			if ($type === 2) {
-				foreach ($array as $key => $game)
+			if ($type === 2)
+			{
+				foreach ($games as $key => $game)
 					$values[$key] = $game->title;
-			} else {
-				foreach ($array as $key => $game)
+			}
+			else
+			{
+				foreach ($games as $key => $game)
 					$values[$key] = $game->date;
 			}
 
@@ -180,35 +155,38 @@ class Game {
 
 			// Move all entries from given array to a new sorted array in the correct order
 			foreach ($values as $key => $value)
-				$sorted[] = $array[$key];
-
+				$sorted[] = $games[$key];
 		}
 
 		/*
 		 * Status
 		 */
-		if ($type == 3) {
-
-			if ($order === 'a') {
+		if ($type == 3)
+		{
+			if ($order === 'a')
+			{
 				$i = 1;
 				$limit = count($a_status);
-			} else /* if ($order === 'd') */ {
+			}
+			else /* if ($order === 'd') */
+			{
 				$i = count($a_status);
 				$limit = 1;
 			}
 
-			for ($i; $order === 'a' ? $i <= $limit : $i >= $limit; $order === 'a' ? $i++ : $i--) {
-				foreach ($array as $key => $game) {
-					if ($game->status === $i) {
+			for ($i; $order === 'a' ? $i <= $limit : $i >= $limit; $order === 'a' ? $i++ : $i--)
+			{
+				foreach ($games as $key => $game)
+				{
+					if ($game->status === $i)
+					{
 						$sorted[] = $game;
-						unset($array[$key]);
+						unset($games[$key]);
 					}
 				}
 			}
-
 		}
 
-		$array = $sorted;
+		$games = $sorted;
 	}
-
 }

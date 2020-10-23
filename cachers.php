@@ -493,7 +493,7 @@ function cacheWikiIDs() : void
 	$db = getDatabase();
 
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
-	$a_games = Game::queryToGames($q_games);
+	$a_games = Game::query_to_games($q_games);
 
 	// Fetch all wiki pages that contain a Game ID
 	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`

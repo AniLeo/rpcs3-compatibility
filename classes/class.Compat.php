@@ -244,7 +244,7 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Game Media, Titles and Network
-		$title = !is_null($game->wikiID) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wikiTitle}\">{$game->title}</a>" : $game->title;
+		$title = !is_null($game->wiki_id) ? "<a href=\"https://wiki.rpcs3.net/index.php?title={$game->wiki_title}\">{$game->title}</a>" : $game->title;
 		$cell = "{$media}{$title}";
 		if ($game->network === 1)
 			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
@@ -366,7 +366,7 @@ public static function APIv1() : array
 			$results['results'][$item->game_id] = array(
 			'title' => $game->title,
 			'alternative-title' => $game->title2,
-			'wiki-title' => $game->wikiTitle,
+			'wiki-title' => $game->wiki_title,
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
 			'thread' => (int) $item->thread_id,

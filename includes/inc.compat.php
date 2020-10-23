@@ -142,7 +142,10 @@ if (!$q_main) {
 // Store results
 Profiler::addData("Inc: Store Results");
 if ($q_main && mysqli_num_rows($q_main) > 0)
-	$games = Game::queryToGames($q_main);
+{
+	$games = Game::query_to_games($q_main);
+	Game::import_wiki($games);
+}
 
 // Close MySQL connection.
 Profiler::addData("Inc: Close Database Connection");
