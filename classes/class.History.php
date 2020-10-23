@@ -238,9 +238,12 @@ public static function printContent() : void
 	global $a_existing, $a_new, $error_existing, $error_new;
 
 	// Existing entries table
-	if ($error_existing != "") {
+	if (!empty($error_existing))
+	{
 		echo "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
-	} elseif (!is_null($a_existing)) {
+	}
+	elseif (!empty($a_existing))
+	{
 		echo "<div class=\"compat-table-outside\">";
 		echo "<div class=\"compat-table-inside\">";
 		self::printTableHeader();
@@ -250,9 +253,12 @@ public static function printContent() : void
 	}
 
 	// New entries table
-	if ($error_new != "") {
+	if (!empty($error_new))
+	{
 		echo "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
-	} elseif (!is_null($a_new)) {
+	}
+	elseif (!empty($a_new))
+	{
 		echo "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
 		echo "<div class=\"compat-table-outside\">";
 		echo "<div class=\"compat-table-inside\">";
@@ -269,10 +275,11 @@ public static function printHistoryRSS() : void
 	global $a_status, $a_new, $a_existing, $error_new, $error_existing;
 
 	// Should be unreachable, function is always called when one of the modes is set
-	if (is_null($a_new) && is_null($a_existing)) return;
+	if (empty($a_new) && empty($a_existing)) return;
 
-	$error = $error_new != "" ? $error_new : $error_existing;
-	$title = !is_null($a_new) ? "New additions" : "Updates";
+	$error = !empty($error_new) ? $error_new : $error_existing;
+	$title = !empty($a_new) ? "New additions" : "Updates";
+
 	$url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -284,14 +291,18 @@ public static function printHistoryRSS() : void
 	<language>en-uk</language>
 	<atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
 
-	if ($error != "") {
+	if (!empty($error))
+	{
 		echo "<item>
 						<title><![CDATA[{$error}]]></title>
 						<description>{$error}</description>
 						<pubDate>".date('r', time())."</pubDate>
 					</item>";
-	} elseif (!is_null($a_new)) {
-		foreach ($a_new as $key => $entry) {
+	}
+	elseif (!empty($a_new))
+	{
+		foreach ($a_new as $key => $entry)
+		{
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
 						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}</guid>
@@ -299,8 +310,11 @@ public static function printHistoryRSS() : void
 						<pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
 						</item>";
 		}
-	} elseif (!is_null($a_existing)) {
-		foreach ($a_existing as $key => $entry) {
+	}
+	elseif (!empty($a_existing))
+	{
+		foreach ($a_existing as $key => $entry)
+		{
 			echo "<item>
 						<title><![CDATA[{$entry->title}]]></title>
 						<guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}</guid>

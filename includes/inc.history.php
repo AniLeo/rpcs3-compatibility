@@ -32,72 +32,75 @@ Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
 
-$a_existing = NULL;
-$a_new = NULL;
-$a_rss = NULL;
+$a_existing = array();
+$a_new = array();
+
 $error_existing = "";
 $error_new = "";
-$error_rss = "";
 
 // Default date value
 if ($get['h'] === true)
 {
-  $get['h']	= $a_currenthist[0];
+	$get['h']	= $a_currenthist[0];
 }
 
 // Main part of the query
 $cmd_main = "SELECT * FROM `game_history`
-LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key` ";
+LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key`
+LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key` ";
 
 // Generate date part of the query
-if ($get['h'] === $a_currenthist[0]) {
-  $cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
-} else {
-  $cmd_date = " AND `new_date` BETWEEN
-  CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
-  AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
+if ($get['h'] === $a_currenthist[0])
+{
+	$cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
+}
+else
+{
+	$cmd_date = " AND `new_date` BETWEEN
+	CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
+	AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 }
 
 
 // Existing entries
 Profiler::addData("Inc: Check Existing Entries");
-if ($get['m'] == "c" || $get['m'] == "") {
-  $q_existing = mysqli_query($db, "{$cmd_main}
-  LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key`
-  WHERE `old_status` IS NOT NULL {$cmd_date}
-  ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+if ($get['m'] === "c" || empty($get['m']))
+{
+	$q_existing = mysqli_query($db, "{$cmd_main}
+	WHERE `old_status` IS NOT NULL {$cmd_date}
+	ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-  if (!$q_existing) {
-    $error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
-  } elseif (mysqli_num_rows($q_existing) === 0) {
-    $error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
-  }
+	if (!$q_existing)
+	{
+		$error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
+	}
+	elseif (mysqli_num_rows($q_existing) === 0)
+	{
+		$error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
+	}
 
-  $a_existing = array();
-
-  while ($row = mysqli_fetch_object($q_existing))
-    $a_existing[] = HistoryEntry::rowToHistoryEntry($row);
+	$a_existing = HistoryEntry::query_to_history_entry($q_existing);
 }
 
 
 // New entries
 Profiler::addData("Inc: Check New Entries");
-if ($get['m'] == "n" || $get['m'] == "") {
-  $q_new = mysqli_query($db, "{$cmd_main}
-  LEFT JOIN `game_id` ON `game_history`.`new_gid` = `game_id`.`gid`
-  WHERE `old_status` IS NULL {$cmd_date}
-  ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+if ($get['m'] === "n" || empty($get['m']))
+{
+	$q_new = mysqli_query($db, "{$cmd_main}
+	WHERE `old_status` IS NULL {$cmd_date}
+	ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-  if (!$q_new) {
-    $error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
-  } elseif (mysqli_num_rows($q_new) === 0) {
-    $error_new = "No newer entries were reported and/or reviewed yet.";
-  }
+	if (!$q_new)
+	{
+		$error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
+	}
+	elseif (mysqli_num_rows($q_new) === 0)
+	{
+		$error_new = "No newer entries were reported and/or reviewed yet.";
+	}
 
-  $a_new = array();
-
-  while ($row = mysqli_fetch_object($q_new))
-    $a_new[] = HistoryEntry::rowToHistoryEntry($row);
+	$a_new = HistoryEntry::query_to_history_entry($q_new);
 }
 
 

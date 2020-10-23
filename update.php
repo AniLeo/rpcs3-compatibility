@@ -71,7 +71,7 @@ function checkForUpdates(string $commit = '') : array
 		$db = getDatabase();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
 		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
-		$current = Build::query_to_build($q_check);
+		$current = Build::query_to_builds($q_check);
 
 		// Check if the build exists as a master build
 		if (empty($current))

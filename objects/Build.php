@@ -23,14 +23,14 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class Build
 {
-	public $pr;         // Int
-	public $commit;     // String (40)
-	public $version;    // String
-	public $merge;      // Datetime
-	public $additions;  // Int
-	public $deletions;  // Int
-	public $files;      // Int
-	public $broken;     // Bool
+	public $pr;             // Int
+	public $commit;         // String
+	public $version;        // String
+	public $merge;          // String
+	public $additions;      // Int
+	public $deletions;      // Int
+	public $files;          // Int
+	public $broken;         // Bool
 
 	public $checksum_win;   // String
 	public $size_win;       // Int
@@ -40,11 +40,11 @@ class Build
 	public $size_linux;     // Int
 	public $filename_linux; // String
 
-	public $fulldate;   // String
-	public $diffdate;   // String
+	public $author_id;      // Int
+	public $author;         // String
 
-	public $author;      // String
-	public $author_id;   // Int
+	public $fulldate;       // String
+	public $diffdate;       // String
 
 	function __construct(int $pr, string $commit, string $version, int $author_id,
 	                     string $merge, ?int $additions, ?int $deletions, ?int $files,
@@ -165,7 +165,7 @@ class Build
 		mysqli_close($db);
 	}
 
-	public static function query_to_build(mysqli_result $query) : array
+	public static function query_to_builds(mysqli_result $query) : array
 	{
 		$a_builds = array();
 

@@ -36,7 +36,8 @@ class Game
 	public $wiki_title; // String
 	public $game_item;  // GameItem[]
 
-	function __construct(int $key, string $title, ?string $title2, int $status, string $date, int $network, ?int $pr, ?string $commit, ?int $wiki_id, ?string $wiki_title)
+	function __construct(int $key, string $title, ?string $title2, int $status, string $date,
+	                     int $network, ?int $pr, ?string $commit, ?int $wiki_id, ?string $wiki_title)
 	{
 		$this->key        = $key;
 		$this->title      = $title;

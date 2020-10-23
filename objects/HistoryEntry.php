@@ -22,46 +22,42 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 
 
-class HistoryEntry {
+class HistoryEntry
+{
+	public $title;      // String
+	public $title2;     // String
+	public $old_status; // Int
+	public $new_status; // Int
+	public $old_date;   // String
+	public $new_date;   // String
+	public $game_item;  // GameItem
 
-	public $title;       // String
-	public $title2;      // String
-	public $old_status;  // Int
-	public $new_status;  // Int
-	public $old_date;    // Date
-	public $new_date;    // Date
-	public $game_item;   // GameItem
-
-	function __construct($maintitle, $alternativetitle, $oldstatus, $newstatus, $olddate, $newdate, $gid, $tid)
+	function __construct(string $title, ?string $title2, ?string $old_status, string $new_status,
+	                    ?string $old_date, string $new_date, string $gid, int $tid)
 	{
-		$this->title = $maintitle;
-		if (!is_null($alternativetitle))
-			$this->title2 = $alternativetitle;
+		$this->title = $title;
+		$this->title2 = $title2;
 
-		if (!is_null($oldstatus))
-			$this->old_status = getStatusID($oldstatus);
-		if (!is_null($olddate))
-			$this->old_date = $olddate;
+		if (!is_null($old_status))
+			$this->old_status = getStatusID($old_status);
 
-		$this->new_status = getStatusID($newstatus);
-		$this->new_date = $newdate;
+		$this->old_date = $old_date;
+		$this->new_status = getStatusID($new_status);
+		$this->new_date = $new_date;
 
 		$this->game_item = new GameItem($gid, $tid, null);
 	}
 
-
-	/**
-		* rowToHistoryEntry
-		* Obtains a HistoryEntry from given MySQL Row.
-		*
-		* @param object  $row								The MySQL Row (returned by mysqli_fetch_object($query))
-		*
-		* @return object $historyentry			HistoryEntry fetched from given Row
-		*/
-	public static function rowToHistoryEntry($row)
+	public static function query_to_history_entry(mysqli_result $query) : array
 	{
-		return new HistoryEntry($row->game_title, $row->alternative_title, $row->old_status, $row->new_status,
-		$row->old_date, $row->new_date, $row->gid, $row->tid);
-	}
+		$a_entries = array();
 
+		while ($row = mysqli_fetch_object($query))
+		{
+			$a_entries[] = new HistoryEntry($row->game_title, $row->alternative_title,
+			$row->old_status, $row->new_status, $row->old_date, $row->new_date, $row->gid, $row->tid);
+		}
+
+		return $a_entries;
+	}
 }
