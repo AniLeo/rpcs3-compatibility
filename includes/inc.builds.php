@@ -66,7 +66,7 @@ elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed y
 // Store builds in a Build array if there are no errors
 if (is_null($error)) {
 	Profiler::addData("Inc: Store Builds in Array");
-	$builds = Build::queryToBuild($buildsQuery);
+	$builds = Build::query_to_build($buildsQuery);
 }
 
 Profiler::addData("--- / ---");

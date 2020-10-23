@@ -52,7 +52,7 @@ public static function printMessages() : void
  *****************/
 public static function printTable() : void
 {
-	global $c_github, $builds, $error;
+	global $builds, $error;
 
 	if (!is_null($error))
 		return;
@@ -92,45 +92,57 @@ public static function printTable() : void
 	echo getTableHeaders($headers, 'b&');
 
 	// Print table body
-	foreach($builds as $build) {
-
+	foreach ($builds as $build)
+	{
 		// Length of additions text
 		$len = strlen($build->additions) + 1;
 		// Padding formula to apply in order to align deletions in all rows
 		$padding = (8 - $len) * 7;
 		// Formatted version with metadata
 		$version = "";
-		if (!is_null($build->checksum_win)) {
+
+		if (!is_null($build->checksum_win))
+		{
 			$version .= "Windows SHA-256: {$build->checksum_win}";
 		}
-		if (!is_null($build->sizeMB_win)) {
-			if (!empty($version)) $version .= "\n";
-			$version .= "Windows Size: {$build->sizeMB_win} MB";
+		if (!is_null($build->get_size_mb_windows()))
+		{
+			if (!empty($version))
+				$version .= "\n";
+			$version .= "Windows Size: {$build->get_size_mb_windows()} MB";
 		}
-		if (!empty($version)) $version .= "\n";
-		if (!is_null($build->checksum_linux)) {
-			if (!empty($version)) $version .= "\n";
+		if (!empty($version))
+			$version .= "\n";
+		if (!is_null($build->checksum_linux))
+		{
+			if (!empty($version))
+				$version .= "\n";
 			$version .= "Linux SHA-256: {$build->checksum_linux}";
 		}
-		if (!is_null($build->sizeMB_linux)) {
-			if (!empty($version)) $version .= "\n";
-			$version .= "Linux Size: {$build->sizeMB_linux} MB";
+		if (!is_null($build->get_size_mb_linux()))
+		{
+			if (!empty($version))
+				$version .= "\n";
+			$version .= "Linux Size: {$build->get_size_mb_linux()} MB";
 		}
-		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">$build->version</span>" : $build->version;
+		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">{$build->version}</span>" : $build->version;
 
 	 	echo "<div class=\"compat-table-row\">";
 
 		/* Cell 1: PR */
-		$cell = "<a href=\"{$c_github}/pull/{$build->pr}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
+		$cell = "<a href=\"{$build->get_url_pr()}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 2: Author */
-		$cell = "<a href=\"https://github.com/{$build->author}\"><img class='builds-icon' alt='{$build->author}' src=\"https://avatars.githubusercontent.com/u/{$build->authorID}\">{$build->author}</a>";
+		$cell = "<a href=\"{$build->get_url_author()}\"><img class='builds-icon' alt='{$build->author}' src=\"{$build->get_url_author_avatar()}\">{$build->author}</a>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */
-		$cell = "<span style='color:#4cd137;'>+{$build->additions}</span>";
-		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$build->deletions}</span>";
+		$additions = !is_null($build->additions) ? $build->additions : "?";
+		$deletions = !is_null($build->deletions) ? $build->deletions : "?";
+
+		$cell = "<span style='color:#4cd137;'>+{$additions}</span>";
+		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$deletions}</span>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 4: Diffdate and Fulldate */
@@ -138,12 +150,14 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
+		$url_windows = $build->get_url_windows();
+		$url_linux   = $build->get_url_linux();
 		$cell = $version;
-		if (!is_null($build->url_win))
-			$cell .= "<a href=\"{$build->url_win}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
-		if (!is_null($build->url_linux))
-			$cell .= "<a href=\"{$build->url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
-		if ($build->broken === 1)
+		if (!is_null($url_windows))
+			$cell .= "<a href=\"{$url_windows}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
+		if (!is_null($url_linux))
+			$cell .= "<a href=\"{$url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
+		if ($build->broken)
 			$cell = "<s>{$cell}</s>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
@@ -173,7 +187,7 @@ public static function printPagesCounter() : void
 
 public static function getBuildsRSS() : string
 {
-	global $info, $builds, $c_github;
+	global $info, $builds;
 
 	if (!is_null($info)) { return $info; }
 
@@ -182,17 +196,17 @@ public static function getBuildsRSS() : string
 
 	foreach ($builds as $build) {
 		// Skip broken builds
-		if ($build->broken === 1)
+		if ($build->broken)
 			continue;
 
 		$rssfeed .= "
 				<item>
 					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
-					<description><![CDATA[<a href=\"{$c_github}/pull/{$build->pr}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}]]></description>
-					<guid>{$c_github}/pull/{$build->pr}</guid>
+					<description><![CDATA[<a href=\"{$build->get_url_pr()}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}]]></description>
+					<guid>{$build->get_url_pr()}</guid>
 					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
-					<link>{$c_github}/pull/{$build->pr}</link>
-					<comments>{$c_github}/pull/{$build->pr}</comments>
+					<link>{$build->get_url_pr()}</link>
+					<comments>{$build->get_url_pr()}</comments>
 					<dc:creator>{$build->author}</dc:creator>
 				</item>
 		";

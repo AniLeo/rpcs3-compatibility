@@ -21,165 +21,188 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-class Build {
-
+class Build
+{
 	public $pr;         // Int
 	public $commit;     // String (40)
-	public $author;     // String
-	public $authorID;   // Int
-	public $merge;      // Datetime
 	public $version;    // String
+	public $merge;      // Datetime
 	public $additions;  // Int
 	public $deletions;  // Int
 	public $files;      // Int
-	public $broken;     // Int
-
-	public $fulldate;   // String
-	public $diffdate;   // String
+	public $broken;     // Bool
 
 	public $checksum_win;   // String
 	public $size_win;       // Int
 	public $filename_win;   // String
-	public $sizeMB_win;     // Float
-	public $url_win;        // String
 
-	public $checksum_linux; 	// String
-	public $size_linux;       // Int
-	public $filename_linux;   // String
-	public $sizeMB_linux;     // Float
-	public $url_linux;        // String
+	public $checksum_linux; // String
+	public $size_linux;     // Int
+	public $filename_linux; // String
 
+	public $fulldate;   // String
+	public $diffdate;   // String
 
-	function __construct(&$a_contributors, $pr, $commit, $version, $authorID, $merge, $additions, $deletions, $files, $buildjob,
-	$checksum_win, $size_win, $filename_win, $checksum_linux, $size_linux, $filename_linux, $broken)
+	public $author;      // String
+	public $author_id;   // Int
+
+	function __construct(int $pr, string $commit, string $version, int $author_id,
+	                     string $merge, ?int $additions, ?int $deletions, ?int $files,
+	                     ?string $checksum_win, ?int $size_win, ?string $filename_win,
+	                     ?string $checksum_linux, ?int $size_linux, ?string $filename_linux, bool $broken)
 	{
-		$this->pr = (Int) $pr;
-		$this->commit = (String) $commit;
-
-		// Gets author username from ID
-		// Use contributors array if existent, otherwise fetch directly from the database
-		if (!is_null($a_contributors)) {
-			$this->author = (String) $a_contributors[$authorID];
-		} else {
-			$db = getDatabase();
-			$this->author = (String) mysqli_fetch_object(mysqli_query($db, "SELECT `username` FROM `contributors` WHERE `id` = {$authorID};"))->username;
-			mysqli_close($db);
-		}
-		$this->authorID = $authorID;
-
-		$this->merge = $merge;
-
-		$this->version = substr($version, 0, 4) == "1.0." ? str_replace("1.0.", "0.0.0-", $version) : $version;
+		$this->pr             = $pr;
+		$this->commit         = $commit;
+		$this->author_id      = $author_id;
+		$this->merge          = $merge;
+		$this->version        = substr($version, 0, 4) === "1.0." ? str_replace("1.0.", "0.0.0-", $version) : $version;
+		$this->checksum_win   = $checksum_win;
+		$this->size_win       = $size_win;
+		$this->filename_win   = $filename_win;
+		$this->checksum_linux = $checksum_linux;
+		$this->size_linux     = $size_linux;
+		$this->filename_linux = $filename_linux;
+		$this->broken         = $broken;
 
 		// A bug in GitHub API returns +0 -0 on some PRs
-		if (!is_null($files) && $files > 0) {
-			$this->additions = (Int) $additions;
-			$this->deletions = (Int) $deletions;
-			$this->files = (Int) $files;
-		} else {
-			$this->additions = '?';
-			$this->deletions = '?';
-			$this->files = '?';
+		if (!is_null($files) && $files > 0)
+		{
+			$this->additions = $additions;
+			$this->deletions = $deletions;
+			$this->files = $files;
 		}
 
 		$this->fulldate = date_format(date_create($this->merge), "Y-m-d");
 		$this->diffdate = getDateDiff($this->merge);
-
-		if (!is_null($checksum_win)) {
-			$this->checksum_win = (String) $checksum_win;
-		}
-
-		if (!is_null($size_win)) {
-			$this->size_win = (Int) $size_win;
-			$this->sizeMB_win = !is_null($this->size_win) ? round(((int)$this->size_win) / 1024 / 1024, 1) : 0;
-		}
-
-		if (!is_null($filename_win) && is_null($buildjob)) {
-			$this->filename_win = $filename_win;
-			$this->url_win = "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
-		}
-
-		if (!is_null($checksum_linux)) {
-			$this->checksum_linux = (String) $checksum_linux;
-		}
-
-		if (!is_null($size_linux)) {
-			$this->size_linux = (Int) $size_linux;
-			$this->sizeMB_linux = !is_null($this->size_linux) ? round(((int)$this->size_linux) / 1024 / 1024, 1) : 0;
-		}
-
-		if (!is_null($filename_linux)) {
-			$this->filename_linux = $filename_linux;
-			$this->url_linux = "https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-{$this->commit}/{$this->filename_linux}";
-		}
-
-		if (!is_null($broken)) {
-			$this->broken = (int) $broken;
-		} else {
-			$this->broken = 0;
-		}
-
 	}
 
-
-	/**
-		* rowToBuild
-		* Obtains a Build from given MySQL Row.
-		*
-		* @param object  $row       The MySQL Row (returned by mysqli_fetch_object($query))
-		*
-		* @return object $build     Build fetched from given Row
-		*/
-	public static function rowToBuild($row, &$a_contributors)
+	public function get_url_pr() : string
 	{
-		return new Build($a_contributors, $row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
-		$row->additions, $row->deletions, $row->changed_files, $row->buildjob,
-		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, $row->broken);
+		return "https://github.com/RPCS3/rpcs3/pull/{$this->pr}";
 	}
 
-	/**
-		* queryToBuild
-		* Obtains array of Builds from given MySQL Query.
-		*
-		* @param object  $query        The MySQL Query (returned by mysqli_query())
-		*
-		* @return array  $array        Array of Builds fetched from given Query
-		*/
-	public static function queryToBuild($query) : array
+	public function get_url_commit() : string
+	{
+		return "https://github.com/RPCS3/rpcs3/commit/{$this->commit}";
+	}
+
+	public function get_url_windows() : ?string
+	{
+		if (!is_null($this->filename_win))
+		{
+			return "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
+		}
+		return null;
+	}
+
+	public function get_url_linux() : ?string
+	{
+		if (!is_null($this->filename_linux))
+		{
+			return "https://github.com/RPCS3/rpcs3-binaries-linux/releases/download/build-{$this->commit}/{$this->filename_linux}";
+		}
+		return null;
+	}
+
+	public function get_url_author() : ?string
+	{
+		if (!is_null($this->author))
+		{
+			return "https://github.com/{$this->author}";
+		}
+		return null;
+	}
+
+	public function get_url_author_avatar() : ?string
+	{
+		if (!is_null($this->author_id))
+		{
+			return "https://avatars.githubusercontent.com/u/{$this->author_id}";
+		}
+		return null;
+	}
+
+	public function get_size_mb_windows() : ?float
+	{
+		if (!is_null($this->size_win))
+		{
+			return round($this->size_win / 1024 / 1024, 1);
+		}
+		return null;
+	}
+
+	public function get_size_mb_linux() : ?float
+	{
+		if (!is_null($this->size_linux))
+		{
+			return round($this->size_linux / 1024 / 1024, 1);
+		}
+		return null;
+	}
+
+	public function get_commit_short() : string
+	{
+		return substr($this->commit, 0, 8);
+	}
+
+	public static function import_authors(array &$builds) : void
 	{
 		$db = getDatabase();
 
 		$a_contributors = array();
 		$q_contributors = mysqli_query($db, "SELECT * FROM `contributors`;");
-		while ($row = mysqli_fetch_object($q_contributors))
-			$a_contributors[$row->id] = $row->username;
 
-		$a_builds = array();
-		while ($row = mysqli_fetch_object($query))
-			$a_builds[] = self::rowToBuild($row, $a_contributors);
+		while ($row = mysqli_fetch_object($q_contributors))
+		{
+			$a_contributors[$row->id] = $row->username;
+		}
+
+		foreach ($builds as $build)
+		{
+			$build->author = $a_contributors[$build->author_id];
+		}
 
 		mysqli_close($db);
+	}
+
+	public static function query_to_build(mysqli_result $query) : array
+	{
+		$a_builds = array();
+
+		if (mysqli_num_rows($query) === 0)
+			return $a_builds;
+
+		while ($row = mysqli_fetch_object($query))
+		{
+			$a_builds[] = new Build($row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
+			$row->additions, $row->deletions, $row->changed_files,
+			$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, !is_null($row->broken));
+		}
+
+		self::import_authors($a_builds);
 
 		return $a_builds;
 	}
 
-	/**
-		* getLatest
-		* Obtains the most recent Build.
-		*
-		* @return ?object $build        Most recent build
-		*/
-	public static function getLatest()
+	public static function get_latest() : ?Build
 	{
 		$db = getDatabase();
+
 		$query = mysqli_query($db, "SELECT * FROM `builds` WHERE `broken` IS NULL OR `broken` != 1 ORDER BY `merge_datetime` DESC LIMIT 1;");
-		if (mysqli_num_rows($query) === 0) return null;
+
+		if (mysqli_num_rows($query) === 0)
+			return null;
+
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
 
-		$a_contributors = null; // Strict Standards: Only variables should be passed by reference
+		$build = new Build($row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
+		$row->additions, $row->deletions, $row->changed_files,
+		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, !is_null($row->broken));
 
-		return self::rowToBuild($row, $a_contributors);
+		$ret = array($build);
+		self::import_authors($ret);
+
+		return $ret[0];
 	}
-
 }
