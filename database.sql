@@ -93,7 +93,7 @@ CREATE TABLE `game_id` (
   `gid` varchar(9) NOT NULL,
   `tid` int(11) NOT NULL,
   `latest_ver` varchar(16) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for game_patch
@@ -166,5 +166,6 @@ CREATE TABLE `game_update_paramhip` (
   `package_version` varchar(16) NOT NULL,
   `paramhip_type` varchar(32) NOT NULL,
   `paramhip_url` varchar(255) NOT NULL,
+	`paramhip_content` mediumtext NOT NULL,
 	PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

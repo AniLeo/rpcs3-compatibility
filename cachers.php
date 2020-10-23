@@ -547,6 +547,7 @@ function cacheWikiIDs() : void
 	if (!empty($q_updates))
 	{
 		mysqli_multi_query($db, $q_updates);
+		// No need to flush here since we're not issuing other queries before closing
 	}
 
 	mysqli_close($db);
@@ -736,38 +737,13 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		$q_insert .= "INSERT INTO `game_update_package` (`titleid`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
 		$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 
-		// PARAM.SFO data
-		if (isset($package->paramsfo))
-		{
-			foreach ($package->paramsfo as $type => $title)
-			{
-				$db_paramsfo_type = mysqli_real_escape_string($db, $type);
-				$db_paramsfo_title = mysqli_real_escape_string($db, $title);
-
-				$q_insert .= "INSERT INTO `game_update_paramsfo` (`titleid`, `package_version`, `paramsfo_type`, `paramsfo_title`) ";
-				$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramsfo_type}', '{$db_paramsfo_title}'); ";
-			}
-		}
-
-		// PARAM.HIP data
-		foreach ($package as $key => $value)
-		{
-			if (strpos($key, "paramhip") === false)
-			{
-				continue;
-			}
-
-			$db_paramhip_type = mysqli_real_escape_string($db, $key);
-			$db_paramhip_url = mysqli_real_escape_string($db, $value->{"@attributes"}->url);
-
-			$q_insert .= "INSERT INTO `game_update_paramhip` (`titleid`, `package_version`, `paramhip_type`, `paramhip_url`) ";
-			$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramhip_type}', '{$db_paramhip_url}'); ";
-		}
-
 		// Extra URL (usually used with different drm_type)
 		if (isset($package->url))
 		{
-			foreach ($package->url as $url)
+			// Has multiple extra URLs
+			$urls = is_array($package->url) ? $package->url : array($package->url);
+
+			foreach ($urls as $url)
 			{
 				if (isset($url->{"@attributes"}->version))
 					$db_package_version = mysqli_real_escape_string($db, $url->{"@attributes"}->version);
@@ -803,6 +779,61 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 
 				$q_insert .= "INSERT INTO `game_update_package` (`titleid`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
 				$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+			}
+		}
+
+		// PARAM.SFO data
+		if (isset($package->paramsfo))
+		{
+			foreach ($package->paramsfo as $type => $title)
+			{
+				$db_paramsfo_type = mysqli_real_escape_string($db, $type);
+				$db_paramsfo_title = mysqli_real_escape_string($db, $title);
+
+				$q_insert .= "INSERT INTO `game_update_paramsfo` (`titleid`, `package_version`, `paramsfo_type`, `paramsfo_title`) ";
+				$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramsfo_type}', '{$db_paramsfo_title}'); ";
+			}
+		}
+
+		// PARAM.HIP data
+		foreach ($package as $key => $value)
+		{
+			if (strpos($key, "paramhip") === false)
+			{
+				continue;
+			}
+
+			$db_paramhip_type = mysqli_real_escape_string($db, $key);
+			$db_paramhip_url = mysqli_real_escape_string($db, $value->{"@attributes"}->url);
+
+			// Fetch PARAM.HIP contents
+			curl_setopt($cr, CURLOPT_RETURNTRANSFER, true);  // Return result as raw output
+			curl_setopt($cr, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
+			curl_setopt($cr, CURLOPT_URL, $value->{"@attributes"}->url);
+
+			$paramhip_content = curl_exec($cr);
+			$httpcode = curl_getinfo($cr, CURLINFO_HTTP_CODE);
+			curl_reset($cr);
+
+			if ($httpcode !== 200)
+			{
+				echo "Failed to fetch PARAM.HIP! httpcode:{$httpcode}, url:{$value->{"@attributes"}->url}".PHP_EOL;
+				return false;
+			}
+
+			$db_paramhip_content = mysqli_real_escape_string($db, $paramhip_content);
+
+			$q_insert .= "INSERT INTO `game_update_paramhip` (`titleid`, `package_version`, `paramhip_type`, `paramhip_url`, `paramhip_content`) ";
+			$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramhip_type}', '{$db_paramhip_url}', '{$db_paramhip_content}'); ";
+		}
+
+		// Check if there are any child nodes we're not handling
+		foreach ($package as $key => $value)
+		{
+			if ($key !== "@attributes" && $key !== "url" && $key !== "paramsfo" && strpos($key, "paramhip") === false)
+			{
+				echo "Unhandled package child node! key:{$key}, gid:{$gid}".PHP_EOL;
+				return false;
 			}
 		}
 	}
