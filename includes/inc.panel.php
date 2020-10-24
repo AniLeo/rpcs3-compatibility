@@ -22,6 +22,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
+if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include Game.php");
 
 
 /*
@@ -419,13 +420,13 @@ function compatibilityUpdater() : void
 		// Recache status modules
 		cacheStatusModules();
 
-	} else {
-
+	}
+	else
+	{
 		// Display update button
-		echo "<form action=\"\" method=\"post\">
-						<button name=\"updateCompatibility\" type=\"submit\">Update Compatibility</button>
-					</form><br>";
-
+		$form = new HTMLForm("", "POST");
+		$form->add_button(new HTMLButton("updateCompatibility", "submit", "Update Compatibility"));
+		$form->print();
 	}
 
 	mysqli_close($db);
@@ -437,12 +438,10 @@ function refreshBuild() : void
 
 	$pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
 
-	$inputs = array();
-	$inputs[] = array("name" => "pr", "type" => "text", "value" => $pr, "placeholder" => "Pull Request #");
-	$buttons = array();
-	$buttons[] = array("name" => "refreshBuild", "type" => "submit", "value" => "Refresh");
-
-	printHTMLForm("", "POST", $inputs, $buttons);
+	$form = new HTMLForm("", "POST");
+	$form->add_input(new HTMLInput("pr", "text", $pr, "Pull Request"));
+	$form->add_button(new HTMLButton("refreshBuild", "submit", "Refresh"));
+	$form->print();
 
 	if (!isset($_POST["refreshBuild"]))
 		return;
@@ -457,14 +456,12 @@ function mergeGames() : void
 	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
 	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
 
-	$inputs = array();
-	$inputs[] = array("name" => "gid1", "type" => "text", "value" => $gid1, "placeholder" => "Game ID 1");
-	$inputs[] = array("name" => "gid2", "type" => "text", "value" => $gid2, "placeholder" => "Game ID 2");
-	$buttons = array();
-	$buttons[] = array("name" => "mergeRequest", "type" => "submit", "value" => "Merge Request");
-	$buttons[] = array("name" => "mergeConfirm", "type" => "submit", "value" => "Merge Confirm");
-
-	printHTMLForm("", "POST", $inputs, $buttons);
+	$form = new HTMLForm("", "POST");
+	$form->add_input(new HTMLInput("gid1", "text", $gid1, "Game ID 1"));
+	$form->add_input(new HTMLInput("gid2", "text", $gid2, "Game ID 2"));
+	$form->add_button(new HTMLButton("mergeRequest", "submit", "Merge Request"));
+	$form->add_button(new HTMLButton("mergeConfirm", "submit", "Merge Confirm"));
+	$form->print();
 
 	if (!isset($_POST['mergeRequest']) && !isset($_POST['mergeConfirm']))
 		return;
