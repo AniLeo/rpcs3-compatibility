@@ -722,14 +722,14 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
 function getDateDiff($datetime) : string
 {
 	$diff = time() - strtotime($datetime);
-	$days = floor($diff / 86400);
+	$days = (int) floor($diff / 86400);
 
 	if ($days === 0)
 	{
-		$hours = floor($diff / 3600);
+		$hours = (int) floor($diff / 3600);
 		if ($hours === 0)
 		{
-			$minutes = floor($diff / 60);
+			$minutes = (int) floor($diff / 60);
 			$diff = $minutes === 1 ? "{$minutes} minute" : "{$minutes} minutes";
 		}
 		else
