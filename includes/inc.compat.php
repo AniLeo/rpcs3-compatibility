@@ -145,8 +145,9 @@ elseif ($scount["network"][0] === 0)
 }
 elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig))
 {
+	$html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
 	$info = "No results found for <i>{$l_orig}</i>. </br>
-	Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.";
+	Displaying results for <b>{$html_a->to_string()}</b>.";
 }
 
 // Store results

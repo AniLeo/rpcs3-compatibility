@@ -21,6 +21,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
+if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
 
 class Builds {
@@ -130,11 +131,15 @@ public static function printTable() : void
 	 	echo "<div class=\"compat-table-row\">";
 
 		/* Cell 1: PR */
-		$cell = "<a href=\"{$build->get_url_pr()}\"><img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}</a>";
+		$html_a_pr = new HTMLA($build->get_url_pr(), "Pull Request #{$build->pr}", "<img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}");
+		$html_a_pr->set_target("_blank");
+		$cell = $html_a_pr->to_string();
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 2: Author */
-		$cell = "<a href=\"{$build->get_url_author()}\"><img class='builds-icon' alt='{$build->author}' src=\"{$build->get_url_author_avatar()}\">{$build->author}</a>";
+		$html_a_author = new HTMLA($build->get_url_author(), $build->author, "<img class='builds-icon' alt='{$build->author}' src=\"{$build->get_url_author_avatar()}\">{$build->author}");
+		$html_a_author->set_target("_blank");
+		$cell = $html_a_author->to_string();
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 3: Lines of Code */
@@ -154,9 +159,15 @@ public static function printTable() : void
 		$url_linux   = $build->get_url_linux();
 		$cell = $version;
 		if (!is_null($url_windows))
-			$cell .= "<a href=\"{$url_windows}\"><img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\"></a>";
+		{
+			$html_a_win = new HTMLA($url_windows, "Download for Windows", "<img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\">");
+			$cell .= $html_a_win->to_string();
+		}
 		if (!is_null($url_linux))
-			$cell .= "<a href=\"{$url_linux}\"><img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\"></a>";
+		{
+			$html_a_linux = new HTMLA($url_linux, "Download for Linux", "<img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\">");
+			$cell .= $html_a_linux->to_string();
+		}
 		if ($build->broken)
 			$cell = "<s>{$cell}</s>";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
@@ -203,7 +214,7 @@ public static function getBuildsRSS() : string
 		$rssfeed .= "
 				<item>
 					<title><![CDATA[{$build->version} (#{$build->pr})]]></title>
-					<description><![CDATA[<a href=\"{$build->get_url_pr()}\">Pull Request #{$build->pr}</a> by {$build->author} was merged {$build->diffdate}]]></description>
+					<description><![CDATA[Pull Request #{$build->pr} by {$build->author} was merged {$build->diffdate}]]></description>
 					<guid>{$build->get_url_pr()}</guid>
 					<pubDate>".date('r', strtotime($build->merge))."</pubDate>
 					<link>{$build->get_url_pr()}</link>

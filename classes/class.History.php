@@ -20,6 +20,7 @@
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../objects/HistoryEntry.php")) throw new Exception("Compat: HistoryEntry.php is missing. Failed to include HistoryEntry.php");
+if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
 
 class History {
@@ -77,7 +78,8 @@ public static function printMonths() : void
 			$watchdog = $year;
 		}
 
-		echo highlightText("<a href=\"?h={$k}\">{$month}</a>", $get['h'] === $k);
+		$html_a_month = new HTMLA("?h={$k}", $month, $month);
+		echo highlightText($html_a_month->to_string(), $get['h'] === $k);
 
 		if ($month != "December" && $v != end($a_histdates))
 			echo $spacer;
@@ -88,7 +90,8 @@ public static function printMonths() : void
 	$month = monthNumberToName(substr($a_currenthist[0], -2));
 	$year = substr($a_currenthist[0], 0, 4);
 
-	echo highlightText("<a href=\"?h\">{$month} {$year}</a>", $get['h'] === $a_currenthist[0]);
+	$html_a_month = new HTMLA("?h", "{$month} {$year}", "{$month} {$year}");
+	echo highlightText($html_a_month->to_string(), $get['h'] === $a_currenthist[0]);
 
 	echo "</p>";
 }
@@ -106,14 +109,22 @@ public static function printOptions() : void
 
 	echo "<p id=\"compat-history-options\">";
 
-	echo highlightText("<a href=\"?h{$h}\">Show all entries</a>", empty($get['m']));
- 	echo "{$spacer}";
+	$html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
+	echo highlightText($html_a->to_string(), empty($get['m']));
+ 	echo $spacer;
 
-	echo highlightText("<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>", $get['m'] === "c");
-	echo " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
+	$html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Show only previously existent entries");
+	echo highlightText($html_a->to_string(), $get['m'] === "c");
 
-	echo highlightText("<a href=\"?h{$h}&m=n\">Show only new entries</a>", $get['m'] === "n");
-	echo " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
+	$html_a = new HTMLA("?h{$h}&m=c&rss", "RSS Feed", "(RSS)");
+	$html_a->print();
+	echo $spacer;
+
+	$html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "Show only new entries");
+	echo highlightText($html_a->to_string(), $get['m'] === "n");
+
+	$html_a = new HTMLA("?h{$h}&m=n&rss", "RSS Feed", "(RSS)");
+	$html_a->print();
 
 	echo "</p>";
 }

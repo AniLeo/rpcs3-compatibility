@@ -21,7 +21,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
-
+if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
 
 class Compat {
@@ -115,17 +115,14 @@ public static function printStatusSort() : void
 		$s_combined .= "&";
 
 	// All statuses
-	echo "<a title=\"Show games from all statuses\" href=\"?{$s_combined}s=0\">";
-	echo highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0);
-	echo "</a>";
+	$html_a = new HTMLA("?{$s_combined}s=0", "Show games from all statuses", highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0));
+	$html_a->print();
 
 	// Individual statuses
 	foreach ($a_status as $id => $status)
 	{
-		echo "<a title=\"{$status["desc"]}\" href=\"?{$s_combined}s={$id}\">";
-		// If it's the currently selected status, highlight it
-		echo highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id);
-		echo "</a>";
+		$html_a = new HTMLA("?{$s_combined}s={$id}", $status["desc"], highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id));
+		$html_a->print();
 	}
 }
 
@@ -157,11 +154,17 @@ public static function printCharSearch() : void
 	$a_chars['sym'] = '#';
 
 	echo '<table id="compat-con-search"><tr>';
-	foreach ($a_chars as $key => $value) {
-		echo "<td><a href=\"?{$s_combined}c={$key}\"><div class='compat-search-character'>";
-		echo highlightText($value, $get['c'] == $key);
-		echo "</div></a></td>";
+
+	foreach ($a_chars as $key => $value)
+	{
+		$content = highlightText($value, $get['c'] === $key);
+		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, "<div class=\"compat-search-character\">{$content}</div>");
+
+		echo "<td>";
+		$html_a->print();
+		echo "</td>";
 	}
+
 	echo '</tr></table>';
 }
 
@@ -243,9 +246,17 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Game Media, Titles and Network
-		$wiki_url = $game->get_url_wiki();
-		$title = !is_null($wiki_url) ? "<a href=\"{$wiki_url}\">{$game->title}</a>" : $game->title;
-		$cell = "{$media}{$title}";
+		$cell = $media;
+		if (!is_null($game->get_url_wiki()))
+		{
+			$html_a_title = new HTMLA($game->get_url_wiki(), $game->wiki_title, $game->title);
+			$html_a_title->set_target("_blank");
+			$cell .= $html_a_title->to_string();
+		}
+		else
+		{
+			$cell .= $game->title;
+		}
 		if ($game->network === 1)
 			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
 		if (!is_null($game->title2))
@@ -259,8 +270,15 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
 
 		// Cell 4: Last Test
-		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>";
-		$cell .= is_null($game->pr) ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$game->get_url_pr()}'>#{$game->pr}</a>)";
+		$html_a_date = new HTMLA("?d=".str_replace('-', '', $game->date), "Tested on {$game->date}", $game->date);
+		$cell = $html_a_date->to_string();
+		if (!is_null($game->pr))
+		{
+			$html_a_pr = new HTMLA($game->get_url_pr(), "Tested on PR #{$game->pr}", "#{$game->pr}");
+			$html_a_pr->set_target("_blank");
+			$cell .= "&nbsp;&nbsp;";
+			$cell .= $html_a_pr->to_string();
+		}
 		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
 
 		echo "</label>";
@@ -269,8 +287,7 @@ public static function printTable() : void
 		echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
 		echo "<div class=\"compat-table-row compat-table-dropdown\">";
 
-		$count_id = count($game->game_item);
-		foreach ($game->game_item as $i => $item)
+		foreach ($game->game_item as $item)
 		{
 			if (!is_null($item->update) && !empty($item->update))
 			{
@@ -280,7 +297,8 @@ public static function printTable() : void
 			{
 				echo "{$item->game_id} has no known updates";
 			}
-			if ($count_id !== $i + 1)
+
+			if ($item !== end($game->game_item))
 			{
 				echo ", ";
 			}

@@ -20,6 +20,8 @@
 */
 
 if(!@include_once("config.php")) throw new Exception("Compat: config.php is missing. Failed to include config.php");
+if(!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+
 
 // Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
 
@@ -80,10 +82,14 @@ function getGameMediaIcon(string $gid, bool $url = true, string $extra = "") : s
 	{
 		// Allow for filter resetting by clicking the icon again
 		if ($get['t'] === strtolower($l))
-			return "<a href=\"?{$ex}\">{$img}</a>";
+		{
+			$html_a = new HTMLA("?{$ex}", $a_media[$l]['name'], $img);
+			return $html_a->to_string();
+		}
 
 		// Returns clickable icon for type (media) search
-		return "<a href=\"?{$extra}t=".strtolower($l)."\">{$img}</a>";
+		$html_a = new HTMLA("?{$extra}t=".strtolower($l), $a_media[$l]['name'], $img);
+		return $html_a->to_string();
 	}
 
 	// Returns unclickable icon
@@ -121,10 +127,14 @@ function getGameRegion(string $gid, bool $url = true, string $extra = "") : stri
 	{
 		// Allow for filter resetting by clicking the flag again
 		if ($get['f'] === strtolower($l))
-			return "<a href=\"?{$ex}\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		{
+			$html_a = new HTMLA("?{$ex}", $gid, "<img class=\"compat-icon-flag\" src=\"{$a_flags[$l]}\">");
+			return $html_a->to_string();
+		}
 
 		// Returns clickable flag for region (flag) search
-		return "<a href=\"?{$extra}f=".strtolower($l)."\"><img class=\"compat-icon-flag\" title=\"{$gid}\" alt=\"{$l}\" src=\"{$a_flags[$l]}\"></a>";
+		$html_a = new HTMLA("?{$extra}f=".strtolower($l), $gid, "<img class=\"compat-icon-flag\" src=\"{$a_flags[$l]}\">");
+		return $html_a->to_string();
 	}
 	else
 	{
@@ -186,7 +196,10 @@ function getThread(string $text, int $tid) : string
 
 	// The thread should never be 0. All games MUST have a thread.
 	if ($tid !== 0)
-		return "<a href=\"{$c_forum}/thread-{$tid}.html\">{$text}</a>";
+	{
+		$html_a = new HTMLA("{$c_forum}/thread-{$tid}.html", "", $text);
+		return $html_a->to_string();
+	}
 
 	return $text;
 }
@@ -463,6 +476,7 @@ function count_games_all() : int
 }
 
 
+// TODO: Cleanup
 function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 {
 	global $c_pagelimit;
@@ -494,26 +508,33 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 	{
 		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) )
 		{
-			$s_pagescounter .= "<a href=\"?{$extra}p=$i\">";
-
-			// Add zero padding if it is a single digit number
-			$p = ($i < 10) ? "0{$i}" : "{$i}";
-
 			// Highlights the page if it's the one we're currently in
-			$s_pagescounter .= highlightText($p, $i === $currentPage);
+			$content = highlightText(str_pad($i, 2, "0", STR_PAD_LEFT), $i === $currentPage);
+			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $content);
 
-			$s_pagescounter .= "</a>&nbsp;&#32;";
+			$s_pagescounter .= $html_a->to_string();
+			$s_pagescounter .= "&nbsp;&#32;";
 		}
 		// First page
 		elseif ($i === 1)
 		{
-			$s_pagescounter .= "<a href=\"?{$extra}p={$i}\">01</a>&nbsp;&#32;";
-			if ($currentPage != $c_pagelimit+2) { $s_pagescounter .= "...&nbsp;&#32;"; }
+			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", "01");
+
+			$s_pagescounter .= $html_a->to_string();
+			$s_pagescounter .= "&nbsp;&#32;";
+
+			if ($currentPage != $c_pagelimit + 2)
+			{
+				$s_pagescounter .= "...&nbsp;&#32;";
+			}
 		}
 		// Last page
 		elseif ($pages === $i)
 		{
-			$s_pagescounter .= "...&nbsp;&#32;<a href=\"?{$extra}p=$pages\">$pages</a>&nbsp;&#32;";
+			$s_pagescounter .= "...&nbsp;&#32;";
+
+			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $i);
+			$s_pagescounter .= $html_a->to_string();
 		}
 	}
 
@@ -533,10 +554,26 @@ function getTableHeaders(array $headers, string $extra = "") : string
 
 	foreach ($headers as $i => $header)
 	{
-		if     ($header['sort'] === 0)              { $s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>"; }
-		elseif ($get['o'] === "{$header['sort']}a") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}d\">{$header['name']} &nbsp; &#8593;</a></div>"; }
-		elseif ($get['o'] === "{$header['sort']}d") { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}\">{$header['name']} &nbsp; &#8595;</a></div>"; }
-		else                                        { $s_tableheaders .= "<div class=\"{$header['class']}\"><a href =\"?{$extra}o={$header['sort']}a\">{$header['name']}</a></div>"; }
+		if ($header['sort'] === 0)
+		{
+			$s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>";
+			continue;
+		}
+
+		if ($get['o'] === "{$header['sort']}a")
+		{
+			$html_a = new HTMLA("?{$extra}o={$header['sort']}d", $header["name"], "{$header['name']} &nbsp; &#8593;");
+		}
+		elseif ($get['o'] === "{$header['sort']}d")
+		{
+			$html_a = new HTMLA("?{$extra}", $header["name"], "{$header['name']} &nbsp; &#8595;");
+		}
+		else
+		{
+			$html_a = new HTMLA("?{$extra}o={$header['sort']}a", $header["name"], $header["name"]);
+		}
+
+		$s_tableheaders .= "<div class=\"{$header['class']}\">{$html_a->to_string()}</div>";
 	}
 
 	return "<div class=\"compat-table-header\">{$s_tableheaders}</div>";
@@ -550,8 +587,11 @@ function getFooter() : string
 	// Total time in milliseconds
 	$total_time = round((microtime(true) - $start_time) * 1000, 2);
 
+	$html_a = new HTMLA("https://github.com/AniLeo", "AniLeo", "AniLeo");
+	$html_a->set_target("_blank");
+
 	$s = "Compatibility list developed and maintained by
-	<a href='https://github.com/AniLeo' target=\"_blank\">AniLeo</a>
+	{$html_a->to_string()}
 	&nbsp;-&nbsp;
 	Page loaded in {$total_time}ms";
 	$s = "<div class=\"compat-footer\"><p>{$s}</p></div>";
@@ -583,11 +623,31 @@ function getMenu(string $file) : string
 
 	$menu = "";
 
-	if ($file != "compat")                     { $menu .= "<a href='?'>Compatibility List</a>"; }
-	if ($file != "history")                    { $menu .= "<a href='?h'>Compatibility List History</a>"; }
-	if ($file != "builds")                     { $menu .= "<a href='?b'>RPCS3 Builds History</a>"; }
-	if ($file != "library")                    { $menu .= "<a href='?l'>PS3 Game Library</a>"; }
-	if ($get['w'] != NULL && $file != "panel") { $menu .= "<a href='?a'>Debug Panel</a>"; }
+	if ($file !== "compat")
+	{
+		$html_a = new HTMLA("?", "Compatibility List", "Compatibility List");
+		$menu .= $html_a->to_string();
+	}
+	if ($file !== "history")
+	{
+		$html_a = new HTMLA("?h", "Compatibility List History", "Compatibility List History");
+		$menu .= $html_a->to_string();
+	}
+	if ($file !== "builds")
+	{
+		$html_a = new HTMLA("?b", "RPCS3 Builds History", "RPCS3 Builds History");
+		$menu .= $html_a->to_string();
+	}
+	if ($file !== "library")
+	{
+		$html_a = new HTMLA("?l", "PS3 Game Library", "PS3 Game Library");
+		$menu .= $html_a->to_string();
+	}
+	if (!is_null($get['w']) && $file !== "panel")
+	{
+		$html_a = new HTMLA("?a", "Debug Panel", "Debug Panel");
+		$menu .= $html_a->to_string();
+	}
 
 	return "<div class=\"compat-menu\">{$menu}</div>";
 }
@@ -767,13 +827,16 @@ function resultsPerPage(string $combinedSearch, string $extra = "") : string
 
 	foreach ($a_pageresults as $pageresult)
 	{
-		$s_pageresults .= "<a href=\"?{$extra}{$combinedSearch}&r={$pageresult}\">";
-		// If the current selected item, highlight
-		$s_pageresults .= highlightText($pageresult, $get['r'] == $pageresult);
-		$s_pageresults .= "</a>";
+		// If it's the current selected item, highlight
+		$content = highlightText($pageresult, $get['r'] === $pageresult);
+		$html_a = new HTMLA("?{$extra}{$combinedSearch}&r={$pageresult}", $pageresult, $content);
+		$s_pageresults .= $html_a->to_string();
 
 		// If not the last value then add a separator for the next value
-		if ($pageresult !== end($a_pageresults)) { $s_pageresults .= "&nbsp;•&nbsp;"; }
+		if ($pageresult !== end($a_pageresults))
+		{
+			$s_pageresults .= "•&nbsp;";
+		}
 	}
 
 	return $s_pageresults;
