@@ -196,7 +196,7 @@ public static function printTableHeader(bool $full = true) : void
 		);
 	}
 
-	echo getTableHeaders($headers, 'h');
+	echo getTableHeaders($headers);
 }
 
 

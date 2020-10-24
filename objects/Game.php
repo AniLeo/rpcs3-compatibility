@@ -57,7 +57,7 @@ class Game
 		// Prefer title based URL
 		if (!is_null($this->wiki_title))
 		{
-			return "https://wiki.rpcs3.net/index.php?title={$this->wiki_title}";
+			return "https://wiki.rpcs3.net/index.php?title=".urlencode($this->wiki_title);
 		}
 		// Fallback to ID based URL
 		if (!is_null($this->wiki_id))

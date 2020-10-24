@@ -741,7 +741,16 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
 {
 	global $get, $scount, $c_pageresults;
 
+	$ret = "";
 	$query = array();
+
+	// Page: Builds
+	if (isset($get['b']))
+		$ret .= 'b';
+
+	// Page: History
+	if (isset($get['h']))
+		$ret .= 'h';
 
 	// Combined search: results per page
 	if ($get['r'] !== $c_pageresults && $r)              { $query['r'] = $get['r']; }
@@ -760,7 +769,13 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
 	// Combined search: order by
 	if ($get['o'] !== "" && $o)                          { $query['o'] = $get['o']; }
 
-	return http_build_query($query);
+	if (!empty($query))
+	{
+		$ret .= '&';
+		$ret .= http_build_query($query);
+	}
+
+	return $ret;
 }
 
 
@@ -804,17 +819,20 @@ function dumpVar($var) : void
 }
 
 
-function resultsPerPage(string $combinedSearch, string $extra = "") : string
+function resultsPerPage(string $combined_search) : string
 {
 	global $a_pageresults, $get;
 
 	$s_pageresults = "";
 
+	if (!empty($combined_search))
+		$combined_search .= '&';
+
 	foreach ($a_pageresults as $pageresult)
 	{
 		// If it's the current selected item, highlight
 		$content = highlightText($pageresult, $get['r'] === $pageresult);
-		$html_a = new HTMLA("?{$extra}{$combinedSearch}&r={$pageresult}", $pageresult, $content);
+		$html_a = new HTMLA("?{$combined_search}r={$pageresult}", $pageresult, $content);
 		$s_pageresults .= $html_a->to_string();
 
 		// If not the last value then add a separator for the next value

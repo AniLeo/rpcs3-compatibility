@@ -32,7 +32,7 @@ class Builds {
  ***************************/
 public static function printResultsPerPage() : void
 {
-	echo resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true), "b&");
+	echo resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true));
 }
 
 
@@ -90,7 +90,7 @@ public static function printTable() : void
 			'sort' => 0
 		)
 	);
-	echo getTableHeaders($headers, 'b&');
+	echo getTableHeaders($headers);
 
 	// Print table body
 	foreach ($builds as $build)
@@ -191,7 +191,7 @@ public static function printPagesCounter() : void
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
 
 	echo "<div class=\"compat-con-pages\">";
-	echo getPagesCounter($pages, $currentPage, "b&{$extra}");
+	echo getPagesCounter($pages, $currentPage, $extra);
 	echo "</div>";
 }
 
