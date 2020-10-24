@@ -23,7 +23,8 @@ if (!@include_once("functions.php")) throw new Exception("Compat: functions.php 
 if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
 
 // Check if we're running PHP 7.4 or above
-if (phpversion()[0] < 7 || ((int) phpversion()[0] === 7 && phpversion()[2] < 4)) {
+if (phpversion()[0] < 7 || ((int) phpversion()[0] === 7 && phpversion()[2] < 4))
+{
 	trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 7.4+", E_USER_ERROR);
 	die();
 }
@@ -34,36 +35,34 @@ $get = validateGet();
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
 
 // RSS Feed Request
-if (isset($get['rss'])) {
-
-	if (isset($get['b'])) {
-
+if (isset($get['rss']))
+{
+	if (isset($get['b']))
+	{
 		if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
 		header('Content-Type: text/xml');
 		$Builds = new Builds();
 		echo $Builds->getBuildsRSS();
 		// No need to load the rest of the page.
 		exit();
-
-	} elseif (isset($get['h']) && ($get['m'] == 'c' || $get['m'] == 'n')) {
-
+	}
+	elseif (isset($get['h']) && ($get['m'] == 'c' || $get['m'] == 'n'))
+	{
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: text/xml');
 		$History = new History();
 		$History->printHistoryRSS();
 		// No need to load the rest of the page.
 		exit();
-
 	}
-
 }
 
 // JSON API Request
-if (isset($get['api'])) {
-
+if (isset($get['api']))
+{
 	// API: v1
-	if ($get['api'] === "v1") {
-
+	if ($get['api'] === "v1")
+	{
 		if (isset($_GET['export']))
 		{
 			if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
@@ -76,14 +75,13 @@ if (isset($get['api'])) {
 		}
 		else
 		{
-			if(!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
+			if (!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
 			$Compat = new Compat();
 			$results = $Compat->APIv1();
 		}
 
 		header('Content-Type: application/json');
 		echo json_encode($results, JSON_PRETTY_PRINT);
-
 	}
 
 	// No need to load the rest of the page.
@@ -112,10 +110,13 @@ Profiler::addData("Index: Start");
 if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
 	trigger_error("[COMPAT] Integration: sys-meta not found", E_USER_WARNING);
 
-if (!@include(__DIR__.'/../../lib/module/sys-css.php')) {
+if (!@include(__DIR__.'/../../lib/module/sys-css.php'))
+{
 	trigger_error("[COMPAT] Integration: sys-css not found", E_USER_WARNING);
 	echo "<link rel=\"stylesheet\" href=\"compat.css\"/>";
-} else {
+}
+else
+{
 	echo "<link rel=\"stylesheet\" href=\"/lib/compat/compat.css\"/>";
 }
 
@@ -168,7 +169,8 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 		</div>
 	</div>
 	<?php
-	if (!$c_maintenance || $get['w'] != NULL) {
+	if (!$c_maintenance || $get['w'] != NULL)
+	{
 		if     (isset($get['h'])) { include 'pages/history.php'; }
 		elseif (isset($get['b'])) { include 'pages/builds.php'; }
 		elseif (isset($get['a'])) { include 'pages/panel.php'; }

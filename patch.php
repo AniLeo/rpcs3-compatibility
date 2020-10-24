@@ -39,12 +39,14 @@ function exportGamePatches() : array
 {
 	global $c_maintenance, $a_status, $get;
 
-	if ($c_maintenance) {
+	if ($c_maintenance)
+	{
 		$results['return_code'] = -2;
 		return $results;
 	}
 
-	if (!isset($get['v'])) {
+	if (!isset($get['v']))
+	{
 		$results['return_code'] = -3;
 		return $results;
 	}

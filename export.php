@@ -28,7 +28,8 @@ function exportDatabase() : array
 {
 	global $c_maintenance, $a_status;
 
-	if ($c_maintenance) {
+	if ($c_maintenance)
+	{
 		$results['return_code'] = -2;
 		return $results;
 	}
@@ -37,15 +38,18 @@ function exportDatabase() : array
 	$games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
 	mysqli_close($db);
 
-	if (empty($games)) {
+	if (empty($games))
+	{
 		$results['return_code'] = -1;
 		return $results;
 	}
 
 	$results['return_code'] = 0;
 
-	foreach ($games as $game) {
-		foreach ($game->game_item as $item) {
+	foreach ($games as $game)
+	{
+		foreach ($game->game_item as $item)
+		{
 			$a_data = array(
 				'status' => $a_status[$game->status]['name'],
 				'date' => $game->date

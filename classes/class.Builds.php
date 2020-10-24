@@ -194,7 +194,8 @@ public static function getBuildsRSS() : string
 	// Initialize string
 	$rssfeed = "";
 
-	foreach ($builds as $build) {
+	foreach ($builds as $build)
+	{
 		// Skip broken builds
 		if ($build->broken)
 			continue;

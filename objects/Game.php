@@ -52,7 +52,7 @@ class Game
 	}
 
 	// Get Wiki URL for this Game
-	public function get_wiki_url() : ?string
+	public function get_url_wiki() : ?string
 	{
 		// Prefer title based URL
 		if (!is_null($this->wiki_title))
@@ -63,6 +63,15 @@ class Game
 		if (!is_null($this->wiki_id))
 		{
 			return "https://wiki.rpcs3.net/index.php?curid={$this->wiki_id}";
+		}
+		return null;
+	}
+
+	public function get_url_pr() : ?string
+	{
+		if (!is_null($this->pr))
+		{
+			return "https://github.com/RPCS3/rpcs3/pull/{$this->pr}";
 		}
 		return null;
 	}

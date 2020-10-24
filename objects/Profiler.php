@@ -21,13 +21,12 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
-class Profiler {
-
+class Profiler
+{
 	public static $title = "Profiler";  // String
 	public static $data;                // [(String, Int, Float)]
 	public static $size = 0;            // Int
 	public static $mem_start;           // Int
-
 
 	public static function setTitle(string $title) : void
 	{
@@ -55,7 +54,8 @@ class Profiler {
 		self::$data[] = array(
 			'desc' => $description,
 			'time' => microtime(true) * 1000,                   // Milliseconds
-			'mem'  => round(memory_get_usage(false)/1024, 2));  // KBs
+			'mem'  => round(memory_get_usage(false)/1024, 2)    // KBs
+		);
 		self::$size++;
 	}
 
@@ -63,12 +63,13 @@ class Profiler {
 	{
 		global $get, $c_profiler;
 
-		if ($get['w'] == NULL || !$c_profiler || is_null(self::$data) || empty(self::$data))
+		if (is_null($get['w']) || !$c_profiler || is_null(self::$data) || empty(self::$data))
 			return "";
 
 		$ret = "<p><b>".self::$title."</b><br>";
 
-		if (PHP_OS_FAMILY !== "Windows") {
+		if (PHP_OS_FAMILY !== "Windows")
+		{
 			$load = sys_getloadavg();
 			$ret .= "<p>";
 			$ret .= "Load (1m): {$load[0]}<br>";
@@ -77,7 +78,8 @@ class Profiler {
 			$ret .= "</p>";
 		}
 
-		if (isset(self::$mem_start)) {
+		if (isset(self::$mem_start))
+		{
 			$ret .= "<p>".PHP_EOL;
 			$ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
 			$ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
@@ -85,7 +87,8 @@ class Profiler {
 			$ret .= "</p>";
 		}
 
-		if (self::$size > 1) {
+		if (self::$size > 1)
+		{
 			$ret .= "<p>".PHP_EOL;
 			for ($i = 0; $i < self::$size - 1; $i++)
 				$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL, self::$data[$i+1]['time'] - self::$data[$i]['time'],
@@ -95,5 +98,4 @@ class Profiler {
 
 		return $ret;
 	}
-
 }

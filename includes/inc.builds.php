@@ -43,15 +43,16 @@ $db = getDatabase();
 // Calculate pages and current page
 Profiler::addData("Inc: Count Pages");
 $pages = ceil(mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`"))->c / $get['r']);
+
 Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Main query
 Profiler::addData("Inc: Execute Main Query");
-$buildsCommand = "SELECT * FROM `builds` ";
-$buildsCommand .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
-$buildsCommand .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
-$buildsQuery = mysqli_query($db, $buildsCommand);
+$c_builds = "SELECT * FROM `builds` ";
+$c_builds .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
+$c_builds .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$q_builds = mysqli_query($db, $c_builds);
 
 // Disconnect from database
 Profiler::addData("Inc: Close Database Connection");
@@ -60,13 +61,20 @@ mysqli_close($db);
 // Check if query succeeded and storing is required, stores messages for error printing
 Profiler::addData("Inc: Check Query Status");
 $error = NULL;
-if (!$buildsQuery)                            { $error = "Please try again. If this error persists, please contact the RPCS3 team."; }
-elseif (mysqli_num_rows($buildsQuery) === 0)  { $error = "No builds are listed yet."; }
+if (!$q_builds)
+{
+	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
+}
+elseif (mysqli_num_rows($q_builds) === 0)
+{
+	$error = "No builds are listed yet.";
+}
 
 // Store builds in a Build array if there are no errors
-if (is_null($error)) {
+if (is_null($error))
+{
 	Profiler::addData("Inc: Store Builds in Array");
-	$builds = Build::query_to_builds($buildsQuery);
+	$builds = Build::query_to_builds($q_builds);
 }
 
 Profiler::addData("--- / ---");

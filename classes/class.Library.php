@@ -33,7 +33,7 @@ public static function getResultsPerPage() : string
 
 public static function getTestedContents() : void
 {
-	global $get, $pages, $currentPage, $a_db, $c_github, $a_games;
+	global $get, $pages, $currentPage, $a_db, $a_games;
 
 	if (!$a_db) {
 		echo "<p class=\"compat-tx1-criteria\">There are no games present in the selected categories.</p>";
@@ -86,7 +86,7 @@ public static function getTestedContents() : void
 				</div>
 				<div class=\"compat-table-cell compat-table-cell-updated\"style='color:{$color};'>
 				{$a_games[$gameID]['last_update']}&nbsp;&nbsp;&nbsp;";
-				echo is_null($a_games[$gameID]['pr']) ? "(<i>Unknown</i>)" : "(<a href='{$c_github}/pull/{$a_games[$gameID]['pr']}'>#{$a_games[$gameID]['pr']}</a>)";
+				echo is_null($a_games[$gameID]['pr']) ? "(<i>Unknown</i>)" : "(<a href='https://github.com/RPCS3/rpcs3/pull/{$a_games[$gameID]['pr']}'>#{$a_games[$gameID]['pr']}</a>)";
 
 				echo "</div>
 			</div>";

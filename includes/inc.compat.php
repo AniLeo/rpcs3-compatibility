@@ -80,8 +80,8 @@ Profiler::addData("Inc: Levenshtein");
 
 // Levenshtein Search (Get the closest result to the searched input)
 // If the main query didn't return anything and game search exists and isn't a Game ID
-if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($get['g'])) {
-
+if ($q_main && mysqli_num_rows($q_main) === 0 && !empty($get['g']) && !isGameID($get['g']))
+{
 	$l_title = "";
 	$l_orig = "";
 	$l_dist = -1;
@@ -89,18 +89,21 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($g
 
 	// Select all database entries
 	$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
-	while ($row = mysqli_fetch_object($q_lev)) {
+	while ($row = mysqli_fetch_object($q_lev))
+	{
 		$titles[] = $row->game_title;
 		if (!is_null($row->alternative_title))
 			$titles[] = $row->alternative_title;
 	}
 
 	// Calculate proximity for each database entry
-	foreach ($titles as $title) {
+	foreach ($titles as $title)
+	{
 		$lev = levenshtein($get['g'], $title);
-		if ($lev <= $l_dist || $l_dist < 0) {
-					$l_title = $title;
-					$l_dist = $lev;
+		if ($lev <= $l_dist || $l_dist < 0)
+		{
+			$l_title = $title;
+			$l_dist = $lev;
 		}
 	}
 
@@ -128,13 +131,20 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && $get['g'] != '' && !isGameID($g
 Profiler::addData("Inc: Check Search Status");
 $error = NULL;
 $info = NULL;
-if (!$q_main) {
+if (!$q_main)
+{
 	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
-} elseif (mysqli_num_rows($q_main) === 0 && isGameID($get['g'])) {
+}
+elseif (mysqli_num_rows($q_main) === 0 && isGameID($get['g']))
+{
 	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
-} elseif ($scount["network"][0] === 0) {
+}
+elseif ($scount["network"][0] === 0)
+{
 	$error = "No results found for the specified search on the indicated status.";
-} elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig)) {
+}
+elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig))
+{
 	$info = "No results found for <i>{$l_orig}</i>. </br>
 	Displaying results for <b><a style=\"color:#06c;\" href=\"?g=".urlencode($l_title)."\">{$l_title}</a></b>.";
 }

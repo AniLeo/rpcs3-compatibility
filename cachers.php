@@ -29,14 +29,17 @@ function cacheBuilds(bool $full = false) : void
 	$db = getDatabase();
 	$cr = curl_init();
 
-	if (!$full) {
+	if (!$full)
+	{
 		set_time_limit(60*5); // 5 minute limit
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
 		// Note: If master builds are disabled we need to remove WHERE type = 'branch'
 		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
 		$row = mysqli_fetch_object($mergeDateQuery);
 		$date = date_format(date_create($row->date), 'Y-m-d');
-	} else /* if ($full) */ {
+	}
+	else
+	{
 		// This can take a while to do...
 		set_time_limit(60*60); // 1 hour limit
 		// Start from indicated date (2015-08-10 for first PR with AppVeyor CI)
@@ -51,7 +54,8 @@ function cacheBuilds(bool $full = false) : void
 
 	// API Call Failed or no PRs to cache, end here
 	// TODO: Log and handle API call fails differently depending on the fail
-	if (!isset($search->total_count) || $search->total_count == 0) {
+	if (!isset($search->total_count) || $search->total_count == 0)
+	{
 		mysqli_close($db);
 		curl_close($cr);
 		return;
@@ -63,8 +67,8 @@ function cacheBuilds(bool $full = false) : void
 	$i = 1;	// Current page
 
 	// Loop through all pages and get PR information
-	while ($i <= $pages) {
-
+	while ($i <= $pages)
+	{
 		$a = 0; // Current PR (page relative)
 
 		// Define PR limit for current page
@@ -72,13 +76,14 @@ function cacheBuilds(bool $full = false) : void
 
 		$i++; // Prepare for next page
 
-		while ($a < $pr_limit) {
-
+		while ($a < $pr_limit)
+		{
 			$pr = (int)$search->items[$a]->number;
 			$a++;	// Prepare for next PR
 
 			// If PR was already checked in this run, skip it
-			if (in_array($pr, $a_PR)) {
+			if (in_array($pr, $a_PR))
+			{
 				continue;
 			}
 			$a_PR[]  = $pr;
@@ -87,17 +92,16 @@ function cacheBuilds(bool $full = false) : void
 			$PRQuery = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
 
 			// If PR is already cached and we're not in full mode, skip
-			if (mysqli_num_rows($PRQuery) > 0 && !$full) {
+			if (mysqli_num_rows($PRQuery) > 0 && !$full)
+			{
 				continue;
 			}
 
 			cacheBuild($pr);
-
 		}
 
 		if ($i <= $pages)
 			$search = curlJSON("{$url}&page={$i}", $cr)['result'];
-
 	}
 	mysqli_close($db);
 	curl_close($cr);
@@ -107,7 +111,8 @@ function cacheBuilds(bool $full = false) : void
 function cacheBuild(int $pr) : void
 {
 	// Malformed ID
-	if (!is_int($pr) || $pr <= 0) {
+	if ($pr <= 0)
+	{
 		return;
 	}
 
@@ -117,7 +122,8 @@ function cacheBuild(int $pr) : void
 	$pr_info = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr)['result'];
 
 	// Check if we aren't rate limited
-	if (!isset($pr_info->merge_commit_sha)) {
+	if (!isset($pr_info->merge_commit_sha))
+	{
 		curl_close($cr);
 		return;
 	}
@@ -139,7 +145,8 @@ function cacheBuild(int $pr) : void
 	$aid = cacheContributor($author);
 	// Checking author information failed
 	// TODO: This should probably be logged, as other API call fails
-	if ($aid == 0) {
+	if ($aid == 0)
+	{
 		echo "Error: Checking author information failed";
 		curl_close($cr);
 		return;
@@ -152,7 +159,8 @@ function cacheBuild(int $pr) : void
 	$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
 
 	// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
-	if (isset($info_release_win->message) || isset($info_release_linux->message)) {
+	if (isset($info_release_win->message) || isset($info_release_linux->message))
+	{
 		curl_close($cr);
 		return;
 	}
@@ -161,20 +169,23 @@ function cacheBuild(int $pr) : void
 	$version = $info_release_win->name;
 
 	// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
-	if (strpos($version, '-') === false) {
+	if (strpos($version, '-') === false)
+	{
 		curl_close($cr);
 		return;
 	}
 
 	// Truncate apostrophes on version name if they exist
-	if (strpos($version, '\'') !== false) {
+	if (strpos($version, '\'') !== false)
+	{
 		$version = str_replace('\'', '', $version);
 	}
 
 	// Filename
 	$filename_win = $info_release_win->assets[0]->name;
 	$filename_linux = $info_release_linux->assets[0]->name;
-	if (empty($filename_win) || empty($filename_linux)) {
+	if (empty($filename_win) || empty($filename_linux))
+	{
 		curl_close($cr);
 		return;
 	}
@@ -183,18 +194,24 @@ function cacheBuild(int $pr) : void
 	$fileinfo_win = explode(';', $info_release_win->body);
 	$checksum_win = strtoupper($fileinfo_win[0]);
 	$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
-	if (strpos($fileinfo_win[1], "MB") !== false) {
+	if (strpos($fileinfo_win[1], "MB") !== false)
+	{
 		$size_win *= 1024 * 1024;
-	} elseif (strpos($fileinfo_win[1], "KB") !== false) {
+	}
+	elseif (strpos($fileinfo_win[1], "KB") !== false)
+	{
 		$size_win *= 1024;
 	}
 
 	$fileinfo_linux = explode(';', $info_release_linux->body);
 	$checksum_linux = strtoupper($fileinfo_linux[0]);
 	$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]));
-	if (strpos($fileinfo_linux[1], "MB") !== false) {
+	if (strpos($fileinfo_linux[1], "MB") !== false)
+	{
 		$size_linux *= 1024 * 1024;
-	} elseif (strpos($fileinfo_linux[1], "KB") !== false) {
+	}
+	elseif (strpos($fileinfo_linux[1], "KB") !== false)
+	{
 		$size_linux *= 1024;
 	}
 
@@ -254,14 +271,16 @@ function cacheInitials() : void
 
 	$a_titles = array();
 
-	while ($row = mysqli_fetch_object($q_initials)) {
+	while ($row = mysqli_fetch_object($q_initials))
+	{
 		$a_titles[] = $row->game_title;
+
 		if (!is_null($row->alternative_title))
 			$a_titles[] = $row->alternative_title;
 	}
 
-	foreach ($a_titles as $title) {
-
+	foreach ($a_titles as $title)
+	{
 		// Original title
 		$original = $title;
 
@@ -291,13 +310,15 @@ function cacheInitials() : void
 		// Variable to store initials result
 		$initials = "";
 
-		foreach ($words as $word) {
+		foreach ($words as $word)
+		{
 			// Skip empty words
 			if (empty($word))
 				continue;
 
 			// Include whitelisted words and skip
-			if (in_array(strtolower($word), $words_whitelisted)) {
+			if (in_array(strtolower($word), $words_whitelisted))
+			{
 				$initials .= $word;
 				continue;
 			}
@@ -308,19 +329,22 @@ function cacheInitials() : void
 
 			// Handle roman numerals
 			// Note: This catches some false positives, but the result is better than without this step
-			if (preg_match("/^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/", $word)) {
+			if (preg_match("/^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/", $word))
+			{
 				$initials .= $word;
 				continue;
 			}
 
 			// If the first character is alphanumeric then add it to the initials, else ignore
-			if (ctype_alnum($word[0])) {
+			if (ctype_alnum($word[0]))
+			{
 				$initials .= $word[0];
 
 				// If the next character is a digit, add next characters to initials
 				// until an non-alphanumeric character is hit
 				// For games like Disgaea D2 and Idolmaster G4U!
-				if (strlen($word) > 1 && ctype_digit($word[1])) {
+				if (strlen($word) > 1 && ctype_digit($word[1]))
+				{
 					$len = strlen($word);
 					for ($i = 1; $i < $len; $i++)
 						if (ctype_alnum($word[$i]))
@@ -331,7 +355,8 @@ function cacheInitials() : void
 			}
 			// Any word that doesn't have a-z A-Z
 			// For games with numbers like 15 or 1942
-			elseif (!ctype_alpha($word)) {
+			elseif (!ctype_alpha($word))
+			{
 				$len = strlen($word);
 				// While character is a number, add it to initials
 				for ($i = 0; $i < $len; $i++)
@@ -343,7 +368,8 @@ function cacheInitials() : void
 		}
 
 		// We don't care about games with less than 2 initials
-		if (strlen($initials) > 1) {
+		if (strlen($initials) > 1)
+		{
 			$original = mysqli_real_escape_string($db, $original);
 
 			// Check if value is already cached (two games can have the same initials so we use game_title)
@@ -364,7 +390,6 @@ function cacheInitials() : void
 				}
 			}
 		}
-
 	}
 	mysqli_close($db);
 }
@@ -382,7 +407,7 @@ function cacheLibraryStatistics() : void
 
 	while($row = mysqli_fetch_object($query))
 		$a_games[] = $row->gid;
-	$all = sizeof($a_games);
+	$all = count($a_games);
 
 	mysqli_close($db);
 
@@ -394,9 +419,11 @@ function cacheLibraryStatistics() : void
 	$tested = 0;
 	$untested = 0;
 
-	while (($line = fgets($f_ps3tdb)) !== false) {
+	while (($line = fgets($f_ps3tdb)) !== false)
+	{
 		// Type: mb_substr($line, 0, 4)
-		if (in_array(mb_substr($line, 0, 4), $a_filter)) {
+		if (in_array(mb_substr($line, 0, 4), $a_filter))
+		{
 			// GameID: mb_substr($line, 0, 9)
 			in_array(mb_substr($line, 0, 9), $a_games) ? $tested++ : $untested++;
 		}
@@ -446,7 +473,8 @@ function cacheStatusCount() : void
 
 	$a_cache[0][0] = 0;
 
-	while ($row = mysqli_fetch_object($q_status)) {
+	while ($row = mysqli_fetch_object($q_status))
+	{
 		$a_cache[0][$row->sid] = (int)$row->c;
 		$a_cache[0][0] += $a_cache[0][$row->sid];
 	}
@@ -468,18 +496,20 @@ function cacheContributor(string $username) : int
 	$info_contributor = curlJSON("https://api.github.com/users/{$username}")['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
-	if (!isset($info_contributor->message) && isset($info_contributor->id)) {
-
+	if (!isset($info_contributor->message) && isset($info_contributor->id))
+	{
 		$q_contributor = mysqli_query($db, "SELECT * FROM `contributors` WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id)." LIMIT 1; ");
 
-		if (mysqli_num_rows($q_contributor) === 0) {
+		if (mysqli_num_rows($q_contributor) === 0)
+		{
 			// Contributor not yet cached on contributors table.
 			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`) VALUES (".mysqli_real_escape_string($db, $info_contributor->id).", '".mysqli_real_escape_string($db, $username)."');");
-		} elseif (mysqli_fetch_object($q_contributor)->username != $username) {
+		}
+		elseif (mysqli_fetch_object($q_contributor)->username != $username)
+		{
 			// Contributor on contributors table but changed GitHub username.
 			mysqli_query($db, "UPDATE `contributors` SET `username` = '".mysqli_real_escape_string($db, $username)."' WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id).";");
 		}
-
 	}
 
 	mysqli_close($db);

@@ -35,9 +35,12 @@ public static function printDescription() : void
 	echo "<p id=\"compat-history-description\">";
 	echo "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
-	if ($get['h'] === $a_currenthist[0]) {
+	if ($get['h'] === $a_currenthist[0])
+	{
 		echo "since <b>{$a_currenthist[1]}</b>.";
-	} else {
+	}
+	else
+	{
 		$v = $a_histdates[$get['h']];
 		$m1 = monthNumberToName($v[0]['m']);
 		$m2 = monthNumberToName($v[1]['m']);
@@ -60,18 +63,22 @@ public static function printMonths() : void
 
 	echo "<p id=\"compat-history-months\">";
 
-	foreach($a_histdates as $k => $v) {
+	foreach ($a_histdates as $k => $v)
+	{
 		$month = monthNumberToName(substr($k, -2));
 		$year  = substr($k, 0, 4);
 
-		if ($watchdog != $year) {
-			if ($watchdog != '')
+		if ($watchdog != $year)
+		{
+			if (!empty($watchdog))
 				echo "<br>";
+
 			echo "<strong>{$year}:</strong>&nbsp;";
 			$watchdog = $year;
 		}
 
 		echo highlightText("<a href=\"?h={$k}\">{$month}</a>", $get['h'] === $k);
+
 		if ($month != "December" && $v != end($a_histdates))
 			echo $spacer;
 	}
@@ -99,13 +106,13 @@ public static function printOptions() : void
 
 	echo "<p id=\"compat-history-options\">";
 
-	echo highlightText("<a href=\"?h{$h}\">Show all entries</a>", $get['m'] == "");
+	echo highlightText("<a href=\"?h{$h}\">Show all entries</a>", empty($get['m']));
  	echo "{$spacer}";
 
-	echo highlightText("<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>", $get['m'] == "c");
+	echo highlightText("<a href=\"?h{$h}&m=c\">Show only previously existent entries</a>", $get['m'] === "c");
 	echo " <a href=\"?h{$h}&m=c&rss\">(RSS)</a>{$spacer}";
 
-	echo highlightText("<a href=\"?h{$h}&m=n\">Show only new entries</a>", $get['m'] == "n");
+	echo highlightText("<a href=\"?h{$h}&m=n\">Show only new entries</a>", $get['m'] === "n");
 	echo " <a href=\"?h{$h}&m=n&rss\">(RSS)</a>";
 
 	echo "</p>";
@@ -117,7 +124,8 @@ public static function printOptions() : void
  ***********************/
 public static function printTableHeader(bool $full = true) : void
 {
-	if ($full) {
+	if ($full)
+	{
 		$headers = array(
 			array(
 				'name' => 'Game Regions',
@@ -150,7 +158,9 @@ public static function printTableHeader(bool $full = true) : void
 				'sort' => 0
 			)
 		);
-	} else {
+	}
+	else
+	{
 		$headers = array(
 			array(
 				'name' => 'Game Regions',

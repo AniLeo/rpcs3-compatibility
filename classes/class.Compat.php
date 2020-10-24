@@ -28,73 +28,71 @@ class Compat {
 
 
 // Generates query from given GET parameters
-public static function generateQuery(array $get, &$db) : array
+public static function generateQuery(array $get, mysqli &$db) : array
 {
-	if ($db == null) {
-		$db = getDatabase();
-		$close = true;
-	} else {
-		$close = false;
-	}
-
-	$genquery = '';
-	$status = '';
-	$and = false;
+	$genquery = "";
+	$status = "";
 
 	// QUERYGEN: Character
-	if ($get['c'] != '') {
-		if ($get['c'] == '09') {
+	if (!empty($get['c']))
+	{
+		if ($get['c'] === '09')
+		{
 			// Regular expression: Starts with a number
 			$genquery .= " (`game_title` REGEXP '^[0-9]' OR `alternative_title` REGEXP '^[0-9]') ";
-		} elseif ($get['c'] == 'sym') {
+		}
+		elseif ($get['c'] === 'sym')
+		{
 			// Allowed characters: ' .
 			$genquery .= " (`game_title` LIKE '.%' OR `game_title` LIKE '\'%' OR `alternative_title` LIKE '.%' OR `alternative_title` LIKE '\'%') ";
-		} else {
+		}
+		else
+		{
 			$genquery .= " (`game_title` LIKE '{$get['c']}%' OR `alternative_title` LIKE '{$get['c']}%') ";
 		}
-		$and = true;
 	}
 
 	// QUERYGEN: Searchbox
-	if ($get['g'] != '') {
-		if ($and) { $genquery .= " AND "; }
+	if (!empty($get['g']))
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
 		$s_g = mysqli_real_escape_string($db, $get['g']);
 		$searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ";
 
 		// Initials cache search
-		if (strlen($get['g']) >= 2) {
-				$searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
-				OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
+		if (strlen($get['g']) >= 2)
+		{
+			$searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
+			OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
 		}
 
 		$genquery .= " ({$searchbox}) ";
-		$and = true;
 	}
 
 	// QUERYGEN: Search by media type
-	if ($get['t'] != '') {
-		if ($and) { $genquery .= " AND "; }
+	if (!empty($get['t']))
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
 		$genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`,1,1) = '{$get['t']}') ) ";
-		$and = true;
 	}
 
 	// QUERYGEN: Search by date
-	if ($get['d'] != '') {
-		if ($and) { $genquery .= " AND "; }
+	if (!empty($get['d']))
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
 		$s_d = mysqli_real_escape_string($db, $get['d']);
 		$genquery .= " `last_update` = '{$s_d}' ";
-		$and = true;
 	}
 
 	// QUERYGEN: Status
-	if ($get['s'] !== 0) {
-		if ($and) { $status .= " AND "; }
-		$status .= " `status` = {$get['s']} ";
-		$and = true;
-	}
+	if ($get['s'] !== 0)
+	{
+		if (!empty($genquery)) { $status .= " AND "; }
 
-	if ($close) {
-		mysqli_close($db);
+		$status .= " `status` = {$get['s']} ";
 	}
 
 	// 0 => With specified status
@@ -122,7 +120,8 @@ public static function printStatusSort() : void
 	echo "</a>";
 
 	// Individual statuses
-	foreach ($a_status as $id => $status) {
+	foreach ($a_status as $id => $status)
+	{
 		echo "<a title=\"{$status["desc"]}\" href=\"?{$s_combined}s={$id}\">";
 		// If it's the currently selected status, highlight it
 		echo highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id);
@@ -186,7 +185,7 @@ public static function printMessages() : void
  *****************/
 public static function printTable() : void
 {
-	global $games, $error, $a_status, $c_github;
+	global $games, $error, $a_status;
 
 	if (!is_null($error) || is_null($games))
 		return;
@@ -244,7 +243,7 @@ public static function printTable() : void
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Game Media, Titles and Network
-		$wiki_url = $game->get_wiki_url();
+		$wiki_url = $game->get_url_wiki();
 		$title = !is_null($wiki_url) ? "<a href=\"{$wiki_url}\">{$game->title}</a>" : $game->title;
 		$cell = "{$media}{$title}";
 		if ($game->network === 1)
@@ -261,7 +260,7 @@ public static function printTable() : void
 
 		// Cell 4: Last Test
 		$cell = "<a href=\"?d=".str_replace('-', '', $game->date)."\">".$game->date."</a>";
-		$cell .= is_null($game->pr) ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$c_github}/pull/{$game->pr}'>#{$game->pr}</a>)";
+		$cell .= is_null($game->pr) ? "" : "&nbsp;&nbsp;&nbsp;(<a href='{$game->get_url_pr()}'>#{$game->pr}</a>)";
 		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
 
 		echo "</label>";
@@ -323,7 +322,7 @@ gameID
 	commit
 		0 - Unknown / Invalid commit
 	status
-	Playable/Ingame/Intro/Loadable/Nothing
+		Playable/Ingame/Intro/Loadable/Nothing
 	date
 		yyyy-mm-dd
 */
@@ -336,41 +335,48 @@ public static function APIv1() : array
 	$results = array();
 	$results['return_code'] = 0;
 
-	if ($c_maintenance) {
+	if ($c_maintenance)
+	{
 		$results['return_code'] = -2;
 		return $results;
 	}
 
-	if ($error == "Please try again. If this error persists, please contact the RPCS3 team.") {
+	if ($error == "Please try again. If this error persists, please contact the RPCS3 team.")
+	{
 		$results['return_code'] = -1;
 		return $results;
 	}
 
-	if (!isset($get['g']) && isset($_GET['g'])) {
+	if (!isset($get['g']) && isset($_GET['g']))
+	{
 		$results['return_code'] = -3;
 		return $results;
 	}
 
-	if (is_null($games)) {
+	if (is_null($games))
+	{
 		$results['return_code'] = 1;
 		return $results;
 	}
 
 	// No results found for {$l_orig}. Displaying results for {$l_title}.
-	if (!is_null($info)) {
+	if (!is_null($info))
+	{
 		$results['return_code'] = 2;
 		$results['search_term'] = $l_title;
 	}
 
-	foreach ($games as $game) {
-		foreach ($game->game_item as $item) {
+	foreach ($games as $game)
+	{
+		foreach ($game->game_item as $item)
+		{
 			$results['results'][$item->game_id] = array(
 			'title' => $game->title,
 			'alternative-title' => $game->title2,
 			'wiki-title' => $game->wiki_title,
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
-			'thread' => (int) $item->thread_id,
+			'thread' => $item->thread_id,
 			'commit' => is_null($game->commit) ? 0 : $game->commit,
 			'pr' => is_null($game->pr) ? 0 : $game->pr,
 			'network' => $game->network
