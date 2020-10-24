@@ -36,9 +36,7 @@ $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
 
 // Default value for results per page
-// Builds: 25 | Compat and Library = 50;
-if (isset($_GET['b'])) { $c_pageresults = 25; }
-else                   { $c_pageresults = 50; }
+$c_pageresults = 50;
 
 // Allowed values for results per page
 $a_pageresults = array(25, 50, 100, 200);
@@ -113,11 +111,6 @@ $a_flags = array(
 "U" => "/img/icons/compat/US.png"  // USA
 );
 
-// Game ID filters for library page
-$a_filter = array(
-	'BCAS', 'BCES', 'BCJS', 'BCKS', 'BCUS', 'BLAS', 'BLES', 'BLJM', 'BLJS', 'BLKS', 'BLUS', 'NPEA', 'NPEB', 'NPUA', 'NPUB', 'NPHA', 'NPHB', 'NPJA', 'NPJB'
-);
-
 // Functions available on debug panel (function_name => (title, success))
 $a_panel = array(
 	'cacheBuilds' => array(
@@ -131,10 +124,6 @@ $a_panel = array(
 	'cacheInitials' => array(
 		'title' => "Update Initials Cache",
 		'success' => "Forced update on initials cache"
-	),
-	'cacheLibraryStatistics' => array(
-		'title' => "Update Library Stats",
-		'success' => "Forced update on library cache"
 	),
 	'cacheStatusModules' => array(
 		'title' => "Update Status Module",

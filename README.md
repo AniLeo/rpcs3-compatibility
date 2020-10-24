@@ -5,7 +5,6 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 - **Compat:** The main compatibility list.
 - **History:** The history for the compatibility list.
 - **Builds:** A build history system for RPCS3's Windows and Linux artifacts.
-- **Library:** A comparison between the PS3 Game Library and the main compatibility list.
 - **Debug:** A control panel to run several verification and update scripts.
 
 ## Features
@@ -17,7 +16,7 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 - **Builds:** Visit the whole Windows build history since AppVeyor artifacts were added to the project with information about the pull request and its author, added and removed lines of code, build's date, artifact download link, file size and sha-256 hash for checksum purposes.
 - **RSS:** Subscribe to the RSS feed to keep track on new game additions, updates on existent ones or new builds information.
 - **Forum Sync:** The list is able to be synced with MyBB based forums and automatically updated via the debug control panel after a review on the new submissions is done.
-- **Wiki Sync:** The list is able to automatically fetch Mediawiki pages for the respective Game ID entries and link them on the list.
+- **Wiki Sync:** The list is able to automatically fetch Mediawiki pages for the respective Game ID entries and link them on the list, as well as fetching game patches from the wiki.
 
 ## Requirements
 - [PHP 7.4+](https://secure.php.net/downloads.php)

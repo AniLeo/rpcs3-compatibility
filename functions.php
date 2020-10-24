@@ -268,11 +268,6 @@ function validateGet() : array
 		// History page
 		$get['h'] = true;
 	}
-	else if (isset($_GET['l']))
-	{
-		// Library page
-		$get['l'] = true;
-	}
 
 	// First pass of sanitization on user input from $_GET
 	foreach ($_GET as $key => $value)
@@ -308,11 +303,6 @@ function validateGet() : array
 	// Page counter
 	if (isset($_GET['p'])) {
 		$get['p'] = (int) $_GET['p'];
-	}
-
-	// PS3 Games List
-	if (isset($_GET['l'])) {
-		$get['l'] = $_GET['l'];
 	}
 
 	// Results per page
@@ -636,11 +626,6 @@ function getMenu(string $file) : string
 	if ($file !== "builds")
 	{
 		$html_a = new HTMLA("?b", "RPCS3 Builds History", "RPCS3 Builds History");
-		$menu .= $html_a->to_string();
-	}
-	if ($file !== "library")
-	{
-		$html_a = new HTMLA("?l", "PS3 Game Library", "PS3 Game Library");
 		$menu .= $html_a->to_string();
 	}
 	if (!is_null($get['w']) && $file !== "panel")

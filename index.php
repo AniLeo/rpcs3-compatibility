@@ -146,7 +146,6 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 					if     (isset($get['h'])) { echo "History"; }
 					elseif (isset($get['b'])) { echo "Builds"; }
 					elseif (isset($get['a'])) { echo "Debug Panel"; }
-					elseif (isset($get['l'])) { echo "PS3 Game library"; }
 					else                      { echo "Compatibility"; }
 				?>
 				</h1>
@@ -158,7 +157,6 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 						if     (isset($get['h'])) { echo "History of the updates made to the compatibility list"; }
 						elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
 						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
-						elseif (isset($get['l'])) { echo "List of all existing PS3 games known to mankind"; }
 						else                      { echo "There are currently ".count_games_all()." games listed in our database"; }
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
@@ -174,7 +172,6 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 		if     (isset($get['h'])) { include 'pages/history.php'; }
 		elseif (isset($get['b'])) { include 'pages/builds.php'; }
 		elseif (isset($get['a'])) { include 'pages/panel.php'; }
-		elseif (isset($get['l'])) { include 'pages/library.php'; }
 		else                      { include 'pages/compat.php'; }
 	}
 	?>
