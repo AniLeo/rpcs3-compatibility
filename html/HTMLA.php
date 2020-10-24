@@ -18,7 +18,41 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/HTMLForm.php")) throw new Exception("Compat: HTMLForm.php is missing. Failed to include HTMLForm.php");
-if (!@include_once(__DIR__."/HTMLInput.php")) throw new Exception("Compat: HTMLInput.php is missing. Failed to include HTMLInput.php");
-if (!@include_once(__DIR__."/HTMLButton.php")) throw new Exception("Compat: HTMLButton.php is missing. Failed to include HTMLButton.php");
-if (!@include_once(__DIR__."/HTMLA.php")) throw new Exception("Compat: HTMLA.php is missing. Failed to include HTMLA.php");
+
+
+class HTMLA
+{
+	public $href;    // string
+	public $title;   // string
+	public $content; // string
+	public $target;  // string
+
+	function __construct(string $href, string $title, string $content)
+	{
+		$this->href    = $href;
+		$this->title   = $title;
+		$this->content = $content;
+	}
+
+	public function set_target(string $target) : void
+	{
+		$this->target = $target;
+	}
+
+	public function to_string() : string
+	{
+		$ret = "<a href=\"{$this->href}\" ";
+
+		if (!is_null($this->target))
+			$ret .= "target=\"{$this->target}\" ";
+
+		$ret .= "title=\"{$this->title}\">{$this->content}</a>".PHP_EOL;
+
+		return $ret;
+	}
+
+	public function print() : void
+	{
+		echo $this->to_string();
+	}
+}
