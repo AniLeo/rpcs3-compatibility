@@ -22,6 +22,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
+if (!@include_once(__DIR__."/../objects/MyBBThread.php")) throw new Exception("Compat: MyBBThread.php is missing. Failed to include MyBBThread.php");
 if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
 
@@ -35,91 +36,99 @@ function runFunctions() : void
 {
 	global $get, $a_panel;
 
-	echo "<div style=\"font-size:12px;\">";
-
-	if (array_key_exists($get['a'], $a_panel)) {
+	if (array_key_exists($get['a'], $a_panel))
+	{
 		$ret = runFunctionWithCronometer($get['a']);
+
 		if (!empty($a_panel[$get['a']]['success']))
 			echo "<p><b>Debug mode:</b> {$a_panel[$get['a']]['success']} ({$ret}s).</p>";
 	}
-
-	echo "</div>";
 }
 
 function checkInvalidThreads() : void
 {
 	global $a_status, $get;
 
-	$db = getDatabase();
-
 	$invalid = 0;
-	$output = '';
-
-	// Store forumID -> statusID
-	$FidToSid = array();
+	$output = "";
+	$where = "";
+	$a_threads = array();
 
 	// Generate WHERE condition for our query
 	// Includes all forum IDs for the game status sections
-	$where = '';
-	foreach ($a_status as $id => $status) {
-		if ($where != '') $where .= "||";
+	foreach ($a_status as $id => $status)
+	{
+		if (!empty($where))
+			$where .= "||";
+
 		$where .= " `fid` = {$status['fid']} ";
-
-		$FidToSid[$status['fid']] = $id;
 	}
 
-	$a_threads = array();
+	$db = getDatabase();
 	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid` FROM `rpcs3_forums`.`mybb_threads` WHERE ({$where}) AND `visible` > 0; ");
-
-	while ($row = mysqli_fetch_object($q_threads)) {
-		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
-		// We can't search for what's in between [ ] because at least one game uses those on title
-		$gid = substr($row->subject, -10, 9);
-
-		if (isGameID($gid)) {
-			$a_threads[$row->tid][0] = $gid;
-			$a_threads[$row->tid][1] = $FidToSid[$row->fid];
-		} else {
-			$output .= "<p class='compat-tvalidity-list'>Thread ".getThread($row->subject, $row->tid)." is incorrectly formatted.</p>";
-		}
-	}
-
-	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
-
+	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`; "));
 	mysqli_close($db);
 
-	foreach ($a_games as $game) {
-		foreach ($game->game_item as $item) {
-			if (!array_key_exists($item->thread_id, $a_threads)) {
-				$output .= "<p class='compat-tvalidity-list'>";
+	while ($row = mysqli_fetch_object($q_threads))
+	{
+		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
+
+		if (is_null($thread->get_game_id()))
+		{
+			$output .= "<p>Thread ".getThread($row->subject, $row->tid)." is incorrectly formatted.</p>";
+			continue;
+		}
+
+		$a_threads[$row->tid] = $thread;
+	}
+
+	foreach ($a_games as $game)
+	{
+		foreach ($game->game_item as $item)
+		{
+			if (!array_key_exists($item->thread_id, $a_threads))
+			{
+				$output .= "<p class='debug-tvalidity-list'>";
 				$output .= "Thread ".getThread("{$item->thread_id}: [{$item->game_id}] {$game->title}", $item->thread_id)." doesn't exist.<br>";
 				$output .= "- Compat: {$game->title} [{$item->game_id}]<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($item->game_id != $a_threads[$item->thread_id][0]) {
-				$output .= "<p class='compat-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$item->thread_id}: [{$item->game_id}] {$game->title}", $item->thread_id)." is incorrect.<br>";
+			}
+			elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
+			{
+				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+
+				$output .= "<p class='debug-tvalidity-list'>";
+				$output .= "Thread {$html_a->to_string()} is incorrect.<br>";
 				$output .= "- Compat: {$game->title} [{$item->game_id}]<br>";
-				$output .= "- Forums: {$a_threads[$item->thread_id][0]}<br>";
+				$output .= "- Forums: {$a_threads[$item->thread_id]->get_game_id()}<br>";
 				$output .= "</p>";
 				$invalid++;
-			} elseif ($game->status != $a_threads[$item->thread_id][1]) {
-				$output .= "<p class='compat-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$item->thread_id}: [{$item->game_id}] {$game->title}", $item->thread_id)." is in the wrong section.<br>";
+			}
+			elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
+			{
+				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+
+				$output .= "<p class='debug-tvalidity-list'>";
+				$output .= "Thread {$html_a->to_string()} is in the wrong section.<br>";
 				$output .= "- Compat: {$a_status[$game->status]['name']} <br>";
-				$output .= "- Forums: {$a_status[$a_threads[$item->thread_id][1]]['name']}<br>";
+				$output .= "- Forums: {$a_status[$a_threads[$item->thread_id]->get_sid()]['name']}<br>";
 				$output .= "</p>";
 				$invalid++;
 			}
 		}
 	}
 
-	if ($invalid > 0) {
-		echo "<p class='debug-tvalidity-title color-red'><b>Attention required! {$invalid} Invalid threads detected<br><br></b></p>";
-		if ($get['a'] == 'checkInvalidThreads')
+	if ($invalid > 0)
+	{
+		echo "<p class='debug-tvalidity-title color-red'>Attention required! {$invalid} Invalid threads detected</p>";
+
+		if ($get['a'] === "checkInvalidThreads")
 			echo $output;
-	} else {
-		echo "<p class='debug-tvalidity-title color-green'><b>No invalid threads detected</b></p>";
+	}
+	else
+	{
+		echo "<p class='debug-tvalidity-title color-green'>No invalid threads detected</p>";
 	}
 }
 

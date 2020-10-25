@@ -52,7 +52,6 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 						if ($get['a'] !== 'checkInvalidThreads')
 							checkInvalidThreads();
 					?>
-					<br>
 					<?php runFunctions(); ?>
 				</div>
 			</div>
