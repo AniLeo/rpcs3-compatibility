@@ -34,6 +34,11 @@ class GameItem
 		$this->update    = $update;
 	}
 
+	function get_media_id() : string
+	{
+		return substr($this->game_id, 0, 1);
+	}
+
 	function get_region_id() : string
 	{
 		return substr($this->game_id, 2, 1);

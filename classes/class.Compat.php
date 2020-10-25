@@ -146,6 +146,9 @@ public static function printCharSearch() : void
 	// Get combined search parameters
 	$s_combined = combinedSearch(true, true, false, false, false, true, true, false);
 
+	if (!empty($s_combined))
+		$s_combined .= '&';
+
 	// Build characters array
 	$a_chars[''] = 'All';
 	$a_chars['09'] = '0-9';
@@ -188,7 +191,7 @@ public static function printMessages() : void
  *****************/
 public static function printTable() : void
 {
-	global $games, $error, $a_status;
+	global $games, $error, $a_status, $a_media, $a_flags, $get;
 
 	if (!is_null($error) || is_null($games))
 		return;
@@ -223,6 +226,9 @@ public static function printTable() : void
 	);
 	echo getTableHeaders($headers, $extra);
 
+	// Prepare images that will be used
+	$html_img_network = new HTMLImg("compat-network-icon", "/img/icons/compat/onlineonly.png");
+
 	// Print table body
 	foreach ($games as $game)
 	{
@@ -237,11 +243,29 @@ public static function printTable() : void
 			if (!empty($cell))
 				$cell .= "<br>";
 
-			$cell .= getGameRegion($item->game_id, false);
+			$html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()]);
+			$html_img_region->set_title($item->game_id);
+			$cell .= $html_img_region->to_string();
 			$cell .= getThread($item->game_id, $item->thread_id);
 
 			if (empty($media))
-				$media = getGameMediaIcon($item->game_id);
+			{
+				$html_img_media = new HTMLImg("compat-icon-media", $a_media[$item->get_media_id()]["icon"]);
+				$html_img_media->set_title($a_media[$item->get_media_id()]["name"]);
+
+				// Allow for filter resetting by clicking the icon again
+				if ($get['t'] === strtolower($item->get_media_id()))
+				{
+					$html_a = new HTMLA("?", $a_media[$item->get_media_id()]["name"], $html_img_media->to_string());
+				}
+				// Returns clickable icon for type (media) search
+				else
+				{
+					$html_a = new HTMLA("?t=".strtolower($item->get_media_id()), $a_media[$item->get_media_id()]["name"], $html_img_media->to_string());
+				}
+
+				$media = $html_a->to_string();
+			}
 		}
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
@@ -258,7 +282,9 @@ public static function printTable() : void
 			$cell .= $game->title;
 		}
 		if ($game->network === 1)
-			$cell .= "<img class=\"compat-network-icon\" title=\"Online only\" alt=\"Online only\" src=\"/img/icons/compat/onlineonly.png\"></img>";
+		{
+			$cell .= $html_img_network->to_string();
+		}
 		if (!is_null($game->title2))
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";

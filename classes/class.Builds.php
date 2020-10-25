@@ -92,6 +92,11 @@ public static function printTable() : void
 	);
 	echo getTableHeaders($headers);
 
+	// Prepare images that will be used
+	$html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
+	$html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png");
+	$html_img_pr = new HTMLImg("builds-icon", "/img/icons/compat/github.png");
+
 	// Print table body
 	foreach ($builds as $build)
 	{
@@ -131,13 +136,14 @@ public static function printTable() : void
 	 	echo "<div class=\"compat-table-row\">";
 
 		/* Cell 1: PR */
-		$html_a_pr = new HTMLA($build->get_url_pr(), "Pull Request #{$build->pr}", "<img class='builds-icon' alt='GitHub' src=\"/img/icons/compat/github.png\">#{$build->pr}");
+		$html_a_pr = new HTMLA($build->get_url_pr(), "Pull Request #{$build->pr}", "{$html_img_pr->to_string()}#{$build->pr}");
 		$html_a_pr->set_target("_blank");
 		$cell = $html_a_pr->to_string();
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
 
 		/* Cell 2: Author */
-		$html_a_author = new HTMLA($build->get_url_author(), $build->author, "<img class='builds-icon' alt='{$build->author}' src=\"{$build->get_url_author_avatar()}\">{$build->author}");
+		$html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar());
+		$html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$html_img_author->to_string()}{$build->author}");
 		$html_a_author->set_target("_blank");
 		$cell = $html_a_author->to_string();
 		echo "<div class=\"compat-table-cell\">{$cell}</div>";
@@ -160,12 +166,12 @@ public static function printTable() : void
 		$cell = $version;
 		if (!is_null($url_windows))
 		{
-			$html_a_win = new HTMLA($url_windows, "Download for Windows", "<img class='builds-icon' title='Download for Windows' alt='Windows' src=\"/img/icons/compat/windows.png\">");
+			$html_a_win = new HTMLA($url_windows, "Download for Windows", $html_img_win->to_string());
 			$cell .= $html_a_win->to_string();
 		}
 		if (!is_null($url_linux))
 		{
-			$html_a_linux = new HTMLA($url_linux, "Download for Linux", "<img class='builds-icon' title='Download for Linux' alt='Linux' src=\"/img/icons/compat/linux.png\">");
+			$html_a_linux = new HTMLA($url_linux, "Download for Linux", $html_img_linux->to_string());
 			$cell .= $html_a_linux->to_string();
 		}
 		if ($build->broken)

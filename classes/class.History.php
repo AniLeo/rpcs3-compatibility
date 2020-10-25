@@ -78,7 +78,7 @@ public static function printMonths() : void
 			$watchdog = $year;
 		}
 
-		$html_a_month = new HTMLA("?h={$k}", $month, $month);
+		$html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", $month);
 		echo highlightText($html_a_month->to_string(), $get['h'] === $k);
 
 		if ($month != "December" && $v != end($a_histdates))
@@ -205,18 +205,24 @@ public static function printTableHeader(bool $full = true) : void
  ************************/
 public static function printTableContent(array $array) : void
 {
-	global $a_status;
+	global $a_status, $a_media, $a_flags;
 
-	foreach ($array as $entry) {
+	foreach ($array as $entry)
+	{
+		$html_img_media = new HTMLImg("compat-icon-media", $a_media[$entry->game_item->get_media_id()]["icon"]);
+		$html_img_media->set_title($a_media[$entry->game_item->get_media_id()]["name"]);
+
+		$html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$entry->game_item->get_region_id()]);
+		$html_img_region->set_title($entry->game_item->game_id);
+
 		echo "<div class=\"compat-table-row\">";
 
 		// Cell 1: Regions
-		$cell = getThread(getGameRegion($entry->game_item->game_id, false).$entry->game_item->game_id, $entry->game_item->thread_id);
-		$media = getGameMediaIcon($entry->game_item->game_id, false);
+		$cell = getThread("{$html_img_region->to_string()}{$entry->game_item->game_id}", $entry->game_item->thread_id);
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
-		$cell = "{$media}{$entry->title}";
+		$cell = "{$html_img_media->to_string()}{$entry->title}";
 		if (!is_null($entry->title2)) {
 			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})";
 		}
