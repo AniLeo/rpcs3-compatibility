@@ -71,8 +71,20 @@ class MyBBThread
 			return null;
 		}
 
+		// Game title ends with dash, malformed thread name
+		if (substr($this->subject, -13, 1) === '-')
+		{
+			return null;
+		}
+
 		// No spacing between game title and game id
 		if (substr($this->subject, -12, 1) !== ' ')
+		{
+			return null;
+		}
+
+		// No square brackets around game id
+		if (substr($this->subject, -11, 1) !== '[' || substr($this->subject, -1, 1) !== ']')
 		{
 			return null;
 		}

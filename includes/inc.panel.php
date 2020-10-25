@@ -65,17 +65,26 @@ function checkInvalidThreads() : void
 	}
 
 	$db = getDatabase();
-	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid` FROM `rpcs3_forums`.`mybb_threads` WHERE ({$where}) AND `visible` > 0; ");
+	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `closed` FROM `rpcs3_forums`.`mybb_threads` WHERE ({$where}) AND `visible` > 0; ");
 	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`; "));
 	mysqli_close($db);
 
 	while ($row = mysqli_fetch_object($q_threads))
 	{
+		// Old thread ID that was moved to a different Thread ID
+		if (substr($row->closed, 0, 6) === "moved|")
+		{
+			continue;
+		}
+
 		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
 		if (is_null($thread->get_game_id()))
 		{
-			$output .= "<p>Thread ".getThread($row->subject, $row->tid)." is incorrectly formatted.</p>";
+			$html_a = new HTMLA($thread->get_thread_url(), "", "{$row->subject}");
+			$html_a->set_target("_blank");
+
+			$output .= "<p>Thread {$html_a->to_string()} is incorrectly formatted.</p>";
 			continue;
 		}
 
@@ -89,14 +98,14 @@ function checkInvalidThreads() : void
 			if (!array_key_exists($item->thread_id, $a_threads))
 			{
 				$output .= "<p class='debug-tvalidity-list'>";
-				$output .= "Thread ".getThread("{$item->thread_id}: [{$item->game_id}] {$game->title}", $item->thread_id)." doesn't exist.<br>";
-				$output .= "- Compat: {$game->title} [{$item->game_id}]<br>";
+				$output .= "Thread {$item->thread_id}: [{$item->game_id}] {$game->title} doesn't exist.<br>";
 				$output .= "</p>";
 				$invalid++;
 			}
 			elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
 			{
 				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+				$html_a->set_target("_blank");
 
 				$output .= "<p class='debug-tvalidity-list'>";
 				$output .= "Thread {$html_a->to_string()} is incorrect.<br>";
@@ -108,6 +117,7 @@ function checkInvalidThreads() : void
 			elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
 			{
 				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+				$html_a->set_target("_blank");
 
 				$output .= "<p class='debug-tvalidity-list'>";
 				$output .= "Thread {$html_a->to_string()} is in the wrong section.<br>";
