@@ -18,8 +18,7 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
 if(!@include_once(__DIR__.'/../cachers.php')) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 
-// Running every 10 minutes
+// Running every 5 minutes
 cacheBuilds();
