@@ -81,32 +81,6 @@ function getGameType(string $gid) : string
 
 
 /**
-	* getThread
-	*
-	* Obtains thread URL for a game by adding thread ID to the forum showthread URL prefix
-	* Returns provided text wrapped around a hyperlink for the thread
-	*
-	* @param string $text
-	* @param int    $tid ThreadID
-	*
-	* @return string
-	*/
-function getThread(string $text, int $tid) : string
-{
-	global $c_forum;
-
-	// The thread should never be 0. All games MUST have a thread.
-	if ($tid !== 0)
-	{
-		$html_a = new HTMLA("{$c_forum}/thread-{$tid}.html", "", $text);
-		return $html_a->to_string();
-	}
-
-	return $text;
-}
-
-
-/**
 	* isValid
 	*
 	* Checks if string only has allowed characters.

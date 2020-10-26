@@ -246,7 +246,9 @@ public static function printTable() : void
 			$html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()]);
 			$html_img_region->set_title($item->game_id);
 			$cell .= $html_img_region->to_string();
-			$cell .= getThread($item->game_id, $item->thread_id);
+
+			$html_a_gameid = new HTMLA($item->get_thread_url(), "", $item->game_id);
+			$cell .= $html_a_gameid->to_string();
 
 			if (empty($media))
 			{

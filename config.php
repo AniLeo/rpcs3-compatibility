@@ -30,7 +30,6 @@ define('db_name', 'DATABASE_NAME');
 define('gh_token', 'TOKEN');
 
 // Global config variables
-$c_forum = 'https://forums.rpcs3.net';
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode

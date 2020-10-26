@@ -46,7 +46,6 @@ class GameItem
 
 	function get_thread_url() : string
 	{
-		global $c_forum;
-		return "{$c_forum}/thread-{$this->thread_id}.html";
+		return "https://forums.rpcs3.net/thread-{$this->thread_id}.html";
 	}
 }

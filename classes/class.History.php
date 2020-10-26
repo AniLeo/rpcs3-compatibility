@@ -218,7 +218,8 @@ public static function printTableContent(array $array) : void
 		echo "<div class=\"compat-table-row\">";
 
 		// Cell 1: Regions
-		$cell = getThread("{$html_img_region->to_string()}{$entry->game_item->game_id}", $entry->game_item->thread_id);
+		$html_a_thread = new HTMLA($entry->game_item->get_thread_url(), "", "{$html_img_region->to_string()}{$entry->game_item->game_id}");
+		$cell = $html_a_thread->to_string();
 		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
 
 		// Cell 2: Media and Titles
