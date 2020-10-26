@@ -159,17 +159,20 @@ function compatibilityUpdater() : void
 	// Includes all forum IDs for the game status sections
 	$fid2sid = array();
 	$where = '';
-	foreach ($a_status as $id => $status) {
-		if ($where != '') $where .= "||";
+	foreach ($a_status as $id => $status)
+	{
+		if (!empty($where))
+			$where .= "||";
+
 		$where .= " `fid` = {$status['fid']} ";
 		$fid2sid[$status['fid']] = $id;
 	}
 
 	// Cache commits
-	$q_commits = mysqli_query($db, "SELECT * FROM `builds` ORDER BY `merge_datetime` DESC;");
+	$q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `merge_datetime` FROM `builds` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
 	while ($row = mysqli_fetch_object($q_commits))
-		$a_commits[substr($row->commit, 0, 8)] = array("pr" => $row->pr, "commit" => $row->commit, "merge" => $row->merge_datetime);
+		$a_commits[$row->commit] = array("pr" => $row->pr, "merge" => $row->merge_datetime);
 
 	// Get all threads since the end of the last compatibility period
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
@@ -187,34 +190,41 @@ function compatibilityUpdater() : void
 
 	echo "<p>"; // Start paragraph
 
-	while ($row = mysqli_fetch_object($q_threads)) {
-
+	while ($row = mysqli_fetch_object($q_threads))
+	{
 		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
 		$gid = substr($row->subject, -10, 9);
 		$sid = $fid2sid[$row->fid];
 
 		// Not a valid Game ID, continue to next thread entry
-		if (!isGameID($gid)) {
+		if (!isGameID($gid))
+		{
 			$bin = bin2hex($gid);
-			echo "Error! {$row->subject} (".getThread($row->subject, $row->tid).") (gid={$gid}, hex=0x{$bin}) incorrectly formatted.<br><br>";
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->subject);
+			echo "Error! {$html_a->to_string()} (gid={$gid}, hex=0x{$bin}) incorrectly formatted.<br><br>";
 			continue;
 		}
 
 		// If a thread for this Game ID was already visited, continue to next thread entry
-		if (!in_array($gid, $a_gameIDs)) {
-			$a_gameIDs[] = $gid;
-		} else {
-			echo "Error! A thread for {$gid} was already visited. ".getThread($row->subject, $row->tid)." is a duplicate.<br><br>";
+		if (in_array($gid, $a_gameIDs))
+		{
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->subject);
+			echo "Error! A thread for {$gid} was already visited. {$html_a->to_string()} is a duplicate.<br><br>";
 			continue;
 		}
+
+		$a_gameIDs[] = $gid;
 
 		// Thread ID validation
 		// If game entry exists, get game data
 		$tid = null;
 		$cur_game = null;
-		foreach ($a_games as $game) {
-			foreach ($game->game_item as $item) {
-				if ($item->game_id === $gid) {
+		foreach ($a_games as $game)
+		{
+			foreach ($game->game_item as $item)
+			{
+				if ($item->game_id === $gid)
+				{
 					$tid = $item->thread_id;
 					$cur_game = $game;
 				}
@@ -222,14 +232,17 @@ function compatibilityUpdater() : void
 		}
 
 		// New thread is a duplicate of an existing one
-		if ($tid != null && $tid != $row->tid) {
-			echo "<span style='color:red'><b>Error!</b> {$row->subject} (".getThread($row->tid, $row->tid).") duplicated thread of (".getThread($tid, $tid).").</span><br><br>";
+		if (!is_null($tid) && $tid != $row->tid)
+		{
+			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
+			$html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", $tid);
+			echo "<span style='color:red'><b>Error!</b> {$row->subject} ({$html_a_thread1->to_string()}) duplicated thread of ({$html_a_thread2->to_string()}).</span><br><br>";
 			continue;
 		}
 
 		// New thread for the Game ID
-		if ($tid == null) {
-
+		if (is_null($tid))
+		{
 			// Extract game title from thread title
 			$title = str_replace("[{$gid}]", "", "{$row->subject}");
 
@@ -252,10 +265,13 @@ function compatibilityUpdater() : void
 			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid}
 			ORDER BY `pid` DESC;");
 
-			while ($post = mysqli_fetch_object($q_post)) {
-				foreach ($a_commits as $key => $value) {
-					if (stripos($post->message, (string)$key) !== false) {
-						$a_inserts[$row->tid]['commit'] = $value["commit"];
+			while ($post = mysqli_fetch_object($q_post))
+			{
+				foreach ($a_commits as $commit => $value)
+				{
+					if (stripos($post->message, (string) substr($commit, 0, 8)) !== false)
+					{
+						$a_inserts[$row->tid]['commit'] = $commit;
 						$a_inserts[$row->tid]['pr'] = $value["pr"];
 						$a_inserts[$row->tid]['last_update'] = date('Y-m-d', $post->dateline);
 						break 2;
@@ -265,35 +281,41 @@ function compatibilityUpdater() : void
 
 			// Green for existing commit, Red for non-existing commit
 			$status_commit = !is_null($a_inserts[$row->tid]['commit']) ? 'green' : 'red';
-			$short_commit  = !is_null($a_inserts[$row->tid]['commit']) ? substr($a_inserts[$row->tid]['commit'], 0, 8) : "null";
-			$date_commit   = !is_null($a_inserts[$row->tid]['commit']) ? "({$a_commits[$short_commit]["merge"]})" : "";
+			$commit        = !is_null($a_inserts[$row->tid]['commit']) ? $a_inserts[$row->tid]['commit'] : "null";
+			$date_commit   = !is_null($a_inserts[$row->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 
-			echo "<b>New:</b> {$row->subject} (tid:".getThread($row->tid, $row->tid).", author:{$a_inserts[$row->tid]['author']})<br>";
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
+			echo "<b>New:</b> {$row->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$row->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
-			echo "- Commit: <span style='color:{$status_commit}'>{$short_commit}</span> {$date_commit}<br>";
+			echo "- Commit: <span style='color:{$status_commit}'>{$commit}</span> {$date_commit}<br>";
 			echo "<br>";
 
-		} elseif ($tid == $row->tid && ($sid != $cur_game->status || $sid == 3 || $sid == 4 || $sid == 5)) {
+		}
+		elseif ($tid == $row->tid && ($sid != $cur_game->status || $sid == 3 || $sid == 4 || $sid == 5))
+		{
 			// Same status updates currently being tested
 			// For now only allowed on Intro, Loadable and Nothing games
 
 			// This game entry was already checked before in this script
 			// Update with the new information
-			if (array_key_exists($cur_game->key, $a_updates)) {
-
+			if (array_key_exists($cur_game->key, $a_updates))
+			{
 				// Update status
-				if ($a_updates[$cur_game->key]['status'] < $sid) {
+				if ($a_updates[$cur_game->key]['status'] < $sid)
+				{
 					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
 					continue;
-				} elseif (is_null($a_updates[$cur_game->key]['commit'])) {
+				}
+				elseif (is_null($a_updates[$cur_game->key]['commit']))
+				{
 					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$gid}<br><br>";
 					$a_updates[$cur_game->key]['gid'] = $gid;
 					$a_updates[$cur_game->key]['status'] = $sid;
 					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
 				}
-
-			} else {
-
+			}
+			else
+			{
 				$a_updates[$cur_game->key] = array(
 					'gid' => $gid,
 					'game_title' => $cur_game->title,
@@ -304,9 +326,9 @@ function compatibilityUpdater() : void
 					'action' => 'mov',
 					'old_date' => $cur_game->date,
 					'old_status' => $cur_game->status,
-					'author' => ''
+					'author' => '',
+					'pid' => 0
 				);
-
 			}
 
 			// Verify posts
@@ -314,18 +336,22 @@ function compatibilityUpdater() : void
 			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
 			ORDER BY `pid` DESC;");
 
-			while ($post = mysqli_fetch_object($q_post)) {
-				foreach ($a_commits as $key => $value) {
-					if (stripos($post->message, (string)$key) !== false) {
+			while ($post = mysqli_fetch_object($q_post))
+			{
+				foreach ($a_commits as $commit => $value)
+				{
+					if (stripos($post->message, (string) substr($commit, 0, 8)) !== false)
+					{
 						// If current commit is newer than the previously recorded one, replace
 						// TODO: Check distance between commit date and post here
-						if ((is_null($a_updates[$cur_game->key]['commit'])) ||
-						(!is_null($a_updates[$cur_game->key]['commit']) && strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)]["merge"]) < strtotime($value["merge"]))) {
-							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $value["commit"] $post->username <br>";
-							$a_updates[$cur_game->key]['commit'] = $value["commit"];
+						if (is_null($a_updates[$cur_game->key]['commit']) || strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
+						{
+							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $commit $post->username <br>";
+							$a_updates[$cur_game->key]['commit'] = $commit;
 							$a_updates[$cur_game->key]['pr'] = $value["pr"];
 							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
 							$a_updates[$cur_game->key]['author'] = $post->username;
+							$a_updates[$cur_game->key]['pid'] = $post->pid;
 							break 2;
 						}
 					}
@@ -335,41 +361,42 @@ function compatibilityUpdater() : void
 			// If the new date is older than the current date (meaning there's no valid report post)
 			// Or no new commit was found
 			// then ignore this entry and continue
-			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
-				is_null($a_updates[$cur_game->key]['commit'])) {
+			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) || is_null($a_updates[$cur_game->key]['commit']))
+			{
 				unset($a_updates[$cur_game->key]);
 				continue;
 			}
 
 			// Check if the distance between commit date and post is bigger than 4 weeks
-			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[substr($a_updates[$cur_game->key]['commit'], 0, 8)]["merge"]) > 4 * 604804) {
+			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) > 4 * 604804)
+			{
 				echo "<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>";
 			}
 
 			// Green for existing commit, Red for non-existing commit
 			$new_status_commit = !is_null($a_updates[$cur_game->key]['commit']) ? 'green' : 'red';
 			$old_status_commit = !is_null($cur_game->pr) ? 'green' : 'red';
-			$short_commit      = !is_null($a_updates[$cur_game->key]['commit']) ? substr($a_updates[$cur_game->key]['commit'], 0, 8) : "null";
-			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$short_commit]["merge"]})" : "";
+			$commit            = !is_null($a_updates[$cur_game->key]['commit']) ? $a_updates[$cur_game->key]['commit'] : "null";
+			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
-			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid:".getThread($row->tid, $row->tid).", author:{$a_updates[$cur_game->key]['author']})<br>";
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
+			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
-			echo "- Commit: <span style='color:{$new_status_commit}'>{$short_commit}</span> {$date_commit}
+			echo "- Commit: <span style='color:{$new_status_commit}'>{$commit}</span> {$date_commit}
 						<-- <span style='color:{$old_status_commit}'>{$old_commit}</span> ({$cur_game->date})<br>";
 			echo "<br>";
-
 		}
-
 	}
 
 	echo "</p>"; // End paragraph
 
-	if (isset($_POST['updateCompatibility'])) {
-
+	if (isset($_POST['updateCompatibility']))
+	{
 		// Permissions: Update
-		if (array_search("debug.update", $get['w']) === false) {
+		if (array_search("debug.update", $get['w']) === false)
+		{
 			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
 			return;
 		}
