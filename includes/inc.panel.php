@@ -65,18 +65,17 @@ function checkInvalidThreads() : void
 	}
 
 	$db = getDatabase();
-	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `closed` FROM `rpcs3_forums`.`mybb_threads` WHERE ({$where}) AND `visible` > 0; ");
+
+	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `closed`
+	FROM `rpcs3_forums`.`mybb_threads`
+	WHERE ({$where}) AND `visible` > 0 AND (`closed` = '' OR `closed` = '0'); ");
+
 	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`; "));
+
 	mysqli_close($db);
 
 	while ($row = mysqli_fetch_object($q_threads))
 	{
-		// Old thread ID that was moved to a different Thread ID
-		if (substr($row->closed, 0, 6) === "moved|")
-		{
-			continue;
-		}
-
 		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
 		if (is_null($thread->get_game_id()))
@@ -175,7 +174,7 @@ function compatibilityUpdater() : void
 	// Get all threads since the end of the last compatibility period
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) && `visible` > 0 && `closed` NOT LIKE '%moved%' && `lastpost` > {$ts_lastupdate};");
+	WHERE ({$where}) && `visible` > 0 && (`closed` = '' || `closed` = '0') && `lastpost` > {$ts_lastupdate};");
 
 	// Get all games in the database
 	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
@@ -375,12 +374,15 @@ function compatibilityUpdater() : void
 			return;
 		}
 
+		$cr = curl_init();
+
 		/*
 			Inserts
 		*/
-		foreach ($a_inserts as $tid => $game) {
+		foreach ($a_inserts as $tid => $game)
+		{
 			// Insert new entry on the game list
-			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr` `last_update`, `status`) VALUES
+			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`) VALUES
 			('".mysqli_real_escape_string($db, $game['game_title'])."',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'".mysqli_real_escape_string($db, $game['pr'])."',
@@ -397,20 +399,19 @@ function compatibilityUpdater() : void
 			ORDER BY `key` DESC LIMIT 1");
 			$key = mysqli_fetch_object($q_fetchkey)->key;
 
+			// Sanity check, this should be unreachable
+			if (is_null($key))
+			{
+				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: <br><br>";
+				dumpVar($game);
+				continue;
+			}
+
 			// Insert Game and Thread IDs on the ID table
 			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$game['gid']}', {$tid}); ");
 
 			// Cache the updates for the new ID
-			$cr = curl_init();
 			cache_game_updates($cr, $db, $game['gid']);
-			curl_close($cr);
-
-			// Sanity check, this should be unreachable
-			if ($key === NULL)
-			{
-				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: <br><br>";
-				dumpVar($game);
-			}
 
 			// Log change to game history
 			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
@@ -420,7 +421,8 @@ function compatibilityUpdater() : void
 		/*
 			Updates
 		*/
-		foreach ($a_updates as $key => $game) {
+		foreach ($a_updates as $key => $game)
+		{
 			// Update entry parameters on game list
 			$q_update = mysqli_query($db, "UPDATE `game_list` SET
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."',
@@ -434,11 +436,12 @@ function compatibilityUpdater() : void
 			({$key}, '{$game['old_status']}', '{$game['old_date']}', '{$game['status']}', '{$game['last_update']}'); ");
 		}
 
+		curl_close($cr);
+
 		// Recache initials cache
 		cacheInitials();
 		// Recache status modules
 		cacheStatusModules();
-
 	}
 	else
 	{
