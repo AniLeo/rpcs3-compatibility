@@ -71,8 +71,8 @@ class MyBBThread
 			return null;
 		}
 
-		// Game title ends with dash, malformed thread name
-		if (substr($this->subject, -13, 1) === '-')
+		// Dash between game title and game id
+		if (substr($this->subject, -13, 1) === '-' && substr($this->subject, -14, 1) === ' ')
 		{
 			return null;
 		}
