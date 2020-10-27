@@ -136,7 +136,7 @@ CREATE TABLE `game_update_tag` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_package`;
 CREATE TABLE `game_update_package` (
-  `titleid` varchar(9) NOT NULL,
+  `tag_id` varchar(16) NOT NULL,
   `version` varchar(16) NOT NULL,
   `size` varchar(16) NOT NULL,
   `sha1sum` varchar(64) NOT NULL,
