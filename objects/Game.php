@@ -20,6 +20,7 @@
 */
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
+if (!@include_once(__DIR__."/GameUpdateTag.php")) throw new Exception("Compat: GameUpdateTag.php is missing. Failed to include GameUpdateTag.php");
 
 
 class Game
@@ -88,6 +89,46 @@ class Game
 			return "https://github.com/RPCS3/rpcs3/pull/{$this->pr}";
 		}
 		return null;
+	}
+
+	public static function import_update_tags(array &$games) : void
+	{
+		$db = getDatabase();
+
+		$a_tags = array();
+		$q_tags = mysqli_query($db, "SELECT * FROM `game_update_tag`; ");
+
+		mysqli_close($db);
+
+		if (mysqli_num_rows($q_tags) === 0)
+			return;
+
+		while ($row = mysqli_fetch_object($q_tags))
+		{
+			$a_tags[] = new GameUpdateTag($row->name, $row->popup, $row->signoff, $row->popup_delay, $row->min_system_ver);
+		}
+
+		GameUpdateTag::import_update_packages($a_tags);
+
+		$a_tags_sorted = array();
+
+		// Convert to associative array game_id => tags
+		foreach ($a_tags as $tag)
+		{
+			$a_tags_sorted[substr($tag->tag_id, 0, 9)][] = $tag;
+		}
+
+		// For each game id, attach the tags array if it exists
+		foreach ($games as $game)
+		{
+			foreach ($game->game_item as $item)
+			{
+				if (isset($a_tags_sorted[$item->game_id]))
+				{
+					$item->tags = $a_tags_sorted[$item->game_id];
+				}
+			}
+		}
 	}
 
 	// Import wiki related information to a Game array

@@ -155,9 +155,12 @@ if ($q_main && mysqli_num_rows($q_main) > 0)
 {
 	Profiler::addData("Inc: Query to Games");
 	$games = Game::query_to_games($q_main);
-	
+
 	Profiler::addData("Inc: Query to Games - Import Wiki");
 	Game::import_wiki($games);
+
+	Profiler::addData("Inc: Query to Games - Import Updates");
+	Game::import_update_tags($games);
 }
 
 // Close MySQL connection.

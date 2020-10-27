@@ -23,15 +23,18 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 
 class GameItem
 {
-	public $game_id;
-	public $thread_id;
-	public $update;
+	public $game_id;   // string
+	public $thread_id; // int
+	public $update;    // ?string
+
+	public $tags;      // GameUpdateTag[]
 
 	function __construct(string $game_id, int $thread_id, ?string $update)
 	{
 		$this->game_id   = $game_id;
 		$this->thread_id = $thread_id;
 		$this->update    = $update;
+		$this->tags      = array();
 	}
 
 	function get_media_id() : string

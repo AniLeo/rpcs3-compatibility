@@ -25,21 +25,18 @@ class GameUpdatePackage
 	public $version;        // string
 	public $size;           // int
 	public $sha1sum;        // string
-	public $url;            // string
-	public $ps3_system_ver; // string
-	public $drm_type;       // string
+	public $ps3_system_ver; // ?string
+	public $drm_type;       // ?string
 
-	function __construct(string $version,
-	                     int    $size,
-	                     string $sha1sum,
-	                     string $url,
-	                     string $ps3_system_ver,
-	                     string $drm_type)
+	function __construct(string  $version,
+	                     int     $size,
+	                     string  $sha1sum,
+	                     ?string $ps3_system_ver,
+	                     ?string $drm_type)
 	{
 		$this->version        = $version;
 		$this->size           = $size;
 		$this->sha1sum        = $sha1sum;
-		$this->url            = $url;
 		$this->ps3_system_ver = $ps3_system_ver;
 		$this->drm_type       = $drm_type;
 	}

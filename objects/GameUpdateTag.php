@@ -18,34 +18,54 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+if (!@include_once(__DIR__."/GameUpdatePackage.php")) throw new Exception("Compat: GameUpdatePackage.php is missing. Failed to include GameUpdatePackage.php");
 
 
 class GameUpdateTag
 {
 	public $tag_id;         // string
-	public $popup;          // bool
-	public $signoff;        // bool
-	public $popup_delay;    // int
-	public $min_system_ver; // string
+	public $popup;          // string
+	public $signoff;        // string
+	public $popup_delay;    // ?int
+	public $min_system_ver; // ?string
 
-	public $packages;       // array
+	public $packages;       // GameUpdatePackage[]
 
-	function __construct(string $tag_id,
-	                     bool   $popup,
-	                     bool   $signoff,
-	                     int    $popup_delay,
-	                     string $min_system_ver)
+	function __construct(string  $tag_id,
+	                     string  $popup,
+	                     string  $signoff,
+	                     ?int    $popup_delay,
+	                     ?string $min_system_ver)
 	{
 		$this->tag_id         = $tag_id;
 		$this->popup          = $popup;
 		$this->signoff        = $signoff;
 		$this->popup_delay    = $popup_delay;
 		$this->min_system_ver = $min_system_ver;
-		$this->packages = array();
+		$this->packages       = array();
 	}
 
-	public function add_package(GameUpdatePackage $package) : string
+	public static function import_update_packages(array &$tags) : void
 	{
-		$packages[] = $package;
+		$db = getDatabase();
+
+		$a_packages = array();
+		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type` FROM `game_update_package`; ");
+
+		while ($row = mysqli_fetch_object($q_packages))
+		{
+			$a_packages[$row->tag][] = new GameUpdatePackage($row->version,
+			                                                 $row->size,
+			                                                 $row->sha1sum,
+			                                                 $row->ps3_system_ver,
+			                                                 $row->drm_type);
+		}
+
+		foreach ($tags as $tag)
+		{
+			$tag->packages = $a_packages[$tag->tag_id];
+		}
+
+		mysqli_close($db);
 	}
 }
