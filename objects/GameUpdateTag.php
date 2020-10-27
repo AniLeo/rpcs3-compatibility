@@ -50,7 +50,12 @@ class GameUpdateTag
 		$db = getDatabase();
 
 		$a_packages = array();
-		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type` FROM `game_update_package`; ");
+		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`, `paramhip_content`
+		FROM `game_update_package`
+		LEFT JOIN `game_update_paramhip`
+		  ON SUBSTR(`game_update_package`.`tag`, 1, 9) = `game_update_paramhip`.`titleid`
+			AND `game_update_package`.`version` = `game_update_paramhip`.`package_version` 
+		WHERE `paramhip_type` IS NULL OR `paramhip_type` = 'paramhip'; ");
 
 		while ($row = mysqli_fetch_object($q_packages))
 		{
@@ -58,7 +63,8 @@ class GameUpdateTag
 			                                                 $row->size,
 			                                                 $row->sha1sum,
 			                                                 $row->ps3_system_ver,
-			                                                 $row->drm_type);
+			                                                 $row->drm_type,
+			                                                 $row->paramhip_content);
 		}
 
 		foreach ($tags as $tag)
