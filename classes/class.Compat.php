@@ -332,21 +332,56 @@ public static function printTable() : void
 		echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
 		echo "<div class=\"compat-table-row compat-table-dropdown\">";
 
+
+		// TODO: Better printing of dropdown contents
+		$has_updates = false;
+
 		foreach ($game->game_item as $item)
 		{
-			if (!is_null($item->update) && !empty($item->update))
+			foreach ($item->tags as $tag)
 			{
-				echo "{$item->game_id}'s latest known version is <b>{$item->update}</b>";
-			}
-			else
-			{
-				echo "{$item->game_id} has no known updates";
-			}
+				if ($has_updates)
+					echo "<hr>";
 
-			if ($item !== end($game->game_item))
-			{
-				echo ", ";
+				$has_updates = true;
+				$patchset = substr($tag->tag_id, 10);
+
+				echo "<p>Available updates for <b>{$item->game_id}</b>, latest patchset {$patchset}:<br>";
+
+				foreach ($tag->packages as $package)
+				{
+					$size_mb = round($package->size / 1024 / 1024, 2);
+					echo "- <b>Update v{$package->version}</b> ({$size_mb} MB)<br>";
+
+					if (!is_null($package->paramhip))
+					{
+						echo "<br>";
+						echo "<i>";
+
+						$changelog = mb_ereg_replace("\r?\n|\r", '<br>', $package->paramhip);
+
+						if (strpos($changelog, "<br><br><br>") !== false)
+						{
+							$changelog = mb_ereg_replace("<br><br><br>", "<br><br>", $changelog);
+						}
+
+						if (substr($changelog, -4) === "<br>")
+						{
+							$changelog = substr($changelog, 0, -4);
+						}
+
+						echo $changelog;
+						echo "</i>";
+					}
+				}
+
+				echo "</p>";
 			}
+		}
+
+		if (!$has_updates)
+		{
+			echo "<p>This game entry contains no available game updates</p>";
 		}
 
 		echo "</div>";
