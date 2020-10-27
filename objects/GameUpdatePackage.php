@@ -20,32 +20,27 @@
 */
 
 
-class GameUpdateTag
+class GameUpdatePackage
 {
-	public $tag_id;         // string
-	public $popup;          // bool
-	public $signoff;        // bool
-	public $popup_delay;    // int
-	public $min_system_ver; // string
+	public $version;        // string
+	public $size;           // int
+	public $sha1sum;        // string
+	public $url;            // string
+	public $ps3_system_ver; // string
+	public $drm_type;       // string
 
-	public $packages;       // array
-
-	function __construct(string $tag_id,
-	                     bool   $popup,
-	                     bool   $signoff,
-	                     int    $popup_delay,
-	                     string $min_system_ver)
+	function __construct(string $version,
+	                     int    $size,
+	                     string $sha1sum,
+	                     string $url,
+	                     string $ps3_system_ver,
+	                     string $drm_type)
 	{
-		$this->tag_id         = $tag_id;
-		$this->popup          = $popup;
-		$this->signoff        = $signoff;
-		$this->popup_delay    = $popup_delay;
-		$this->min_system_ver = $min_system_ver;
-		$this->packages = array();
-	}
-
-	public function add_package(GameUpdatePackage $package) : string
-	{
-		$packages[] = $package;
+		$this->version        = $version;
+		$this->size           = $size;
+		$this->sha1sum        = $sha1sum;
+		$this->url            = $url;
+		$this->ps3_system_ver = $ps3_system_ver;
+		$this->drm_type       = $drm_type;
 	}
 }
