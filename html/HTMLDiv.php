@@ -18,9 +18,31 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/HTMLForm.php")) throw new Exception("Compat: HTMLForm.php is missing. Failed to include HTMLForm.php");
-if (!@include_once(__DIR__."/HTMLInput.php")) throw new Exception("Compat: HTMLInput.php is missing. Failed to include HTMLInput.php");
-if (!@include_once(__DIR__."/HTMLButton.php")) throw new Exception("Compat: HTMLButton.php is missing. Failed to include HTMLButton.php");
-if (!@include_once(__DIR__."/HTMLA.php")) throw new Exception("Compat: HTMLA.php is missing. Failed to include HTMLA.php");
-if (!@include_once(__DIR__."/HTMLImg.php")) throw new Exception("Compat: HTMLImg.php is missing. Failed to include HTMLImg.php");
-if (!@include_once(__DIR__."/HTMLDiv.php")) throw new Exception("Compat: HTMLDiv.php is missing. Failed to include HTMLDiv.php");
+
+
+class HTMLDiv
+{
+	public $class;   // string
+	public $content; // string
+
+	function __construct(string $class)
+	{
+		$this->class   = $class;
+		$this->content = "";
+	}
+
+	public function add_content(string $content) : void
+	{
+		$this->content .= $content;
+	}
+
+	public function to_string() : string
+	{
+		return "<div class=\"{$this->class}\">{$this->content}</div>".PHP_EOL;
+	}
+
+	public function print() : void
+	{
+		echo $this->to_string();
+	}
+}
