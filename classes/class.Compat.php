@@ -226,6 +226,7 @@ public static function printTable() : void
 
 	// Prepare images that will be used
 	$html_img_network = new HTMLImg("compat-network-icon", "/img/icons/compat/onlineonly.png");
+	$html_img_network->set_title("Online-only");
 
 	// Print table body
 	foreach ($games as $game)

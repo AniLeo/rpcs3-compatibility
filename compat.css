@@ -159,10 +159,6 @@ html {
 .compat-table-cell-date {
 	width:200px
 }
-.compat-table-cell img {
-	width:22px;
-	height:auto
-}
 .compat-table-dropdown {
 	display:none;
 	padding-left:5px
@@ -203,8 +199,8 @@ html {
 	position:relative;
 	z-index:1;
 	float:left;
-	width:16px;
-	height:16px;
+	width:22px;
+	height:22px;
 	margin-right:12px;
 	padding:4px 0
 }
