@@ -171,34 +171,41 @@ function validateGet() : array
 	$get['m'] = '';
 
 	// API version
-	if (isset($_GET['api'])) {
+	if (isset($_GET['api']))
+	{
 		$get['api'] = $_GET['api'];
 	}
 
 	// Page counter
-	if (isset($_GET['p'])) {
+	if (isset($_GET['p']))
+	{
 		$get['p'] = (int) $_GET['p'];
 	}
 
 	// Results per page
-	if (isset($_GET['r']) && in_array($_GET['r'], $a_pageresults)) {
+	if (isset($_GET['r']) && in_array($_GET['r'], $a_pageresults))
+	{
 		$get['r'] = (int) $_GET['r'];
 	}
 
 	// Status
-	if (isset($_GET['s']) && ((int) $_GET['s'] === 0 || array_key_exists($_GET['s'], $a_status))) {
+	if (isset($_GET['s']) && ((int) $_GET['s'] === 0 || array_key_exists($_GET['s'], $a_status)))
+	{
 		$get['s'] = (int) $_GET['s'];
 	}
 
 	// Order by
-	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd')) {
+	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd'))
+	{
 		$get['o'] = $_GET['o'];
 	}
 
 	// Character
-	if (isset($_GET['c'])) {
+	if (isset($_GET['c']))
+	{
 		// If it is a single alphabetic character
-		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1)) {
+		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1))
+		{
 			$get['c'] = strtolower($_GET['c']);
 		}
 		if ($_GET['c'] == '09')  { $get['c'] = '09';  } // Numbers
@@ -206,48 +213,58 @@ function validateGet() : array
 	}
 
 	// Searchbox (sf deprecated, use g instead)
-	if (!isset($_GET['g']) && isset($_GET['sf'])) {
+	if (!isset($_GET['g']) && isset($_GET['sf']))
+	{
 		$_GET['g'] = $_GET['sf'];
 	}
-	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g'])) {
+	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
+	{
 		$get['g'] = $_GET['g'];
+
 		// Trim all unnecessary double spaces
 		while (strpos($get['g'], "  ") !== false)
 			$get['g'] = str_replace("  ", " ", $get['g']);
 	}
 
 	// Date
-	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) === 8 && strpos($_GET['d'], '20') === 0) {
+	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) === 8 && strpos($_GET['d'], '20') === 0)
+	{
 		$get['d'] = $_GET['d'];
 	}
 
 	// Media type
-	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media)) {
+	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media))
+	{
 		$get['t'] = strtolower($_GET['t']);
 	}
 
 	// Region
-	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags)) {
+	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags))
+	{
 		$get['f'] = strtolower($_GET['f']);
 	}
 
 	// History
-	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates)) {
+	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates))
+	{
 		$get['h'] = $_GET['h'];
 	}
 
 	// History mode
-	if (isset($_GET['m']) && ($_GET['m'] == 'c' || $_GET['m'] == 'n')) {
+	if (isset($_GET['m']) && ($_GET['m'] == 'c' || $_GET['m'] == 'n'))
+	{
 		$get['m'] = strtolower($_GET['m']);
 	}
 
 	// Patch system: Version
-	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2])) {
+	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2]))
+	{
 		$get['v'] = $_GET['v'];
 	}
 
 	// Patch system: Sha256
-	if (isset($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256'])) {
+	if (isset($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256']))
+	{
 		$get['sha256'] = $_GET['sha256'];
 	}
 
@@ -255,12 +272,14 @@ function validateGet() : array
 	$get['w'] = getDebugPermissions();
 
 	// Enable error reporting for admins
-	if ($get['w'] != NULL) {
+	if (!is_null($get['w']))
+	{
 		error_reporting(E_ALL);
 		ini_set('display_errors', '1');
 
 		// Admin debug mode
-		if (isset($_GET['a']) && array_search("debug.view", $get['w']) !== false) {
+		if (isset($_GET['a']) && array_search("debug.view", $get['w']) !== false)
+		{
 			$get['a'] = $_GET['a'];
 		}
 	}
@@ -279,24 +298,25 @@ function countGames(mysqli $db, string $query = "") : array
 	// Without network only games
 	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
 	WHERE (`network` = 0 OR (`network` = 1 && `status` <= 2)) {$and} GROUP BY `status`;");
+
 	// With network only games
 	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
 	WHERE (`network` = 0 OR `network` = 1) {$and} GROUP BY `status`;");
 
 	// Zero-fill the array keys that are going to be used
-	$scount["status"][0]   = 0;
-	$scount["nostatus"][0] = 0;
-	$scount["network"][0]  = 0; // Derivative of status mode but with network games
-	foreach ($a_status as $id => $status) {
+	for ($id = 0; $id <= count($a_status); $id++)
+	{
 		$scount["status"][$id]   = 0;
 		$scount["nostatus"][$id] = 0;
+		// Derivative of status mode but with network games
 		$scount["network"][$id]  = 0;
 	}
 
 	if (!$q_gen1 || !$q_gen2)
 		return $scount;
 
-	while ($row1 = mysqli_fetch_object($q_gen1)) {
+	while ($row1 = mysqli_fetch_object($q_gen1))
+	{
 		$sid   = (int) $row1->statusID;
 		$count = (int) $row1->c;
 
@@ -305,17 +325,20 @@ function countGames(mysqli $db, string $query = "") : array
 
 		// For count with specified status, include only results for the specified status
 		// If there is no specified status, replicate nostatus mode
-		if ($get['s'] === 0 || $sid === $get['s']) {
+		if ($get['s'] === 0 || $sid === $get['s'])
+		{
 			$scount["status"][$sid]  =  $count;
 			$scount["status"][0]     += $count;
 		}
 	}
 
-	while ($row2 = mysqli_fetch_object($q_gen2)) {
+	while ($row2 = mysqli_fetch_object($q_gen2))
+	{
 		$sid   = (int) $row2->statusID;
 		$count = (int) $row2->c;
 
-		if ($get['s'] === 0 || $sid === $get['s']) {
+		if ($get['s'] === 0 || $sid === $get['s'])
+		{
 			$scount["network"][$sid] =  $count;
 			$scount["network"][0]    += $count;
 		}

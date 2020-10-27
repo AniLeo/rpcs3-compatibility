@@ -51,9 +51,6 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 		</div> <!-- container-con-block -->
 
 		<?php
-			Profiler::addData("Page: Print Messages");
-			Builds::printMessages();
-
 			Profiler::addData("Page: Print Table");
 			Builds::printTable();
 

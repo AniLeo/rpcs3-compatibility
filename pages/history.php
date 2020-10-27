@@ -49,10 +49,13 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 			</div> <!-- container-con-wrapper -->
 
 			<?php
-			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php')) {
+			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php'))
+			{
 				Profiler::addData("Page: Get Status Module");
 				include(__DIR__.'/../modules/mod.status.nocount.php');
-			} else {
+			}
+			else
+			{
 				Profiler::addData("Page: Generate Status Module");
 				echo generateStatusModule(false);
 			}

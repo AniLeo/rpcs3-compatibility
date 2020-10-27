@@ -515,11 +515,13 @@ function mergeGames() : void
 	if (!isset($_POST['mergeRequest']) && !isset($_POST['mergeConfirm']))
 		return;
 
-	if (!isGameID($gid1)) {
+	if (!isGameID($gid1))
+	{
 		echo "<p><b>Error:</b> Game ID 1 is not a valid Game ID</p>";
 		return;
 	}
-	if (!isGameID($gid2)) {
+	if (!isGameID($gid2))
+	{
 		echo "<p><b>Error:</b> Game ID 2 is not a valid Game ID</p>";
 		return;
 	}
@@ -530,23 +532,27 @@ function mergeGames() : void
 	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
 
 	$game1 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');"))[0];
-	if (empty($game1)) {
+	if (empty($game1))
+	{
 		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
 		return;
 	}
 
 	$game2 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');"))[0];
-	if (empty($game2)) {
+	if (empty($game2))
+	{
 		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
 		return;
 	}
 
-	if ($game1->key === $game2->key) {
+	if ($game1->key === $game2->key)
+	{
 		echo "<p><b>Error:</b> Both Game IDs belong to the same Game Entry</p>";
 		return;
 	}
 
-	if (substr($game1->game_item->game_id[0], 0, 1) !== substr($game2->game_item->game_id[0], 0, 1)) {
+	if (substr($game1->game_item->game_id[0], 0, 1) !== substr($game2->game_item->game_id[0], 0, 1))
+	{
 		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
 		return;
 	}
@@ -579,26 +585,32 @@ function mergeGames() : void
 	if (!is_null($game1->pr) && is_null($game2->pr))
 		$time2 -= 2678400;
 
-	if ($time1 === $time2 && $game1->pr !== $game2->pr) {
+	if ($time1 === $time2 && $game1->pr !== $game2->pr)
+	{
 		// If the update date is the same, pick the one with the most recent PR
 		// TODO: Check for null cases
 		$new = $game1->pr > $game2->pr ? $game1 : $game2;
 		$old = $game1->pr > $game2->pr ? $game2 : $game1;
-	} else if ($game1->pr === $game2->pr) {
+	}
+	else if ($game1->pr === $game2->pr)
+	{
 		// If PRs are the same, pick the one with the oldest update date
 		$new = $time1 < $time2 ? $game1 : $game2;
 		$old = $time1 < $time2 ? $game2 : $game1;
-	} else {
+	}
+	else
+	{
 		// If the update date differs, pick the one with the most recent update date
 		$new = $time1 > $time2 ? $game1 : $game2;
 		$old = $time1 > $time2 ? $game2 : $game1;
 	}
 
 	// Update: Set both game keys to the same previous picked key
-	if (isset($_POST['mergeConfirm'])) {
-
+	if (isset($_POST['mergeConfirm']))
+	{
 		// Permissions: debug.update
-		if (array_search("debug.update", $get['w']) === false) {
+		if (array_search("debug.update", $get['w']) === false)
+		{
 			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
 			return;
 		}
@@ -606,17 +618,21 @@ function mergeGames() : void
 		// Copy alternative title to new entry if necessary
 		if (!is_null($old->title2) && is_null($new->title2))
 			mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");
+
 		// Copy network flag to new entry if necessary
-		if ($game1->network !== $game2->network) {
+		if ($game1->network !== $game2->network)
+		{
 			$network = $game1->network === 0 ? $game2->network : $game1->network;
 			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, $network)."' WHERE `key`='{$new->key}';");
 		}
+
 		// Move IDs from the older entry to the newer entry
 		mysqli_query($db, "UPDATE `game_id` SET `key`='{$new->key}' WHERE (`key`='{$old->key}');");
 		// Reassociate old entry history updates to the newer entry
 		mysqli_query($db, "UPDATE `game_history` SET `game_key`='{$new->key}' WHERE (`game_key`='{$old->key}');");
 		// Delete older entry
 		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$old->key}');");
+
 		// Recache status modules
 		cacheStatusModules();
 

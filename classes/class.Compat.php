@@ -174,28 +174,24 @@ public static function printCharSearch() : void
 }
 
 
-/*******************
- * Print: Messages *
- *******************/
-public static function printMessages() : void
-{
-	global $info, $error;
-
-	if (!is_null($info))
-		echo "<p class=\"compat-tx1-criteria\">{$info}</p>";
-	elseif (!is_null($error))
-		echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
-}
-
-
 /*****************
  * Print: Table  *
  *****************/
 public static function printTable() : void
 {
-	global $games, $error, $a_status, $a_media, $a_flags, $get;
+	global $games, $info, $error, $a_status, $a_media, $a_flags, $get;
 
-	if (!is_null($error) || is_null($games))
+	if (!is_null($info))
+	{
+		echo "<p class=\"compat-tx1-criteria\">{$info}</p>";
+	}
+	elseif (!is_null($error))
+	{
+		echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
+		return;
+	}
+
+	if (is_null($games))
 		return;
 
 	// Start table

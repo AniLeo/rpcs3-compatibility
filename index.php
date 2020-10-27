@@ -43,6 +43,7 @@ if (isset($get['rss']))
 		header('Content-Type: text/xml');
 		$Builds = new Builds();
 		echo $Builds->getBuildsRSS();
+
 		// No need to load the rest of the page.
 		exit();
 	}
@@ -52,6 +53,7 @@ if (isset($get['rss']))
 		header('Content-Type: text/xml');
 		$History = new History();
 		$History->printHistoryRSS();
+
 		// No need to load the rest of the page.
 		exit();
 	}
@@ -70,7 +72,7 @@ if (isset($get['api']))
 		}
 		elseif (isset($_GET['patch']))
 		{
-			if (!@include_once('patch.php')) throw new Exception("Compat: export.php is missing. Failed to include patch.php");
+			if (!@include_once('patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
 			$results = exportGamePatches();
 		}
 		else
@@ -86,7 +88,6 @@ if (isset($get['api']))
 
 	// No need to load the rest of the page.
 	exit();
-
 }
 
 /**

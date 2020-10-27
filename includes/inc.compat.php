@@ -151,10 +151,12 @@ elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !em
 }
 
 // Store results
-Profiler::addData("Inc: Store Results");
 if ($q_main && mysqli_num_rows($q_main) > 0)
 {
+	Profiler::addData("Inc: Query to Games");
 	$games = Game::query_to_games($q_main);
+	
+	Profiler::addData("Inc: Query to Games - Import Wiki");
 	Game::import_wiki($games);
 }
 

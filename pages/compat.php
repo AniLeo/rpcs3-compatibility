@@ -86,9 +86,6 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 		</div> <!-- container-con-block -->
 
 		<?php
-			Profiler::addData("Page: Print Messages");
-			Compat::printMessages();
-
 			Profiler::addData("Page: Print Table");
 			Compat::printTable();
 

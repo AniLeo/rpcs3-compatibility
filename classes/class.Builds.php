@@ -36,18 +36,6 @@ public static function printResultsPerPage() : void
 }
 
 
-/*******************
- * Print: Messages *
- *******************/
-public static function printMessages() : void
-{
-	global $error;
-
-	if (!is_null($error))
-	 	echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
-}
-
-
 /*****************
  * Print: Table  *
  *****************/
@@ -56,7 +44,10 @@ public static function printTable() : void
 	global $builds, $error;
 
 	if (!is_null($error))
+	{
+	 	echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
 		return;
+	}
 
 	// Start table
 	echo "<div class=\"compat-table-outside\">";
@@ -100,10 +91,8 @@ public static function printTable() : void
 	// Print table body
 	foreach ($builds as $build)
 	{
-		// Length of additions text
-		$len = strlen($build->additions) + 1;
 		// Padding formula to apply in order to align deletions in all rows
-		$padding = (8 - $len) * 7;
+		$padding = (7 - strlen($build->additions)) * 7;
 
 		// Formatted version with metadata
 		$version = "";
@@ -232,7 +221,8 @@ public static function getBuildsRSS() : string
 {
 	global $info, $builds;
 
-	if (!is_null($info)) { return $info; }
+	if (!is_null($info))
+		return $info;
 
 	// Initialize string
 	$rssfeed = "";

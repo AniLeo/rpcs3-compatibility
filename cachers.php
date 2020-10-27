@@ -220,7 +220,8 @@ function cacheBuild(int $pr) : void
 
 	$db = getDatabase();
 
-	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1) {
+	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1)
+	{
 		$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
 		`commit` = '".mysqli_real_escape_string($db, $commit)."',
 		`type` = '".mysqli_real_escape_string($db, $type)."',
@@ -238,7 +239,9 @@ function cacheBuild(int $pr) : void
 		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
 		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."'
 		WHERE `pr` = '{$pr}' LIMIT 1;");
-	} else {
+	}
+	else
+	{
 		$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
 		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `version`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
 		VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '".mysqli_real_escape_string($db, $type)."', '".mysqli_real_escape_string($db, (string) $aid)."',
@@ -377,13 +380,18 @@ function cacheInitials() : void
 				WHERE `game_title` = '{$original}' LIMIT 1; ");
 
 			// If value isn't cached, then cache it
-			if (mysqli_num_rows($q_check) === 0) {
+			if (mysqli_num_rows($q_check) === 0)
+			{
 				mysqli_query($db, "INSERT INTO `initials_cache` (`game_title`, `initials`)
 				VALUES ('{$original}', '".mysqli_real_escape_string($db, $initials)."'); ");
-			} else {
+			}
+			else
+			{
 				// If value is cached but differs from newly calculated initials, update it
 				$row = mysqli_fetch_object($q_check);
-				if ($row->initials != $initials) {
+
+				if ($row->initials != $initials)
+				{
 					mysqli_query($db, "UPDATE `initials_cache`
 					SET `initials` = '".mysqli_real_escape_string($db, $initials)."'
 					WHERE `game_title` = '{$original}' LIMIT 1;");
@@ -421,8 +429,8 @@ function cacheStatusCount() : void
 
 	while ($row = mysqli_fetch_object($q_status))
 	{
-		$a_cache[0][$row->sid] = (int)$row->c;
-		$a_cache[0][0] += $a_cache[0][$row->sid];
+		$a_cache[0][$row->sid] = (int) $row->c;
+		$a_cache[0][0]        += (int) $row->c;
 	}
 
 	$a_cache[1] = $a_cache[0];
