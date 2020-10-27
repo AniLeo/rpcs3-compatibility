@@ -160,8 +160,10 @@ public static function printCharSearch() : void
 
 	foreach ($a_chars as $key => $value)
 	{
-		$content = highlightText($value, $get['c'] === $key);
-		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, "<div class=\"compat-search-character\">{$content}</div>");
+		$html_div = new HTMLDiv("compat-search-character");
+		$html_div->add_content(highlightText($value, $get['c'] === $key));
+
+		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, $html_div->to_string());
 
 		echo "<td>";
 		$html_a->print();
@@ -232,82 +234,101 @@ public static function printTable() : void
 	// Print table body
 	foreach ($games as $game)
 	{
-		$media = '';
+		// Game media image
+		$html_img_media = new HTMLImg("compat-icon-media", $a_media[$game->get_media_id()]["icon"]);
+		$html_img_media->set_title($a_media[$game->get_media_id()]["name"]);
+
+		// Allow for filter resetting by clicking the icon again
+		if ($get['t'] === strtolower($game->get_media_id()))
+		{
+			$html_a_media = new HTMLA("?", $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+		}
+		// Returns clickable icon for type (media) search
+		else
+		{
+			$html_a_media = new HTMLA("?t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+		}
+
 
 		echo "<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">";
 
-		// Cell 1: Regions and GameIDs
-		$cell = '';
-		foreach ($game->game_item as $item)
-		{
-			if (!empty($cell))
-				$cell .= "<br>";
 
+		// Cell 1: Regions and GameIDs
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-gameid");
+		foreach ($game->game_item as $id => $item)
+		{
+			if ($id !== 0)
+				$html_div_cell->add_content("<br>".PHP_EOL);
+
+			// Game region flag image
 			$html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()]);
 			$html_img_region->set_title($item->game_id);
-			$cell .= $html_img_region->to_string();
+			$html_div_cell->add_content($html_img_region->to_string());
 
+			// Game ID string
 			$html_a_gameid = new HTMLA($item->get_thread_url(), "", $item->game_id);
-			$cell .= $html_a_gameid->to_string();
-
-			if (empty($media))
-			{
-				$html_img_media = new HTMLImg("compat-icon-media", $a_media[$item->get_media_id()]["icon"]);
-				$html_img_media->set_title($a_media[$item->get_media_id()]["name"]);
-
-				// Allow for filter resetting by clicking the icon again
-				if ($get['t'] === strtolower($item->get_media_id()))
-				{
-					$html_a = new HTMLA("?", $a_media[$item->get_media_id()]["name"], $html_img_media->to_string());
-				}
-				// Returns clickable icon for type (media) search
-				else
-				{
-					$html_a = new HTMLA("?t=".strtolower($item->get_media_id()), $a_media[$item->get_media_id()]["name"], $html_img_media->to_string());
-				}
-
-				$media = $html_a->to_string();
-			}
+			$html_div_cell->add_content($html_a_gameid->to_string());
 		}
-		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
+		$html_div_cell->print();
+
 
 		// Cell 2: Game Media, Titles and Network
-		$cell = $media;
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
+		// Game media image
+		$html_div_cell->add_content($html_a_media->to_string());
+
 		if (!is_null($game->get_url_wiki()))
 		{
 			$html_a_title = new HTMLA($game->get_url_wiki(), $game->wiki_title, $game->title);
 			$html_a_title->set_target("_blank");
-			$cell .= $html_a_title->to_string();
+
+			$html_div_cell->add_content($html_a_title->to_string());
 		}
 		else
 		{
-			$cell .= $game->title;
+			$html_div_cell->add_content($game->title);
 		}
 		if ($game->network === 1)
 		{
-			$cell .= $html_img_network->to_string();
+			$html_div_cell->add_content($html_img_network->to_string());
 		}
 		if (!is_null($game->title2))
-			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})";
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+		{
+			$html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})");
+		}
+
+		$html_div_cell->print();
+
 
 		// Cell 3: Status
-		$cell = '';
-		if (!is_null($game->status))
-			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$game->status]['color']};\">{$a_status[$game->status]['name']}</div>";
-		echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-status");
+
+		$html_div_status = new HTMLDiv("txt-compat-status background-status-{$game->status}");
+		$html_div_status->add_content($a_status[$game->status]["name"]);
+
+		$html_div_cell->add_content($html_div_status->to_string());
+
+		$html_div_cell->print();
+
 
 		// Cell 4: Last Test
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-updated");
+
 		$html_a_date = new HTMLA("?d=".str_replace('-', '', $game->date), "Tested on {$game->date}", $game->date);
-		$cell = $html_a_date->to_string();
+
+		$html_div_cell->add_content($html_a_date->to_string());
+
 		if (!is_null($game->pr))
 		{
 			$html_a_pr = new HTMLA($game->get_url_pr(), "Tested on PR #{$game->pr}", "#{$game->pr}");
 			$html_a_pr->set_target("_blank");
-			$cell .= "&nbsp;&nbsp;";
-			$cell .= $html_a_pr->to_string();
+
+			$html_div_cell->add_content("&nbsp;&nbsp;{$html_a_pr->to_string()}");
 		}
-		echo "<div class=\"compat-table-cell compat-table-cell-updated\">{$cell}</div>";
+
+		$html_div_cell->print();
+
 
 		echo "</label>";
 
@@ -350,9 +371,9 @@ public static function printPagesCounter() : void
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true);
 
-	echo "<div class=\"compat-con-pages\">";
-	echo getPagesCounter($pages, $currentPage, $extra);
-	echo "</div>";
+	$html_div = new HTMLDiv("compat-con-pages");
+	$html_div->add_content(getPagesCounter($pages, $currentPage, $extra));
+	$html_div->print();
 }
 
 /*

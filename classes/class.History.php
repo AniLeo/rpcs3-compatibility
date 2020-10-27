@@ -217,41 +217,70 @@ public static function printTableContent(array $array) : void
 
 		echo "<div class=\"compat-table-row\">";
 
+
 		// Cell 1: Regions
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-gameid");
+
 		$html_a_thread = new HTMLA($entry->game_item->get_thread_url(), "", "{$html_img_region->to_string()}{$entry->game_item->game_id}");
-		$cell = $html_a_thread->to_string();
-		echo "<div class=\"compat-table-cell compat-table-cell-gameid\">{$cell}</div>";
+
+		$html_div_cell->add_content($html_a_thread->to_string());
+		$html_div_cell->print();
+
 
 		// Cell 2: Media and Titles
-		$cell = "{$html_img_media->to_string()}{$entry->title}";
-		if (!is_null($entry->title2)) {
-			$cell .= "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})";
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
+		$html_div_cell->add_content($html_img_media->to_string());
+		$html_div_cell->add_content($entry->title);
+
+		if (!is_null($entry->title2))
+		{
+			$html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})");
 		}
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+
+		$html_div_cell->print();
+
 
 		// Cell 3: New Status
-		$cell = '';
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-status");
+
 		if (!is_null($entry->new_status))
-			$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->new_status]['color']};\">{$a_status[$entry->new_status]['name']}</div>";
-		echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
+		{
+			$html_div_status = new HTMLDiv("txt-compat-status background-status-{$entry->new_status}");
+			$html_div_status->add_content($a_status[$entry->new_status]["name"]);
+
+			$html_div_cell->add_content($html_div_status->to_string());
+		}
+
+		$html_div_cell->print();
+
 
 		// Cell 4: New Date
-		$cell = $entry->new_date;
-		echo "<div class=\"compat-table-cell compat-table-cell-date\">{$cell}</div>";
+		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-date");
+		$html_div_cell->add_content($entry->new_date);
+		$html_div_cell->print();
+
 
 		// Cell 5: Old Status (If existent)
-		if (!is_null($entry->old_status)) {
-			$cell = '';
-			if (!is_null($entry->old_status))
-				$cell = "<div class=\"txt-compat-status\" style=\"background: #{$a_status[$entry->old_status]['color']};\">{$a_status[$entry->old_status]['name']}</div>";
-			echo "<div class=\"compat-table-cell compat-table-cell-status\">{$cell}</div>";
+		if (!is_null($entry->old_status))
+		{
+			$html_div_status = new HTMLDiv("txt-compat-status background-status-{$entry->old_status}");
+			$html_div_status->add_content($a_status[$entry->old_status]["name"]);
+
+			$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-status");
+			$html_div_cell->add_content($html_div_status->to_string());
+			$html_div_cell->print();
 		}
 
+
 		// Cell 6: Old Date (If existent)
-		if (!is_null($entry->old_date)) {
-			$cell = $entry->old_date;
-			echo "<div class=\"compat-table-cell compat-table-cell-date\">{$cell}</div>";
+		if (!is_null($entry->old_date))
+		{
+			$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-date");
+			$html_div_cell->add_content($entry->old_date);
+			$html_div_cell->print();
 		}
+
 
 		echo "</div>";
 	}

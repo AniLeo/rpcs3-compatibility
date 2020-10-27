@@ -51,7 +51,6 @@ class HTMLForm
 		if ($this->method !== "POST" && $this->method !== "GET")
 			return null;
 
-
 		$ret = "<form action=\"{$this->action}\" method=\"{$this->method}\">".PHP_EOL;
 
 		foreach ($this->inputs as $input)

@@ -51,6 +51,20 @@ class Game
 		$this->wiki_title = $wiki_title;
 	}
 
+	public function get_media_id() : ?string
+	{
+		foreach ($this->game_item as $item)
+		{
+			// Skip MRTC
+			if ($item->get_media_id() === 'M')
+				continue;
+
+			return $item->get_media_id();
+		}
+
+		return null;
+	}
+
 	// Get Wiki URL for this Game
 	public function get_url_wiki() : ?string
 	{

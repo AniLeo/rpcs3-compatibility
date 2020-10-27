@@ -104,9 +104,11 @@ public static function printTable() : void
 		$len = strlen($build->additions) + 1;
 		// Padding formula to apply in order to align deletions in all rows
 		$padding = (8 - $len) * 7;
+
 		// Formatted version with metadata
 		$version = "";
 
+		// Tooltip
 		if (!is_null($build->checksum_win))
 		{
 			$version .= "Windows SHA-256: {$build->checksum_win}";
@@ -131,52 +133,76 @@ public static function printTable() : void
 				$version .= "\n";
 			$version .= "Linux Size: {$build->get_size_mb_linux()} MB";
 		}
+
 		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">{$build->version}</span>" : $build->version;
 
 	 	echo "<div class=\"compat-table-row\">";
 
+
 		/* Cell 1: PR */
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
 		$html_a_pr = new HTMLA($build->get_url_pr(), "Pull Request #{$build->pr}", "{$html_img_pr->to_string()}#{$build->pr}");
 		$html_a_pr->set_target("_blank");
-		$cell = $html_a_pr->to_string();
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+
+		$html_div_cell->add_content($html_a_pr->to_string());
+		$html_div_cell->print();
+
 
 		/* Cell 2: Author */
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
 		$html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar());
 		$html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$html_img_author->to_string()}{$build->author}");
 		$html_a_author->set_target("_blank");
-		$cell = $html_a_author->to_string();
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+
+		$html_div_cell->add_content($html_a_author->to_string());
+		$html_div_cell->print();
+
 
 		/* Cell 3: Lines of Code */
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
 		$additions = !is_null($build->additions) ? $build->additions : "?";
 		$deletions = !is_null($build->deletions) ? $build->deletions : "?";
 
-		$cell = "<span style='color:#4cd137;'>+{$additions}</span>";
-		$cell .= "<span style='color:#e84118; padding-left: {$padding}px;'>-{$deletions}</span>";
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+	 	$html_div_cell->add_content("<span style='color:#4cd137;'>+{$additions}</span>");
+		$html_div_cell->add_content("<span style='color:#e84118; padding-left: {$padding}px;'>-{$deletions}</span>");
+		$html_div_cell->print();
+
 
 		/* Cell 4: Diffdate and Fulldate */
-		$cell = "{$build->diffdate} ({$build->fulldate})";
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
+		$html_div_cell->add_content("{$build->diffdate} ({$build->fulldate})");
+		$html_div_cell->print();
+
 
 		/* Cell 5: URL, Version, Size (MB) and Checksum */
-		$url_windows = $build->get_url_windows();
-		$url_linux   = $build->get_url_linux();
-		$cell = $version;
-		if (!is_null($url_windows))
-		{
-			$html_a_win = new HTMLA($url_windows, "Download for Windows", $html_img_win->to_string());
-			$cell .= $html_a_win->to_string();
-		}
-		if (!is_null($url_linux))
-		{
-			$html_a_linux = new HTMLA($url_linux, "Download for Linux", $html_img_linux->to_string());
-			$cell .= $html_a_linux->to_string();
-		}
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
 		if ($build->broken)
-			$cell = "<s>{$cell}</s>";
-		echo "<div class=\"compat-table-cell\">{$cell}</div>";
+			$html_div_cell->add_content("<s>");
+
+		$html_div_cell->add_content($version);
+
+		if (!is_null($build->get_url_windows()))
+		{
+			$html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows", $html_img_win->to_string());
+			$html_div_cell->add_content($html_a_win->to_string());
+		}
+
+		if (!is_null($build->get_url_linux()))
+		{
+			$html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux", $html_img_linux->to_string());
+			$html_div_cell->add_content($html_a_linux->to_string());
+		}
+
+		if ($build->broken)
+			$html_div_cell->add_content("</s>");
+
+		$html_div_cell->print();
+
 
 		echo "</div>";
 	}
@@ -196,9 +222,9 @@ public static function printPagesCounter() : void
 
 	$extra = combinedSearch(true, false, false, false, false, false, false, true);
 
-	echo "<div class=\"compat-con-pages\">";
-	echo getPagesCounter($pages, $currentPage, $extra);
-	echo "</div>";
+	$html_div = new HTMLDiv("compat-con-pages");
+	$html_div->add_content(getPagesCounter($pages, $currentPage, $extra));
+	$html_div->print();
 }
 
 

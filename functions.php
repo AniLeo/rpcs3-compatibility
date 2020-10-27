@@ -417,31 +417,36 @@ function getTableHeaders(array $headers, string $extra = "") : string
 	if (!empty($extra))
 		$extra .= "&";
 
+	$html_div_ret = new HTMLDiv("compat-table-header");
+
 	foreach ($headers as $i => $header)
 	{
+		$html_div = new HTMLDiv($header["class"]);
+
 		if ($header['sort'] === 0)
 		{
-			$s_tableheaders .= "<div class=\"{$header['class']}\">{$header['name']}</div>";
-			continue;
+			$html_div->add_content($header["name"]);
 		}
-
-		if ($get['o'] === "{$header['sort']}a")
+		else if ($get['o'] === "{$header['sort']}a")
 		{
 			$html_a = new HTMLA("?{$extra}o={$header['sort']}d", $header["name"], "{$header['name']} &nbsp; &#8593;");
+			$html_div->add_content($html_a->to_string());
 		}
 		elseif ($get['o'] === "{$header['sort']}d")
 		{
 			$html_a = new HTMLA("?{$extra}", $header["name"], "{$header['name']} &nbsp; &#8595;");
+			$html_div->add_content($html_a->to_string());
 		}
 		else
 		{
 			$html_a = new HTMLA("?{$extra}o={$header['sort']}a", $header["name"], $header["name"]);
+			$html_div->add_content($html_a->to_string());
 		}
 
-		$s_tableheaders .= "<div class=\"{$header['class']}\">{$html_a->to_string()}</div>";
+		$html_div_ret->add_content($html_div->to_string());
 	}
 
-	return "<div class=\"compat-table-header\">{$s_tableheaders}</div>";
+	return $html_div_ret->to_string();
 }
 
 
@@ -455,24 +460,29 @@ function getFooter() : string
 	$html_a = new HTMLA("https://github.com/AniLeo", "AniLeo", "AniLeo");
 	$html_a->set_target("_blank");
 
-	$s = "Compatibility list developed and maintained by
-	{$html_a->to_string()}
-	&nbsp;-&nbsp;
-	Page loaded in {$total_time}ms";
-	$s = "<div class=\"compat-footer\"><p>{$s}</p></div>";
+	$html_div = new HTMLDiv("compat-footer");
+	$html_div->add_content("<p>Compatibility list developed and maintained by {$html_a->to_string()} &nbsp;-&nbsp; Page loaded in {$total_time}ms</p>");
+
+	$s = $html_div->to_string();
 
 	// Debug output
 	if (!is_null($get['w']))
 	{
-		$s .= "<div class=\"compat-profiler\">";
-		// Maintenance mode information
-		$s .= "<p>Maintenance mode: ";
-		$s .= $c_maintenance ? "<span class=\"color-green\"><b>ON</b></span>" : "<span class=\"color-red\"><b>OFF</b></span>";
-		$s .= "</p>";
+		$html_div = new HTMLDiv("compat-profiler");
 
-		// Profiler information
-		$s .= Profiler::getDataHTML();
-		$s .= "</div>";
+		// Maintenance mode information
+		if ($c_maintenance)
+		{
+			$html_div->add_content("<p>Maintenance mode: <span class=\"color-green\"><b>ON</b></span></p>");
+		}
+		else
+		{
+			$html_div->add_content("<p>Maintenance mode: <span class=\"color-red\"><b>OFF</b></span></p>");
+		}
+
+		$html_div->add_content(Profiler::getDataHTML());
+
+		$s .= $html_div->to_string();
 	}
 
 	return $s;
@@ -484,32 +494,32 @@ function getMenu(string $file) : string
 {
 	global $get;
 
-	$file = basename($file, '.php');
+	$html_div = new HTMLDiv("compat-menu", "");
 
-	$menu = "";
+	$file = basename($file, '.php');
 
 	if ($file !== "compat")
 	{
 		$html_a = new HTMLA("?", "Compatibility List", "Compatibility List");
-		$menu .= $html_a->to_string();
+		$html_div->add_content($html_a->to_string());
 	}
 	if ($file !== "history")
 	{
 		$html_a = new HTMLA("?h", "Compatibility List History", "Compatibility List History");
-		$menu .= $html_a->to_string();
+		$html_div->add_content($html_a->to_string());
 	}
 	if ($file !== "builds")
 	{
 		$html_a = new HTMLA("?b", "RPCS3 Builds History", "RPCS3 Builds History");
-		$menu .= $html_a->to_string();
+		$html_div->add_content($html_a->to_string());
 	}
 	if (!is_null($get['w']) && $file !== "panel")
 	{
 		$html_a = new HTMLA("?a", "Debug Panel", "Debug Panel");
-		$menu .= $html_a->to_string();
+		$html_div->add_content($html_a->to_string());
 	}
 
-	return "<div class=\"compat-menu\">{$menu}</div>";
+	return $html_div->to_string();
 }
 
 
@@ -554,7 +564,7 @@ function generateStatusModule(bool $getCount = true) : string
 	foreach ($a_status as $id => $status)
 	{
 		$output .= "<div class='compat-status-main'>\n";
-		$output .= "<div class='compat-status-icon' style='background:#{$status['color']}'></div>\n";
+		$output .= "<div class='compat-status-icon background-status-{$id}'></div>\n";
 		$output .= "<div class='compat-status-text'>\n";
 		$output .= "<p style='color:#{$status['color']}'><strong>{$status['name']}";
 
