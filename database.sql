@@ -8,10 +8,12 @@ CREATE TABLE `game_list` (
   `alternative_title` varchar(128) DEFAULT NULL,
   `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `last_update` date NOT NULL,
-  `network` tinyint(1) NOT NULL DEFAULT '0',
   `wiki` int(11) DEFAULT NULL,
   `pr` int(11) DEFAULT NULL,
   `build_commit` varchar(64) DEFAULT NULL,
+  `network` tinyint(1) NOT NULL DEFAULT '0',
+  `3d` tinyint(1) NOT NULL DEFAULT '0',
+  `move` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`key`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 

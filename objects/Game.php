@@ -31,14 +31,26 @@ class Game
 	public $status;     // Int
 	public $date;       // String
 	public $network;    // Int
+	public $move;       // Int
+	public $stereo_3d;  // Int
 	public $pr;         // Int
 	public $commit;     // String
 	public $wiki_id;    // Int
 	public $wiki_title; // String
 	public $game_item;  // GameItem[]
 
-	function __construct(int $key, string $title, ?string $title2, int $status, string $date,
-	                     int $network, ?int $pr, ?string $commit, ?int $wiki_id, ?string $wiki_title)
+	function __construct(int $key,
+	                     string $title,
+	                     ?string $title2,
+	                     int $status,
+	                     string $date,
+	                     int $network,
+	                     int $move,
+	                     int $stereo_3d,
+	                     ?int $pr,
+	                     ?string $commit,
+	                     ?int $wiki_id,
+	                     ?string $wiki_title)
 	{
 		$this->key        = $key;
 		$this->title      = $title;
@@ -48,6 +60,8 @@ class Game
 		$this->commit     = $commit;
 		$this->pr         = $pr;
 		$this->network    = $network;
+		$this->move       = $move;
+		$this->stereo_3d  = $stereo_3d;
 		$this->wiki_id    = $wiki_id;
 		$this->wiki_title = $wiki_title;
 	}
@@ -187,7 +201,8 @@ class Game
 		while ($row = mysqli_fetch_object($query))
 		{
 			$a_games[] = new Game($row->key, $row->game_title, $row->alternative_title,
-			getStatusID($row->status), $row->last_update, $row->network, $row->pr, $row->build_commit, $row->wiki, NULL);
+			getStatusID($row->status), $row->last_update, $row->network, $row->move, $row->{"3d"},
+			$row->pr, $row->build_commit, $row->wiki, NULL);
 		}
 
 		self::import_game_items($a_games);

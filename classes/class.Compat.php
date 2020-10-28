@@ -225,8 +225,14 @@ public static function printTable() : void
 	echo getTableHeaders($headers, $extra);
 
 	// Prepare images that will be used
-	$html_img_network = new HTMLImg("compat-network-icon", "/img/icons/compat/onlineonly.png");
+	$html_img_network = new HTMLImg("compat-icon", "/img/icons/compat/onlineonly.png");
 	$html_img_network->set_title("Online-only");
+
+	$html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
+	$html_img_move->set_title("PS Move");
+
+	$html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.jpg");
+	$html_img_3d->set_title("Stereoscopic 3D");
 
 	// Print table body
 	foreach ($games as $game)
@@ -264,6 +270,7 @@ public static function printTable() : void
 
 			// Game ID string
 			$html_a_gameid = new HTMLA($item->get_thread_url(), "", $item->game_id);
+			$html_a_gameid->set_target("_blank");
 			$html_div_cell->add_content($html_a_gameid->to_string());
 		}
 		$html_div_cell->print();
@@ -289,6 +296,14 @@ public static function printTable() : void
 		if ($game->network === 1)
 		{
 			$html_div_cell->add_content($html_img_network->to_string());
+		}
+		if ($game->move === 1)
+		{
+			$html_div_cell->add_content($html_img_move->to_string());
+		}
+		if ($game->stereo_3d !== 0)
+		{
+			$html_div_cell->add_content($html_img_3d->to_string());
 		}
 		if (!is_null($game->title2))
 		{

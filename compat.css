@@ -30,12 +30,13 @@ html {
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.2);
 	margin-left:10px
 }
-.compat-network-icon {
+.compat-icon {
 	position:relative;
 	top:2px;
 	width:14px;
 	height:14px;
-	left:2px
+	left:4px;
+	margin-left:4px
 }
 .compat-status-text {
 	font-size:14px;
