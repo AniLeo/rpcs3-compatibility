@@ -164,10 +164,10 @@ CREATE TABLE `game_update_paramsfo` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_paramhip`;
 CREATE TABLE `game_update_paramhip` (
-  `titleid` varchar(9) NOT NULL,
+  `tag_id` varchar(16) NOT NULL,
   `package_version` varchar(16) NOT NULL,
   `paramhip_type` varchar(32) NOT NULL,
   `paramhip_url` varchar(255) NOT NULL,
   `paramhip_content` mediumtext NOT NULL,
-  PRIMARY KEY (`titleid`,`package_version`,`paramhip_type`) USING BTREE
+  PRIMARY KEY (`tag_id`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

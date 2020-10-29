@@ -369,12 +369,14 @@ public static function printTable() : void
 					$size_mb = round($package->size / 1024 / 1024, 2);
 					echo "- <b>Update v{$package->version}</b> ({$size_mb} MB)<br>";
 
-					if (!is_null($package->paramhip))
+					$changelog = $package->get_main_changelog();
+
+					if (!is_null($changelog))
 					{
 						echo "<br>";
 						echo "<i>";
 
-						$changelog = mb_ereg_replace("\r?\n|\r", '<br>', $package->paramhip);
+						$changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
 
 						if (strpos($changelog, "<br><br><br>") !== false)
 						{

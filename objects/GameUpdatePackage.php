@@ -18,6 +18,7 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+if (!@include_once(__DIR__."/GameUpdateChangelog.php")) throw new Exception("Compat: GameUpdateChangelog.php is missing. Failed to include GameUpdateChangelog.php");
 
 
 class GameUpdatePackage
@@ -27,20 +28,31 @@ class GameUpdatePackage
 	public $sha1sum;        // string
 	public $ps3_system_ver; // ?string
 	public $drm_type;       // ?string
-	public $paramhip;       // ?string
+	public $changelogs;     // GameUpdateChangelog[]
 
 	function __construct(string  $version,
 	                     int     $size,
 	                     string  $sha1sum,
 	                     ?string $ps3_system_ver,
-	                     ?string $drm_type,
-	                     ?string $paramhip)
+	                     ?string $drm_type)
 	{
 		$this->version        = $version;
 		$this->size           = $size;
 		$this->sha1sum        = $sha1sum;
 		$this->ps3_system_ver = $ps3_system_ver;
 		$this->drm_type       = $drm_type;
-		$this->paramhip       = $paramhip;
+		$this->changelogs     = array();
+	}
+
+	public function get_main_changelog() : ?string
+	{
+		foreach ($this->changelogs as $changelog)
+		{
+			if ($changelog->type === "paramhip")
+			{
+				return $changelog->content;
+			}
+		}
+		return null;
 	}
 }

@@ -30,6 +30,7 @@ class GameUpdateTag
 	public $min_system_ver; // ?string
 
 	public $packages;       // GameUpdatePackage[]
+	public $changelogs;     // GameUpdateChangelog[]
 
 	function __construct(string  $tag_id,
 	                     string  $popup,
@@ -45,17 +46,48 @@ class GameUpdateTag
 		$this->packages       = array();
 	}
 
+	public static function import_update_changelogs(array &$tags) : void
+	{
+		$db = getDatabase();
+
+		$a_changelogs = array();
+		$q_changelogs = mysqli_query($db, "SELECT `tag`, `package_version`, `paramhip_type`, `paramhip_content`
+		FROM `game_update_paramhip`; ");
+
+		while ($row = mysqli_fetch_object($q_changelogs))
+		{
+			$a_changelogs[$row->tag][$row->package_version][] = new GameUpdateChangelog($row->paramhip_type,
+			                                                                            $row->paramhip_content);
+		}
+
+		foreach ($tags as $tag)
+		{
+			foreach ($tag->packages as $package)
+			{
+				if (isset($a_changelogs[$tag->tag_id][$package->version]))
+				{
+					$package->changelogs = $a_changelogs[$tag->tag_id][$package->version];
+				}
+			}
+		}
+
+		mysqli_close($db);
+	}
+
 	public static function import_update_packages(array &$tags) : void
 	{
 		$db = getDatabase();
 
-		$a_packages = array();
-		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`, `paramhip_content`
-		FROM `game_update_package`
+		/*
 		LEFT JOIN `game_update_paramhip`
 		  ON SUBSTR(`game_update_package`.`tag`, 1, 9) = `game_update_paramhip`.`titleid`
-			AND `game_update_package`.`version` = `game_update_paramhip`.`package_version` 
-		WHERE `paramhip_type` IS NULL OR `paramhip_type` = 'paramhip'; ");
+			AND `game_update_package`.`version` = `game_update_paramhip`.`package_version`
+		WHERE `paramhip_type` IS NULL OR `paramhip_type` = 'paramhip';
+		*/
+
+		$a_packages = array();
+		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`
+		FROM `game_update_package`");
 
 		while ($row = mysqli_fetch_object($q_packages))
 		{
@@ -64,7 +96,7 @@ class GameUpdateTag
 			                                                 $row->sha1sum,
 			                                                 $row->ps3_system_ver,
 			                                                 $row->drm_type,
-			                                                 $row->paramhip_content);
+			                                                 "");
 		}
 
 		foreach ($tags as $tag)
