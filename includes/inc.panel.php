@@ -154,10 +154,8 @@ function compatibilityUpdater() : void
 	reset($a_histdates);
 	$ts_lastupdate = strtotime("{$a_histdates[$lastkey][0]['y']}-{$a_histdates[$lastkey][0]['m']}-{$a_histdates[$lastkey][0]['d']}");
 
-	// Store forumID -> statusID
 	// Generate WHERE condition for our query
 	// Includes all forum IDs for the game status sections
-	$fid2sid = array();
 	$where = '';
 	foreach ($a_status as $id => $status)
 	{
@@ -165,7 +163,6 @@ function compatibilityUpdater() : void
 			$where .= "||";
 
 		$where .= " `fid` = {$status['fid']} ";
-		$fid2sid[$status['fid']] = $id;
 	}
 
 	// Cache commits
@@ -188,7 +185,7 @@ function compatibilityUpdater() : void
 		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
 		// Invalid Game ID
-		if (is_null($thread->get_game_id()))
+		if (is_null($thread->get_game_id()) || is_null($thread->get_game_title()))
 		{
 			continue;
 		}
@@ -247,19 +244,8 @@ function compatibilityUpdater() : void
 		// New thread for the Game ID
 		if (is_null($tid))
 		{
-			// Extract game title from thread title
-			$title = str_replace("[{$thread->get_game_id()}]", "", "{$thread->subject}");
-
-			// Remove space before GID and Handle PBKAC: When user can't properly format title
-			while (substr($title, -1) === ' ' || substr($title, -1) === '-')
-				$title = substr($title, 0, -1);
-
 			$a_inserts[$thread->tid] = array(
-				'gid' => $thread->get_game_id(),
-				'game_title' => $title,
-				'status' => $thread->get_sid(),
-				'commit' => null,
-				'pr' => null
+				'thread' => $thread
 			);
 
 			// Verify posts
@@ -282,12 +268,20 @@ function compatibilityUpdater() : void
 				}
 			}
 
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
+
+			// Invalid report found
+			if (!isset($a_inserts[$thread->tid]['commit']) || !isset($a_inserts[$thread->tid]['pr']))
+			{
+				echo "<b>Error!</b> Invalid report found on tid: {$html_a->to_string()}<br><br>";
+				continue;
+			}
+
 			// Green for existing commit, Red for non-existing commit
 			$status_commit = !is_null($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
 			$commit        = !is_null($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
 			$date_commit   = !is_null($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
 			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
 			echo "- Commit: <span style='color:{$status_commit}'>{$commit}</span> {$date_commit}<br>";
@@ -311,15 +305,15 @@ function compatibilityUpdater() : void
 				}
 				elseif (is_null($a_updates[$cur_game->key]['commit']))
 				{
-					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$thread->get_game_id()}<br><br>";
-					$a_updates[$cur_game->key]['gid'] = $thread->get_game_id();
-					$a_updates[$cur_game->key]['status'] = $thread->get_sid();
+					echo "<b>Error!</b> Unreachable code <br><br>";
+					dumpVar($a_updates[$cur_game->key]);
+					continue;
 				}
 			}
 			else
 			{
 				$a_updates[$cur_game->key] = array(
-					'gid' => $thread->get_game_id(),
+					'thread' => $thread,
 					'game_title' => $cur_game->title,
 					'status' => $thread->get_sid(),
 					'commit' => null,
@@ -399,6 +393,7 @@ function compatibilityUpdater() : void
 		if (array_search("debug.update", $get['w']) === false)
 		{
 			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
+			mysqli_close($db);
 			return;
 		}
 
@@ -409,21 +404,24 @@ function compatibilityUpdater() : void
 		*/
 		foreach ($a_inserts as $tid => $game)
 		{
+			$db_game_id = mysqli_real_escape_string($db, $game->thread->get_game_id());
+			$db_game_title = mysqli_real_escape_string($db, $game->thread->get_game_title());
+
 			// Insert new entry on the game list
 			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`) VALUES
-			('".mysqli_real_escape_string($db, $game['game_title'])."',
+			('{$db_game_title}',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'".mysqli_real_escape_string($db, $game['pr'])."',
 			'{$game['last_update']}',
-			'{$game['status']}');");
+			'{$game->thread->get_sid()}');");
 
 			// Get the key from the entry that was just inserted
 			$q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
-			`game_title` = '".mysqli_real_escape_string($db, $game['game_title'])."' AND
+			`game_title` = '{$db_game_title}' AND
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
 			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."' AND
 			`last_update` = '{$game['last_update']}' AND
-			`status` = {$game['status']}
+			`status` = {$game->thread->get_sid()}
 			ORDER BY `key` DESC LIMIT 1");
 			$key = mysqli_fetch_object($q_fetchkey)->key;
 
@@ -436,14 +434,14 @@ function compatibilityUpdater() : void
 			}
 
 			// Insert Game and Thread IDs on the ID table
-			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$game['gid']}', {$tid}); ");
+			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$db_game_id}', {$tid}); ");
 
 			// Cache the updates for the new ID
-			cache_game_updates($cr, $db, $game['gid']);
+			cache_game_updates($cr, $db, $game->thread->get_game_id());
 
 			// Log change to game history
 			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
-			({$key}, '".mysqli_real_escape_string($db, $game['gid'])."', '{$game['status']}', '{$game['last_update']}');");
+			({$key}, '{$db_game_id}', '{$game->thread->get_sid()}', '{$game['last_update']}');");
 		}
 
 		/*
