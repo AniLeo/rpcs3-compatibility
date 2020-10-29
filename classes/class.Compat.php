@@ -87,6 +87,22 @@ public static function generate_query(array $get, mysqli &$db) : string
 		$genquery .= " `last_update` = '{$s_d}' ";
 	}
 
+	// QUERYGEN: Search by move support
+	if ($get['move'] !== 0)
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
+		$genquery .= " ( `move` <> 0 ) ";
+	}
+
+	// QUERYGEN: Search by 3D support
+	if ($get['3D'] !== 0)
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
+		$genquery .= " ( `3d` <> 0 ) ";
+	}
+
 	return $genquery;
 }
 
@@ -238,8 +254,40 @@ public static function printTable() : void
 	$html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
 	$html_img_move->set_title("PS Move");
 
+	$extra = combinedSearch(true, true, true, true, false, true, true, true, false, true);
+
+	// Allow for filter resetting by clicking the icon again
+	if ($get['move'] !== 0)
+	{
+		$html_a_move = new HTMLA("?{$extra}", "", $html_img_move->to_string());
+	}
+	// Returns clickable icon for move search
+	else
+	{
+		if (!empty($extra))
+			$extra .= '&';
+
+		$html_a_move = new HTMLA("?{$extra}move=1", "", $html_img_move->to_string());
+	}
+
 	$html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.jpg");
 	$html_img_3d->set_title("Stereoscopic 3D");
+
+	$extra = combinedSearch(true, true, true, true, false, true, true, true, true, false);
+
+	// Allow for filter resetting by clicking the icon again
+	if ($get['3D'] !== 0)
+	{
+		$html_a_3d = new HTMLA("?{$extra}", "", $html_img_3d->to_string());
+	}
+	// Returns clickable icon for move search
+	else
+	{
+		if (!empty($extra))
+			$extra .= '&';
+
+		$html_a_3d = new HTMLA("?{$extra}3D=1", "", $html_img_3d->to_string());
+	}
 
 	// Print table body
 	foreach ($games as $game)
@@ -306,11 +354,11 @@ public static function printTable() : void
 		}
 		if ($game->move === 1)
 		{
-			$html_div_cell->add_content($html_img_move->to_string());
+			$html_div_cell->add_content($html_a_move->to_string());
 		}
 		if ($game->stereo_3d !== 0)
 		{
-			$html_div_cell->add_content($html_img_3d->to_string());
+			$html_div_cell->add_content($html_a_3d->to_string());
 		}
 		if (!is_null($game->title2))
 		{

@@ -169,6 +169,8 @@ function validateGet() : array
 	$get['f'] = '';
 	$get['t'] = '';
 	$get['m'] = '';
+	$get["move"] = 0;
+	$get["3D"] = 0;
 
 	// API version
 	if (isset($_GET['api']))
@@ -242,6 +244,18 @@ function validateGet() : array
 	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags))
 	{
 		$get['f'] = strtolower($_GET['f']);
+	}
+
+	// Move support
+	if (isset($_GET['move']) && $_GET['move'] != 0)
+	{
+		$get['move'] = 1;
+	}
+
+	// Stereoscopic 3D support
+	if (isset($_GET['3D']) && $_GET['3D'] != 0)
+	{
+		$get['3D'] = 1;
 	}
 
 	// History
@@ -645,7 +659,8 @@ function getDebugPermissions() : ?array
 }
 
 // results, status, character, searchbox, media, region, date, order
-function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
+// TODO: Rework
+function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o, $move = true, $stereo3D = true) : string
 {
 	global $get, $scount, $c_pageresults;
 
@@ -677,9 +692,16 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o) : string
 	// Combined search: order by
 	if ($get['o'] !== "" && $o)                          { $query['o'] = $get['o']; }
 
+	// Combined search: move support
+	if ($get['move'] !== 0 && $move)                     { $query['move'] = $get['move']; }
+	// Combined search: stereo3D support
+	if ($get['3D'] !== 0 && $stereo3D)                   { $query['3D'] = $get['3D']; }
+
 	if (!empty($query))
 	{
-		$ret .= '&';
+		if (!empty($ret))
+			$ret .= '&';
+		
 		$ret .= http_build_query($query);
 	}
 
