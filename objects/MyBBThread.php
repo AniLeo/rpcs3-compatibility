@@ -100,6 +100,20 @@ class MyBBThread
 		return $game_id;
 	}
 
+	public function get_game_title() : ?string
+	{
+		// Extract game title from thread title
+		$ret = substr($this->subject, -12);
+
+		// Check if thread title is invalid
+		if (substr($ret, -1) === ' ' || substr($ret, -1) === '-' || !is_string($ret))
+		{
+			return null;
+		}
+
+		return $ret;
+	}
+
 	public function get_thread_url() : string
 	{
 		return "https://forums.rpcs3.net/thread-{$this->tid}.html";
