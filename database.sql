@@ -6,6 +6,7 @@ CREATE TABLE `game_list` (
   `key` int(11) NOT NULL AUTO_INCREMENT,
   `game_title` varchar(128) NOT NULL,
   `alternative_title` varchar(128) DEFAULT NULL,
+  `type` enum('PS3 Game') NOT NULL,
   `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `last_update` date NOT NULL,
   `wiki` int(11) DEFAULT NULL,

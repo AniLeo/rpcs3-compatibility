@@ -408,12 +408,13 @@ function compatibilityUpdater() : void
 			$db_game_title = mysqli_real_escape_string($db, $game->thread->get_game_title());
 
 			// Insert new entry on the game list
-			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`) VALUES
+			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`, `type`) VALUES
 			('{$db_game_title}',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'".mysqli_real_escape_string($db, $game['pr'])."',
 			'{$game['last_update']}',
-			'{$game->thread->get_sid()}');");
+			{$game->thread->get_sid()},
+			{$game->thread->get_type()});");
 
 			// Get the key from the entry that was just inserted
 			$q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
@@ -421,8 +422,10 @@ function compatibilityUpdater() : void
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
 			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."' AND
 			`last_update` = '{$game['last_update']}' AND
-			`status` = {$game->thread->get_sid()}
+			`status` = {$game->thread->get_sid()} AND
+			`type` = {$game->thread->get_type()}
 			ORDER BY `key` DESC LIMIT 1");
+
 			$key = mysqli_fetch_object($q_fetchkey)->key;
 
 			// Sanity check, this should be unreachable
