@@ -30,13 +30,13 @@ Profiler::setTitle("Profiler: Compat");
 
 // Order queries
 $a_order = array(
-'' => 'ORDER BY status ASC, game_title ASC',
-'2a' => 'ORDER BY game_title ASC',
-'2d' => 'ORDER BY game_title DESC',
-'3a' => 'ORDER BY status ASC, game_title ASC',
-'3d' => 'ORDER BY status DESC, game_title ASC',
-'4a' => 'ORDER BY last_update ASC, game_title ASC',
-'4d' => 'ORDER BY last_update DESC, game_title ASC'
+'' => 'ORDER BY `status` ASC, `game_title` ASC',
+'2a' => 'ORDER BY `game_title` ASC',
+'2d' => 'ORDER BY `game_title` DESC',
+'3a' => 'ORDER BY `status` ASC, `game_title` ASC',
+'3d' => 'ORDER BY `status` DESC, `game_title` ASC',
+'4a' => 'ORDER BY `last_update` ASC, `game_title` ASC',
+'4d' => 'ORDER BY `last_update` DESC, `game_title` ASC'
 );
 
 // Game array to store games

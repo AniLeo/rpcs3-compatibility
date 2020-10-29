@@ -175,9 +175,26 @@ function compatibilityUpdater() : void
 		$a_commits[$row->commit] = array("pr" => $row->pr, "merge" => $row->merge_datetime);
 
 	// Get all threads since the end of the last compatibility period
-	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `dateline`, `lastpost`, `username`
+	$a_threads = array();
+	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) && `visible` > 0 && (`closed` = '' || `closed` = '0') && `lastpost` > {$ts_lastupdate};");
+	WHERE ({$where}) &&
+	`visible` > 0 &&
+	(`closed` = '' || `closed` = '0') &&
+	`lastpost` > {$ts_lastupdate};");
+
+	while ($row = mysqli_fetch_object($q_threads))
+	{
+		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
+
+		// Invalid Game ID
+		if (is_null($thread->get_game_id()))
+		{
+			continue;
+		}
+
+		$a_threads[] = $thread;
+	}
 
 	// Get all games in the database
 	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
@@ -190,30 +207,17 @@ function compatibilityUpdater() : void
 
 	echo "<p>"; // Start paragraph
 
-	while ($row = mysqli_fetch_object($q_threads))
+	foreach ($a_threads as $thread)
 	{
-		// Game ID is always supposed to be at the end of the Thread Title as per Guidelines
-		$gid = substr($row->subject, -10, 9);
-		$sid = $fid2sid[$row->fid];
-
-		// Not a valid Game ID, continue to next thread entry
-		if (!isGameID($gid))
-		{
-			$bin = bin2hex($gid);
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->subject);
-			echo "Error! {$html_a->to_string()} (gid={$gid}, hex=0x{$bin}) incorrectly formatted.<br><br>";
-			continue;
-		}
-
 		// If a thread for this Game ID was already visited, continue to next thread entry
-		if (in_array($gid, $a_gameIDs))
+		if (in_array($thread->get_game_id(), $a_gameIDs))
 		{
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->subject);
-			echo "Error! A thread for {$gid} was already visited. {$html_a->to_string()} is a duplicate.<br><br>";
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->subject);
+			echo "Error! A thread for {$thread->get_game_id()} was already visited. {$html_a->to_string()} is a duplicate.<br><br>";
 			continue;
 		}
 
-		$a_gameIDs[] = $gid;
+		$a_gameIDs[] = $thread->get_game_id();
 
 		// Thread ID validation
 		// If game entry exists, get game data
@@ -223,7 +227,7 @@ function compatibilityUpdater() : void
 		{
 			foreach ($game->game_item as $item)
 			{
-				if ($item->game_id === $gid)
+				if ($item->game_id === $thread->get_game_id())
 				{
 					$tid = $item->thread_id;
 					$cur_game = $game;
@@ -232,11 +236,11 @@ function compatibilityUpdater() : void
 		}
 
 		// New thread is a duplicate of an existing one
-		if (!is_null($tid) && $tid != $row->tid)
+		if (!is_null($tid) && $tid != $thread->tid)
 		{
-			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
+			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
 			$html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", $tid);
-			echo "<span style='color:red'><b>Error!</b> {$row->subject} ({$html_a_thread1->to_string()}) duplicated thread of ({$html_a_thread2->to_string()}).</span><br><br>";
+			echo "<span style='color:red'><b>Error!</b> {$thread->subject} ({$html_a_thread1->to_string()}) duplicated thread of ({$html_a_thread2->to_string()}).</span><br><br>";
 			continue;
 		}
 
@@ -244,25 +248,23 @@ function compatibilityUpdater() : void
 		if (is_null($tid))
 		{
 			// Extract game title from thread title
-			$title = str_replace("[{$gid}]", "", "{$row->subject}");
+			$title = str_replace("[{$thread->get_game_id()}]", "", "{$thread->subject}");
 
 			// Remove space before GID and Handle PBKAC: When user can't properly format title
 			while (substr($title, -1) === ' ' || substr($title, -1) === '-')
 				$title = substr($title, 0, -1);
 
-			$a_inserts[$row->tid] = array(
-				'gid' => $gid,
+			$a_inserts[$thread->tid] = array(
+				'gid' => $thread->get_game_id(),
 				'game_title' => $title,
-				'status' => $sid,
+				'status' => $thread->get_sid(),
 				'commit' => null,
-				'pr' => null,
-				'last_update' => date('Y-m-d', $row->lastpost),
-				'author' => $row->username
+				'pr' => null
 			);
 
 			// Verify posts
-			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`
-			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid}
+			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
+			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$thread->tid}
 			ORDER BY `pid` DESC;");
 
 			while ($post = mysqli_fetch_object($q_post))
@@ -271,27 +273,28 @@ function compatibilityUpdater() : void
 				{
 					if (stripos($post->message, (string) substr($commit, 0, 8)) !== false)
 					{
-						$a_inserts[$row->tid]['commit'] = $commit;
-						$a_inserts[$row->tid]['pr'] = $value["pr"];
-						$a_inserts[$row->tid]['last_update'] = date('Y-m-d', $post->dateline);
+						$a_inserts[$thread->tid]['commit'] = $commit;
+						$a_inserts[$thread->tid]['pr'] = $value["pr"];
+						$a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
+						$a_inserts[$thread->tid]['author'] = $post->username;
 						break 2;
 					}
 				}
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$status_commit = !is_null($a_inserts[$row->tid]['commit']) ? 'green' : 'red';
-			$commit        = !is_null($a_inserts[$row->tid]['commit']) ? $a_inserts[$row->tid]['commit'] : "null";
-			$date_commit   = !is_null($a_inserts[$row->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
+			$status_commit = !is_null($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
+			$commit        = !is_null($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
+			$date_commit   = !is_null($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
-			echo "<b>New:</b> {$row->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$row->tid]['author']})<br>";
-			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']}</span><br>";
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
+			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
+			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
 			echo "- Commit: <span style='color:{$status_commit}'>{$commit}</span> {$date_commit}<br>";
 			echo "<br>";
 
 		}
-		elseif ($tid == $row->tid && ($sid != $cur_game->status || $sid == 3 || $sid == 4 || $sid == 5))
+		elseif ($tid == $thread->tid && ($thread->get_sid() != $cur_game->status || $thread->get_sid() == 3 || $thread->get_sid() == 4 || $thread->get_sid() == 5))
 		{
 			// Same status updates currently being tested
 			// For now only allowed on Intro, Loadable and Nothing games
@@ -301,28 +304,26 @@ function compatibilityUpdater() : void
 			if (array_key_exists($cur_game->key, $a_updates))
 			{
 				// Update status
-				if ($a_updates[$cur_game->key]['status'] < $sid)
+				if ($a_updates[$cur_game->key]['status'] < $thread->get_sid())
 				{
-					echo "<b>Error!</b> Smaller status after a status update ({$gid}, {$a_updates[$cur_game->key]['status']} < {$sid})<br><br>";
+					echo "<b>Error!</b> Smaller status after a status update ({$thread->get_game_id()}, {$a_updates[$cur_game->key]['status']} < {$thread->get_sid()})<br><br>";
 					continue;
 				}
 				elseif (is_null($a_updates[$cur_game->key]['commit']))
 				{
-					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$gid}<br><br>";
-					$a_updates[$cur_game->key]['gid'] = $gid;
-					$a_updates[$cur_game->key]['status'] = $sid;
-					$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $row->lastpost);
+					echo "<b>Replacing:</b> Entry on key {$cur_game->key}: {$a_updates[$cur_game->key]['gid']} for {$thread->get_game_id()}<br><br>";
+					$a_updates[$cur_game->key]['gid'] = $thread->get_game_id();
+					$a_updates[$cur_game->key]['status'] = $thread->get_sid();
 				}
 			}
 			else
 			{
 				$a_updates[$cur_game->key] = array(
-					'gid' => $gid,
+					'gid' => $thread->get_game_id(),
 					'game_title' => $cur_game->title,
-					'status' => $sid,
+					'status' => $thread->get_sid(),
 					'commit' => null,
 					'pr' => null,
-					'last_update' => date('Y-m-d', $row->lastpost),
 					'action' => 'mov',
 					'old_date' => $cur_game->date,
 					'old_status' => $cur_game->status,
@@ -333,7 +334,7 @@ function compatibilityUpdater() : void
 
 			// Verify posts
 			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
-			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$row->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
+			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
 			ORDER BY `pid` DESC;");
 
 			while ($post = mysqli_fetch_object($q_post))
@@ -346,7 +347,7 @@ function compatibilityUpdater() : void
 						// TODO: Check distance between commit date and post here
 						if (is_null($a_updates[$cur_game->key]['commit']) || strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
 						{
-							// echo "<b>Commit Replacement:</b> {$gid} - {$cur_game->title} $commit $post->username <br>";
+							// echo "<b>Commit Replacement:</b> {$thread->get_game_id()} - {$cur_game->title} $commit $post->username <br>";
 							$a_updates[$cur_game->key]['commit'] = $commit;
 							$a_updates[$cur_game->key]['pr'] = $value["pr"];
 							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
@@ -380,9 +381,9 @@ function compatibilityUpdater() : void
 			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$row->tid}.html", "", $row->tid);
-			echo "<b>Mov:</b> {$gid} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
-			echo "- Status: <span style='color:#{$a_status[$sid]['color']}'>{$a_status[$sid]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
+			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
+			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
 			echo "- Commit: <span style='color:{$new_status_commit}'>{$commit}</span> {$date_commit}
 						<-- <span style='color:{$old_status_commit}'>{$old_commit}</span> ({$cur_game->date})<br>";
