@@ -30,7 +30,6 @@ class GameUpdateTag
 	public $min_system_ver; // ?string
 
 	public $packages;       // GameUpdatePackage[]
-	public $changelogs;     // GameUpdateChangelog[]
 
 	function __construct(string  $tag_id,
 	                     string  $popup,
@@ -88,8 +87,7 @@ class GameUpdateTag
 			                                                 $row->size,
 			                                                 $row->sha1sum,
 			                                                 $row->ps3_system_ver,
-			                                                 $row->drm_type,
-			                                                 "");
+			                                                 $row->drm_type);
 		}
 
 		foreach ($tags as $tag)

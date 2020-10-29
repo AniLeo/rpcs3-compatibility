@@ -36,6 +36,7 @@ function exportDatabase() : array
 
 	$db = getDatabase();
 	$games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
+	Game::import_update_tags($games);
 	mysqli_close($db);
 
 	if (empty($games))
@@ -57,6 +58,8 @@ function exportDatabase() : array
 
 			if (!is_null($item->update))
 				$a_data['update'] = $item->update;
+
+			$a_data['patchsets'] = $item->tags;
 
 			$results['results'][$item->game_id] = $a_data;
 		}
