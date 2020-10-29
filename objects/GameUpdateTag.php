@@ -78,13 +78,6 @@ class GameUpdateTag
 	{
 		$db = getDatabase();
 
-		/*
-		LEFT JOIN `game_update_paramhip`
-		  ON SUBSTR(`game_update_package`.`tag`, 1, 9) = `game_update_paramhip`.`titleid`
-			AND `game_update_package`.`version` = `game_update_paramhip`.`package_version`
-		WHERE `paramhip_type` IS NULL OR `paramhip_type` = 'paramhip';
-		*/
-
 		$a_packages = array();
 		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`
 		FROM `game_update_package`");

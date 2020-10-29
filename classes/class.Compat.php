@@ -28,7 +28,7 @@ class Compat {
 
 
 // Generates query from given GET parameters
-public static function generateQuery(array $get, mysqli &$db) : array
+public static function generate_query(array $get, mysqli &$db) : string
 {
 	$genquery = "";
 	$status = "";
@@ -87,17 +87,7 @@ public static function generateQuery(array $get, mysqli &$db) : array
 		$genquery .= " `last_update` = '{$s_d}' ";
 	}
 
-	// QUERYGEN: Status
-	if ($get['s'] !== 0)
-	{
-		if (!empty($genquery)) { $status .= " AND "; }
-
-		$status .= " `status` = {$get['s']} ";
-	}
-
-	// 0 => With specified status
-	// 1 => Without specified status
-	return array($genquery.$status, $genquery);
+	return $genquery;
 }
 
 
@@ -179,16 +169,33 @@ public static function printCharSearch() : void
  *****************/
 public static function printTable() : void
 {
-	global $games, $info, $error, $a_status, $a_media, $a_flags, $get;
+	global $games, $error, $a_status, $a_media, $a_flags, $get, $l_orig, $l_title;
 
-	if (!is_null($info))
+	if (!is_null($error))
 	{
-		echo "<p class=\"compat-tx1-criteria\">{$info}</p>";
+		switch ($error)
+		{
+			case "ERROR_QUERY_FAIL":
+				echo "<p class=\"compat-tx1-criteria\">Could not fetch contents (e=1), please report to a developer.</p>";
+				return;
+			case "ERROR_QUERY_EMPTY":
+				echo "<p class=\"compat-tx1-criteria\">The Game ID you searched for doesn't exist in our database.</p>";
+				return;
+			case "ERROR_STATUS_EMPTY":
+				echo "<p class=\"compat-tx1-criteria\">No results found for the specified search on the indicated status.</p>";
+				return;
+			case "ERROR_QUERY_FAIL_2":
+				echo "<p class=\"compat-tx1-criteria\">Could not fetch contents (e=2), please report to a developer.</p>";
+				return;
+		}
 	}
-	elseif (!is_null($error))
+	else if (isset($l_orig) && isset($l_title))
 	{
-		echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
-		return;
+		$html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
+
+		echo "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>.";
+		echo "<br>";
+		echo "Displaying results for <b>{$html_a->to_string()}</b></p>";
 	}
 
 	if (is_null($games))
@@ -445,7 +452,7 @@ gameID
 
 public static function APIv1() : array
 {
-	global $c_maintenance, $games, $info, $error, $l_title, $a_status, $get;
+	global $c_maintenance, $games, $error, $l_title, $a_status, $get;
 
 	// Array to returned, then encoded in JSON
 	$results = array();
@@ -457,7 +464,7 @@ public static function APIv1() : array
 		return $results;
 	}
 
-	if ($error == "Please try again. If this error persists, please contact the RPCS3 team.")
+	if ($error === "ERROR_QUERY_FAIL" || $error === "ERROR_QUERY_FAIL_2")
 	{
 		$results['return_code'] = -1;
 		return $results;
@@ -476,7 +483,7 @@ public static function APIv1() : array
 	}
 
 	// No results found for {$l_orig}. Displaying results for {$l_title}.
-	if (!is_null($info))
+	if (isset($l_title))
 	{
 		$results['return_code'] = 2;
 		$results['search_term'] = $l_title;

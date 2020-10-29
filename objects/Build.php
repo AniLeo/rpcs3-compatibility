@@ -46,10 +46,21 @@ class Build
 	public $fulldate;       // String
 	public $diffdate;       // String
 
-	function __construct(int $pr, string $commit, string $version, int $author_id,
-	                     string $merge, ?int $additions, ?int $deletions, ?int $files,
-	                     ?string $checksum_win, ?int $size_win, ?string $filename_win,
-	                     ?string $checksum_linux, ?int $size_linux, ?string $filename_linux, bool $broken)
+	function __construct(int $pr,
+	                     string $commit,
+	                     string $version,
+	                     int $author_id,
+	                     string $merge,
+	                     ?int $additions,
+	                     ?int $deletions,
+	                     ?int $files,
+	                     ?string $checksum_win,
+	                     ?int $size_win,
+	                     ?string $filename_win,
+	                     ?string $checksum_linux,
+	                     ?int $size_linux,
+	                     ?string $filename_linux,
+	                     bool $broken)
 	{
 		$this->pr             = $pr;
 		$this->commit         = $commit;

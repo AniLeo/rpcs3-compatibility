@@ -47,14 +47,12 @@ Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
 // Generate query
-// 0 => With specified status
-// 1 => Without specified status
 Profiler::addData("Inc: Generate Query");
-$genquery = Compat::generateQuery($get, $db);
+$genquery = Compat::generate_query($get, $db);
 
 // Get game count per status
 Profiler::addData("Inc: Count Games (Search)");
-$scount = countGames($db, $genquery[1]);
+$scount = countGames($db, $genquery);
 
 // Pages / CurrentPage
 Profiler::addData("Inc: Count Pages");
@@ -65,10 +63,34 @@ $currentPage = getCurrentPage($pages);
 
 
 // Generate the main query
+$order = isset($a_order[$get['o']]) ? $get['o'] : '';
+$limit = $get['r'] * $currentPage - $get['r'];
+
 $c_main = "SELECT * FROM `game_list` ";
-if ($genquery[0] != '') { $c_main .= " WHERE {$genquery[0]} "; }
-$c_main .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
-$c_main .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+
+// General filters from generate_query
+if (!empty($genquery))
+{
+	$c_main .= " WHERE ({$genquery}) ";
+}
+
+// Status filter
+if ($get['s'] !== 0)
+{
+	if (!empty($genquery))
+	{
+		$c_main .= " AND ";
+	}
+	else
+	{
+		$c_main .= " WHERE ";
+	}
+
+	$c_main .= " (`status` = {$get['s']}) ";
+}
+
+$c_main .= " {$a_order[$order]} LIMIT {$limit}, {$get['r']}; ";
+
 
 // Run the main query
 Profiler::addData("Inc: Execute Main Query ({$c_main})");
@@ -109,15 +131,15 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && !empty($get['g']) && !isGameID(
 
 	$s_title = mysqli_real_escape_string($db, $l_title);
 
-	$genquery = " `game_title` LIKE '%{$s_title}%' OR `alternative_title` LIKE '%{$s_title}%' ";
+	$query = " `game_title` LIKE '%{$s_title}%' OR `alternative_title` LIKE '%{$s_title}%' ";
 
 	// Re-run the main query
-	$c_main = "SELECT * FROM `game_list` WHERE {$genquery} {$a_order[$get['o']]}
-	LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']};";
+	$c_main = "SELECT * FROM `game_list` WHERE {$query} {$a_order[$order]}
+	LIMIT {$limit}, {$get['r']} ;";
 	$q_main = mysqli_query($db, $c_main);
 
 	// Recalculate Pages / CurrentPage
-	$scount = countGames($db, $genquery);
+	$scount = countGames($db, $query);
 	$pages = countPages($get, $scount["network"][0]);
 	$currentPage = getCurrentPage($pages);
 
@@ -126,28 +148,25 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && !empty($get['g']) && !isGameID(
 	$get['g'] = $l_title;
 }
 
-
 // Check if query succeeded and storing is required, stores messages for error/information printing
 Profiler::addData("Inc: Check Search Status");
 $error = NULL;
-$info = NULL;
+
 if (!$q_main)
 {
-	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
+	$error = "ERROR_QUERY_FAIL";
 }
-elseif (mysqli_num_rows($q_main) === 0 && isGameID($get['g']))
+else if (mysqli_num_rows($q_main) === 0 && isGameID($get['g']))
 {
-	$error = "The Game ID you just tried to search for isn't registered in our compatibility list yet.";
+	$error = "ERROR_QUERY_EMPTY";
 }
-elseif ($scount["network"][0] === 0)
+else if ($scount["network"][0] === 0)
 {
-	$error = "No results found for the specified search on the indicated status.";
+	$error = "ERROR_STATUS_EMPTY";
 }
-elseif (mysqli_num_rows($q_main) > 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig))
+else if (mysqli_num_rows($q_main) === 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig))
 {
-	$html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
-	$info = "No results found for <i>{$l_orig}</i>. </br>
-	Displaying results for <b>{$html_a->to_string()}</b>.";
+	$error = "ERROR_QUERY_FAIL_2";
 }
 
 // Store results
