@@ -81,7 +81,7 @@ public static function printTable() : void
 			'sort' => 0
 		)
 	);
-	echo getTableHeaders($headers);
+	echo getTableHeaders($headers, 'b');
 
 	// Prepare images that will be used
 	$html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
