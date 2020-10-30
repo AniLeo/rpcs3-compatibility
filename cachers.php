@@ -648,7 +648,12 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 	$db_status = mysqli_real_escape_string($db, $api->{"@attributes"}->status);
 	$q_insert = "INSERT INTO `game_update_titlepatch` (`titleid`, `status`) VALUES ('{$db_gid}', '{$db_status}'); ";
 
+	// Tag
+	$db_tag_name = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->name);
+	$db_tag_popup = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->popup);
+	$db_tag_signoff = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->signoff);
 	$tag_hash = NULL;
+
 	$db_package_version_latest = NULL;
 
 	// Has multiple updates
@@ -718,8 +723,8 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 			$db_package_drm_type = ", NULL";
 		}
 
-		$q_insert .= "INSERT INTO `game_update_package` (`titleid`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
-		$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+		$q_insert .= "INSERT INTO `game_update_package` (`tag`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
+		$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 
 		// Extra URL (usually used with different drm_type)
 		if (isset($package->url))
@@ -761,8 +766,8 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 					$db_package_drm_type = ", NULL";
 				}
 
-				$q_insert .= "INSERT INTO `game_update_package` (`titleid`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
-				$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+				$q_insert .= "INSERT INTO `game_update_package` (`tag`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
+				$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 			}
 		}
 
@@ -774,8 +779,8 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 				$db_paramsfo_type = mysqli_real_escape_string($db, $type);
 				$db_paramsfo_title = mysqli_real_escape_string($db, $title);
 
-				$q_insert .= "INSERT INTO `game_update_paramsfo` (`titleid`, `package_version`, `paramsfo_type`, `paramsfo_title`) ";
-				$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramsfo_type}', '{$db_paramsfo_title}'); ";
+				$q_insert .= "INSERT INTO `game_update_paramsfo` (`tag`, `package_version`, `paramsfo_type`, `paramsfo_title`) ";
+				$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_paramsfo_type}', '{$db_paramsfo_title}'); ";
 			}
 		}
 
@@ -807,8 +812,8 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 
 			$db_paramhip_content = mysqli_real_escape_string($db, $paramhip_content);
 
-			$q_insert .= "INSERT INTO `game_update_paramhip` (`titleid`, `package_version`, `paramhip_type`, `paramhip_url`, `paramhip_content`) ";
-			$q_insert .= "VALUES ('{$db_gid}', '{$db_package_version}', '{$db_paramhip_type}', '{$db_paramhip_url}', '{$db_paramhip_content}'); ";
+			$q_insert .= "INSERT INTO `game_update_paramhip` (`tag`, `package_version`, `paramhip_type`, `paramhip_url`, `paramhip_content`) ";
+			$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_paramhip_type}', '{$db_paramhip_url}', '{$db_paramhip_content}'); ";
 		}
 
 		// Check if there are any child nodes we're not handling
@@ -833,10 +838,7 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		return false;
 	}
 
-	// Tag
-	$db_tag_name = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->name);
-	$db_tag_popup = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->popup);
-	$db_tag_signoff = mysqli_real_escape_string($db, $api->tag->{"@attributes"}->signoff);
+
 	$db_tag_hash = mysqli_real_escape_string($db, $tag_hash);
 
 	// Optional field: popup_delay
