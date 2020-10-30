@@ -56,12 +56,16 @@ function checkInvalidThreads() : void
 
 	// Generate WHERE condition for our query
 	// Includes all forum IDs for the game status sections
+	$where = '';
 	foreach ($a_status as $id => $status)
 	{
-		if (!empty($where))
-			$where .= "||";
+		foreach ($status["fid"] as $fid)
+		{
+			if (!empty($where))
+				$where .= "||";
 
-		$where .= " `fid` = {$status['fid']} ";
+			$where .= " `fid` = {$fid} ";
+		}
 	}
 
 	$db = getDatabase();
@@ -159,10 +163,13 @@ function compatibilityUpdater() : void
 	$where = '';
 	foreach ($a_status as $id => $status)
 	{
-		if (!empty($where))
-			$where .= "||";
+		foreach ($status["fid"] as $fid)
+		{
+			if (!empty($where))
+				$where .= "||";
 
-		$where .= " `fid` = {$status['fid']} ";
+			$where .= " `fid` = {$fid} ";
+		}
 	}
 
 	// Cache commits
@@ -404,8 +411,8 @@ function compatibilityUpdater() : void
 		*/
 		foreach ($a_inserts as $tid => $game)
 		{
-			$db_game_id = mysqli_real_escape_string($db, $game->thread->get_game_id());
-			$db_game_title = mysqli_real_escape_string($db, $game->thread->get_game_title());
+			$db_game_id = mysqli_real_escape_string($db, $game['thread']->get_game_id());
+			$db_game_title = mysqli_real_escape_string($db, $game['thread']->get_game_title());
 
 			// Insert new entry on the game list
 			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`, `type`) VALUES
@@ -413,8 +420,8 @@ function compatibilityUpdater() : void
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'".mysqli_real_escape_string($db, $game['pr'])."',
 			'{$game['last_update']}',
-			{$game->thread->get_sid()},
-			{$game->thread->get_type()});");
+			{$game['thread']->get_sid()},
+			{$game['thread']->get_game_type()});");
 
 			// Get the key from the entry that was just inserted
 			$q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
@@ -422,8 +429,8 @@ function compatibilityUpdater() : void
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
 			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."' AND
 			`last_update` = '{$game['last_update']}' AND
-			`status` = {$game->thread->get_sid()} AND
-			`type` = {$game->thread->get_type()}
+			`status` = {$game['thread']->get_sid()} AND
+			`type` = {$game['thread']->get_game_type()}
 			ORDER BY `key` DESC LIMIT 1");
 
 			$key = mysqli_fetch_object($q_fetchkey)->key;
@@ -440,11 +447,11 @@ function compatibilityUpdater() : void
 			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$db_game_id}', {$tid}); ");
 
 			// Cache the updates for the new ID
-			cache_game_updates($cr, $db, $game->thread->get_game_id());
+			cache_game_updates($cr, $db, $game['thread']->get_game_id());
 
 			// Log change to game history
 			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
-			({$key}, '{$db_game_id}', '{$game->thread->get_sid()}', '{$game['last_update']}');");
+			({$key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
 		}
 
 		/*

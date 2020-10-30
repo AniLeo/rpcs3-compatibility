@@ -40,22 +40,27 @@ class MyBBThread
 		{
 			// Playable
 			case 5:
+			case 26:
 				return 1;
 
 			// Ingame
 			case 6:
+			case 27:
 				return 2;
 
 			// Intro
 			case 7:
+			case 28:
 				return 3;
 
 			// Loadable
 			case 8:
+			case 29:
 				return 4;
 
 			// Nothing
 			case 9:
+			case 30:
 				return 5;
 
 			default:
@@ -74,6 +79,14 @@ class MyBBThread
 			case 8:
 			case 9:
 				return 1;
+
+			// PS3 App
+			case 26:
+			case 27:
+			case 28:
+			case 29:
+			case 30:
+				return 2;
 
 			default:
 				return null;
@@ -120,7 +133,7 @@ class MyBBThread
 	public function get_game_title() : ?string
 	{
 		// Extract game title from thread title
-		$ret = substr($this->subject, -12);
+		$ret = substr($this->subject, 0, -12);
 
 		// Check if thread title is invalid
 		if (substr($ret, -1) === ' ' || substr($ret, -1) === '-' || !is_string($ret))

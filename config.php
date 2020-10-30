@@ -46,31 +46,31 @@ $a_status = array(
 		'name' => "Playable",
 		'desc' => "Games that can be completed with playable performance and no game breaking glitches",
 		'color' => "1ebc61",
-		'fid' => 5
+		'fid' => array(5, 26)
 	),
 	2 => array(
 		'name' => "Ingame",
 		'desc' => "Games that either can't be finished, have serious glitches or have insufficient performance",
 		'color' => "f9b32f",
-		'fid' => 6
+		'fid' => array(6, 27)
 	),
 	3 => array(
 		'name' => "Intro",
 		'desc' => "Games that display image but don't make it past the menus",
 		'color' => "e08a1e",
-		'fid' => 7
+		'fid' => array(7, 28)
 	),
 	4 => array(
 		'name' => "Loadable",
 		'desc' => "Games that display a black screen with a framerate on the window's title",
 		'color' => "e74c3c",
-		'fid' => 8
+		'fid' => array(8, 29)
 	),
 	5 => array(
 		'name' => "Nothing",
 		'desc' => "Games that don't initialize properly, not loading at all and/or crashing the emulator",
 		'color' => "455556",
-		'fid' => 9
+		'fid' => array(9, 30)
 	)
 );
 
