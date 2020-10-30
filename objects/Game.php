@@ -124,6 +124,7 @@ class Game
 
 		GameUpdateTag::import_update_packages($a_tags);
 		GameUpdateTag::import_update_changelogs($a_tags);
+		GameUpdateTag::import_update_titles($a_tags);
 
 		$a_tags_sorted = array();
 

@@ -139,7 +139,7 @@ CREATE TABLE `game_update_tag` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_package`;
 CREATE TABLE `game_update_package` (
-  `tag_id` varchar(16) NOT NULL,
+  `tag` varchar(16) NOT NULL,
   `version` varchar(16) NOT NULL,
   `size` varchar(16) NOT NULL,
   `sha1sum` varchar(64) NOT NULL,
@@ -153,11 +153,11 @@ CREATE TABLE `game_update_package` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_paramsfo`;
 CREATE TABLE `game_update_paramsfo` (
-  `titleid` varchar(9) NOT NULL,
+  `tag` varchar(16) NOT NULL,
   `package_version` varchar(16) NOT NULL,
   `paramsfo_type` varchar(32) NOT NULL,
   `paramsfo_title` varchar(255) NOT NULL,
-  PRIMARY KEY (`titleid`,`package_version`,`paramsfo_type`) USING BTREE
+  PRIMARY KEY (`tag`,`package_version`,`paramsfo_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -165,10 +165,10 @@ CREATE TABLE `game_update_paramsfo` (
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_paramhip`;
 CREATE TABLE `game_update_paramhip` (
-  `tag_id` varchar(16) NOT NULL,
+  `tag` varchar(16) NOT NULL,
   `package_version` varchar(16) NOT NULL,
   `paramhip_type` varchar(32) NOT NULL,
   `paramhip_url` varchar(255) NOT NULL,
   `paramhip_content` mediumtext NOT NULL,
-  PRIMARY KEY (`tag_id`,`package_version`,`paramhip_type`) USING BTREE
+  PRIMARY KEY (`tag`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

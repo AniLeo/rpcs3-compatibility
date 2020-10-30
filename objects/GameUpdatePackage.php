@@ -19,6 +19,7 @@
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/GameUpdateChangelog.php")) throw new Exception("Compat: GameUpdateChangelog.php is missing. Failed to include GameUpdateChangelog.php");
+if (!@include_once(__DIR__."/GameUpdateTitle.php")) throw new Exception("Compat: GameUpdateTitle.php is missing. Failed to include GameUpdateTitle.php");
 
 
 class GameUpdatePackage
@@ -29,6 +30,7 @@ class GameUpdatePackage
 	public $ps3_system_ver; // ?string
 	public $drm_type;       // ?string
 	public $changelogs;     // GameUpdateChangelog[]
+	public $titles;         // GameUpdateTitle[]
 
 	function __construct(string  $version,
 	                     int     $size,
@@ -42,6 +44,7 @@ class GameUpdatePackage
 		$this->ps3_system_ver = $ps3_system_ver;
 		$this->drm_type       = $drm_type;
 		$this->changelogs     = array();
+		$this->titles         = array();
 	}
 
 	public function get_main_changelog() : ?string

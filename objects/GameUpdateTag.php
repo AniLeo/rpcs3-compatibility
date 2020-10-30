@@ -45,6 +45,34 @@ class GameUpdateTag
 		$this->packages       = array();
 	}
 
+	public static function import_update_titles(array &$tags) : void
+	{
+		$db = getDatabase();
+
+		$a_titles = array();
+		$q_titles = mysqli_query($db, "SELECT `tag`, `package_version`, `paramsfo_type`, `paramsfo_title`
+		FROM `game_update_paramsfo`; ");
+
+		while ($row = mysqli_fetch_object($q_titles))
+		{
+			$a_titles[$row->tag][$row->package_version][] = new GameUpdateTitle($row->paramsfo_type,
+			                                                                    $row->paramsfo_title);
+		}
+
+		foreach ($tags as $tag)
+		{
+			foreach ($tag->packages as $package)
+			{
+				if (isset($a_titles[$tag->tag_id][$package->version]))
+				{
+					$package->titles = $a_titles[$tag->tag_id][$package->version];
+				}
+			}
+		}
+
+		mysqli_close($db);
+	}
+
 	public static function import_update_changelogs(array &$tags) : void
 	{
 		$db = getDatabase();
