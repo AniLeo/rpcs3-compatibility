@@ -97,7 +97,8 @@ $a_regions = array(
 'J' => "JP",
 'A' => "AS",
 'K' => "KR",
-'H' => "HK"
+'H' => "HK",
+'I' => "IN"
 );
 
 // Region flags
@@ -107,7 +108,8 @@ $a_flags = array(
 "H" => "/img/icons/compat/HK.png", // Hong Kong
 "K" => "/img/icons/compat/KR.png", // Korea
 "J" => "/img/icons/compat/JP.png", // Japan
-"U" => "/img/icons/compat/US.png"  // USA
+"U" => "/img/icons/compat/US.png", // USA
+"I" => "/img/icons/compat/JP.png"  // TODO: International flag
 );
 
 // Functions available on debug panel (function_name => (title, success))
