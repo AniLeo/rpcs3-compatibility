@@ -171,6 +171,7 @@ function validateGet() : array
 	$get['m'] = '';
 	$get["move"] = 0;
 	$get["3D"] = 0;
+	$get["type"] = 0;
 
 	// API version
 	if (isset($_GET['api']))
@@ -256,6 +257,21 @@ function validateGet() : array
 	if (isset($_GET['3D']) && $_GET['3D'] != 0)
 	{
 		$get['3D'] = 1;
+	}
+
+	// Game type
+	if (isset($_GET['type']) && $_GET['type'] != 0)
+	{
+		// PS3 Game
+		if ((int) $_GET['type'] === 1)
+		{
+			$get['type'] = 1;
+		}
+		// PS3 App
+		else if ((int) $_GET['type'] === 2)
+		{
+			$get['type'] = 2;
+		}
 	}
 
 	// History
@@ -660,7 +676,7 @@ function getDebugPermissions() : ?array
 
 // results, status, character, searchbox, media, region, date, order
 // TODO: Rework
-function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o, $move = true, $stereo3D = true) : string
+function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o, $move = true, $stereo3D = true, $type = true) : string
 {
 	global $get, $scount, $c_pageresults;
 
@@ -695,13 +711,15 @@ function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o, $move = true, $stereo3D 
 	// Combined search: move support
 	if ($get['move'] !== 0 && $move)                     { $query['move'] = $get['move']; }
 	// Combined search: stereo3D support
-	if ($get['3D'] !== 0 && $stereo3D)                   { $query['3D'] = $get['3D']; }
+	if ($get['3D'] !== 0 && $stereo3D)                   { $query['3D']   = $get['3D'];   }
+	// Combined search: type
+	if ($get['type'] !== 0 && $type)                     { $query['type'] = $get['type']; }
 
 	if (!empty($query))
 	{
 		if (!empty($ret))
 			$ret .= '&';
-		
+
 		$ret .= http_build_query($query);
 	}
 

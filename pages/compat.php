@@ -43,13 +43,17 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						<br>
 						Online only games on Intro, Loadable and Nothing statuses are listed with a lightning icon but not part of any game count.
 					</p>
+					<?php Profiler::addData("Page: Print Type Sort"); ?>
+					<div class="compat-types">
+						<p>Application type &nbsp; <?php Compat::printTypeSort(); ?></p>
+					</div>
 				</div>
 
 			</div> <!-- container-con-wrapper -->
 
 			<div id="compat-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>
-				<p>Results per page <?php Compat::printResultsPerPage(); ?></p>
+				<p>Results per page &nbsp; <?php Compat::printResultsPerPage(); ?></p>
 			</div>
 			<div id="compat-hdr-right">
 				<?php Profiler::addData("Page: Print Status Sort"); ?>

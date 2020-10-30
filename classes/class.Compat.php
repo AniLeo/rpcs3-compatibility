@@ -103,7 +103,41 @@ public static function generate_query(array $get, mysqli &$db) : string
 		$genquery .= " ( `3d` <> 0 ) ";
 	}
 
+	// QUERYGEN: Search by game type
+	if ($get['type'] !== 0)
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
+		$genquery .= " ( `type` = {$get['type']} ) ";
+	}
+
 	return $genquery;
+}
+
+
+public static function printTypeSort() : void
+{
+	global $get;
+
+	// Get combined search parameters
+	$s_combined = combinedSearch(true, false, true, true, false, true, true, true, true, true, false);
+
+	// All statuses
+	$html_a = new HTMLA("?{$s_combined}", "Show applications from all types", highlightText("All", $get['type'] === 0));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	if (!empty($s_combined))
+		$s_combined .= "&";
+
+	$html_a = new HTMLA("?{$s_combined}type=1", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	$html_a = new HTMLA("?{$s_combined}type=2", "Only show PS3 Apps", highlightText("PS3 Apps", $get['type'] === 2));
+	$html_a->print();
 }
 
 

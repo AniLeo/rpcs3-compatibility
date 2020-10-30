@@ -362,6 +362,20 @@ input {
 	color:#fff!important;
 	background:#0074e7!important
 }
+.compat-types {
+	font-size:14px;
+	line-height:14px;
+	position:relative;
+	text-align:left;
+	top:1px;
+	border-radius:33px;
+	padding:6px 10px;
+	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
+	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
+	border:solid 2px #fff;
+	margin-top:12px;
+	width:290px
+}
 #compat-hdr-left {
 	font-size:14px;
 	line-height:15px;
@@ -369,7 +383,6 @@ input {
 	width:240px;
 	text-align:left;
 	top:1px;
-	font-weight:700;
 	border-radius:33px;
 	padding:6px 10px;
 	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
