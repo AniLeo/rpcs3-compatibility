@@ -56,9 +56,14 @@ html {
 	float:right;
 	width:400px;
 	height:12px;
-	border-radius:24px;
 	overflow:hidden;
-	padding-right:10px
+	padding-right:10px;
+	-webkit-border-top-left-radius: 24px;
+	-webkit-border-bottom-left-radius: 24px;
+	-moz-border-radius-topleft: 24px;
+	-moz-border-radius-bottomleft: 24px;
+	border-top-left-radius: 24px;
+	border-bottom-left-radius: 24px;
 }
 .compat-search-character {
 	position:absolute;
@@ -527,25 +532,50 @@ input {
 	border:0;
 	background:linear-gradient(to right,rgba(255,255,255,.0),rgba(49,152,255,.2));
 	direction:rtl;
-	vertical-align:4px
+	vertical-align:4px;
+	overflow: hidden;
 }
 .compat-status-progressbar::-webkit-progress-bar {
+	background-color:transparent;
+}
+#compat-progress1::-webkit-progress-value {
+	background-color:#1ebc61;
+}
+#compat-progress2::-webkit-progress-value {
+	background-color:#f9b32f;
+}
+#compat-progress3::-webkit-progress-value {
+	background-color:#e08a1e;
+}
+#compat-progress4::-webkit-progress-value {
+	background-color:#e74c3c;
+}
+#compat-progress5::-webkit-progress-value {
+	background-color:#455556;
+}
+.compat-status-progressbar::-moz-progress-bar {
 	background-color:transparent
 }
-#compat-progress1::-webkit-progress-value, #compat-progress1::-moz-progress-bar {
-	background-color:#1ebc61
+#compat-progress1::-moz-progress-bar {
+	background-color:#1ebc61;
 }
-#compat-progress2::-webkit-progress-value, #compat-progress2::-moz-progress-bar {
-	background-color:#f9b32f
+#compat-progress2::-moz-progress-bar {
+	background-color:#f9b32f;
 }
-#compat-progress3::-webkit-progress-value, #compat-progress3::-moz-progress-bar {
-	background-color:#e08a1e
+#compat-progress3::-moz-progress-bar {
+	background-color:#e08a1e;
 }
-#compat-progress4::-webkit-progress-value, #compat-progress4::-moz-progress-bar {
-	background-color:#e74c3c
+#compat-progress4::-moz-progress-bar {
+	background-color:#e74c3c;
 }
-#compat-progress5::-webkit-progress-value, #compat-progress5::-moz-progress-bar {
-	background-color:#455556
+#compat-progress5::-moz-progress-bar {
+	background-color:#455556;
+}
+progress {
+    vertical-align: 0;
+    appearance: none;
+    box-sizing: initial;
+    height: 12px;
 }
 @media screen and (max-width:1000px) {
 	#compat-hdr-left {
