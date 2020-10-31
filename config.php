@@ -109,7 +109,7 @@ $a_flags = array(
 "K" => "/img/icons/compat/KR.png", // Korea
 "J" => "/img/icons/compat/JP.png", // Japan
 "U" => "/img/icons/compat/US.png", // USA
-"I" => "/img/icons/compat/JP.png"  // TODO: International flag
+"I" => "/img/icons/compat/IN.png"  // International
 );
 
 // Functions available on debug panel (function_name => (title, success))
