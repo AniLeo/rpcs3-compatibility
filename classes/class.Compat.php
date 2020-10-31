@@ -304,7 +304,7 @@ public static function printTable() : void
 		$html_a_move = new HTMLA("?{$extra}move=1", "", $html_img_move->to_string());
 	}
 
-	$html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.jpg");
+	$html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png");
 	$html_img_3d->set_title("Stereoscopic 3D");
 
 	$extra = combinedSearch(true, true, true, true, false, true, true, true, true, false);
