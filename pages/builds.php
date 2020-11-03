@@ -43,7 +43,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 
 			</div> <!-- container-con-wrapper -->
 
-			<div id="builds-hdr-left">
+			<div class="builds-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>
 				<p>Results per page <?php Builds::printResultsPerPage(); ?></p>
 			</div>

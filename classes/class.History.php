@@ -33,7 +33,7 @@ public static function printDescription() : void
 {
 	global $get, $a_histdates, $a_currenthist;
 
-	echo "<p id=\"compat-history-description\">";
+	echo "<p>";
 	echo "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
 
 	if ($get['h'] === $a_currenthist[0])
@@ -62,7 +62,7 @@ public static function printMonths() : void
 	$spacer = "&nbsp;&#8226;&nbsp;";
 	$watchdog = '';
 
-	echo "<p id=\"compat-history-months\">";
+	echo "<p class=\"compat-history-months\">";
 
 	foreach ($a_histdates as $k => $v)
 	{
@@ -107,7 +107,7 @@ public static function printOptions() : void
 	$h = $get['h'] !== $a_currenthist[0] ? "={$get['h']}" : "";
 	$spacer = "&nbsp;&#8226;&nbsp;";
 
-	echo "<p id=\"compat-history-options\">";
+	echo "<p>";
 
 	$html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
 	echo highlightText($html_a->to_string(), empty($get['m']));

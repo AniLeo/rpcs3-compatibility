@@ -76,15 +76,9 @@ html {
 	background:rgba(122,179,255,.2);
 	transform:scale(1.1)
 }
-#compat-history-description {
-	font-size:14px
-}
-#compat-history-months {
+.compat-history-months {
 	font-size:13px;
 	margin-top:12px
-}
-#compat-history-options {
-	font-size:13px
 }
 .compat-footer {
 	position:relative;
@@ -215,7 +209,7 @@ html {
 	-ms-transform:scale(1.1);
 	transform:scale(1.1)
 }
-#compat-con-search {
+.compat-con-search {
 	left:0;
 	width:100%;
 	height:48px;
@@ -229,13 +223,13 @@ html {
 	-o-transition:.3s ease-in-out;
 	transition:.3s ease-in-out
 }
-#compat-con-search:hover {
+.compat-con-search:hover {
 	background:rgba(0,102,204,.05)
 }
-#compat-con-search tr {
+.compat-con-search tr {
 	border:0!important
 }
-#compat-con-search tr td {
+.compat-con-search tr td {
 	font-size:16px;
 	line-height:44px;
 	position:relative;
@@ -267,7 +261,7 @@ html {
 .compat-menu a:hover {
 	color:#0074e7 !important
 }
-#compat-con-searchbox {
+.compat-con-searchbox {
 	position:relative;
 	height:44px;
 	border-radius:6px;
@@ -279,17 +273,17 @@ html {
 	-webkit-box-shadow:0 10px 16px 0 rgba(0,116,231,.2);
 	box-shadow:0 10px 16px 0 rgba(0,116,231,.2)
 }
-#compat-con-searchbox:hover {
+.compat-con-searchbox:hover {
 	border:solid 2px #80bfff!important
 }
-#searchbox {
+.searchbox {
 	position:absolute;
 	float:left;
 	width:100%;
 	height:100%;
 	overflow:hidden
 }
-#searchbox-field {
+.searchbox input {
 	font-size:16px;
 	padding-left:50px;
 	height:100%;
@@ -300,6 +294,15 @@ html {
 	transition:.1s ease-in-out;
 	outline-color:transparent
 }
+.compat-searchbox-div button {
+	position:relative;
+	display:block;
+	width:100%;
+	height:100%;
+	margin:0 auto;
+	cursor:pointer;
+	opacity:0
+}
 input::placeholder {
 	color:#fff
 }
@@ -309,16 +312,7 @@ input {
 	color:#fff;
 	border:0
 }
-#compat-searchbox-button {
-	position:relative;
-	display:block;
-	width:100%;
-	height:100%;
-	margin:0 auto;
-	cursor:pointer;
-	opacity:0
-}
-#compat-searchbox-div {
+.compat-searchbox-div {
 	line-height:40px;
 	position:absolute;
 	left:0;
@@ -331,7 +325,7 @@ input {
 	background-size:16px;
 	border-radius:100%
 }
-#compat-searchbox-div:hover {
+.compat-searchbox-div:hover {
 	cursor:pointer;
 	background:url(/img/icons/menu/search-h.png) no-repeat center;
 	background-size:16px
@@ -381,7 +375,7 @@ input {
 	margin-top:12px;
 	width:290px
 }
-#compat-hdr-left {
+.compat-hdr-left {
 	font-size:14px;
 	line-height:15px;
 	position:relative;
@@ -394,10 +388,10 @@ input {
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	border:solid 2px #fff
 }
-#compat-hdr-left a {
+.compat-hdr-left a {
 	color:#000
 }
-#builds-hdr-left {
+.builds-hdr-left {
 	font-size:14px;
 	line-height:35px;
 	position:relative;
@@ -408,17 +402,7 @@ input {
 	font-weight:700;
 	margin-bottom:10px
 }
-#compat-hdr-left2 {
-	font-size:12px;
-	line-height:35px;
-	position:relative;
-	width:210px;
-	margin-top:-20px;
-	margin-left:24px;
-	text-align:left;
-	color:#000
-}
-#compat-hdr-right {
+.compat-hdr-right {
 	font-size:14px;
 	float:right;
 	width:auto;
@@ -428,7 +412,7 @@ input {
 	color:#000;
 	font-weight:700
 }
-#compat-hdr-right a {
+.compat-hdr-right a {
 	line-height:22px;
 	position:relative;
 	width:auto;
@@ -444,34 +428,34 @@ input {
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
 	font-weight:700
 }
-#compat-hdr-right b {
+.compat-hdr-right b {
 	color:#fff
 }
-#compat-hdr-right a:hover {
+.compat-hdr-right a:hover {
 	opacity:.8;
 	color:#fff
 }
-#compat-hdr-right a:nth-child(1) {
+.compat-hdr-right a:nth-child(2) {
 	border-color:#3198ff;
 	color:#3198ff
 }
-#compat-hdr-right a:nth-child(2) {
+.compat-hdr-right a:nth-child(3) {
 	border-color:#1ebc61;
 	color:#1ebc61
 }
-#compat-hdr-right a:nth-child(3) {
+.compat-hdr-right a:nth-child(4) {
 	border-color:#f9b32f;
 	color:#f9b32f
 }
-#compat-hdr-right a:nth-child(4) {
+.compat-hdr-right a:nth-child(5) {
 	border-color:#e08a1e;
 	color:#e08a1e
 }
-#compat-hdr-right a:nth-child(5) {
+.compat-hdr-right a:nth-child(6) {
 	border-color:#e74c3c;
 	color:#e74c3c
 }
-#compat-hdr-right a:nth-child(6) {
+.compat-hdr-right a:nth-child(7) {
 	border-color:#455556;
 	color:#455556
 }
@@ -572,27 +556,16 @@ input {
 	background-color:#455556;
 }
 progress {
-    vertical-align: 0;
-    appearance: none;
-    box-sizing: initial;
-    height: 12px;
+	vertical-align: 0;
+	appearance: none;
+	box-sizing: initial;
+	height: 12px;
 }
 @media screen and (max-width:1000px) {
-	#compat-hdr-left {
+	.compat-hdr-left {
 		margin-bottom:37px!important
 	}
-	#compat-hdr-left2 {
-		font-size:12px!important;
-		line-height:28px!important;
-		position:relative!important;
-		width:100%!important;
-		height:45px!important;
-		margin-top:-15px!important;
-		margin-left:24px!important;
-		text-align:left!important;
-		color:#000!important
-	}
-	#compat-hdr-right {
+	.compat-hdr-right {
 		font-size:11px!important;
 		float:right!important;
 		width:100%!important;
@@ -602,7 +575,7 @@ progress {
 		color:#000!important;
 		padding-top:4px!important
 	}
-	#compat-hdr-right .highlightedText {
+	.compat-hdr-right .highlightedText {
 		font-size:12px;
 		font-weight:700
 	}
@@ -617,9 +590,6 @@ progress {
 		font-size:12px!important
 	}
 	.compat-menu a {
-		font-size:12px!important
-	}
-	#featured-tx2-block {
 		font-size:12px!important
 	}
 	.page-con-container {

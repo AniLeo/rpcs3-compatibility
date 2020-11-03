@@ -51,13 +51,17 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 
 			</div> <!-- container-con-wrapper -->
 
-			<div id="compat-hdr-left">
+			<div class="compat-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>
-				<p>Results per page &nbsp; <?php Compat::printResultsPerPage(); ?></p>
+				<span class="compat-text">Results per page</span>
+				&nbsp;
+				<?php Compat::printResultsPerPage(); ?>
 			</div>
-			<div id="compat-hdr-right">
+			<div class="compat-hdr-right">
 				<?php Profiler::addData("Page: Print Status Sort"); ?>
-				<p>Sort By <?php Compat::printStatusSort(); ?></p>
+				<span class="compat-text">Sort by</span>
+				&nbsp;
+				<?php Compat::printStatusSort(); ?>
 			</div>
 
 			<?php
@@ -71,13 +75,13 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			?>
 
 			<?php Profiler::addData("Page: Display Searchbox"); ?>
-			<div id="compat-con-searchbox">
+			<div class="compat-con-searchbox">
 				<form method="get" id="game-search" action="#jump">
-					<div id="searchbox">
-						<input id="searchbox-field" name="g" type="text" value="<?php if (!empty($get['g']) && $scount["status"] > 0) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
+					<div class="searchbox">
+						<input name="g" type="text" value="<?php if (!empty($get['g']) && $scount["status"] > 0) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
 					</div>
-					<div id="compat-searchbox-div">
-						<button id="compat-searchbox-button" type="submit" form="game-search"></button>
+					<div class="compat-searchbox-div">
+						<button type="submit" form="game-search"></button>
 					</div>
 				</form>
 			</div>

@@ -196,7 +196,7 @@ public static function printCharSearch() : void
 		$a_chars[$i] = strtoupper($i);
 	$a_chars['sym'] = '#';
 
-	echo '<table id="compat-con-search"><tr>';
+	echo '<table class="compat-con-search"><tr>';
 
 	foreach ($a_chars as $key => $value)
 	{
