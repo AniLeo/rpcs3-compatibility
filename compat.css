@@ -209,7 +209,7 @@ html {
 	-ms-transform:scale(1.1);
 	transform:scale(1.1)
 }
-.compat-con-search {
+.compat-search-outer {
 	left:0;
 	width:100%;
 	height:48px;
@@ -219,24 +219,23 @@ html {
 	border-radius:6px;
 	margin-bottom:20px;
 	margin-top:40px;
+	display:flex;
 	-webkit-transition:.3s ease-in-out;
 	-o-transition:.3s ease-in-out;
 	transition:.3s ease-in-out
 }
-.compat-con-search:hover {
+.compat-search-outer:hover {
 	background:rgba(0,102,204,.05)
 }
-.compat-con-search tr {
-	border:0!important
-}
-.compat-con-search tr td {
+.compat-search-inner {
 	font-size:16px;
 	line-height:44px;
 	position:relative;
 	height:100%;
 	cursor:pointer;
 	text-align:center;
-	color:#000
+	color:#000;
+	width:100%
 }
 .compat-status-container {
 	margin-top:12px;

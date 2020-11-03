@@ -196,21 +196,23 @@ public static function printCharSearch() : void
 		$a_chars[$i] = strtoupper($i);
 	$a_chars['sym'] = '#';
 
-	echo '<table class="compat-con-search"><tr>';
+
+	$html_div_outer = new HTMLDiv("compat-search-outer");
 
 	foreach ($a_chars as $key => $value)
 	{
-		$html_div = new HTMLDiv("compat-search-character");
-		$html_div->add_content(highlightText($value, $get['c'] === $key));
+		$html_div_inner = new HTMLDiv("compat-search-inner");
 
-		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, $html_div->to_string());
+		$html_div_char = new HTMLDiv("compat-search-character");
+		$html_div_char->add_content(highlightText($value, $get['c'] === $key));
 
-		echo "<td>";
-		$html_a->print();
-		echo "</td>";
+		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, $html_div_char->to_string());
+
+		$html_div_inner->add_content($html_a->to_string());
+		$html_div_outer->add_content($html_div_inner->to_string());
 	}
 
-	echo '</tr></table>';
+	$html_div_outer->print();
 }
 
 
