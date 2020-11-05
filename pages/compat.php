@@ -26,14 +26,14 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<div class="container-con-wrapper">
 
 				<div class="container-tx1-block">
-					<p>Compatibility List</p>
+					<span class="compat-text">Compatibility List</span>
 					<?php
 						Profiler::addData("Page: Get Menu");
 						echo getMenu(__FILE__);
 					?>
 				</div>
 
-				<div class="container-tx2-block compat-desc">
+				<div class="compat-desc">
 					<p>
 						These are the current compatible games that have been tested with the emulator. This list is subject to change frequently.
 						Be sure to check this page often to follow the latest updates.
@@ -43,14 +43,14 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						<br>
 						Online only games on Intro, Loadable and Nothing statuses are listed with a lightning icon but not part of any game count.
 					</p>
-					<?php Profiler::addData("Page: Print Type Sort"); ?>
-					<div class="compat-types">
-						<p>Application type &nbsp; <?php Compat::printTypeSort(); ?></p>
-					</div>
 				</div>
 
 			</div> <!-- container-con-wrapper -->
 
+			<?php Profiler::addData("Page: Print Type Sort"); ?>
+			<div class="compat-types">
+				<p>Application type &nbsp; <?php Compat::printTypeSort(); ?></p>
+			</div>
 			<div class="compat-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>
 				<span class="compat-text">Results per page</span>
@@ -59,8 +59,6 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</div>
 			<div class="compat-hdr-right">
 				<?php Profiler::addData("Page: Print Status Sort"); ?>
-				<span class="compat-text">Sort by</span>
-				&nbsp;
 				<?php Compat::printStatusSort(); ?>
 			</div>
 

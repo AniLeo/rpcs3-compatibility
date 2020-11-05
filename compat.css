@@ -245,7 +245,7 @@ html {
 }
 .compat-menu {
 	font-weight:400;
-	text-align:right;
+	float:right;
 	font-size:14px
 }
 .compat-menu a {
@@ -367,18 +367,18 @@ input {
 	text-align:left;
 	top:1px;
 	border-radius:33px;
-	padding:6px 10px;
+	padding:6px 6px 6px 10px;
 	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	border:solid 2px #fff;
-	margin-top:12px;
+	margin-bottom:12px;
 	width:290px
 }
 .compat-hdr-left {
 	font-size:14px;
 	line-height:15px;
 	position:relative;
-	width:240px;
+	width:230px;
 	text-align:left;
 	top:1px;
 	border-radius:33px;
@@ -434,27 +434,27 @@ input {
 	opacity:.8;
 	color:#fff
 }
-.compat-hdr-right a:nth-child(2) {
+.compat-hdr-right a:nth-child(1) {
 	border-color:#3198ff;
 	color:#3198ff
 }
-.compat-hdr-right a:nth-child(3) {
+.compat-hdr-right a:nth-child(2) {
 	border-color:#1ebc61;
 	color:#1ebc61
 }
-.compat-hdr-right a:nth-child(4) {
+.compat-hdr-right a:nth-child(3) {
 	border-color:#f9b32f;
 	color:#f9b32f
 }
-.compat-hdr-right a:nth-child(5) {
+.compat-hdr-right a:nth-child(4) {
 	border-color:#e08a1e;
 	color:#e08a1e
 }
-.compat-hdr-right a:nth-child(6) {
+.compat-hdr-right a:nth-child(5) {
 	border-color:#e74c3c;
 	color:#e74c3c
 }
-.compat-hdr-right a:nth-child(7) {
+.compat-hdr-right a:nth-child(6) {
 	border-color:#455556;
 	color:#455556
 }
@@ -688,4 +688,11 @@ progress {
 }
 .background-status-5 {
 	background:#455556
+}
+.compat-desc {
+	font-size: 14px;
+	line-height: 28px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 25px;
 }

@@ -323,6 +323,7 @@ function countGames(mysqli $db, string $query = "") : array
 {
 	global $get, $a_status;
 
+	$scount = array();
 	$and = empty($query) ? "" : " AND ({$query}) ";
 
 	// Without network only games
@@ -547,7 +548,7 @@ function getMenu(string $file) : string
 {
 	global $get;
 
-	$html_div = new HTMLDiv("compat-menu", "");
+	$html_div = new HTMLDiv("compat-menu");
 
 	$file = basename($file, '.php');
 
@@ -563,7 +564,7 @@ function getMenu(string $file) : string
 	}
 	if ($file !== "builds")
 	{
-		$html_a = new HTMLA("?b", "RPCS3 Builds History", "RPCS3 Builds History");
+		$html_a = new HTMLA("?b", "Builds History", "Builds History");
 		$html_div->add_content($html_a->to_string());
 	}
 	if (!is_null($get['w']) && $file !== "panel")
