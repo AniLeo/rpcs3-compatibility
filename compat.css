@@ -26,7 +26,6 @@ html {
 	width:10px;
 	height:10px;
 	border-radius:100%;
-	-webkit-box-shadow:0 5px 16px 0 rgba(0,0,0,.2);
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.2);
 	margin-left:10px
 }
@@ -181,7 +180,6 @@ html {
 	background:#fff;
 	border-radius:100%;
 	padding:4px;
-	-webkit-box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.1)
 }
 .compat-icon-flag {
@@ -205,23 +203,18 @@ html {
 	padding:4px 0
 }
 .compat-icon-media:hover {
-	-webkit-transform:scale(1.1);
-	-ms-transform:scale(1.1);
 	transform:scale(1.1)
 }
 .compat-search-outer {
 	left:0;
 	width:100%;
 	height:48px;
-	margin:0;
 	padding:0;
 	overflow:hidden;
 	border-radius:6px;
 	margin-bottom:20px;
 	margin-top:40px;
 	display:flex;
-	-webkit-transition:.3s ease-in-out;
-	-o-transition:.3s ease-in-out;
 	transition:.3s ease-in-out
 }
 .compat-search-outer:hover {
@@ -254,7 +247,6 @@ html {
 	border-radius:30px;
 	color:#000;
 	font-weight:700;
-	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1)
 }
 .compat-menu a:hover {
@@ -268,8 +260,7 @@ html {
 	margin-top:20px;
 	overflow:hidden;
 	border:solid 2px #0080ff!important;
-	background:-webkit-linear-gradient(-135deg,#49a4ff 25%,#0074e7 100%);
-	-webkit-box-shadow:0 10px 16px 0 rgba(0,116,231,.2);
+	background:linear-gradient(-135deg,#49a4ff 25%,#0074e7 100%);
 	box-shadow:0 10px 16px 0 rgba(0,116,231,.2)
 }
 .compat-con-searchbox:hover {
@@ -344,9 +335,7 @@ input {
 }
 .compat-con-pages a {
 	padding:3px 12px;
-	font-weight:100;
 	border-radius:6px;
-	-webkit-box-shadow:0 10px 16px 0 rgba(0,0,0,.1);
 	box-shadow:0 10px 16px 0 rgba(0,0,0,.1);
 	background:#fff;
 	border:solid 2px transparent;
@@ -368,7 +357,6 @@ input {
 	top:1px;
 	border-radius:33px;
 	padding:6px 6px 6px 10px;
-	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	border:solid 2px #fff;
 	margin-bottom:12px;
@@ -383,7 +371,6 @@ input {
 	top:1px;
 	border-radius:33px;
 	padding:6px 10px;
-	-webkit-box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
 	border:solid 2px #fff
 }
@@ -421,9 +408,7 @@ input {
 	text-align:center;
 	color:#000;
 	border-radius:28px;
-	font-weight:unset;
 	border:solid 2px;
-	-webkit-box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
 	font-weight:700
 }
@@ -501,7 +486,6 @@ input {
 	color:#fff!important;
 	border-radius:26px;
 	border:solid 2px #fff;
-	-webkit-box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.1)
 }
 .txt-compat-build:hover {
@@ -565,7 +549,6 @@ progress {
 		margin-bottom:40px
 	}
 	.compat-hdr-right {
-		font-size:12px;
 		width:100%;
 		padding-top:6px
 	}
@@ -632,12 +615,11 @@ progress {
 /* Debug */
 .debug-main {
 	font-size:14px;
-	background:rgba(0,0,0,.1);
 	padding:14px 14px;
 	border-radius:6px;
 	line-height:24px;
 	margin-bottom:20px;
-	background:#191f36 !important;
+	background:#191f36;
 	border:solid 2px #2f3a65;
 }
 .debug-main-menu {
@@ -689,7 +671,7 @@ progress {
 	padding-left:10px;
 	border-radius:6px;
 	background:rgba(255, 0, 0, .2);
-	border:solid 2px rgba(255, 0, 0, .2);
+	border:solid 2px;
 	line-height:32px;
 	margin-bottom:20px
 }

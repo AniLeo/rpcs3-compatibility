@@ -49,7 +49,9 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 
 			<?php Profiler::addData("Page: Print Type Sort"); ?>
 			<div class="compat-types">
-				<p>Application type &nbsp; <?php Compat::printTypeSort(); ?></p>
+				<span class="compat-text">Application type</span>
+				&nbsp;
+				<?php Compat::printTypeSort(); ?>
 			</div>
 			<div class="compat-hdr-left">
 				<?php Profiler::addData("Page: Print Results Per Page"); ?>
