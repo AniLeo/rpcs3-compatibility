@@ -35,16 +35,14 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
 
 			<div class="debug-main">
 				<div class="debug-main-menu">
-					<ul>
-						<?php
-							// Print function list if $a_panel config variable exists and is not empty
-							if (isset($a_panel) && !empty($a_panel))
-							{
-								foreach ($a_panel as $function => $data)
-									echo "<div class=\"debug-menu-button\"><a href=\"?a={$function}\">{$data['title']}</a></div>";
-							}
-						?>
-					</ul>
+					<?php
+						// Print function list if $a_panel config variable exists and is not empty
+						if (isset($a_panel) && !empty($a_panel))
+						{
+							foreach ($a_panel as $function => $data)
+								echo "<div class=\"debug-menu-button\"><a href=\"?a={$function}\">{$data['title']}</a></div>";
+						}
+					?>
 				</div>
 
 				<div class="debug-main-content">
