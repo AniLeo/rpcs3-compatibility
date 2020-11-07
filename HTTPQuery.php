@@ -184,9 +184,6 @@ class HTTPQuery
 	{
 		$exclusions = array();
 
-		if (!in_array("module", $inclusions))
-			$exclusions[] = "module";
-
 		if (!in_array("results", $inclusions))
 			$exclusions[] = "results";
 
