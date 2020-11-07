@@ -31,6 +31,13 @@ Profiler::setTitle("Profiler: History");
 Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
 
+// Unreachable during normal usage as it's defined on index
+if (!isset($get))
+	$get = validateGet();
+
+// Unreachable during normal usage as it's defined on index
+if (!isset($a_currenthist) || !isset($a_histdates))
+	die();
 
 $a_existing = array();
 $a_new = array();

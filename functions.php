@@ -594,6 +594,7 @@ function countPages(array $get, int $count) : int
 /*****************
  * Status Module *
  *****************/
+// TODO: Rework
 function generateStatusModule(bool $getCount = true) : string
 {
 	global $a_status;
@@ -611,6 +612,8 @@ function generateStatusModule(bool $getCount = true) : string
 	// Pretty output for readability
 	foreach ($a_status as $id => $status)
 	{
+		$percentage = "";
+
 		$output .= "<div class='compat-status-main'>\n";
 		$output .= "<div class='compat-status-icon background-status-{$id}'></div>\n";
 		$output .= "<div class='compat-status-text'>\n";

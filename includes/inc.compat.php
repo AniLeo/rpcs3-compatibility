@@ -39,6 +39,10 @@ $a_order = array(
 '4d' => 'ORDER BY `last_update` DESC, `game_title` ASC'
 );
 
+// Unreachable during normal usage as it's defined on index
+if (!isset($get))
+	$get = validateGet();
+
 // Game array to store games
 $games = null;
 

@@ -154,7 +154,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 			<div class='banner-tx2-title fade-up-onstart'>
 				<p>
 					<?php
-					if (!$c_maintenance || $get['w'] != NULL) {
+					if ((isset($c_maintenance) && !$c_maintenance) || $get['w'] != NULL) {
 						if     (isset($get['h'])) { echo "History of the updates made to the compatibility list"; }
 						elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
 						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
@@ -168,7 +168,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 		</div>
 	</div>
 	<?php
-	if (!$c_maintenance || $get['w'] != NULL)
+	if ((isset($c_maintenance) && !$c_maintenance) || $get['w'] != NULL)
 	{
 		if     (isset($get['h'])) { include 'pages/history.php'; }
 		elseif (isset($get['b'])) { include 'pages/builds.php'; }

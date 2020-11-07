@@ -36,6 +36,10 @@ $a_order = array(
 '4d' => 'ORDER BY merge_datetime DESC'
 );
 
+// Unreachable during normal usage as it's defined on index
+if (!isset($get))
+	$get = validateGet();
+
 // Connect to database
 Profiler::addData("Inc: Database Connection");
 $db = getDatabase();
