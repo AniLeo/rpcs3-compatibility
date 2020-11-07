@@ -165,8 +165,8 @@ function validateGet() : array
 	$get['o'] = "";
 	$get['c'] = '';
 	$get['g'] = "";
-	$get['d'] = "";
-	$get['f'] = '';
+	// $get['d'] = "";
+	// $get['f'] = '';
 	$get['t'] = '';
 	$get['m'] = '';
 	$get["move"] = 0;
@@ -232,19 +232,13 @@ function validateGet() : array
 	// Date
 	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) === 8 && strpos($_GET['d'], '20') === 0)
 	{
-		$get['d'] = $_GET['d'];
+		$get['d'] = (int) $_GET['d'];
 	}
 
 	// Media type
 	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media))
 	{
 		$get['t'] = strtolower($_GET['t']);
-	}
-
-	// Region
-	if (isset($_GET['f']) && array_key_exists(strtoupper($_GET['f']), $a_flags))
-	{
-		$get['f'] = strtolower($_GET['f']);
 	}
 
 	// Move support
@@ -673,58 +667,6 @@ function getDebugPermissions() : ?array
 		return null;
 
 	return $permissions;
-}
-
-// results, status, character, searchbox, media, region, date, order
-// TODO: Rework
-function combinedSearch($r, $s, $c, $g, $f, $t, $d, $o, $move = true, $stereo3D = true, $type = true) : string
-{
-	global $get, $scount, $c_pageresults;
-
-	$ret = "";
-	$query = array();
-
-	// Page: Builds
-	if (isset($get['b']))
-		$ret .= 'b';
-
-	// Page: History
-	if (isset($get['h']))
-		$ret .= 'h';
-
-	// Combined search: results per page
-	if ($get['r'] !== $c_pageresults && $r)              { $query['r'] = $get['r']; }
-	// Combined search: sort by status
-	if ($get['s'] !== 0 && $s)                           { $query['s'] = $get['s']; }
-	// Combined search: search by character
-	if ($get['c'] !== "" && $c)                          { $query['c'] = $get['c']; }
-	// Combined search: searchbox
-	if ($get['g'] !== "" && $scount["status"] > 0 && $g) { $query['g'] = $get['g']; }
-	// Combined search: search by media type
-	if ($get['t'] !== "" && $t)                          { $query['t'] = $get['t']; }
-	// Combined search: search by region
-	if ($get['f'] !== "" && $f)                          { $query['f'] = $get['f']; }
-	// Combined search: date search
-	if ($get['d'] !== "" && $d)                          { $query['d'] = $get['d']; }
-	// Combined search: order by
-	if ($get['o'] !== "" && $o)                          { $query['o'] = $get['o']; }
-
-	// Combined search: move support
-	if ($get['move'] !== 0 && $move)                     { $query['move'] = $get['move']; }
-	// Combined search: stereo3D support
-	if ($get['3D'] !== 0 && $stereo3D)                   { $query['3D']   = $get['3D'];   }
-	// Combined search: type
-	if ($get['type'] !== 0 && $type)                     { $query['type'] = $get['type']; }
-
-	if (!empty($query))
-	{
-		if (!empty($ret))
-			$ret .= '&';
-
-		$ret .= http_build_query($query);
-	}
-
-	return $ret;
 }
 
 

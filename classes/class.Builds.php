@@ -22,6 +22,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
 if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+if (!@include_once(__DIR__."/../HTTPQuery.php")) throw new Exception("Compat: HTTPQuery.php is missing. Failed to include HTTPQuery.php");
 
 
 class Builds {
@@ -32,7 +33,11 @@ class Builds {
  ***************************/
 public static function printResultsPerPage() : void
 {
-	echo resultsPerPage(combinedSearch(false, false, false, false, false, false, false, true));
+	global $get;
+
+	$http_query = new HTTPQuery($get);
+
+	echo resultsPerPage($http_query->get_except($http_query::to_exclusions(array("order"))));
 }
 
 
@@ -207,9 +212,10 @@ public static function printTable() : void
  ************************/
 public static function printPagesCounter() : void
 {
-	global $pages, $currentPage;
+	global $pages, $currentPage, $get;
 
-	$extra = combinedSearch(true, false, false, false, false, false, false, true);
+	$http_query = new HTTPQuery($get);
+	$extra = $http_query->get_except($http_query::to_exclusions("results, order"));
 
 	$html_div = new HTMLDiv("compat-con-pages");
 	$html_div->add_content(getPagesCounter($pages, $currentPage, $extra));

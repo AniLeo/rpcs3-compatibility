@@ -22,6 +22,7 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: fu
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
 if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+if (!@include_once(__DIR__."/../HTTPQuery.php")) throw new Exception("Compat: HTTPQuery.php is missing. Failed to include HTTPQuery.php");
 
 
 class Compat {
@@ -79,11 +80,11 @@ public static function generate_query(array $get, mysqli &$db) : string
 	}
 
 	// QUERYGEN: Search by date
-	if (!empty($get['d']))
+	if (isset($get['d']))
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
-		$s_d = mysqli_real_escape_string($db, $get['d']);
+		$s_d = mysqli_real_escape_string($db, "{$get['d']}");
 		$genquery .= " `last_update` = '{$s_d}' ";
 	}
 
@@ -119,24 +120,24 @@ public static function printTypeSort() : void
 {
 	global $get;
 
-	// Get combined search parameters
-	$s_combined = combinedSearch(true, false, true, true, false, true, true, true, true, true, false);
+	$http_query = new HTTPQuery($get);
+	$s_query = $http_query->get_except(array("status", "type"));
 
 	// All statuses
-	$html_a = new HTMLA("?{$s_combined}", "Show applications from all types", highlightText("All", $get['type'] === 0));
+	$html_a = new HTMLA("?{$s_query}", "Show applications from all types", highlightText("All", $get['type'] === 0));
 	$html_a->print();
 
 	echo "•&nbsp;";
 
-	if (!empty($s_combined))
-		$s_combined .= "&";
+	if (!empty($s_query))
+		$s_query .= "&";
 
-	$html_a = new HTMLA("?{$s_combined}type=1", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
+	$html_a = new HTMLA("?{$s_query}type=1", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
 	$html_a->print();
 
 	echo "•&nbsp;";
 
-	$html_a = new HTMLA("?{$s_combined}type=2", "Only show PS3 Apps", highlightText("PS3 Apps", $get['type'] === 2));
+	$html_a = new HTMLA("?{$s_query}type=2", "Only show PS3 Apps", highlightText("PS3 Apps", $get['type'] === 2));
 	$html_a->print();
 }
 
@@ -148,20 +149,22 @@ public static function printStatusSort() : void
 {
 	global $a_status, $scount, $get;
 
-	// Get combined search parameters
-	$s_combined = combinedSearch(true, false, true, true, false, true, true, true);
+	$http_query = new HTTPQuery($get);
 
-	if (!empty($s_combined))
-		$s_combined .= "&";
+	// Get combined search parameters
+	$s_query = $http_query->get_except(array("status"));
+
+	if (!empty($s_query))
+		$s_query .= "&";
 
 	// All statuses
-	$html_a = new HTMLA("?{$s_combined}s=0", "Show games from all statuses", highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0));
+	$html_a = new HTMLA("?{$s_query}s=0", "Show games from all statuses", highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0));
 	$html_a->print();
 
 	// Individual statuses
 	foreach ($a_status as $id => $status)
 	{
-		$html_a = new HTMLA("?{$s_combined}s={$id}", $status["desc"], highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id));
+		$html_a = new HTMLA("?{$s_query}s={$id}", $status["desc"], highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id));
 		$html_a->print();
 	}
 }
@@ -172,7 +175,11 @@ public static function printStatusSort() : void
  ***************************/
 public static function printResultsPerPage() : void
 {
-	echo resultsPerPage(combinedSearch(false, true, true, true, false, true, true, true));
+	global $get;
+
+	$http_query = new HTTPQuery($get);
+
+	echo resultsPerPage($http_query->get_except(array("results")));
 }
 
 
@@ -183,11 +190,13 @@ public static function printCharSearch() : void
 {
 	global $get;
 
-	// Get combined search parameters
-	$s_combined = combinedSearch(true, true, false, false, false, true, true, false);
+	$http_query = new HTTPQuery($get);
 
-	if (!empty($s_combined))
-		$s_combined .= '&';
+	// Get combined search parameters
+	$s_query = $http_query->get_except(array("character", "search", "order"));
+
+	if (!empty($s_query))
+		$s_query .= '&';
 
 	// Build characters array
 	$a_chars[''] = 'All';
@@ -206,7 +215,7 @@ public static function printCharSearch() : void
 		$html_div_char = new HTMLDiv("compat-search-character");
 		$html_div_char->add_content(highlightText($value, $get['c'] === $key));
 
-		$html_a = new HTMLA("?{$s_combined}c={$key}", $value, $html_div_char->to_string());
+		$html_a = new HTMLA("?{$s_query}c={$key}", $value, $html_div_char->to_string());
 
 		$html_div_inner->add_content($html_a->to_string());
 		$html_div_outer->add_content($html_div_inner->to_string());
@@ -253,12 +262,14 @@ public static function printTable() : void
 	if (is_null($games))
 		return;
 
+	$http_query = new HTTPQuery($get);
+
 	// Start table
 	echo "<div class=\"compat-table-outside\">";
 	echo "<div class=\"compat-table-inside\">";
 
 	// Print table headers
-	$extra = combinedSearch(true, true, true, true, false, true, true, false);
+	$extra = $http_query->get_except(array("order"));
 	$headers = array(
 		array(
 			'name' => 'Game IDs',
@@ -290,7 +301,7 @@ public static function printTable() : void
 	$html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
 	$html_img_move->set_title("PS Move");
 
-	$extra = combinedSearch(true, true, true, true, false, true, true, true, false, true);
+	$extra = $http_query->get_except(array("move"));
 
 	// Allow for filter resetting by clicking the icon again
 	if ($get['move'] !== 0)
@@ -309,7 +320,7 @@ public static function printTable() : void
 	$html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png");
 	$html_img_3d->set_title("Stereoscopic 3D");
 
-	$extra = combinedSearch(true, true, true, true, false, true, true, true, true, false);
+	$extra = $http_query->get_except(array("3D"));
 
 	// Allow for filter resetting by clicking the icon again
 	if ($get['3D'] !== 0)
@@ -507,9 +518,11 @@ public static function printTable() : void
  ************************/
 public static function printPagesCounter() : void
 {
-	global $pages, $currentPage;
+	global $pages, $currentPage, $get;
 
-	$extra = combinedSearch(true, true, true, true, false, true, true, true);
+	$http_query = new HTTPQuery($get);
+
+	$extra = $http_query->get_except(array());
 
 	$html_div = new HTMLDiv("compat-con-pages");
 	$html_div->add_content(getPagesCounter($pages, $currentPage, $extra));
