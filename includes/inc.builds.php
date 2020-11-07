@@ -27,6 +27,10 @@ if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception(
 // Profiler
 Profiler::setTitle("Profiler: Builds");
 
+// Unreachable during normal usage as it's defined on index
+if (!isset($get))
+	$get = validateGet();
+
 // Order queries
 $a_order = array(
 '' => 'ORDER BY merge_datetime DESC',
@@ -36,9 +40,10 @@ $a_order = array(
 '4d' => 'ORDER BY merge_datetime DESC'
 );
 
-// Unreachable during normal usage as it's defined on index
-if (!isset($get))
-	$get = validateGet();
+if (isset($get['o']) && isset($a_order[$get['o']]))
+	$order = $a_order[$get['o']];
+else
+	$order = $a_order[''];
 
 // Connect to database
 Profiler::addData("Inc: Database Connection");
@@ -53,9 +58,7 @@ $currentPage = getCurrentPage($pages);
 
 // Main query
 Profiler::addData("Inc: Execute Main Query");
-$c_builds = "SELECT * FROM `builds` ";
-$c_builds .= isset($a_order[$get['o']]) ? $a_order[$get['o']] : $a_order[''];
-$c_builds .= " LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$c_builds = "SELECT * FROM `builds` {$order} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $q_builds = mysqli_query($db, $c_builds);
 
 // Disconnect from database

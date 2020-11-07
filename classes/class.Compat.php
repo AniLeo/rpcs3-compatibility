@@ -35,7 +35,7 @@ public static function generate_query(array $get, mysqli &$db) : string
 	$status = "";
 
 	// QUERYGEN: Character
-	if (!empty($get['c']))
+	if (isset($get['c']))
 	{
 		if ($get['c'] === '09')
 		{
@@ -49,12 +49,13 @@ public static function generate_query(array $get, mysqli &$db) : string
 		}
 		else
 		{
-			$genquery .= " (`game_title` LIKE '{$get['c']}%' OR `alternative_title` LIKE '{$get['c']}%') ";
+			$s_c = mysqli_real_escape_string($db, $get['c']);
+			$genquery .= " (`game_title` LIKE '{$s_c}%' OR `alternative_title` LIKE '{$s_c}%') ";
 		}
 	}
 
 	// QUERYGEN: Searchbox
-	if (!empty($get['g']))
+	if (isset($get['g']))
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
@@ -72,11 +73,12 @@ public static function generate_query(array $get, mysqli &$db) : string
 	}
 
 	// QUERYGEN: Search by media type
-	if (!empty($get['t']))
+	if (isset($get['t']))
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
-		$genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`,1,1) = '{$get['t']}') ) ";
+		$s_t = mysqli_real_escape_string($db, $get['t']);
+		$genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`, 1, 1) = '{$s_t}') ) ";
 	}
 
 	// QUERYGEN: Search by date
@@ -213,7 +215,7 @@ public static function printCharSearch() : void
 		$html_div_inner = new HTMLDiv("compat-search-inner");
 
 		$html_div_char = new HTMLDiv("compat-search-character");
-		$html_div_char->add_content(highlightText($value, $get['c'] === $key));
+		$html_div_char->add_content(highlightText($value, isset($get['c']) && $get['c'] === $key));
 
 		$html_a = new HTMLA("?{$s_query}c={$key}", $value, $html_div_char->to_string());
 
@@ -344,7 +346,7 @@ public static function printTable() : void
 		$html_img_media->set_title($a_media[$game->get_media_id()]["name"]);
 
 		// Allow for filter resetting by clicking the icon again
-		if ($get['t'] === strtolower($game->get_media_id()))
+		if (isset($get['t']) && $get['t'] === strtolower($game->get_media_id()))
 		{
 			$html_a_media = new HTMLA("?", $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
 		}

@@ -70,9 +70,10 @@ else
 
 
 // Existing entries
-Profiler::addData("Inc: Check Existing Entries");
-if ($get['m'] === "c" || empty($get['m']))
+if (!isset($get['m']) || $get['m'] === "c")
 {
+	Profiler::addData("Inc: Check Existing Entries");
+
 	$q_existing = mysqli_query($db, "{$cmd_main}
 	WHERE `old_status` IS NOT NULL {$cmd_date}
 	ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
@@ -91,9 +92,10 @@ if ($get['m'] === "c" || empty($get['m']))
 
 
 // New entries
-Profiler::addData("Inc: Check New Entries");
-if ($get['m'] === "n" || empty($get['m']))
+if (!isset($get['m']) || $get['m'] === "n")
 {
+	Profiler::addData("Inc: Check New Entries");
+
 	$q_new = mysqli_query($db, "{$cmd_main}
 	WHERE `old_status` IS NULL {$cmd_date}
 	ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");

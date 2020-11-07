@@ -119,8 +119,7 @@ class HTTPQuery
 		// Character
 		if (isset($this->character) && !in_array("character", $exclusions))
 		{
-			if (!empty($this->character))
-				$query['c'] = $this->character;
+			$query['c'] = $this->character;
 		}
 
 		// Search
@@ -146,8 +145,7 @@ class HTTPQuery
 		// Order
 		if (isset($this->order) && !in_array("order", $exclusions))
 		{
-			if (!empty($this->order))
-				$query['o'] = $this->order;
+			$query['o'] = $this->order;
 		}
 
 		// Move Support

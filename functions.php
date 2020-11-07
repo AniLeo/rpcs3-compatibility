@@ -115,7 +115,7 @@ function highlightText(string $str, bool $cond = true)
 
 function validateGet() : array
 {
-	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_flags, $a_histdates, $a_currenthist, $a_media;
+	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_histdates, $a_currenthist, $a_media;
 
 	// Start new $get array for sanitized input
 	$get = array();
@@ -162,13 +162,12 @@ function validateGet() : array
 	// Set default values
 	$get['r'] = $c_pageresults;
 	$get['s'] = 0; // All
-	$get['o'] = "";
-	$get['c'] = '';
-	$get['g'] = "";
+	// $get['o'] = "";
+	// $get['c'] = '';
+	// $get['g'] = "";
 	// $get['d'] = "";
-	// $get['f'] = '';
-	$get['t'] = '';
-	$get['m'] = '';
+	// $get['t'] = '';
+	// $get['m'] = '';
 	$get["move"] = 0;
 	$get["3D"] = 0;
 	$get["type"] = 0;
@@ -207,19 +206,15 @@ function validateGet() : array
 	if (isset($_GET['c']))
 	{
 		// If it is a single alphabetic character
-		if (ctype_alpha($_GET['c']) && (strlen($_GET['c']) == 1))
+		if (ctype_alpha($_GET['c']) && strlen($_GET['c']) === 1)
 		{
 			$get['c'] = strtolower($_GET['c']);
 		}
-		if ($_GET['c'] == '09')  { $get['c'] = '09';  } // Numbers
-		if ($_GET['c'] == 'sym') { $get['c'] = 'sym'; } // Symbols
+		else if ($_GET['c'] == '09')  { $get['c'] = '09';  } // Numbers
+		else if ($_GET['c'] == 'sym') { $get['c'] = 'sym'; } // Symbols
 	}
 
-	// Searchbox (sf deprecated, use g instead)
-	if (!isset($_GET['g']) && isset($_GET['sf']))
-	{
-		$_GET['g'] = $_GET['sf'];
-	}
+	// Searchbox
 	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
 	{
 		$get['g'] = $_GET['g'];
@@ -275,7 +270,7 @@ function validateGet() : array
 	}
 
 	// History mode
-	if (isset($_GET['m']) && ($_GET['m'] == 'c' || $_GET['m'] == 'n'))
+	if (isset($_GET['m']) && ($_GET['m'] === 'c' || $_GET['m'] === 'n'))
 	{
 		$get['m'] = strtolower($_GET['m']);
 	}
@@ -475,12 +470,12 @@ function getTableHeaders(array $headers, string $extra = "") : string
 		{
 			$html_div->add_content($header["name"]);
 		}
-		else if ($get['o'] === "{$header['sort']}a")
+		else if (isset($get['o']) && $get['o'] === "{$header['sort']}a")
 		{
 			$html_a = new HTMLA("?{$extra}o={$header['sort']}d", $header["name"], "{$header['name']} &nbsp; &#8593;");
 			$html_div->add_content($html_a->to_string());
 		}
-		elseif ($get['o'] === "{$header['sort']}d")
+		elseif (isset($get['o']) && $get['o'] === "{$header['sort']}d")
 		{
 			$html_a = new HTMLA("?{$extra}", $header["name"], "{$header['name']} &nbsp; &#8595;");
 			$html_div->add_content($html_a->to_string());

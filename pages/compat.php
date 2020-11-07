@@ -78,7 +78,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			<div class="compat-con-searchbox">
 				<form method="get" id="game-search" action="#jump">
 					<div class="searchbox">
-						<input name="g" type="text" value="<?php if (!empty($get['g'])) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
+						<input name="g" type="text" value="<?php if (isset($get['g'])) echo $get['g']; ?>" placeholder="Game Title / Game ID" />
 					</div>
 					<div class="compat-searchbox-div">
 						<button type="submit" form="game-search"></button>

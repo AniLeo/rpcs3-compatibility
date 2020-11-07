@@ -28,6 +28,10 @@ if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception(
 // Profiler
 Profiler::setTitle("Profiler: Compat");
 
+// Unreachable during normal usage as it's defined on index
+if (!isset($get))
+	$get = validateGet();
+
 // Order queries
 $a_order = array(
 '' => 'ORDER BY `status` ASC, `game_title` ASC',
@@ -39,9 +43,10 @@ $a_order = array(
 '4d' => 'ORDER BY `last_update` DESC, `game_title` ASC'
 );
 
-// Unreachable during normal usage as it's defined on index
-if (!isset($get))
-	$get = validateGet();
+if (isset($get['o']) && isset($a_order[$get['o']]))
+	$order = $a_order[$get['o']];
+else
+	$order = $a_order[''];
 
 // Game array to store games
 $games = null;
@@ -67,7 +72,6 @@ $currentPage = getCurrentPage($pages);
 
 
 // Generate the main query
-$order = isset($a_order[$get['o']]) ? $get['o'] : '';
 $limit = $get['r'] * $currentPage - $get['r'];
 
 $c_main = "SELECT * FROM `game_list` ";
@@ -93,7 +97,7 @@ if ($get['s'] !== 0)
 	$c_main .= " (`status` = {$get['s']}) ";
 }
 
-$c_main .= " {$a_order[$order]} LIMIT {$limit}, {$get['r']}; ";
+$c_main .= " {$order} LIMIT {$limit}, {$get['r']}; ";
 
 
 // Run the main query
@@ -106,7 +110,7 @@ Profiler::addData("Inc: Levenshtein");
 
 // Levenshtein Search (Get the closest result to the searched input)
 // If the main query didn't return anything and game search exists and isn't a Game ID
-if ($q_main && mysqli_num_rows($q_main) === 0 && !empty($get['g']) && !isGameID($get['g']))
+if ($q_main && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($get['g']))
 {
 	$l_title = "";
 	$l_orig = "";
@@ -138,7 +142,7 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && !empty($get['g']) && !isGameID(
 	$query = " `game_title` LIKE '%{$s_title}%' OR `alternative_title` LIKE '%{$s_title}%' ";
 
 	// Re-run the main query
-	$c_main = "SELECT * FROM `game_list` WHERE {$query} {$a_order[$order]}
+	$c_main = "SELECT * FROM `game_list` WHERE {$query} {$order}
 	LIMIT {$limit}, {$get['r']} ;";
 	$q_main = mysqli_query($db, $c_main);
 
@@ -160,7 +164,7 @@ if (!$q_main)
 {
 	$error = "ERROR_QUERY_FAIL";
 }
-else if (mysqli_num_rows($q_main) === 0 && isGameID($get['g']))
+else if (mysqli_num_rows($q_main) === 0 && isset($get['g']) && isGameID($get['g']))
 {
 	$error = "ERROR_QUERY_EMPTY";
 }

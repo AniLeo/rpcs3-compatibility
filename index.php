@@ -47,7 +47,7 @@ if (isset($get['rss']))
 		// No need to load the rest of the page.
 		exit();
 	}
-	elseif (isset($get['h']) && ($get['m'] == 'c' || $get['m'] == 'n'))
+	elseif (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n'))
 	{
 		if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
 		header('Content-Type: text/xml');

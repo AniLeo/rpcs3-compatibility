@@ -110,18 +110,18 @@ public static function printOptions() : void
 	echo "<p>";
 
 	$html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
-	echo highlightText($html_a->to_string(), empty($get['m']));
+	echo highlightText($html_a->to_string(), !isset($get['m']));
  	echo $spacer;
 
 	$html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Show only previously existent entries");
-	echo highlightText($html_a->to_string(), $get['m'] === "c");
+	echo highlightText($html_a->to_string(), isset($get['m']) && $get['m'] === 'c');
 
 	$html_a = new HTMLA("?h{$h}&m=c&rss", "RSS Feed", "(RSS)");
 	$html_a->print();
 	echo $spacer;
 
 	$html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "Show only new entries");
-	echo highlightText($html_a->to_string(), $get['m'] === "n");
+	echo highlightText($html_a->to_string(), isset($get['m']) && $get['m'] === 'n');
 
 	$html_a = new HTMLA("?h{$h}&m=n&rss", "RSS Feed", "(RSS)");
 	$html_a->print();
