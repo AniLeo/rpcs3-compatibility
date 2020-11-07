@@ -201,8 +201,8 @@ public static function printCharSearch() : void
 	// Build characters array
 	$a_chars[''] = 'All';
 	$a_chars['09'] = '0-9';
-	foreach (range('a', 'z') as $i)
-		$a_chars[$i] = strtoupper($i);
+	foreach (range('a', 'z') as $ch)
+		$a_chars[$ch] = strtoupper($ch);
 	$a_chars['sym'] = '#';
 
 

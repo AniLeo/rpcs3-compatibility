@@ -31,7 +31,7 @@ if(!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: HTML.p
 	*
 	* Establishes a database connection and sets utf8mb4 charset
 	*
-	* @return object Connection to MySQL Server
+	* @return mysqli Connection to MySQL Server
 	*/
 function getDatabase() : mysqli
 {

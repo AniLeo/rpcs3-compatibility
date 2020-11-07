@@ -913,7 +913,7 @@ function cachePatches() : void
 		return;
 
 	// Disabled by default, but it's disabled here again in case it's enabled
-	ini_set("yaml.decode_php", 0);
+	ini_set("yaml.decode_php", '0');
 
 	// Results array [id, title, text, date]
 	$a_wiki = array();

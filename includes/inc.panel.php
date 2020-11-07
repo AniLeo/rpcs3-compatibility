@@ -285,9 +285,9 @@ function compatibilityUpdater() : void
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$status_commit = !is_null($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
-			$commit        = !is_null($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
-			$date_commit   = !is_null($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
+			$status_commit = !isset($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
+			$commit        = !isset($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
+			$date_commit   = !isset($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 
 			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
@@ -497,7 +497,7 @@ function refreshBuild() : void
 	$pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
 
 	$form = new HTMLForm("", "POST");
-	$form->add_input(new HTMLInput("pr", "text", $pr, "Pull Request"));
+	$form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
 	$form->add_button(new HTMLButton("refreshBuild", "submit", "Refresh"));
 	$form->print();
 
