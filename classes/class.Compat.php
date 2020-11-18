@@ -599,8 +599,8 @@ public static function APIv1() : array
 			'status' => $a_status[$game->status]['name'],
 			'date' => $game->date,
 			'thread' => $item->thread_id,
-			'commit' => is_null($game->commit) ? 0 : $game->commit,
-			'pr' => is_null($game->pr) ? 0 : $game->pr,
+			'commit' => $game->commit,
+			'pr' => $game->pr,
 			'network' => $game->network
 			);
 		}
