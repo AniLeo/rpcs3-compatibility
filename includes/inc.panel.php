@@ -285,9 +285,9 @@ function compatibilityUpdater() : void
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$status_commit = !isset($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
-			$commit        = !isset($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
-			$date_commit   = !isset($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
+			$status_commit = isset($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
+			$commit        = isset($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
+			$date_commit   = isset($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 
 			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
@@ -363,7 +363,9 @@ function compatibilityUpdater() : void
 			// If the new date is older than the current date (meaning there's no valid report post)
 			// Or no new commit was found
 			// then ignore this entry and continue
-			if (strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) || is_null($a_updates[$cur_game->key]['commit']))
+			if (!isset($a_updates[$cur_game->key]['last_update']) ||
+			    strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
+			    is_null($a_updates[$cur_game->key]['commit']))
 			{
 				unset($a_updates[$cur_game->key]);
 				continue;
