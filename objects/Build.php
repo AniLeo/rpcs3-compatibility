@@ -101,6 +101,12 @@ class Build
 	{
 		if (!is_null($this->filename_win))
 		{
+			// Previous builds are not on the GitHub binaries repository
+			if (strtotime($this->fulldate) < strtotime("2018-06-07"))
+			{
+				return null;
+			}
+			
 			return "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
 		}
 		return null;
