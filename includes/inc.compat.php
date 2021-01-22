@@ -137,23 +137,19 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($
 		}
 	}
 
-	$s_title = mysqli_real_escape_string($db, $l_title);
-
-	$query = " `game_title` LIKE '%{$s_title}%' OR `alternative_title` LIKE '%{$s_title}%' ";
+	// Replace faulty search with returned game but keep the original search for display
+	$l_orig   = $get['g'];
+	$get['g'] = $l_title;
 
 	// Re-run the main query
-	$c_main = "SELECT * FROM `game_list` WHERE {$query} {$order}
-	LIMIT {$limit}, {$get['r']} ;";
+	$genquery = Compat::generate_query($get, $db);
+	$c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
 	$q_main = mysqli_query($db, $c_main);
 
 	// Recalculate Pages / CurrentPage
-	$scount = countGames($db, $query);
+	$scount = countGames($db, $genquery);
 	$pages = countPages($get, $scount["network"][0]);
 	$currentPage = getCurrentPage($pages);
-
-	// Replace faulty search with returned game but keep the original search for display
-	$l_orig = $get['g'];
-	$get['g'] = $l_title;
 }
 
 // Check if query succeeded and storing is required, stores messages for error/information printing
