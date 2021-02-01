@@ -562,7 +562,7 @@ function mergeGames() : void
 		return;
 	}
 
-	if (substr($game1->game_item->game_id[0], 0, 1) !== substr($game2->game_item->game_id[0], 0, 1))
+	if (substr($game1->game_item[0]->game_id, 0, 1) !== substr($game2->game_item[0]->game_id, 0, 1))
 	{
 		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
 		return;
