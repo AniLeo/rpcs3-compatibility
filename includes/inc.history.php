@@ -97,7 +97,8 @@ if (!isset($get['m']) || $get['m'] === "n")
 	Profiler::addData("Inc: Check New Entries");
 
 	$q_new = mysqli_query($db, "{$cmd_main}
-	WHERE `old_status` IS NULL {$cmd_date}
+	WHERE `old_status` IS NULL
+	AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date} 
 	ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
 	if (!$q_new)
