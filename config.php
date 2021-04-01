@@ -204,8 +204,9 @@ $a_histdates = array(
 	'2020_10' => array(array('y' => 2020, 'm' => 10, 'd' => 01), array('y' => 2020, 'm' => 10, 'd' => 31)),
 	'2020_11' => array(array('y' => 2020, 'm' => 11, 'd' => 01), array('y' => 2020, 'm' => 11, 'd' => 30)),
 	'2020_12' => array(array('y' => 2020, 'm' => 12, 'd' => 01), array('y' => 2020, 'm' => 12, 'd' => 31)),
-	'2021_01' => array(array('y' => 2021, 'm' => 1,  'd' => 01), array('y' => 2021, 'm' => 1,  'd' => 31))
+	'2021_01' => array(array('y' => 2021, 'm' => 1,  'd' => 01), array('y' => 2021, 'm' => 1,  'd' => 31)),
+	'2021_02' => array(array('y' => 2021, 'm' => 2,  'd' => 01), array('y' => 2021, 'm' => 2,  'd' => 28))
 );
 
 // Current month
-$a_currenthist = array('2021_02', 'February 1st, 2021', '2021-02-01');
+$a_currenthist = array('2021_03', 'March 1st, 2021', '2021-03-01');
