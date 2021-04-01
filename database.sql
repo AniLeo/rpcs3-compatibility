@@ -38,8 +38,13 @@ CREATE TABLE `builds` (
   `checksum_win` varchar(64) DEFAULT NULL COMMENT 'sha256',
   `size_win` int(11) DEFAULT NULL,
   `filename_linux` varchar(128) DEFAULT NULL,
-  `checksum_linux` varchar(64) DEFAULT NULL COMMENT 'sha256',
+  `checksum_linux` varchar(64) DEFAULT NULL,
   `size_linux` int(11) DEFAULT NULL,
+  `broken` int(11) DEFAULT NULL,
+  `ping_updated` int(11) NOT NULL DEFAULT '0',
+  `ping_outdated` int(11) NOT NULL DEFAULT '0',
+  `title` varchar(255) DEFAULT NULL,
+  `body` mediumtext,
   PRIMARY KEY (`pr`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 

@@ -89,7 +89,7 @@ function cacheBuilds(bool $full = false) : void
 			$a_PR[]  = $pr;
 
 			// Check if PR is already cached
-			$PRQuery = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
+			$PRQuery = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} AND `title` IS NOT NULL LIMIT 1; ");
 
 			// If PR is already cached and we're not in full mode, skip
 			if (mysqli_num_rows($PRQuery) > 0 && !$full)
@@ -124,6 +124,18 @@ function cacheBuild(int $pr) : void
 	// Check if we aren't rate limited
 	if (!isset($pr_info->merge_commit_sha))
 	{
+		echo "cacheBuild({$pr}): Rate limited".PHP_EOL;
+		curl_close($cr);
+		return;
+	}
+
+	if (!isset($pr_info->merged_at)        || !isset($pr_info->created_at)    ||
+	    !isset($pr_info->merge_commit_sha) || !isset($pr_info->user)          ||
+	    !isset($pr_info->user->login)      || !isset($pr_info->additions)     ||
+	    !isset($pr_info->deletions)        || !isset($pr_info->changed_files) ||
+	    !isset($pr_info->title)            || !isset($pr_info->body))
+	{
+		echo "cacheBuild({$pr}): API error".PHP_EOL;
 		curl_close($cr);
 		return;
 	}
@@ -138,6 +150,10 @@ function cacheBuild(int $pr) : void
 	$additions = (int) $pr_info->additions;
 	$deletions = (int) $pr_info->deletions;
 	$changed_files = (int) $pr_info->changed_files;
+
+	// Title, Body
+	$title = $pr_info->title;
+	$body = $pr_info->body;
 
 	// Currently unused
 	$type = "branch";
@@ -237,18 +253,33 @@ function cacheBuild(int $pr) : void
 		`filename_win` = '".mysqli_real_escape_string($db, $filename_win)."',
 		`size_linux` = '".mysqli_real_escape_string($db, $size_linux)."',
 		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
-		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."'
+		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."',
+		`title` = '".mysqli_real_escape_string($db, $title)."',
+		`body` = '".mysqli_real_escape_string($db, $body)."'
 		WHERE `pr` = '{$pr}' LIMIT 1;");
 	}
 	else
 	{
 		$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
-		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`, `version`, `additions`, `deletions`, `changed_files`, `size_win`, `checksum_win`, `filename_win`, `size_linux`, `checksum_linux`, `filename_linux`)
-		VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."', '".mysqli_real_escape_string($db, $type)."', '".mysqli_real_escape_string($db, (string) $aid)."',
-		'".mysqli_real_escape_string($db, $start_datetime)."', '".mysqli_real_escape_string($db, $merge_datetime)."',
-		'".mysqli_real_escape_string($db, $version)."', '{$additions}', '{$deletions}', '{$changed_files}',
-		'".mysqli_real_escape_string($db, $size_win)."', '".mysqli_real_escape_string($db, $checksum_win)."', '".mysqli_real_escape_string($db, $filename_win)."',
-		'".mysqli_real_escape_string($db, $size_linux)."', '".mysqli_real_escape_string($db, $checksum_linux)."', '".mysqli_real_escape_string($db, $filename_linux)."'); ");
+		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`,
+		`version`, `additions`, `deletions`, `changed_files`, `size_win`,
+		`checksum_win`, `filename_win`, `size_linux`, `checksum_linux`,
+		`filename_linux`, `title`, `body`)
+		VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."',
+		'".mysqli_real_escape_string($db, $type)."',
+		'".mysqli_real_escape_string($db, (string) $aid)."',
+		'".mysqli_real_escape_string($db, $start_datetime)."',
+		'".mysqli_real_escape_string($db, $merge_datetime)."',
+		'".mysqli_real_escape_string($db, $version)."',
+		'{$additions}', '{$deletions}', '{$changed_files}',
+		'".mysqli_real_escape_string($db, $size_win)."',
+		'".mysqli_real_escape_string($db, $checksum_win)."',
+		'".mysqli_real_escape_string($db, $filename_win)."',
+		'".mysqli_real_escape_string($db, $size_linux)."',
+		'".mysqli_real_escape_string($db, $checksum_linux)."',
+		'".mysqli_real_escape_string($db, $filename_linux)."',
+		'".mysqli_real_escape_string($db, $title)."',
+		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
 
 	mysqli_close($db);
