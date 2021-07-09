@@ -281,6 +281,7 @@ function compatibilityUpdater() : void
 			if (!isset($a_inserts[$thread->tid]['commit']) || !isset($a_inserts[$thread->tid]['pr']))
 			{
 				echo "<b>Error!</b> Invalid report found on tid: {$html_a->to_string()}<br><br>";
+				unset($a_inserts[$thread->tid]);
 				continue;
 			}
 
