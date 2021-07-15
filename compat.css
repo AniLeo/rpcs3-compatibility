@@ -17,7 +17,7 @@ html {
 	border-radius:30px
 }
 .compat-status-main:hover {
-	background:rgba(0,128,255,.1)
+	background:rgba(0,128,255,0.1)
 }
 .compat-status-icon {
 	position:relative;
@@ -26,7 +26,7 @@ html {
 	width:10px;
 	height:10px;
 	border-radius:100%;
-	box-shadow:0 5px 16px 0 rgba(0,0,0,.2);
+	box-shadow:0 5px 16px 0 rgba(0,0,0,0.2);
 	margin-left:10px
 }
 .compat-icon {
@@ -72,7 +72,7 @@ html {
 	height:100%
 }
 .compat-search-character:hover {
-	background:rgba(122,179,255,.2);
+	background:rgba(122,179,255,0.2);
 	transform:scale(1.1)
 }
 .compat-history-months {
@@ -135,10 +135,10 @@ html {
 	display:flex
 }
 .compat-table-row:nth-child(2n) {
-	background:rgba(0,102,204,.04)
+	background:rgba(0,102,204,0.04)
 }
 .compat-table-row:hover {
-	background-color:rgba(0,102,204,.1)
+	background-color:rgba(0,102,204,0.1)
 }
 .compat-table-cell {
 	padding-top:5px;
@@ -180,7 +180,7 @@ html {
 	background:#fff;
 	border-radius:100%;
 	padding:4px;
-	box-shadow:0 5px 16px 0 rgba(0,0,0,.1)
+	box-shadow:0 5px 16px 0 rgba(0,0,0,0.1)
 }
 .compat-icon-flag {
 	position:relative;
@@ -215,10 +215,10 @@ html {
 	margin-bottom:20px;
 	margin-top:40px;
 	display:flex;
-	transition:.3s ease-in-out
+	transition:0.3s ease-in-out
 }
 .compat-search-outer:hover {
-	background:rgba(0,102,204,.05)
+	background:rgba(0,102,204,0.05)
 }
 .compat-search-inner {
 	font-size:16px;
@@ -234,7 +234,7 @@ html {
 	margin-top:12px;
 	margin-bottom:12px;
 	padding-top:12px;
-	border-top:1px solid rgba(0,0,0,.05)
+	border-top:1px solid rgba(0,0,0,0.05)
 }
 .compat-menu {
 	font-weight:400;
@@ -247,7 +247,7 @@ html {
 	border-radius:30px;
 	color:#000;
 	font-weight:700;
-	box-shadow:0 5px 32px 0 rgba(0,0,0,.1)
+	box-shadow:0 5px 32px 0 rgba(0,0,0,0.1)
 }
 .compat-menu a:hover {
 	color:#0074e7 !important
@@ -261,7 +261,7 @@ html {
 	overflow:hidden;
 	border:solid 2px #0080ff !important;
 	background:linear-gradient(-135deg,#49a4ff 25%,#0074e7 100%);
-	box-shadow:0 10px 16px 0 rgba(0,116,231,.2)
+	box-shadow:0 10px 16px 0 rgba(0,116,231,0.2)
 }
 .compat-con-searchbox:hover {
 	border:solid 2px #80bfff !important
@@ -280,8 +280,8 @@ html {
 	width:100%;
 	color:#fff;
 	border:0;
-	background:rgba(122,179,255,.01);
-	transition:.1s ease-in-out;
+	background:rgba(122,179,255,0.01);
+	transition:0.1s ease-in-out;
 	outline-color:transparent
 }
 .compat-searchbox-div button {
@@ -331,12 +331,12 @@ input {
 	text-align:center;
 	color:#000;
 	border-radius:6px;
-	background:rgba(0,102,204,.04)
+	background:rgba(0,102,204,0.04)
 }
 .compat-con-pages a {
 	padding:3px 12px;
 	border-radius:6px;
-	box-shadow:0 10px 16px 0 rgba(0,0,0,.1);
+	box-shadow:0 10px 16px 0 rgba(0,0,0,0.1);
 	background:#fff;
 	border:solid 2px transparent;
 	font-weight:700;
@@ -357,7 +357,7 @@ input {
 	top:1px;
 	border-radius:33px;
 	padding:6px 6px 6px 10px;
-	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
+	box-shadow:0 5px 32px 0 rgba(0,0,0,0.1);
 	border:solid 2px #fff;
 	margin-bottom:12px;
 	width:290px
@@ -371,7 +371,7 @@ input {
 	top:1px;
 	border-radius:33px;
 	padding:6px 10px;
-	box-shadow:0 5px 32px 0 rgba(0,0,0,.1);
+	box-shadow:0 5px 32px 0 rgba(0,0,0,0.1);
 	border:solid 2px #fff
 }
 .compat-hdr-left a {
@@ -409,14 +409,14 @@ input {
 	color:#000;
 	border-radius:28px;
 	border:solid 2px;
-	box-shadow:0 5px 16px 0 rgba(0,0,0,.1);
+	box-shadow:0 5px 16px 0 rgba(0,0,0,0.1);
 	font-weight:700
 }
 .compat-hdr-right b {
 	color:#fff
 }
 .compat-hdr-right a:hover {
-	opacity:.8;
+	opacity:0.8;
 	color:#fff
 }
 .compat-hdr-right a:nth-child(1) {
@@ -486,18 +486,18 @@ input {
 	color:#fff !important;
 	border-radius:26px;
 	border:solid 2px #fff;
-	box-shadow:0 5px 16px 0 rgba(0,0,0,.1)
+	box-shadow:0 5px 16px 0 rgba(0,0,0,0.1)
 }
 .txt-compat-build:hover {
-	opacity:.8
+	opacity:0.8
 }
 .txt-compat-nobuild:hover {
-	opacity:.8
+	opacity:0.8
 }
 .compat-status-progressbar {
 	width:400px;
 	border:0;
-	background:linear-gradient(to right,rgba(255,255,255,.0),rgba(49,152,255,.2));
+	background:linear-gradient(to right,rgba(255,255,255,0.0),rgba(49,152,255,0.2));
 	direction:rtl;
 	vertical-align:4px;
 	overflow: hidden;
@@ -582,7 +582,7 @@ progress {
 	border:solid 2px #2f3a65
 }
 .compat-profiler p:nth-child(n) {
-	background:rgba(0, 0, 0, 0.1);
+	background:rgba(0,0,0,0.1);
 	margin-bottom:20px;
 	padding-left:10px;
 	padding-top:5px;
@@ -670,7 +670,7 @@ progress {
 .debug-tvalidity-title {
 	padding-left:10px;
 	border-radius:6px;
-	background:rgba(255, 0, 0, .2);
+	background:rgba(255,0,0,.2);
 	border:solid 2px;
 	line-height:32px;
 	margin-bottom:20px
