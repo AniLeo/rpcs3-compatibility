@@ -11,6 +11,12 @@ input {
 input::placeholder {
 	color:#fff
 }
+progress {
+	vertical-align:0;
+	appearance:none;
+	box-sizing:initial;
+	height:12px;
+}
 /* Define the default font for the
    highest Compatibility container */
 .page-con-container {
@@ -66,12 +72,12 @@ input::placeholder {
 	height:12px;
 	overflow:hidden;
 	padding-right:10px;
-	-webkit-border-top-left-radius: 24px;
-	-webkit-border-bottom-left-radius: 24px;
-	-moz-border-radius-topleft: 24px;
-	-moz-border-radius-bottomleft: 24px;
-	border-top-left-radius: 24px;
-	border-bottom-left-radius: 24px;
+	-webkit-border-top-left-radius:24px;
+	-webkit-border-bottom-left-radius:24px;
+	-moz-border-radius-topleft:24px;
+	-moz-border-radius-bottomleft:24px;
+	border-top-left-radius:24px;
+	border-bottom-left-radius:24px;
 }
 .compat-search-character {
 	position:absolute;
@@ -500,7 +506,7 @@ input::placeholder {
 	background:linear-gradient(to right,rgba(255,255,255,0.0),rgba(49,152,255,0.2));
 	direction:rtl;
 	vertical-align:4px;
-	overflow: hidden;
+	overflow:hidden;
 }
 .compat-status-progressbar::-webkit-progress-bar {
 	background-color:transparent;
@@ -537,12 +543,6 @@ input::placeholder {
 }
 #compat-progress5::-moz-progress-bar {
 	background-color:#455556;
-}
-progress {
-	vertical-align: 0;
-	appearance: none;
-	box-sizing: initial;
-	height: 12px;
 }
 @media screen and (max-width:1000px) {
 	.compat-hdr-left {
@@ -606,11 +606,11 @@ progress {
 	background:#455556
 }
 .compat-desc {
-	font-size: 14px;
-	line-height: 28px;
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-top: 25px;
+	font-size:14px;
+	line-height:28px;
+	margin-left:5px;
+	margin-right:5px;
+	margin-top:25px;
 }
 /* Debug */
 .debug-main {
@@ -670,7 +670,7 @@ progress {
 .debug-tvalidity-title {
 	padding-left:10px;
 	border-radius:6px;
-	background:rgba(255,0,0,.2);
+	background:rgba(255,0,0,0.2);
 	border:solid 2px;
 	line-height:32px;
 	margin-bottom:20px
