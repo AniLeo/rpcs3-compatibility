@@ -93,7 +93,7 @@ function getGameType(string $gid) : string
 	*/
 function isValid(string $str) : bool
 {
-	return !preg_match("/[^A-Za-z0-9.#&~;:\* \/\'-,]/", $str);
+	return !preg_match("/[^A-Za-z0-9.#&~;:\* \/\'\-,]/", $str);
 }
 
 
