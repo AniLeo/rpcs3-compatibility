@@ -100,10 +100,10 @@ html {
 	text-decoration:underline
 }
 .color-red {
-	color:#e74c3c!important
+	color:#e74c3c !important
 }
 .color-green {
-	color:#2ecc71!important
+	color:#2ecc71 !important
 }
 .compat-table-outside {
 	width:100%;
@@ -173,8 +173,8 @@ html {
 	position:relative;
 	z-index:1;
 	float:left;
-	width:20px!important;
-	height:20px!important;
+	width:20px !important;
+	height:20px !important;
 	margin-top:2px;
 	margin-right:10px;
 	background:#fff;
@@ -190,8 +190,8 @@ html {
 	margin-left:2px;
 	margin-right:16px;
 	border-radius:2px;
-	height:22px!important;
-	width:23px!important
+	height:22px !important;
+	width:23px !important
 }
 .builds-icon {
 	position:relative;
@@ -259,12 +259,12 @@ html {
 	margin-bottom:24px;
 	margin-top:20px;
 	overflow:hidden;
-	border:solid 2px #0080ff!important;
+	border:solid 2px #0080ff !important;
 	background:linear-gradient(-135deg,#49a4ff 25%,#0074e7 100%);
 	box-shadow:0 10px 16px 0 rgba(0,116,231,.2)
 }
 .compat-con-searchbox:hover {
-	border:solid 2px #80bfff!important
+	border:solid 2px #80bfff !important
 }
 .searchbox {
 	position:absolute;
@@ -344,10 +344,10 @@ input {
 }
 .compat-con-pages a:hover {
 	width:22px;
-	border:solid 2px transparent!important;
-	text-decoration:none!important;
-	color:#fff!important;
-	background:#0074e7!important
+	border:solid 2px transparent !important;
+	text-decoration:none !important;
+	color:#fff !important;
+	background:#0074e7 !important
 }
 .compat-types {
 	font-size:14px;
@@ -462,7 +462,7 @@ input {
 	height:20px;
 	padding:2px 8px;
 	text-align:center;
-	color:#fff!important;
+	color:#fff !important;
 	background:#20b2aa
 }
 .txt-compat-nobuild {
@@ -472,7 +472,7 @@ input {
 	height:20px;
 	cursor:pointer;
 	text-align:center;
-	color:#fff!important
+	color:#fff !important
 }
 .txt-compat-status {
 	line-height:15px;
@@ -483,7 +483,7 @@ input {
 	padding:5px 4px;
 	text-align:center;
 	text-transform:none;
-	color:#fff!important;
+	color:#fff !important;
 	border-radius:26px;
 	border:solid 2px #fff;
 	box-shadow:0 5px 16px 0 rgba(0,0,0,.1)
