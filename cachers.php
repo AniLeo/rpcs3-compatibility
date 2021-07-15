@@ -238,7 +238,7 @@ function cacheBuild(int $pr) : void
 
 	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1)
 	{
-		$cachePRQuery = mysqli_query($db, "UPDATE `builds` SET
+		mysqli_query($db, "UPDATE `builds` SET
 		`commit` = '".mysqli_real_escape_string($db, $commit)."',
 		`type` = '".mysqli_real_escape_string($db, $type)."',
 		`author` = '".mysqli_real_escape_string($db, (string) $aid)."',
@@ -260,7 +260,7 @@ function cacheBuild(int $pr) : void
 	}
 	else
 	{
-		$cachePRQuery = mysqli_query($db, "INSERT INTO `builds`
+		mysqli_query($db, "INSERT INTO `builds`
 		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`,
 		`version`, `additions`, `deletions`, `changed_files`, `size_win`,
 		`checksum_win`, `filename_win`, `size_linux`, `checksum_linux`,
@@ -713,7 +713,7 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		}
 
 		// Verify tag attributes
-		$count_package_attributes = count(get_object_vars($package->{"@attributes"}));
+		// $count_package_attributes = count(get_object_vars($package->{"@attributes"}));
 		$a_package_attributes = array("version", "size", "sha1sum", "url", "ps3_system_ver", "drm_type");
 
 		foreach ($package->{"@attributes"} as $tag_package => $value)
@@ -1048,14 +1048,14 @@ function cachePatches() : void
 		// No existing patch found, insert new patch
 		if (!isset($a_patch[$result["id"]]))
 		{
-			$q_insert = mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
+			mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
 			VALUES ('{$db_id}', '{$db_version}', '{$db_date}', '{$db_patch}'); ");
 		}
 
 		// Existing patch found with older touch date, update it
 		else if ($db_date !== $a_patch[$result["id"]]["touched"])
 		{
-			$q_update = mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_patch` SET `touched` = '{$db_date}', `patch` = '{$db_patch}'
+			mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_patch` SET `touched` = '{$db_date}', `patch` = '{$db_patch}'
 			WHERE `wiki_id` = '{$db_id}' AND `version` = '{$db_version}'; ");
 		}
 	}

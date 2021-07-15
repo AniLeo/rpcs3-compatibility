@@ -147,7 +147,7 @@ function checkInvalidThreads() : void
 
 function compatibilityUpdater() : void
 {
-	global $a_histdates, $a_status, $a_regions, $get;
+	global $a_histdates, $a_status, $get;
 
 	set_time_limit(300);
 	$db = getDatabase();
@@ -418,7 +418,7 @@ function compatibilityUpdater() : void
 			$db_game_title = mysqli_real_escape_string($db, $game['thread']->get_game_title());
 
 			// Insert new entry on the game list
-			$q_insert = mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`, `type`) VALUES
+			mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`, `type`) VALUES
 			('{$db_game_title}',
 			'".mysqli_real_escape_string($db, $game['commit'])."',
 			'".mysqli_real_escape_string($db, $game['pr'])."',
@@ -447,13 +447,13 @@ function compatibilityUpdater() : void
 			}
 
 			// Insert Game and Thread IDs on the ID table
-			$q_insert = mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$db_game_id}', {$tid}); ");
+			mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$db_game_id}', {$tid}); ");
 
 			// Cache the updates for the new ID
 			cache_game_updates($cr, $db, $game['thread']->get_game_id());
 
 			// Log change to game history
-			$q_history = mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
+			mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
 			({$key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
 		}
 
@@ -463,7 +463,7 @@ function compatibilityUpdater() : void
 		foreach ($a_updates as $key => $game)
 		{
 			// Update entry parameters on game list
-			$q_update = mysqli_query($db, "UPDATE `game_list` SET
+			mysqli_query($db, "UPDATE `game_list` SET
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."',
 			`pr` = '".mysqli_real_escape_string($db, $game['pr'])."',
 			`last_update` = '{$game['last_update']}',
@@ -495,8 +495,6 @@ function compatibilityUpdater() : void
 
 function refreshBuild() : void
 {
-	global $get;
-
 	$pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
 
 	$form = new HTMLForm("", "POST");

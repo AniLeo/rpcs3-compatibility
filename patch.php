@@ -37,7 +37,7 @@ return_code
 */
 function exportGamePatches() : array
 {
-	global $c_maintenance, $a_status, $get;
+	global $c_maintenance, $get;
 
 	if ($c_maintenance)
 	{

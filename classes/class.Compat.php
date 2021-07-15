@@ -32,7 +32,6 @@ class Compat {
 public static function generate_query(array $get, mysqli &$db) : string
 {
 	$genquery = "";
-	$status = "";
 
 	// QUERYGEN: Character
 	if (isset($get['c']))

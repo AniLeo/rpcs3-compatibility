@@ -115,7 +115,7 @@ function highlightText(string $str, bool $cond = true)
 
 function validateGet() : array
 {
-	global $a_pageresults, $c_pageresults, $a_status, $a_order, $a_histdates, $a_currenthist, $a_media;
+	global $a_pageresults, $c_pageresults, $a_status, $a_histdates, $a_currenthist, $a_media;
 
 	// Start new $get array for sanitized input
 	$get = array();
@@ -454,9 +454,6 @@ function getTableHeaders(array $headers, string $extra = "") : string
 {
 	global $get;
 
-	// Initialize string
-	$s_tableheaders = "";
-
 	if (!empty($extra))
 		$extra .= "&";
 
@@ -650,7 +647,7 @@ function getDebugPermissions() : ?array
 		return null;
 
 	$row = mysqli_fetch_object($q_debug);
-	$permissons = array();
+	$permissions = array();
 
 	if (strpos($row->permissions, ',') === false)
 	{
