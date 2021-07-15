@@ -2,6 +2,15 @@
 html {
 	scroll-behavior:smooth
 }
+input {
+	height:100%;
+	padding-left:24px;
+	color:#fff;
+	border:0
+}
+input::placeholder {
+	color:#fff
+}
 /* Define the default font for the
    highest Compatibility container */
 .page-con-container {
@@ -292,15 +301,6 @@ html {
 	margin:0 auto;
 	cursor:pointer;
 	opacity:0
-}
-input::placeholder {
-	color:#fff
-}
-input {
-	height:100%;
-	padding-left:24px;
-	color:#fff;
-	border:0
 }
 .compat-searchbox-div {
 	line-height:40px;
@@ -661,7 +661,7 @@ progress {
 	display:inline-block;
 }
 .debug-menu-button a {
-	color:#ffffff
+	color:#fff
 }
 .debug-menu-button a:hover {
 	color:#03A9F4;
