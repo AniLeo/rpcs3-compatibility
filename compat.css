@@ -569,7 +569,7 @@ progress {
 .highlightedText {
 	font-size:14px;
 	font-weight:700;
-	color:#0080ff
+	color:#0080ff !important
 }
 .compat-profiler {
 	background:#191f36 !important;
