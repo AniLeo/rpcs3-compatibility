@@ -18,8 +18,10 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
+if (!@include_once(__DIR__."/../functions.php"))
+	throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/GameItem.php"))
+	throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 
 
 class HistoryEntry
@@ -32,8 +34,14 @@ class HistoryEntry
 	public $new_date;   // String
 	public $game_item;  // GameItem
 
-	function __construct(string $title, ?string $title2, ?string $old_status, string $new_status,
-	                    ?string $old_date, string $new_date, string $gid, int $tid)
+	function __construct( string $title,
+	                     ?string $title2,
+	                     ?string $old_status,
+	                      string $new_status,
+	                     ?string $old_date,
+	                      string $new_date,
+	                      string $gid,
+	                      int    $tid)
 	{
 		$this->title = $title;
 		$this->title2 = $title2;
@@ -54,8 +62,14 @@ class HistoryEntry
 
 		while ($row = mysqli_fetch_object($query))
 		{
-			$a_entries[] = new HistoryEntry($row->game_title, $row->alternative_title,
-			$row->old_status, $row->new_status, $row->old_date, $row->new_date, $row->gid, $row->tid);
+			$a_entries[] = new HistoryEntry($row->game_title,
+			                                $row->alternative_title,
+			                                $row->old_status,
+			                                $row->new_status,
+			                                $row->old_date,
+			                                $row->new_date,
+			                                $row->gid,
+			                                $row->tid);
 		}
 
 		return $a_entries;

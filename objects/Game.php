@@ -18,9 +18,12 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/GameItem.php")) throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
-if (!@include_once(__DIR__."/GameUpdateTag.php")) throw new Exception("Compat: GameUpdateTag.php is missing. Failed to include GameUpdateTag.php");
+if (!@include_once(__DIR__."/../functions.php"))
+	throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/GameItem.php"))
+	throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
+if (!@include_once(__DIR__."/GameUpdateTag.php"))
+	throw new Exception("Compat: GameUpdateTag.php is missing. Failed to include GameUpdateTag.php");
 
 
 class Game
@@ -39,17 +42,17 @@ class Game
 	public $wiki_title; // String
 	public $game_item;  // GameItem[]
 
-	function __construct(int $key,
-	                     string $title,
+	function __construct( int    $key,
+	                      string $title,
 	                     ?string $title2,
-	                     int $status,
-	                     string $date,
-	                     int $network,
-	                     int $move,
-	                     int $stereo_3d,
-	                     ?int $pr,
+	                      int    $status,
+	                      string $date,
+	                      int    $network,
+	                      int    $move,
+	                      int    $stereo_3d,
+	                     ?int    $pr,
 	                     ?string $commit,
-	                     ?int $wiki_id,
+	                     ?int    $wiki_id,
 	                     ?string $wiki_title)
 	{
 		$this->key        = $key;
@@ -119,7 +122,11 @@ class Game
 
 		while ($row = mysqli_fetch_object($q_tags))
 		{
-			$a_tags[] = new GameUpdateTag($row->name, $row->popup, $row->signoff, $row->popup_delay, $row->min_system_ver);
+			$a_tags[] = new GameUpdateTag($row->name,
+			                              $row->popup,
+			                              $row->signoff,
+			                              $row->popup_delay,
+			                              $row->min_system_ver);
 		}
 
 		GameUpdateTag::import_update_packages($a_tags);
@@ -153,7 +160,9 @@ class Game
 		$db = getDatabase();
 
 		$a_wiki = array();
-		$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title` FROM `rpcs3_wiki`.`page` WHERE `page_namespace` = 0; ");
+		$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`
+		                             FROM   `rpcs3_wiki`.`page`
+		                             WHERE  `page_namespace` = 0; ");
 
 		while ($row = mysqli_fetch_object($q_wiki))
 		{
@@ -177,11 +186,15 @@ class Game
 		$db = getDatabase();
 
 		$a_items = array();
-		$q_items = mysqli_query($db, "SELECT * FROM `game_id` ORDER BY `gid` ASC; ");
+		$q_items = mysqli_query($db, "SELECT *
+		                              FROM `game_id`
+		                              ORDER BY `gid` ASC; ");
 
 		while ($row = mysqli_fetch_object($q_items))
 		{
-			$a_items[$row->key][] = new GameItem($row->gid, $row->tid, $row->latest_ver);
+			$a_items[$row->key][] = new GameItem($row->gid,
+			                                     $row->tid,
+			                                     $row->latest_ver);
 		}
 
 		foreach ($games as $game)
@@ -202,9 +215,18 @@ class Game
 
 		while ($row = mysqli_fetch_object($query))
 		{
-			$a_games[] = new Game($row->key, $row->game_title, $row->alternative_title,
-			getStatusID($row->status), $row->last_update, $row->network, $row->move, $row->{"3d"},
-			$row->pr, $row->build_commit, $row->wiki, NULL);
+			$a_games[] = new Game($row->key,
+			                      $row->game_title,
+			                      $row->alternative_title,
+			                      getStatusID($row->status),
+			                      $row->last_update,
+			                      $row->network,
+			                      $row->move,
+			                      $row->{"3d"},
+			                      $row->pr,
+			                      $row->build_commit,
+			                      $row->wiki,
+			                      NULL);
 		}
 
 		self::import_game_items($a_games);

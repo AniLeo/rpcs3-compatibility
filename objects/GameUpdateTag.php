@@ -18,7 +18,8 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/GameUpdatePackage.php")) throw new Exception("Compat: GameUpdatePackage.php is missing. Failed to include GameUpdatePackage.php");
+if (!@include_once(__DIR__."/GameUpdatePackage.php"))
+	throw new Exception("Compat: GameUpdatePackage.php is missing. Failed to include GameUpdatePackage.php");
 
 
 class GameUpdateTag
@@ -31,11 +32,11 @@ class GameUpdateTag
 
 	public $packages;       // GameUpdatePackage[]
 
-	function __construct(string  $tag_id,
-	                     string  $popup,
-	                     string  $signoff,
-	                     ?int    $popup_delay,
-	                     ?string $min_system_ver)
+	function __construct( string  $tag_id,
+	                      string  $popup,
+	                      string  $signoff,
+	                     ?int     $popup_delay,
+	                     ?string  $min_system_ver)
 	{
 		$this->tag_id         = $tag_id;
 		$this->popup          = $popup;
@@ -50,8 +51,11 @@ class GameUpdateTag
 		$db = getDatabase();
 
 		$a_titles = array();
-		$q_titles = mysqli_query($db, "SELECT `tag`, `package_version`, `paramsfo_type`, `paramsfo_title`
-		FROM `game_update_paramsfo`; ");
+		$q_titles = mysqli_query($db, "SELECT `tag`,
+		                                      `package_version`,
+		                                      `paramsfo_type`,
+		                                      `paramsfo_title`
+		                               FROM `game_update_paramsfo`; ");
 
 		while ($row = mysqli_fetch_object($q_titles))
 		{

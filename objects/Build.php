@@ -18,7 +18,8 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../functions.php"))
+	throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
 class Build
@@ -46,21 +47,21 @@ class Build
 	public $fulldate;       // String
 	public $diffdate;       // String
 
-	function __construct(int $pr,
-	                     string $commit,
-	                     string $version,
-	                     int $author_id,
-	                     string $merge,
-	                     ?int $additions,
-	                     ?int $deletions,
-	                     ?int $files,
+	function __construct( int    $pr,
+	                      string $commit,
+	                      string $version,
+	                      int    $author_id,
+	                      string $merge,
+	                     ?int    $additions,
+	                     ?int    $deletions,
+	                     ?int    $files,
 	                     ?string $checksum_win,
-	                     ?int $size_win,
+	                     ?int    $size_win,
 	                     ?string $filename_win,
 	                     ?string $checksum_linux,
-	                     ?int $size_linux,
+	                     ?int    $size_linux,
 	                     ?string $filename_linux,
-	                     bool $broken)
+	                      bool   $broken)
 	{
 		$this->pr             = $pr;
 		$this->commit         = $commit;
@@ -106,7 +107,7 @@ class Build
 			{
 				return null;
 			}
-			
+
 			return "https://github.com/RPCS3/rpcs3-binaries-win/releases/download/build-{$this->commit}/{$this->filename_win}";
 		}
 		return null;
@@ -191,9 +192,21 @@ class Build
 
 		while ($row = mysqli_fetch_object($query))
 		{
-			$a_builds[] = new Build($row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
-			$row->additions, $row->deletions, $row->changed_files,
-			$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, !is_null($row->broken));
+			$a_builds[] = new Build($row->pr,
+			                        $row->commit,
+			                        $row->version,
+			                        $row->author,
+			                        $row->merge_datetime,
+			                        $row->additions,
+			                        $row->deletions,
+			                        $row->changed_files,
+			                        $row->checksum_win,
+			                        $row->size_win,
+			                        $row->filename_win,
+			                        $row->checksum_linux,
+			                        $row->size_linux,
+			                        $row->filename_linux,
+			                        !is_null($row->broken));
 		}
 
 		self::import_authors($a_builds);
@@ -205,7 +218,9 @@ class Build
 	{
 		$db = getDatabase();
 
-		$query = mysqli_query($db, "SELECT * FROM `builds` WHERE `broken` IS NULL OR `broken` != 1 ORDER BY `merge_datetime` DESC LIMIT 1;");
+		$query = mysqli_query($db, "SELECT * FROM `builds`
+		                            WHERE `broken` IS NULL OR `broken` != 1
+		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 
 		if (mysqli_num_rows($query) === 0)
 			return null;
@@ -213,9 +228,21 @@ class Build
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
 
-		$build = new Build($row->pr, $row->commit, $row->version, $row->author, $row->merge_datetime,
-		$row->additions, $row->deletions, $row->changed_files,
-		$row->checksum_win, $row->size_win, $row->filename_win, $row->checksum_linux, $row->size_linux, $row->filename_linux, !is_null($row->broken));
+		$build = new Build($row->pr,
+		                   $row->commit,
+		                   $row->version,
+		                   $row->author,
+		                   $row->merge_datetime,
+		                   $row->additions,
+		                   $row->deletions,
+		                   $row->changed_files,
+		                   $row->checksum_win,
+		                   $row->size_win,
+		                   $row->filename_win,
+		                   $row->checksum_linux,
+		                   $row->size_linux,
+		                   $row->filename_linux,
+		                   !is_null($row->broken));
 
 		$ret = array($build);
 		self::import_authors($ret);

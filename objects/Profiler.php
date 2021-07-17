@@ -18,7 +18,8 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
+if (!@include_once(__DIR__."/../functions.php"))
+	throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 
 
 class Profiler
@@ -91,8 +92,12 @@ class Profiler
 		{
 			$ret .= "<p>".PHP_EOL;
 			for ($i = 0; $i < self::$size - 1; $i++)
-				$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL, self::$data[$i+1]['time'] - self::$data[$i]['time'],
-				self::$data[$i+1]['mem'] - self::$data[$i]['mem'], self::$data[$i]['desc']);
+			{
+				$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL,
+				                self::$data[$i+1]['time'] - self::$data[$i]['time'],
+				                self::$data[$i+1]['mem'] - self::$data[$i]['mem'],
+				                self::$data[$i]['desc']);
+			}
 			$ret .= "</p>";
 		}
 

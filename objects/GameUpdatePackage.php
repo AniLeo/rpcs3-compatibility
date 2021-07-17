@@ -18,8 +18,10 @@
 		with this program; if not, write to the Free Software Foundation, Inc.,
 		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/GameUpdateChangelog.php")) throw new Exception("Compat: GameUpdateChangelog.php is missing. Failed to include GameUpdateChangelog.php");
-if (!@include_once(__DIR__."/GameUpdateTitle.php")) throw new Exception("Compat: GameUpdateTitle.php is missing. Failed to include GameUpdateTitle.php");
+if (!@include_once(__DIR__."/GameUpdateChangelog.php"))
+	throw new Exception("Compat: GameUpdateChangelog.php is missing. Failed to include GameUpdateChangelog.php");
+if (!@include_once(__DIR__."/GameUpdateTitle.php"))
+	throw new Exception("Compat: GameUpdateTitle.php is missing. Failed to include GameUpdateTitle.php");
 
 
 class GameUpdatePackage
@@ -32,11 +34,11 @@ class GameUpdatePackage
 	public $changelogs;     // GameUpdateChangelog[]
 	public $titles;         // GameUpdateTitle[]
 
-	function __construct(string  $version,
-	                     int     $size,
-	                     string  $sha1sum,
-	                     ?string $ps3_system_ver,
-	                     ?string $drm_type)
+	function __construct( string  $version,
+	                      int     $size,
+	                      string  $sha1sum,
+	                     ?string  $ps3_system_ver,
+	                     ?string  $drm_type)
 	{
 		$this->version        = $version;
 		$this->size           = $size;
