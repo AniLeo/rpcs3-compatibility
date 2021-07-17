@@ -105,7 +105,7 @@ class HTTPQuery
 		// Results
 		if (isset($this->results) && !in_array("results", $exclusions))
 		{
-			if ($this->results !== 50)
+			if ($this->results !== 25)
 				$query['r'] = $this->results;
 		}
 

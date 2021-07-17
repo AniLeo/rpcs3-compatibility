@@ -35,7 +35,7 @@ $c_maintenance = false; // Maintenance Mode
 $c_profiler = true; // Profiling mode
 
 // Default value for results per page
-$c_pageresults = 50;
+$c_pageresults = 25;
 
 // Allowed values for results per page
 $a_pageresults = array(25, 50, 100, 200);
