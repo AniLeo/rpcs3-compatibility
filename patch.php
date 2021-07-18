@@ -53,7 +53,9 @@ function exportGamePatches() : array
 
 	$db = getDatabase();
 	$db_version = mysqli_real_escape_string($db, $get['v']);
-	$patches = mysqli_query($db, "SELECT * FROM `game_patch` WHERE `version` = '{$db_version}' ORDER BY `wiki_id` ASC; ");
+	$patches = mysqli_query($db, "SELECT * FROM `game_patch`
+	                              WHERE `version` = '{$db_version}'
+	                              ORDER BY `wiki_id` ASC; ");
 	mysqli_close($db);
 
 	if (mysqli_num_rows($patches) === 0)

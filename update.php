@@ -55,22 +55,26 @@ function checkForUpdates(string $commit = '') : array
 	// Get latest build information
 	$latest = Build::get_latest();
 
-	$results['latest_build']['pr'] = $latest->pr;
-	$results['latest_build']['datetime'] = $latest->merge;
-	$results['latest_build']['version'] = $latest->version;
+	$results['latest_build']['pr']                  = $latest->pr;
+	$results['latest_build']['datetime']            = $latest->merge;
+	$results['latest_build']['version']             = $latest->version;
 	$results['latest_build']['windows']['download'] = $latest->get_url_windows();
-	$results['latest_build']['windows']['size'] = $latest->size_win;
+	$results['latest_build']['windows']['size']     = $latest->size_win;
 	$results['latest_build']['windows']['checksum'] = $latest->checksum_win;
-	$results['latest_build']['linux']['download'] = $latest->get_url_linux();
-	$results['latest_build']['linux']['size'] = $latest->size_linux;
-	$results['latest_build']['linux']['checksum'] = $latest->checksum_linux;
+	$results['latest_build']['linux']['download']   = $latest->get_url_linux();
+	$results['latest_build']['linux']['size']       = $latest->size_linux;
+	$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
 
 	if (!empty($commit))
 	{
 		// Get user build information
 		$db = getDatabase();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
-		$q_check = mysqli_query($db, "SELECT * FROM `builds` WHERE `commit` LIKE '{$e_commit}%' AND `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
+		$q_check = mysqli_query($db, "SELECT * FROM `builds`
+		                              WHERE `commit` LIKE '{$e_commit}%'
+		                                AND `type` = 'branch'
+		                              ORDER BY `merge_datetime` DESC
+		                              LIMIT 1;");
 		$current = Build::query_to_builds($q_check);
 
 		// Check if the build exists as a master build
@@ -81,24 +85,31 @@ function checkForUpdates(string $commit = '') : array
 		else
 		{
 			$current = $current[0];
-			$results['current_build']['pr'] = $current->pr;
-			$results['current_build']['datetime'] = $current->merge;
-			$results['current_build']['version'] = $current->version;
+
+			$results['current_build']['pr']                  = $current->pr;
+			$results['current_build']['datetime']            = $current->merge;
+			$results['current_build']['version']             = $current->version;
 			$results['current_build']['windows']['download'] = $current->get_url_windows();
-			$results['current_build']['windows']['size'] = $current->size_win;
+			$results['current_build']['windows']['size']     = $current->size_win;
 			$results['current_build']['windows']['checksum'] = $current->checksum_win;
-			$results['current_build']['linux']['download'] = $current->get_url_linux();
-			$results['current_build']['linux']['size'] = $current->size_linux;
-			$results['current_build']['linux']['checksum'] = $current->checksum_linux;
+			$results['current_build']['linux']['download']   = $current->get_url_linux();
+			$results['current_build']['linux']['size']       = $current->size_linux;
+			$results['current_build']['linux']['checksum']   = $current->checksum_linux;
 
 			if ($latest->pr !== $current->pr)
 			{
-				mysqli_query($db, "UPDATE `builds` SET `ping_outdated` = `ping_outdated` + 1 WHERE `pr` = {$current->pr} LIMIT 1;");
+				mysqli_query($db, "UPDATE `builds`
+				                   SET `ping_outdated` = `ping_outdated` + 1
+				                   WHERE `pr` = {$current->pr}
+				                   LIMIT 1;");
 				$results['return_code'] = 1;
 			}
 			else
 			{
-				mysqli_query($db, "UPDATE `builds` SET `ping_updated` = `ping_updated` + 1 WHERE `pr` = {$current->pr} LIMIT 1;");
+				mysqli_query($db, "UPDATE `builds`
+				                   SET `ping_updated` = `ping_updated` + 1
+				                   WHERE `pr` = {$current->pr}
+				                   LIMIT 1;");
 			}
 		}
 		mysqli_close($db);

@@ -82,8 +82,11 @@ class GameUpdateTag
 		$db = getDatabase();
 
 		$a_changelogs = array();
-		$q_changelogs = mysqli_query($db, "SELECT `tag`, `package_version`, `paramhip_type`, `paramhip_content`
-		FROM `game_update_paramhip`; ");
+		$q_changelogs = mysqli_query($db, "SELECT `tag`,
+		                                          `package_version`,
+		                                          `paramhip_type`,
+		                                          `paramhip_content`
+		                                   FROM `game_update_paramhip`; ");
 
 		while ($row = mysqli_fetch_object($q_changelogs))
 		{

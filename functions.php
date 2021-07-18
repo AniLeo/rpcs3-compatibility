@@ -316,12 +316,18 @@ function countGames(mysqli $db, string $query = "") : array
 	$and = empty($query) ? "" : " AND ({$query}) ";
 
 	// Without network only games
-	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
-	WHERE (`network` = 0 OR (`network` = 1 && `status` <= 2)) {$and} GROUP BY `status`;");
+	$q_gen1 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c`
+	                             FROM `game_list`
+	                             WHERE (`network` = 0
+	                                OR (`network` = 1 && `status` <= 2)) {$and}
+	                             GROUP BY `status`;");
 
 	// With network only games
-	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c` FROM `game_list`
-	WHERE (`network` = 0 OR `network` = 1) {$and} GROUP BY `status`;");
+	$q_gen2 = mysqli_query($db, "SELECT `status`+0 AS `statusID`, count(*) AS `c`
+	                             FROM `game_list`
+	                             WHERE (`network` = 0
+	                                OR  `network` = 1) {$and}
+	                             GROUP BY `status`;");
 
 	// Zero-fill the array keys that are going to be used
 	for ($id = 0; $id <= count($a_status); $id++)
@@ -374,7 +380,10 @@ function count_games_all() : int
 	$ret = 0;
 
 	// Total game count (without network games)
-	$q_unique = mysqli_query($db, "SELECT count(*) AS `c` FROM `game_list` WHERE `network` = 0 OR (`network` = 1 && `status` <= 2); ");
+	$q_unique = mysqli_query($db, "SELECT count(*) AS `c`
+	                               FROM `game_list`
+	                               WHERE `network` = 0
+	                                  OR (`network` = 1 && `status` <= 2); ");
 
 	if ($q_unique && mysqli_num_rows($q_unique) === 1)
 		$ret = (int) mysqli_fetch_object($q_unique)->c;
@@ -640,8 +649,12 @@ function getDebugPermissions() : ?array
 		return null;
 
 	$db = getDatabase();
+	$s_token = mysqli_real_escape_string($db, $_COOKIE["debug"]);
 
-	$q_debug = mysqli_query($db, "SELECT * FROM `debug_whitelist` WHERE `token` = '".mysqli_real_escape_string($db, $_COOKIE["debug"])."' LIMIT 1; ");
+	$q_debug = mysqli_query($db, "SELECT *
+	                              FROM `debug_whitelist`
+	                              WHERE `token` = '{$s_token}'
+	                              LIMIT 1; ");
 
 	if (mysqli_num_rows($q_debug) === 0)
 		return null;
@@ -739,9 +752,11 @@ function isGameID(string $string) : bool
 {
 	global $a_flags, $a_media;
 
-	return ctype_alnum($string) && strlen($string) == 9 && is_numeric(substr($string, 4, 5)) &&
-	array_key_exists(strtoupper(substr($string, 2, 1)), $a_flags) &&
-	array_key_exists(strtoupper(substr($string, 0, 1)), $a_media);
+	return ctype_alnum($string) &&
+	       strlen($string) == 9 &&
+	       is_numeric(substr($string, 4, 5)) &&
+	       array_key_exists(strtoupper(substr($string, 2, 1)), $a_flags) &&
+	       array_key_exists(strtoupper(substr($string, 0, 1)), $a_media);
 }
 
 

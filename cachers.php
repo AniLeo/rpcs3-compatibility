@@ -34,8 +34,12 @@ function cacheBuilds(bool $full = false) : void
 		set_time_limit(60*5); // 5 minute limit
 		// Get date from last merged PR. Subtract 1 day to it and check new merged PRs since then.
 		// Note: If master builds are disabled we need to remove WHERE type = 'branch'
-		$mergeDateQuery = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date` FROM `builds` WHERE `type` = 'branch' ORDER BY `merge_datetime` DESC LIMIT 1;");
-		$row = mysqli_fetch_object($mergeDateQuery);
+		$q_mergedate = mysqli_query($db, "SELECT DATE_SUB(`merge_datetime`, INTERVAL 1 DAY) AS `date`
+		                                  FROM `builds`
+		                                  WHERE `type` = 'branch'
+		                                  ORDER BY `merge_datetime` DESC
+		                                  LIMIT 1;");
+		$row = mysqli_fetch_object($q_mergedate);
 		$date = date_format(date_create($row->date), 'Y-m-d');
 	}
 	else
@@ -62,7 +66,7 @@ function cacheBuilds(bool $full = false) : void
 	}
 
 	$page_limit = 30; // Search API page limit: 30
-	$pages = (int)(ceil($search->total_count / $page_limit));
+	$pages = (int) (ceil($search->total_count / $page_limit));
 	$a_PR = array();	// List of iterated PRs
 	$i = 1;	// Current page
 
@@ -78,7 +82,7 @@ function cacheBuilds(bool $full = false) : void
 
 		while ($a < $pr_limit)
 		{
-			$pr = (int)$search->items[$a]->number;
+			$pr = (int) $search->items[$a]->number;
 			$a++;	// Prepare for next PR
 
 			// If PR was already checked in this run, skip it
@@ -89,7 +93,11 @@ function cacheBuilds(bool $full = false) : void
 			$a_PR[]  = $pr;
 
 			// Check if PR is already cached
-			$PRQuery = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} AND `title` IS NOT NULL LIMIT 1; ");
+			$PRQuery = mysqli_query($db, "SELECT *
+			                              FROM `builds`
+			                              WHERE `pr` = {$pr}
+			                                AND `title` IS NOT NULL
+			                              LIMIT 1; ");
 
 			// If PR is already cached and we're not in full mode, skip
 			if (mysqli_num_rows($PRQuery) > 0 && !$full)
@@ -129,31 +137,31 @@ function cacheBuild(int $pr) : void
 		return;
 	}
 
-	if (!isset($pr_info->merged_at)        || !isset($pr_info->created_at)    ||
-	    !isset($pr_info->merge_commit_sha) || !isset($pr_info->user)          ||
-	    !isset($pr_info->user->login)      || !isset($pr_info->additions)     ||
-	    !isset($pr_info->deletions)        || !isset($pr_info->changed_files) ||
-	    !isset($pr_info->title)            || !isset($pr_info->body))
+	if (!isset($pr_info->merged_at)        ||
+	    !isset($pr_info->created_at)       ||
+	    !isset($pr_info->merge_commit_sha) ||
+	    !isset($pr_info->user)             ||
+	    !isset($pr_info->user->login)      ||
+	    !isset($pr_info->additions)        ||
+	    !isset($pr_info->deletions)        ||
+	    !isset($pr_info->changed_files)    ||
+	    !isset($pr_info->title)            ||
+	    !isset($pr_info->body))
 	{
 		echo "cacheBuild({$pr}): API error".PHP_EOL;
 		curl_close($cr);
 		return;
 	}
 
-	// Merge time, Creation Time, Commit SHA, Author
 	$merge_datetime = $pr_info->merged_at;
 	$start_datetime = $pr_info->created_at;
-	$commit = $pr_info->merge_commit_sha;
-	$author = $pr_info->user->login;
-
-	// Additions, Deletions, Changed Files
-	$additions = (int) $pr_info->additions;
-	$deletions = (int) $pr_info->deletions;
-	$changed_files = (int) $pr_info->changed_files;
-
-	// Title, Body
-	$title = $pr_info->title;
-	$body = $pr_info->body;
+	$commit         = $pr_info->merge_commit_sha;
+	$author         = $pr_info->user->login;
+	$additions      = (int) $pr_info->additions;
+	$deletions      = (int) $pr_info->deletions;
+	$changed_files  = (int) $pr_info->changed_files;
+	$title          = $pr_info->title;
+	$body           = $pr_info->body;
 
 	// Currently unused
 	$type = "branch";
@@ -239,39 +247,57 @@ function cacheBuild(int $pr) : void
 	if (mysqli_num_rows(mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ")) === 1)
 	{
 		mysqli_query($db, "UPDATE `builds` SET
-		`commit` = '".mysqli_real_escape_string($db, $commit)."',
-		`type` = '".mysqli_real_escape_string($db, $type)."',
-		`author` = '".mysqli_real_escape_string($db, (string) $aid)."',
+		`commit`         = '".mysqli_real_escape_string($db, $commit)."',
+		`type`           = '".mysqli_real_escape_string($db, $type)."',
+		`author`         = '".mysqli_real_escape_string($db, (string) $aid)."',
 		`start_datetime` = '".mysqli_real_escape_string($db, $start_datetime)."',
 		`merge_datetime` = '".mysqli_real_escape_string($db, $merge_datetime)."',
-		`version` = '".mysqli_real_escape_string($db, $version)."',
-		`additions` = '{$additions}',
-		`deletions` = '{$deletions}',
-		`changed_files` = '{$changed_files}',
-		`size_win` = '".mysqli_real_escape_string($db, $size_win)."',
-		`checksum_win` = '".mysqli_real_escape_string($db, $checksum_win)."',
-		`filename_win` = '".mysqli_real_escape_string($db, $filename_win)."',
-		`size_linux` = '".mysqli_real_escape_string($db, $size_linux)."',
+		`version`        = '".mysqli_real_escape_string($db, $version)."',
+		`additions`      = '{$additions}',
+		`deletions`      = '{$deletions}',
+		`changed_files`  = '{$changed_files}',
+		`size_win`       = '".mysqli_real_escape_string($db, $size_win)."',
+		`checksum_win`   = '".mysqli_real_escape_string($db, $checksum_win)."',
+		`filename_win`   = '".mysqli_real_escape_string($db, $filename_win)."',
+		`size_linux`     = '".mysqli_real_escape_string($db, $size_linux)."',
 		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
 		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."',
-		`title` = '".mysqli_real_escape_string($db, $title)."',
-		`body` = '".mysqli_real_escape_string($db, $body)."'
-		WHERE `pr` = '{$pr}' LIMIT 1;");
+		`title`          = '".mysqli_real_escape_string($db, $title)."',
+		`body`           = '".mysqli_real_escape_string($db, $body)."'
+		WHERE `pr` = '{$pr}'
+		LIMIT 1;");
 	}
 	else
 	{
 		mysqli_query($db, "INSERT INTO `builds`
-		(`pr`, `commit`, `type`, `author`, `start_datetime`, `merge_datetime`,
-		`version`, `additions`, `deletions`, `changed_files`, `size_win`,
-		`checksum_win`, `filename_win`, `size_linux`, `checksum_linux`,
-		`filename_linux`, `title`, `body`)
-		VALUES ('{$pr}', '".mysqli_real_escape_string($db, $commit)."',
+		(`pr`,
+		 `commit`,
+		 `type`,
+		 `author`,
+		 `start_datetime`,
+		 `merge_datetime`,
+		 `version`,
+		 `additions`,
+		 `deletions`,
+		 `changed_files`,
+		 `size_win`,
+		 `checksum_win`,
+		 `filename_win`,
+		 `size_linux`,
+		 `checksum_linux`,
+		 `filename_linux`,
+		 `title`,
+		 `body`)
+		VALUES ('{$pr}',
+		'".mysqli_real_escape_string($db, $commit)."',
 		'".mysqli_real_escape_string($db, $type)."',
 		'".mysqli_real_escape_string($db, (string) $aid)."',
 		'".mysqli_real_escape_string($db, $start_datetime)."',
 		'".mysqli_real_escape_string($db, $merge_datetime)."',
 		'".mysqli_real_escape_string($db, $version)."',
-		'{$additions}', '{$deletions}', '{$changed_files}',
+		'{$additions}',
+		'{$deletions}',
+		'{$changed_files}',
 		'".mysqli_real_escape_string($db, $size_win)."',
 		'".mysqli_real_escape_string($db, $checksum_win)."',
 		'".mysqli_real_escape_string($db, $filename_win)."',
@@ -295,7 +321,8 @@ function cacheInitials() : void
 	$words_blacklisted = array("demo", "pack", "vol.", "goty");
 	$words_whitelisted = array("hd");
 
-	$q_initials = mysqli_query($db, "SELECT DISTINCT(`game_title`), `alternative_title` FROM `game_list`;");
+	$q_initials = mysqli_query($db, "SELECT DISTINCT(`game_title`), `alternative_title`
+	                                 FROM `game_list`;");
 
 	// No games present in the database
 	if (mysqli_num_rows($q_initials) < 1)
@@ -407,8 +434,10 @@ function cacheInitials() : void
 			$original = mysqli_real_escape_string($db, $original);
 
 			// Check if value is already cached (two games can have the same initials so we use game_title)
-			$q_check = mysqli_query($db, "SELECT * FROM `initials_cache`
-				WHERE `game_title` = '{$original}' LIMIT 1; ");
+			$q_check = mysqli_query($db, "SELECT *
+			                              FROM `initials_cache`
+			                              WHERE `game_title` = '{$original}'
+			                              LIMIT 1; ");
 
 			// If value isn't cached, then cache it
 			if (mysqli_num_rows($q_check) === 0)
@@ -420,12 +449,13 @@ function cacheInitials() : void
 			{
 				// If value is cached but differs from newly calculated initials, update it
 				$row = mysqli_fetch_object($q_check);
+				$s_initials = mysqli_real_escape_string($db, $initials);
 
 				if ($row->initials != $initials)
 				{
 					mysqli_query($db, "UPDATE `initials_cache`
-					SET `initials` = '".mysqli_real_escape_string($db, $initials)."'
-					WHERE `game_title` = '{$original}' LIMIT 1;");
+					                   SET `initials` = '{$s_initials}'
+					                   WHERE `game_title` = '{$original}' LIMIT 1;");
 				}
 			}
 		}
@@ -453,8 +483,11 @@ function cacheStatusCount() : void
 	$a_cache = array();
 
 	// Fetch general count per status
-	$q_status = mysqli_query($db, "SELECT status+0 AS sid, count(*) AS c FROM `game_list`
-	WHERE `network` = 0 OR (`network` = 1 && `status` <= 2) GROUP BY `status`;");
+	$q_status = mysqli_query($db, "SELECT `status`+0 AS `sid`, count(*) AS `c`
+	                               FROM `game_list`
+	                               WHERE `network` = 0
+	                                  OR (`network` = 1 && `status` <= 2)
+	                               GROUP BY `status`;");
 
 	$a_cache[0][0] = 0;
 
@@ -483,17 +516,26 @@ function cacheContributor(string $username) : int
 	// If message is set, API call did not go well. Ignore caching.
 	if (!isset($info_contributor->message) && isset($info_contributor->id))
 	{
-		$q_contributor = mysqli_query($db, "SELECT * FROM `contributors` WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id)." LIMIT 1; ");
+		$s_id       = mysqli_real_escape_string($db, $info_contributor->id);
+		$s_username = mysqli_real_escape_string($db, $username);
+
+		$q_contributor = mysqli_query($db, "SELECT *
+		                                    FROM `contributors`
+		                                    WHERE `id` = {$s_id}
+		                                    LIMIT 1; ");
 
 		if (mysqli_num_rows($q_contributor) === 0)
 		{
 			// Contributor not yet cached on contributors table.
-			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`) VALUES (".mysqli_real_escape_string($db, $info_contributor->id).", '".mysqli_real_escape_string($db, $username)."');");
+			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`)
+			                   VALUES ({$s_id}, {$s_username});");
 		}
 		elseif (mysqli_fetch_object($q_contributor)->username != $username)
 		{
 			// Contributor on contributors table but changed GitHub username.
-			mysqli_query($db, "UPDATE `contributors` SET `username` = '".mysqli_real_escape_string($db, $username)."' WHERE `id` = ".mysqli_real_escape_string($db, $info_contributor->id).";");
+			mysqli_query($db, "UPDATE `contributors`
+			                   SET `username` = '{$s_username}'
+			                   WHERE `id` = {$s_id};");
 		}
 	}
 
@@ -511,12 +553,16 @@ function cacheWikiIDs() : void
 	$a_games = Game::query_to_games($q_games);
 
 	// Fetch all wiki pages that contain a Game ID
-	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
-	INNER JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
-	INNER JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
-	INNER JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-	WHERE `page`.`page_namespace` = 0
-	HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
+	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
+	                             FROM `rpcs3_wiki`.`page`
+	                             INNER JOIN `rpcs3_wiki`.`slots`
+	                                     ON `page`.`page_latest` = `slots`.`slot_revision_id`
+	                             INNER JOIN `rpcs3_wiki`.`content`
+	                                     ON `slots`.`slot_content_id` = `content`.`content_id`
+	                             INNER JOIN `rpcs3_wiki`.`text`
+	                                     ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+	                             WHERE `page`.`page_namespace` = 0
+	                             HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
 
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
@@ -551,8 +597,10 @@ function cacheWikiIDs() : void
 			$db_id      = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
 			$db_title   = mysqli_real_escape_string($db, $game->title);
 
-			$q_updates .= "UPDATE `game_list` SET `wiki` = '{$db_id}'
-			WHERE `game_title` = '{$db_title}' OR `alternative_title` = '{$db_title}'; ";
+			$q_updates .= "UPDATE `game_list`
+			               SET `wiki` = '{$db_id}'
+			               WHERE `game_title` = '{$db_title}'
+			                  OR `alternative_title` = '{$db_title}'; ";
 
 			$a_cached[] = $game->title;
 			break;
@@ -598,9 +646,12 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		// Game ID does not exist on the Update API (but a game with it may exist)
 		if ($api === "Not found\n")
 		{
-			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`) VALUES ('{$db_gid}'); ");
+			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`)
+			                   VALUES ('{$db_gid}'); ");
 			// Legacy field
-			mysqli_query($db, "UPDATE `game_id` SET `latest_ver` = '' WHERE `gid` = '{$gid}'; ");
+			mysqli_query($db, "UPDATE `game_id`
+			                   SET `latest_ver` = ''
+			                   WHERE `gid` = '{$gid}'; ");
 			return true;
 		}
 
@@ -612,9 +663,12 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		// Game ID exists but has no updates
 		if ($api === "")
 		{
-			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`, `status`) VALUES ('{$db_gid}', ''); ");
+			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`, `status`)
+			                   VALUES ('{$db_gid}', ''); ");
 			// Legacy field
-			mysqli_query($db, "UPDATE `game_id` SET `latest_ver` = '' WHERE `gid` = '{$gid}'; ");
+			mysqli_query($db, "UPDATE `game_id`
+			                   SET `latest_ver` = ''
+			                   WHERE `gid` = '{$gid}'; ");
 			return true;
 		}
 	}
@@ -754,8 +808,20 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 			$db_package_drm_type = ", NULL";
 		}
 
-		$q_insert .= "INSERT INTO `game_update_package` (`tag`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
-		$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+		$q_insert .= "INSERT INTO `game_update_package`
+		              (`tag`,
+		               `version`,
+		               `size`,
+		               `sha1sum`,
+		               `url`,
+		               `ps3_system_ver`,
+		               `drm_type`)
+		              VALUES ('{$db_tag_name}',
+		                      '{$db_package_version}',
+		                      '{$db_package_size}',
+		                      '{$db_package_sha1sum}',
+		                      '{$db_package_url}'
+		                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 
 		// Extra URL (usually used with different drm_type)
 		if (isset($package->url))
@@ -797,8 +863,20 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 					$db_package_drm_type = ", NULL";
 				}
 
-				$q_insert .= "INSERT INTO `game_update_package` (`tag`, `version`, `size`, `sha1sum`, `url`, `ps3_system_ver`, `drm_type`) ";
-				$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_package_size}', '{$db_package_sha1sum}', '{$db_package_url}'{$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+				$q_insert .= "INSERT INTO `game_update_package`
+				              (`tag`,
+				               `version`,
+				               `size`,
+				               `sha1sum`,
+				               `url`,
+				               `ps3_system_ver`,
+				               `drm_type`)
+				              VALUES ('{$db_tag_name}',
+				                      '{$db_package_version}',
+				                      '{$db_package_size}',
+				                      '{$db_package_sha1sum}',
+				                      '{$db_package_url}'
+				                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 			}
 		}
 
@@ -810,8 +888,15 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 				$db_paramsfo_type = mysqli_real_escape_string($db, $type);
 				$db_paramsfo_title = mysqli_real_escape_string($db, $title);
 
-				$q_insert .= "INSERT INTO `game_update_paramsfo` (`tag`, `package_version`, `paramsfo_type`, `paramsfo_title`) ";
-				$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_paramsfo_type}', '{$db_paramsfo_title}'); ";
+				$q_insert .= "INSERT INTO `game_update_paramsfo`
+				              (`tag`,
+				               `package_version`,
+				               `paramsfo_type`,
+				               `paramsfo_title`)
+				              VALUES ('{$db_tag_name}',
+				                      '{$db_package_version}',
+				                      '{$db_paramsfo_type}',
+				                      '{$db_paramsfo_title}'); ";
 			}
 		}
 
@@ -843,8 +928,17 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 
 			$db_paramhip_content = mysqli_real_escape_string($db, $paramhip_content);
 
-			$q_insert .= "INSERT INTO `game_update_paramhip` (`tag`, `package_version`, `paramhip_type`, `paramhip_url`, `paramhip_content`) ";
-			$q_insert .= "VALUES ('{$db_tag_name}', '{$db_package_version}', '{$db_paramhip_type}', '{$db_paramhip_url}', '{$db_paramhip_content}'); ";
+			$q_insert .= "INSERT INTO `game_update_paramhip`
+			              (`tag`,
+			               `package_version`,
+			               `paramhip_type`,
+			               `paramhip_url`,
+			               `paramhip_content`)
+			              VALUES ('{$db_tag_name}',
+			                      '{$db_package_version}',
+			                      '{$db_paramhip_type}',
+			                      '{$db_paramhip_url}',
+			                      '{$db_paramhip_content}'); ";
 		}
 
 		// Check if there are any child nodes we're not handling
@@ -891,11 +985,23 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		$db_tag_min_system_ver = ", NULL";
 	}
 
-	$q_insert .= "INSERT INTO `game_update_tag` (`name`, `popup`, `signoff`, `hash`, `popup_delay`, `min_system_ver`) ";
-	$q_insert .= "VALUES ('{$db_tag_name}', '{$db_tag_popup}', '{$db_tag_signoff}', '{$db_tag_hash}'{$db_tag_popup_delay}{$db_tag_min_system_ver}); ";
+	$q_insert .= "INSERT INTO `game_update_tag`
+	              (`name`,
+	               `popup`,
+	               `signoff`,
+	               `hash`,
+	               `popup_delay`,
+	               `min_system_ver`)
+	              VALUES ('{$db_tag_name}',
+	                      '{$db_tag_popup}',
+	                      '{$db_tag_signoff}',
+	                      '{$db_tag_hash}'
+	                      {$db_tag_popup_delay}{$db_tag_min_system_ver}); ";
 
 	// Legacy field
-	$q_insert .= "UPDATE `game_id` SET `latest_ver` = '{$db_package_version_latest}' WHERE `gid` = '{$db_gid}'; ";
+	$q_insert .= "UPDATE `game_id`
+	              SET `latest_ver` = '{$db_package_version_latest}'
+	              WHERE `gid` = '{$db_gid}'; ";
 
 	// Run all queries
 	mysqli_multi_query($db, $q_insert);
@@ -912,7 +1018,9 @@ function cache_games_updates() : void
 	$db = getDatabase();
 	$cr = curl_init();
 
-	$q_ids = mysqli_query($db, "SELECT * FROM `game_id` WHERE `latest_ver` IS NULL;");
+	$q_ids = mysqli_query($db, "SELECT *
+	                            FROM `game_id`
+	                            WHERE `latest_ver` IS NULL;");
 
 	while ($row = mysqli_fetch_object($q_ids))
 	{
@@ -932,12 +1040,22 @@ function cachePatches() : void
 	$id_patches_spu = 1090;
 
 	// Select all page IDs present on game list
-	$q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`, `page_touched`, CONVERT(`old_text` USING utf8mb4) AS `text` FROM `rpcs3_wiki`.`page`
-	LEFT JOIN `rpcs3_compatibility`.`game_list` ON `page`.`page_id` = `game_list`.`wiki`
-	LEFT JOIN `rpcs3_wiki`.`slots` ON `page`.`page_latest` = `slots`.`slot_revision_id`
-	LEFT JOIN `rpcs3_wiki`.`content` ON `slots`.`slot_content_id` = `content`.`content_id`
-	LEFT JOIN `rpcs3_wiki`.`text` ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-	WHERE (`page`.`page_namespace` = 0 AND `game_list`.`wiki` IS NOT NULL) OR `page`.`page_id` = {$id_patches_spu}; ");
+	$q_wiki = mysqli_query($db, "SELECT `page_id`,
+	                                    `page_title`,
+	                                    `page_touched`,
+	                                     CONVERT(`old_text` USING utf8mb4) AS `text`
+	                             FROM `rpcs3_wiki`.`page`
+	                             LEFT JOIN `rpcs3_compatibility`.`game_list`
+	                                    ON `page`.`page_id` = `game_list`.`wiki`
+	                             LEFT JOIN `rpcs3_wiki`.`slots`
+	                                    ON `page`.`page_latest` = `slots`.`slot_revision_id`
+	                             LEFT JOIN `rpcs3_wiki`.`content`
+	                                    ON `slots`.`slot_content_id` = `content`.`content_id`
+	                             LEFT JOIN `rpcs3_wiki`.`text`
+	                                    ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+	                             WHERE (`page`.`page_namespace` = 0 AND
+	                                    `game_list`.`wiki` IS NOT NULL)
+	                                OR `page`.`page_id` = {$id_patches_spu}; ");
 
 	// No wiki pages, return here
 	if (mysqli_num_rows($q_wiki) === 0)
@@ -949,17 +1067,26 @@ function cachePatches() : void
 	// Results array [id, title, text, date]
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
-		$a_wiki[] = array("id" => $row->page_id, "title" => $row->page_title, "text" => $row->text, "date" => $row->page_touched);
+	{
+		$a_wiki[] = array("id" => $row->page_id,
+		                  "title" => $row->page_title,
+		                  "text" => $row->text,
+		                  "date" => $row->page_touched);
+	}
 
 	// Select all game patches currently on database
-	$q_patch = mysqli_query($db, "SELECT `wiki_id`, `version`, `touched` FROM `rpcs3_compatibility`.`game_patch`; ");
+	$q_patch = mysqli_query($db, "SELECT `wiki_id`, `version`, `touched`
+	                              FROM `rpcs3_compatibility`.`game_patch`; ");
 
 	// Results array [version, touched]
 	$a_patch = array();
 	if (mysqli_num_rows($q_patch) !== 0)
 	{
 		while ($row = mysqli_fetch_object($q_patch))
-			$a_patch[$row->wiki_id] = array("version" => $row->version, "touched" => $row->touched);
+		{
+			$a_patch[$row->wiki_id] = array("version" => $row->version,
+			                                "touched" => $row->touched);
+		}
 	}
 
 	foreach ($a_wiki as $i => $result)
@@ -1040,23 +1167,33 @@ function cachePatches() : void
 			continue;
 		}
 
-		$db_id = mysqli_real_escape_string($db, $result["id"]);
-		$db_date = mysqli_real_escape_string($db, $result["date"]);
+		$db_id      = mysqli_real_escape_string($db, $result["id"]);
+		$db_date    = mysqli_real_escape_string($db, $result["date"]);
 		$db_version = mysqli_real_escape_string($db, $version);
-		$db_patch = mysqli_real_escape_string($db, $txt_patch);
+		$db_patch   = mysqli_real_escape_string($db, $txt_patch);
 
 		// No existing patch found, insert new patch
 		if (!isset($a_patch[$result["id"]]))
 		{
-			mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch` (`wiki_id`, `version`, `touched`, `patch`)
-			VALUES ('{$db_id}', '{$db_version}', '{$db_date}', '{$db_patch}'); ");
+			mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_patch`
+			                   (`wiki_id`,
+			                    `version`,
+			                    `touched`,
+			                    `patch`)
+			                   VALUES ('{$db_id}',
+			                           '{$db_version}',
+			                           '{$db_date}',
+			                           '{$db_patch}'); ");
 		}
 
 		// Existing patch found with older touch date, update it
 		else if ($db_date !== $a_patch[$result["id"]]["touched"])
 		{
-			mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_patch` SET `touched` = '{$db_date}', `patch` = '{$db_patch}'
-			WHERE `wiki_id` = '{$db_id}' AND `version` = '{$db_version}'; ");
+			mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_patch`
+			                   SET `touched` = '{$db_date}',
+			                       `patch`   = '{$db_patch}'
+			                   WHERE `wiki_id` = '{$db_id}'
+			                     AND `version` = '{$db_version}'; ");
 		}
 	}
 }
