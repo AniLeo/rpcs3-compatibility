@@ -24,28 +24,28 @@ if (!@include_once(__DIR__."/../functions.php"))
 
 class Build
 {
-	public $pr;             // Int
-	public $commit;         // String
-	public $version;        // String
-	public $merge;          // String
-	public $additions;      // Int
-	public $deletions;      // Int
-	public $files;          // Int
-	public $broken;         // Bool
+	public  int    $pr;
+	public  string $commit;
+	public  string $version;
+	public  string $merge;
+	public ?int    $additions;
+	public ?int    $deletions;
+	public ?int    $files;
+	public  bool   $broken;
 
-	public $checksum_win;   // String
-	public $size_win;       // Int
-	public $filename_win;   // String
+	public ?string $checksum_win;
+	public ?int    $size_win;
+	public ?string $filename_win;
 
-	public $checksum_linux; // String
-	public $size_linux;     // Int
-	public $filename_linux; // String
+	public ?string $checksum_linux;
+	public ?int    $size_linux;
+	public ?string $filename_linux;
 
-	public $author_id;      // Int
-	public $author;         // String
+	public  int    $author_id;
+	public  string $author;
 
-	public $fulldate;       // String
-	public $diffdate;       // String
+	public  string $fulldate;
+	public  string $diffdate;
 
 	function __construct( int    $pr,
 	                      string $commit,
@@ -82,6 +82,12 @@ class Build
 			$this->additions = $additions;
 			$this->deletions = $deletions;
 			$this->files = $files;
+		}
+		else
+		{
+			$this->additions = null;
+			$this->deletions = null;
+			$this->files = null;
 		}
 
 		$this->fulldate = date_format(date_create($this->merge), "Y-m-d");

@@ -22,8 +22,8 @@
 
 class GameUpdateChangelog
 {
-	public $type;        // string
-	public $content;     // string
+	public string $type;
+	public string $content;
 
 	function __construct(string $type, string $content)
 	{

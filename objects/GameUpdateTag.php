@@ -24,11 +24,11 @@ if (!@include_once(__DIR__."/GameUpdatePackage.php"))
 
 class GameUpdateTag
 {
-	public $tag_id;         // string
-	public $popup;          // string
-	public $signoff;        // string
-	public $popup_delay;    // ?int
-	public $min_system_ver; // ?string
+	public  string $tag_id;
+	public  string $popup;
+	public  string $signoff;
+	public ?int    $popup_delay;
+	public ?string $min_system_ver;
 
 	public $packages;       // GameUpdatePackage[]
 

@@ -22,28 +22,17 @@
 
 class HTTPQuery
 {
-	// Compat, Builds, Debug
-	public $module;     // string
-	// Results per page
-	public $results;    // int
-	// Game status
-	public $status;     // int
-	// Character search
-	public $character;  // string
-	// Game search
-	public $search;     // string
-	// Game media
-	public $media;      // string
-	// Game report date
-	public $date;       // string
-	// Search order by
-	public $order;      // string
-	// Move support
-	public $move;       // int
-	// 3D support
-	public $stereo_3D;  // int
-	// Application type
-	public $type;       // string
+	public string $module;    // Compat, Builds, Debug
+	public int    $results;   // Results per page
+	public int    $status;    // Game status
+	public string $character; // Character search
+	public string $search;    // Game search
+	public string $media;     // Game media
+	public string $date;      // Game report date
+	public string $order;     // Search order by
+	public int    $move;      // Move support
+	public int    $stereo_3D; // 3D support
+	public string $type;      // Application type
 
 	function __construct(array $get)
 	{

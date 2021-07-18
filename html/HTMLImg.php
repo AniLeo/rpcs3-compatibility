@@ -22,14 +22,15 @@
 
 class HTMLImg
 {
-	public $class; // string
-	public $src;   // string
-	public $title; // string
+	public  string $class;
+	public  string $src;
+	public ?string $title;
 
 	function __construct(string $class, string $src)
 	{
 		$this->class = $class;
 		$this->src   = $src;
+		$this->title = null;
 	}
 
 	public function set_title(string $title) : void

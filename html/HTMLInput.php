@@ -22,12 +22,15 @@
 
 class HTMLInput
 {
-	public $name;        // string
-	public $type;        // string
-	public $value;       // string
-	public $placeholder; // string
+	public string $name;
+	public string $type;
+	public string $value;
+	public string $placeholder;
 
-	function __construct(string $name, string $type, string $value, string $placeholder)
+	function __construct(string $name,
+	                     string $type,
+	                     string $value,
+	                     string $placeholder)
 	{
 		$this->name        = $name;
 		$this->type        = $type;

@@ -26,13 +26,13 @@ if (!@include_once(__DIR__."/GameUpdateTitle.php"))
 
 class GameUpdatePackage
 {
-	public $version;        // string
-	public $size;           // int
-	public $sha1sum;        // string
-	public $ps3_system_ver; // ?string
-	public $drm_type;       // ?string
-	public $changelogs;     // GameUpdateChangelog[]
-	public $titles;         // GameUpdateTitle[]
+	public  string $version;
+	public  int    $size;
+	public  string $sha1sum;
+	public ?string $ps3_system_ver;
+	public ?string $drm_type;
+	public         $changelogs;     // GameUpdateChangelog[]
+	public         $titles;         // GameUpdateTitle[]
 
 	function __construct( string  $version,
 	                      int     $size,

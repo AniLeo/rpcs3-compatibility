@@ -26,13 +26,14 @@ if (!@include_once(__DIR__."/GameItem.php"))
 
 class HistoryEntry
 {
-	public $title;      // String
-	public $title2;     // String
-	public $old_status; // Int
-	public $new_status; // Int
-	public $old_date;   // String
-	public $new_date;   // String
-	public $game_item;  // GameItem
+	public  string   $title;
+	public ?string   $title2;
+	public ?int      $old_status;
+	public  int      $new_status;
+	public ?string   $old_date;
+	public  string   $new_date;
+
+	public GameItem $game_item;
 
 	function __construct( string $title,
 	                     ?string $title2,
@@ -48,6 +49,8 @@ class HistoryEntry
 
 		if (!is_null($old_status))
 			$this->old_status = getStatusID($old_status);
+		else
+			$this->old_status = null;
 
 		$this->old_date = $old_date;
 		$this->new_status = getStatusID($new_status);

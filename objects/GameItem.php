@@ -24,11 +24,10 @@ if (!@include_once(__DIR__."/../functions.php"))
 
 class GameItem
 {
-	public $game_id;   // string
-	public $thread_id; // int
-	public $update;    // ?string
-
-	public $tags;      // GameUpdateTag[]
+	public  string $game_id;
+	public  int    $thread_id;
+	public ?string $update;
+	public         $tags;      // GameUpdateTag[]
 
 	function __construct(string $game_id, int $thread_id, ?string $update)
 	{

@@ -22,8 +22,8 @@
 
 class GameUpdateTitle
 {
-	public $type;  // string
-	public $title; // string
+	public string $type;
+	public string $title;
 
 	function __construct(string $type, string $title)
 	{

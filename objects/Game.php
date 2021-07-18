@@ -28,19 +28,19 @@ if (!@include_once(__DIR__."/GameUpdateTag.php"))
 
 class Game
 {
-	public $key;        // Int
-	public $title;      // String
-	public $title2;     // String
-	public $status;     // Int
-	public $date;       // String
-	public $network;    // Int
-	public $move;       // Int
-	public $stereo_3d;  // Int
-	public $pr;         // Int
-	public $commit;     // String
-	public $wiki_id;    // Int
-	public $wiki_title; // String
-	public $game_item;  // GameItem[]
+	public  int     $key;
+	public  string  $title;
+	public ?string  $title2;
+	public  int     $status;
+	public  string  $date;
+	public  int     $network;
+	public  int     $move;
+	public  int     $stereo_3d;
+	public ?int     $pr;
+	public ?string  $commit;
+	public ?int     $wiki_id;
+	public ?string  $wiki_title;
+	public          $game_item;  // GameItem[]
 
 	function __construct( int    $key,
 	                      string $title,

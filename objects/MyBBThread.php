@@ -24,9 +24,9 @@ if (!@include_once(__DIR__."/../functions.php"))
 
 class MyBBThread
 {
-	public $tid;     // int
-	public $fid;     // int
-	public $subject; // string
+	public int    $tid;
+	public int    $fid;
+	public string $subject;
 
 	function __construct(int $tid, int $fid, string $subject)
 	{

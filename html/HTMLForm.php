@@ -22,10 +22,10 @@
 
 class HTMLForm
 {
-	public $action;  // string
-	public $method;  // string
-	public $inputs;  // array
-	public $buttons; // array
+	public string $action;
+	public string $method;
+	public array  $inputs;
+	public array  $buttons;
 
 	function __construct(string $action, string $method)
 	{

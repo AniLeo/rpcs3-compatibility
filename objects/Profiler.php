@@ -24,10 +24,10 @@ if (!@include_once(__DIR__."/../functions.php"))
 
 class Profiler
 {
-	public static $title = "Profiler";  // String
-	public static $data;                // [(String, Int, Float)]
-	public static $size = 0;            // Int
-	public static $mem_start;           // Int
+	public static string $title = "Profiler";
+	public static        $data;                // [(String, Int, Float)]
+	public static int    $size = 0;
+	public static int    $mem_start;
 
 	public static function setTitle(string $title) : void
 	{
