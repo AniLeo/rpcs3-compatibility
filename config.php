@@ -153,6 +153,10 @@ $a_panel = array(
 	'cachePatches' => array(
 		'title' => "Cache Patches",
 		'success' => "Forced update on game patches cache"
+	),
+	'flag_build_as_broken' => array(
+		'title' => "Flag Build as Broken",
+		'success' => ""
 	)
 );
 

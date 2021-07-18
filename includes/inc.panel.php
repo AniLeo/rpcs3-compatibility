@@ -22,6 +22,7 @@
 if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
+if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 if (!@include_once(__DIR__."/../objects/MyBBThread.php")) throw new Exception("Compat: MyBBThread.php is missing. Failed to include MyBBThread.php");
 if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
@@ -650,4 +651,40 @@ function mergeGames() : void
 	}
 
 	echo "</p>"; // End paragraph
+}
+
+function flag_build_as_broken() : void
+{
+	$pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
+
+	$form = new HTMLForm("", "POST");
+	$form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
+	$form->add_button(new HTMLButton("flag_build_as_broken", "submit", "Flag as broken"));
+	$form->print();
+
+	if (!isset($_POST["flag_build_as_broken"]) || $pr === 0)
+		return;
+
+	$db = getDatabase();
+	$q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr}; ");
+
+	if (mysqli_num_rows($q_build) === 0)
+		return;
+
+	$build = Build::query_to_builds($q_build)[0];
+
+	$build_time = strtotime($build->merge);
+
+	// Cannot flag builds older than a week as broken
+	if (time() - $build_time > 7 * 24 * 60 * 60)
+	{
+		echo "<b>The build is older than a week. Cannot flag as broken.</b><br>";
+		mysqli_close($db);
+		return;
+	}
+
+	mysqli_query($db, "UPDATE `builds` SET `broken` = 1 WHERE `pr` = {$pr}; ");
+	mysqli_close($db);
+
+	echo "<p>Flagged <b>{$pr}</b> as broken.</p>";
 }
