@@ -172,36 +172,14 @@ class HTTPQuery
 	public static function to_exclusions(array $inclusions) : array
 	{
 		$exclusions = array();
+		$parameters = array("results", "status", "character", "search",
+		                    "media", "date", "order", "move", "3D", "type");
 
-		if (!in_array("results", $inclusions))
-			$exclusions[] = "results";
-
-		if (!in_array("status", $inclusions))
-			$exclusions[] = "status";
-
-		if (!in_array("character", $inclusions))
-			$exclusions[] = "character";
-
-		if (!in_array("search", $inclusions))
-			$exclusions[] = "search";
-
-		if (!in_array("media", $inclusions))
-			$exclusions[] = "media";
-
-		if (!in_array("date", $inclusions))
-			$exclusions[] = "date";
-
-		if (!in_array("order", $inclusions))
-			$exclusions[] = "order";
-
-		if (!in_array("move", $inclusions))
-			$exclusions[] = "move";
-
-		if (!in_array("3D", $inclusions))
-			$exclusions[] = "3D";
-
-		if (!in_array("type", $inclusions))
-			$exclusions[] = "type";
+		foreach ($parameters as $parameter)
+		{
+			if (!in_array($parameter, $inclusions))
+				$exclusions[] = $parameter;
+		}
 
 		return $exclusions;
 	}

@@ -509,39 +509,41 @@ function cacheStatusCount() : void
 
 function cacheContributor(string $username) : int
 {
-	$db = getDatabase();
-
 	$info_contributor = curlJSON("https://api.github.com/users/{$username}")['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
-	if (!isset($info_contributor->message) && isset($info_contributor->id))
+	if (isset($info_contributor->message) || !isset($info_contributor->id))
 	{
-		$s_id       = mysqli_real_escape_string($db, $info_contributor->id);
-		$s_username = mysqli_real_escape_string($db, $username);
+		return 0;
+	}
 
-		$q_contributor = mysqli_query($db, "SELECT *
-		                                    FROM `contributors`
-		                                    WHERE `id` = {$s_id}
-		                                    LIMIT 1; ");
+	$db = getDatabase();
 
-		if (mysqli_num_rows($q_contributor) === 0)
-		{
-			// Contributor not yet cached on contributors table.
-			mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`)
-			                   VALUES ({$s_id}, {$s_username});");
-		}
-		elseif (mysqli_fetch_object($q_contributor)->username != $username)
-		{
-			// Contributor on contributors table but changed GitHub username.
-			mysqli_query($db, "UPDATE `contributors`
-			                   SET `username` = '{$s_username}'
-			                   WHERE `id` = {$s_id};");
-		}
+	$s_id       = mysqli_real_escape_string($db, $info_contributor->id);
+	$s_username = mysqli_real_escape_string($db, $username);
+
+	$q_contributor = mysqli_query($db, "SELECT *
+	                                    FROM `contributors`
+	                                    WHERE `id` = {$s_id}
+	                                    LIMIT 1; ");
+
+	if (mysqli_num_rows($q_contributor) === 0)
+	{
+		// Contributor not yet cached on contributors table.
+		mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`)
+		                   VALUES ({$s_id}, '{$s_username}');");
+	}
+	elseif (mysqli_fetch_object($q_contributor)->username != $username)
+	{
+		// Contributor on contributors table but changed GitHub username.
+		mysqli_query($db, "UPDATE `contributors`
+		                   SET `username` = '{$s_username}'
+		                   WHERE `id` = {$s_id};");
 	}
 
 	mysqli_close($db);
 
-	return !isset($info_contributor->message) && isset($info_contributor->id) ? $info_contributor->id : 0;
+	return $info_contributor->id;
 }
 
 
