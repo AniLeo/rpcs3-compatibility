@@ -67,6 +67,12 @@ class HTTPQuery
 
 		if (isset($get['o']))
 			$this->order = (string) $get['o'];
+
+		if (isset($get['move']))
+			$this->move = (int) $get['move'];
+
+		if (isset($get['3D']))
+			$this->stereo_3D = (int) $get['3D'];
 	}
 
 	function get_except(array $exclusions) : string
