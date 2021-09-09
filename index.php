@@ -110,6 +110,18 @@ Profiler::addData("Index: Start");
 ?>
 </title>
 <meta charset=UTF-8>
+<?php
+	if     (isset($get['h'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Compatibility History\" />"; }
+	elseif (isset($get['b'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Builds History\" />"; }
+	elseif (isset($get['a'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Debug Panel\" />"; }
+	else                      { echo "<meta property=\"og:title\" content=\"RPCS3 - Compatibility List\" />"; }
+?>
+<?php
+	if     (isset($get['h'])) { echo "<meta property=\"og:description\" content=\"You're now watching the updates that altered a game's status for RPCS3's Compatibility List for the current month.\" />"; }
+	elseif (isset($get['b'])) { echo "<meta property=\"og:description\" content=\"This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project. Hovering over the build number displays the SHA-256 checksum and the build size.\" />"; }
+	elseif (isset($get['a'])) { echo "<meta property=\"og:description\" content=\"Very cool debug panel.\" />"; }
+	else                      { echo "<meta property=\"og:description\" content=\"These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest updates.\" />"; }
+?>
 <meta name="description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux and BSD.">
 <meta name="keywords" content="rpcs3, playstation, playstation 3, ps3, emulator, debugger, windows, linux, bsd, open source, nekotekina, kd11, compatibility list">
 <meta name="author" content="RPCS3">
