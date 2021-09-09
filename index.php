@@ -101,7 +101,14 @@ Profiler::addData("Index: Start");
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<title>RPCS3 - Compatibility List</title>
+<title>
+<?php
+	if     (isset($get['h'])) { echo "RPCS3 - Compatibility History"; }
+	elseif (isset($get['b'])) { echo "RPCS3 - Builds History"; }
+	elseif (isset($get['a'])) { echo "RPCS3 - Debug Panel"; }
+	else                      { echo "RPCS3 - Compatibility List"; }
+?>
+</title>
 <meta charset=UTF-8>
 <meta name="description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux and BSD.">
 <meta name="keywords" content="rpcs3, playstation, playstation 3, ps3, emulator, debugger, windows, linux, bsd, open source, nekotekina, kd11, compatibility list">
