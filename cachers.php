@@ -145,8 +145,7 @@ function cacheBuild(int $pr) : void
 	    !isset($pr_info->additions)        ||
 	    !isset($pr_info->deletions)        ||
 	    !isset($pr_info->changed_files)    ||
-	    !isset($pr_info->title)            ||
-	    !isset($pr_info->body))
+	    !isset($pr_info->title))
 	{
 		echo "cacheBuild({$pr}): API error".PHP_EOL;
 		curl_close($cr);
@@ -161,7 +160,15 @@ function cacheBuild(int $pr) : void
 	$deletions      = (int) $pr_info->deletions;
 	$changed_files  = (int) $pr_info->changed_files;
 	$title          = $pr_info->title;
-	$body           = $pr_info->body;
+
+	if (!isset($pr_info->body) || is_null($pr_info->body))
+	{
+		$body = "";
+	}
+	else
+	{
+		$body = $pr_info->body;
+	}
 
 	// Currently unused
 	$type = "branch";
