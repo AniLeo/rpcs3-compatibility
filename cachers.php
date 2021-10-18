@@ -1077,10 +1077,10 @@ function cachePatches() : void
 	$a_wiki = array();
 	while ($row = mysqli_fetch_object($q_wiki))
 	{
-		$a_wiki[] = array("id" => $row->page_id,
-		                  "title" => $row->page_title,
-		                  "text" => $row->text,
-		                  "date" => $row->page_touched);
+		$a_wiki[] = array("id"    => (int)    $row->page_id,
+		                  "title" => (string) $row->page_title,
+		                  "text"  => (string) $row->text,
+		                  "date"  => (int)    $row->page_touched);
 	}
 
 	// Select all game patches currently on database
@@ -1103,6 +1103,13 @@ function cachePatches() : void
 		// Discard wiki pages with no patches
 		if (strpos($result["text"], "{{patch") === false)
 		{
+			// Delete cached data for the now patchless page if it exists
+			if (array_key_exists($result["id"], $a_patch))
+			{
+				mysqli_query($db, "DELETE FROM `rpcs3_compatibility`.`game_patch`
+				                   WHERE `wiki_id` = {$result["id"]}; ");
+			}
+
 			unset($a_wiki[$i]);
 			continue;
 		}
