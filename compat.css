@@ -545,6 +545,13 @@ progress {
 	background-color:#455556;
 }
 @media screen and (max-width:1000px) {
+	.compat-menu {
+		display: flex;
+		gap: 2%;
+		float: none;
+		margin: 0;
+		margin-top: 20px;
+	}
 	.compat-hdr-left {
 		margin-bottom:40px
 	}
