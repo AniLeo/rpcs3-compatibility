@@ -550,7 +550,15 @@ progress {
 	}
 	.compat-hdr-right {
 		width:100%;
-		padding-top:6px
+		padding-top:6px;
+		display: grid;
+		grid-template-columns: 32% 33% 32%;
+		grid-template-rows: 50% 50%;
+		gap: 1%;
+		float: none;
+	}
+	.compat-hdr-right a {
+		font-size: 12px;
 	}
 	.compat-hdr-right .highlightedText {
 		font-size:12px;
