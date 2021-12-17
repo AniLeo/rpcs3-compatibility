@@ -564,11 +564,22 @@ progress {
 		font-size:12px;
 		font-weight:700
 	}
-	.compat-status-progressbar {
-		opacity:0.3;
+	.compat-status-container {
+		display: grid;
+		display: flex;
+		flex-direction: column;
+		gap: 1%;
+	}
+	.compat-status-progress {
+		visibility: hidden;
+	}
+	.compat-status-main {
+		overflow-x: scroll;
+		overflow-y: hidden;
+		width: auto;
 	}
 	.compat-status-text {
-		font-size:12px
+		font-size:12px;
 	}
 	.page-con-container {
 		margin:auto 15px
