@@ -545,22 +545,66 @@ progress {
 	background-color:#455556;
 }
 @media screen and (max-width:1000px) {
+
+	.compat-search-outer {
+		display: grid;
+		grid-template-columns: repeat(15, 1fr);
+		grid-template-rows: 50% 50%;
+		height: 60px;
+		gap: 0;
+	}
+	.compat-search-inner {
+		font-size:14px;
+		width: auto;
+		height: 25px;
+	}
+	.compat-search-character {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.compat-menu {
+		display: flex;
+		gap: 2%;
+		float: none;
+		margin: 0;
+		margin-top: 20px;
+	}
 	.compat-hdr-left {
 		margin-bottom:40px
 	}
 	.compat-hdr-right {
 		width:100%;
-		padding-top:6px
+		display: grid;
+		grid-template-columns: 32% 33% 32%;
+		grid-template-rows: 50% 50%;
+		gap: 1%;
+		float: none;
+	}
+	.compat-hdr-right a {
+		font-size: 12px;
+		margin-bottom: 10px;
 	}
 	.compat-hdr-right .highlightedText {
 		font-size:12px;
 		font-weight:700
 	}
-	.compat-status-progressbar {
-		opacity:0.3;
+	.compat-status-container {
+		display: grid;
+		display: flex;
+		flex-direction: column;
+		gap: 1%;
+	}
+	.compat-status-progress {
+		visibility: hidden;
+	}
+	.compat-status-main {
+		overflow-x: scroll;
+		overflow-y: hidden;
+		width: auto;
 	}
 	.compat-status-text {
-		font-size:12px
+		font-size:12px;
 	}
 	.page-con-container {
 		margin:auto 15px
