@@ -545,6 +545,23 @@ progress {
 	background-color:#455556;
 }
 @media screen and (max-width:1000px) {
+	.compat-search-outer {
+		display: grid;
+		grid-template-columns: repeat(15, 1fr);
+		grid-template-rows: 50% 50%;
+		height: 60px;
+		gap: 0;
+	}
+	.compat-search-inner {
+		font-size:14px;
+		width: auto;
+		height: 25px;
+	}
+	.compat-search-character {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 	.compat-menu {
 		display: flex;
 		gap: 2%;
@@ -557,7 +574,6 @@ progress {
 	}
 	.compat-hdr-right {
 		width:100%;
-		padding-top:6px;
 		display: grid;
 		grid-template-columns: 32% 33% 32%;
 		grid-template-rows: 50% 50%;
@@ -566,6 +582,7 @@ progress {
 	}
 	.compat-hdr-right a {
 		font-size: 12px;
+		margin-bottom: 10px;
 	}
 	.compat-hdr-right .highlightedText {
 		font-size:12px;
