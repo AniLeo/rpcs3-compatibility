@@ -545,6 +545,7 @@ progress {
 	background-color:#455556;
 }
 @media screen and (max-width:1000px) {
+
 	.compat-search-outer {
 		display: grid;
 		grid-template-columns: repeat(15, 1fr);
