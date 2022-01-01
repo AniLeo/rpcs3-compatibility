@@ -32,6 +32,7 @@ class Build
 	public ?int    $deletions;
 	public ?int    $files;
 	public  bool   $broken;
+	public ?string $title;
 
 	public ?string $checksum_win;
 	public ?int    $size_win;
@@ -61,7 +62,8 @@ class Build
 	                     ?string $checksum_linux,
 	                     ?int    $size_linux,
 	                     ?string $filename_linux,
-	                      bool   $broken)
+	                      bool   $broken,
+	                     ?string $title)
 	{
 		$this->pr             = $pr;
 		$this->commit         = $commit;
@@ -75,6 +77,7 @@ class Build
 		$this->size_linux     = $size_linux;
 		$this->filename_linux = $filename_linux;
 		$this->broken         = $broken;
+		$this->title          = $title;
 
 		// A bug in GitHub API returns +0 -0 on some PRs
 		if (!is_null($files) && $files > 0)
@@ -212,7 +215,8 @@ class Build
 			                        $row->checksum_linux,
 			                        $row->size_linux,
 			                        $row->filename_linux,
-			                        !is_null($row->broken));
+			                        !is_null($row->broken),
+			                        $row->title);
 		}
 
 		self::import_authors($a_builds);
@@ -248,7 +252,8 @@ class Build
 		                   $row->checksum_linux,
 		                   $row->size_linux,
 		                   $row->filename_linux,
-		                   !is_null($row->broken));
+		                   !is_null($row->broken),
+		                   $row->title);
 
 		$ret = array($build);
 		self::import_authors($ret);

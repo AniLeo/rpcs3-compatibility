@@ -31,7 +31,7 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-function checkForUpdates(string $commit = '') : array
+function checkForUpdates(string $api, string $commit = '') : array
 {
 	// Standalone maintenance mode
 	$maintenance = false;
@@ -98,6 +98,23 @@ function checkForUpdates(string $commit = '') : array
 
 			if ($latest->pr !== $current->pr)
 			{
+				// v2 code
+				// When current and old build are master builds
+				if ($api === "v2")
+				{
+					$q_between = mysqli_query($db, "SELECT * FROM `builds`
+					                                WHERE `merge_datetime`
+					                                BETWEEN CAST('{$current->merge}' AS DATETIME)
+					                                AND CAST('{$latest->merge}' AS DATETIME)
+					                                ORDER BY `merge_datetime` DESC;");
+
+					while ($row = mysqli_fetch_object($q_between))
+					{
+						$results['changelog'][] = array("version" => $row->version,
+						                                "title" => $row->title);
+					}
+				}
+
 				mysqli_query($db, "UPDATE `builds`
 				                   SET `ping_outdated` = `ping_outdated` + 1
 				                   WHERE `pr` = {$current->pr}
@@ -130,11 +147,11 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-if (isset($_GET['api']) && !is_array($_GET['api']) && $_GET['api'] === "v1")
+if (isset($_GET['api']) && !is_array($_GET['api']) && ($_GET['api'] === "v1" || $_GET['api'] === "v2"))
 {
 	if (!isset($_GET['c']) || (isset($_GET['c']) && !is_array($_GET['c'])))
 	{
 		header('Content-Type: application/json');
-		echo json_encode(checkForUpdates($_GET['c']), JSON_PRETTY_PRINT);
+		echo json_encode(checkForUpdates($_GET['api'], $_GET['c']), JSON_PRETTY_PRINT);
 	}
 }
