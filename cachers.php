@@ -40,6 +40,10 @@ function cacheBuilds(bool $full = false) : void
 		                                  ORDER BY `merge_datetime` DESC
 		                                  LIMIT 1;");
 		$row = mysqli_fetch_object($q_mergedate);
+
+		if (!isset($row->date))
+			exit("[COMPAT] Cache: Missing database fields");
+
 		$date = date_format(date_create($row->date), 'Y-m-d');
 	}
 	else
@@ -458,6 +462,9 @@ function cacheInitials() : void
 				$row = mysqli_fetch_object($q_check);
 				$s_initials = mysqli_real_escape_string($db, $initials);
 
+				if (!isset($row->initials))
+					exit("[COMPAT] Cache: Missing database fields");
+
 				if ($row->initials != $initials)
 				{
 					mysqli_query($db, "UPDATE `initials_cache`
@@ -540,12 +547,20 @@ function cacheContributor(string $username) : int
 		mysqli_query($db, "INSERT INTO `contributors` (`id`, `username`)
 		                   VALUES ({$s_id}, '{$s_username}');");
 	}
-	elseif (mysqli_fetch_object($q_contributor)->username != $username)
+	else
 	{
-		// Contributor on contributors table but changed GitHub username.
-		mysqli_query($db, "UPDATE `contributors`
-		                   SET `username` = '{$s_username}'
-		                   WHERE `id` = {$s_id};");
+		$contributor = mysqli_fetch_object($q_contributor);
+
+		if (!isset($contributor->username))
+			exit("[COMPAT] Cache: Missing database fields");
+
+		if ($contributor->username != $username)
+		{
+			// Contributor on contributors table but changed GitHub username.
+			mysqli_query($db, "UPDATE `contributors`
+			                   SET `username` = '{$s_username}'
+			                   WHERE `id` = {$s_id};");
+		}
 	}
 
 	mysqli_close($db);

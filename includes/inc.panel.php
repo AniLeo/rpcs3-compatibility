@@ -437,10 +437,13 @@ function compatibilityUpdater() : void
 			`type` = {$game['thread']->get_game_type()}
 			ORDER BY `key` DESC LIMIT 1");
 
-			$key = mysqli_fetch_object($q_fetchkey)->key;
+			$row = mysqli_fetch_object($q_fetchkey);
+
+			if (!isset($row->key))
+				exit("[COMPAT] Includes: Missing database fields");
 
 			// Sanity check, this should be unreachable
-			if (is_null($key))
+			if (is_null($row->key))
 			{
 				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: <br><br>";
 				dumpVar($game);
@@ -448,14 +451,14 @@ function compatibilityUpdater() : void
 			}
 
 			// Insert Game and Thread IDs on the ID table
-			mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$key}, '{$db_game_id}', {$tid}); ");
+			mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$row->key}, '{$db_game_id}', {$tid}); ");
 
 			// Cache the updates for the new ID
 			cache_game_updates($cr, $db, $game['thread']->get_game_id());
 
 			// Log change to game history
 			mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
-			({$key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
+			({$row->key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
 		}
 
 		/*

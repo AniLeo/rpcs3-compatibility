@@ -390,7 +390,14 @@ function count_games_all() : int
 	                                  OR (`network` = 1 && `status` <= 2); ");
 
 	if ($q_unique && mysqli_num_rows($q_unique) === 1)
-		$ret = (int) mysqli_fetch_object($q_unique)->c;
+	{
+		$row = mysqli_fetch_object($q_unique);
+
+		if (!isset($row->c))
+			exit("[COMPAT] Functions: Missing database fields");
+
+		$ret = (int) $row->c;
+	}
 
 	mysqli_close($db);
 	return $ret;
@@ -664,6 +671,10 @@ function getDebugPermissions() : ?array
 		return null;
 
 	$row = mysqli_fetch_object($q_debug);
+
+	if (!isset($row->permissions))
+		exit("[COMPAT] Functions: Missing database fields");
+
 	$permissions = array();
 
 	if (strpos($row->permissions, ',') === false)

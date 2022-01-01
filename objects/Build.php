@@ -238,6 +238,9 @@ class Build
 		$row = mysqli_fetch_object($query);
 		mysqli_close($db);
 
+		if (!$row)
+			return null;
+
 		$build = new Build($row->pr,
 		                   $row->commit,
 		                   $row->version,
