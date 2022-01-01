@@ -599,7 +599,7 @@ function getCurrentPage(int $pages) : int
 // Calculate the number of pages according selected status and results per page
 function countPages(array $get, int $count) : int
 {
-	return ceil($count / $get['r']);
+	return (int) ceil($count / $get['r']);
 }
 
 

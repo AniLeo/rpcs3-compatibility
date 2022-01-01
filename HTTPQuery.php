@@ -28,7 +28,7 @@ class HTTPQuery
 	public string $character; // Character search
 	public string $search;    // Game search
 	public string $media;     // Game media
-	public string $date;      // Game report date
+	public int    $date;      // Game report date
 	public string $order;     // Search order by
 	public int    $move;      // Move support
 	public int    $stereo_3D; // 3D support
