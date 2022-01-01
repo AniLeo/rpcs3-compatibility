@@ -1210,8 +1210,8 @@ function cachePatches() : void
 			continue;
 		}
 
-		$db_id      = mysqli_real_escape_string($db, $result["id"]);
-		$db_date    = mysqli_real_escape_string($db, $result["date"]);
+		$db_id      = mysqli_real_escape_string($db, (string) $result["id"]);
+		$db_date    = mysqli_real_escape_string($db, (string) $result["date"]);
 		$db_version = mysqli_real_escape_string($db, $version);
 		$db_patch   = mysqli_real_escape_string($db, $txt_patch);
 

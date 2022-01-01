@@ -437,7 +437,7 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 		if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) )
 		{
 			// Highlights the page if it's the one we're currently in
-			$content = highlightText(str_pad($i, 2, "0", STR_PAD_LEFT), $i === $currentPage);
+			$content = highlightText(str_pad((string) $i, 2, "0", STR_PAD_LEFT), $i === $currentPage);
 			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $content);
 
 			$s_pagescounter .= $html_a->to_string();
@@ -461,7 +461,7 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 		{
 			$s_pagescounter .= "...&nbsp;&#32;";
 
-			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $i);
+			$html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", (string) $i);
 			$s_pagescounter .= $html_a->to_string();
 		}
 	}

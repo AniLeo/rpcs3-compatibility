@@ -66,7 +66,7 @@ public static function printMonths() : void
 
 	foreach ($a_histdates as $k => $v)
 	{
-		$month = monthNumberToName(substr($k, -2));
+		$month = monthNumberToName((int) substr($k, -2));
 		$year  = substr($k, 0, 4);
 
 		if ($watchdog != $year)
@@ -87,7 +87,7 @@ public static function printMonths() : void
 
 	echo "<br><strong>Current:</strong>&nbsp;";
 
-	$month = monthNumberToName(substr($a_currenthist[0], -2));
+	$month = monthNumberToName((int) substr($a_currenthist[0], -2));
 	$year = substr($a_currenthist[0], 0, 4);
 
 	$html_a_month = new HTMLA("?h", "{$month} {$year}", "{$month} {$year}");

@@ -243,8 +243,8 @@ function compatibilityUpdater() : void
 		// New thread is a duplicate of an existing one
 		if (!is_null($tid) && $tid != $thread->tid)
 		{
-			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
-			$html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", $tid);
+			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
+			$html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", (string) $tid);
 			echo "<span style='color:red'><b>Error!</b> {$thread->subject} ({$html_a_thread1->to_string()}) duplicated thread of ({$html_a_thread2->to_string()}).</span><br><br>";
 			continue;
 		}
@@ -276,7 +276,7 @@ function compatibilityUpdater() : void
 				}
 			}
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
 
 			// Invalid report found
 			if (!isset($a_inserts[$thread->tid]['commit']) || !isset($a_inserts[$thread->tid]['pr']))
@@ -386,7 +386,7 @@ function compatibilityUpdater() : void
 			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->tid);
+			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
 			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";

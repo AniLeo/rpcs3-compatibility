@@ -54,7 +54,7 @@ Profiler::addData("Inc: Count Pages");
 $row = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`"));
 if (!isset($row->c))
 	exit("[COMPAT] Includes: Missing database fields");
-$pages = ceil($row->c / $get['r']);
+$pages = (int) ceil($row->c / $get['r']);
 
 Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
