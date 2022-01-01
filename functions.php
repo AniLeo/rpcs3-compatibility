@@ -35,6 +35,10 @@ if(!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: HTML.p
 	*/
 function getDatabase() : mysqli
 {
+	if (!defined("db_host") || !defined("db_user") || !defined("db_pass") ||
+	    !defined("db_name") || !defined("db_port"))
+		exit("[COMPAT] Database: Missing connection data");
+
 	$db = mysqli_connect(db_host, db_user, db_pass, db_name, (int) db_port);
 
 	if (!$db)
@@ -790,6 +794,9 @@ function getStatusID(string $name) : ?int
 // Note: Resources can't be type hinted
 function curlJSON(string $url, &$cr = null) : array
 {
+	if (!defined("gh_token"))
+		exit("[COMPAT] API: Missing connection data");
+
 	// Use existing cURL resource or create a temporary one
 	$ch = (!is_null($cr)) ? $cr : curl_init();
 
