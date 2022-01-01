@@ -133,20 +133,12 @@ class Build
 
 	public function get_url_author() : ?string
 	{
-		if (!is_null($this->author))
-		{
-			return "https://github.com/{$this->author}";
-		}
-		return null;
+		return "https://github.com/{$this->author}";
 	}
 
 	public function get_url_author_avatar() : ?string
 	{
-		if (!is_null($this->author_id))
-		{
-			return "https://avatars.githubusercontent.com/u/{$this->author_id}";
-		}
-		return null;
+		return "https://avatars.githubusercontent.com/u/{$this->author_id}";
 	}
 
 	public function get_size_mb_windows() : ?float

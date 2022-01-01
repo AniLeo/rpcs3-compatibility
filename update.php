@@ -34,6 +34,7 @@ return_code
 function checkForUpdates(string $api, string $commit = '') : array
 {
 	// Standalone maintenance mode
+	/*
 	$maintenance = false;
 
 	if ($maintenance)
@@ -41,6 +42,7 @@ function checkForUpdates(string $api, string $commit = '') : array
 		$results['return_code'] = -2;
 		return $results;
 	}
+	*/
 
 	// If commit length is smaller than 7 chars
 	if (!empty($commit) && (!ctype_alnum($commit) || strlen($commit) < 7))
