@@ -600,7 +600,7 @@ function cacheWikiIDs() : void
 		}
 	}
 
-	// Cached game titles
+	// Cached game keys
 	$a_cached  = array();
 	$q_updates = "";
 
@@ -610,23 +610,24 @@ function cacheWikiIDs() : void
 	{
 		foreach ($game->game_item as $item)
 		{
-			// Didn't find Game ID on any wiki pages or already cached this title in this run
-			if (!isset($a_wiki[$item->game_id]) || in_array($game->title, $a_cached) || (!is_null($game->title2) && in_array($game->title2, $a_cached)))
+			// Didn't find Game ID on any wiki pages or already cached this key in this run
+			if (!isset($a_wiki[$item->game_id]) || in_array($game->key, $a_cached))
 			{
 				continue;
 			}
 
 			// Update compatibility list entries with the found Wiki IDs
-			// Maybe delete all pages beforehand? Probably not needed as Wiki pages shouldn't be changing IDs.
-			$db_id      = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
-			$db_title   = mysqli_real_escape_string($db, $game->title);
+			// Maybe delete all pages beforehand?
+			// Probably not needed as Wiki pages shouldn't be changing IDs.
+			// Different games can have the same game title, thus use key here.
+			$db_id  = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
+			$db_key = mysqli_real_escape_string($db, $game->key);
 
 			$q_updates .= "UPDATE `game_list`
 			               SET `wiki` = '{$db_id}'
-			               WHERE `game_title` = '{$db_title}'
-			                  OR `alternative_title` = '{$db_title}'; ";
+			               WHERE `key` = '{$db_key}'; ";
 
-			$a_cached[] = $game->title;
+			$a_cached[] = $game->key;
 			break;
 		}
 	}
