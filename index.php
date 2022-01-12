@@ -26,7 +26,6 @@ if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects
 if (phpversion()[0] < 7 || ((int) phpversion()[0] === 7 && phpversion()[2] < 4))
 {
 	trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 7.4+", E_USER_ERROR);
-	die();
 }
 
 // Parses the GET data before any other code
@@ -196,7 +195,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 	}
 	?>
 </div>
-<?php if (!@include(__DIR__.'/../../lib/module/ui-main-footer.php'))
-				trigger_error("[COMPAT] Integration: ui-main-footer not found", E_USER_WARNING); ?>
+<?php if (!@include(__DIR__.'/../../lib/module/inc-footer.php'))
+				trigger_error("[COMPAT] Integration: inc-footer not found", E_USER_WARNING); ?>
 </body>
 </html>
