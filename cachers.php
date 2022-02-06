@@ -745,13 +745,7 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 	$count_tag_attributes = count(get_object_vars($api->tag->{"@attributes"}));
 	$a_tag_attributes = array("name", "popup", "signoff", "hash", "popup_delay", "min_system_ver");
 
-	if (!is_iterable($api->tag->{"@attributes"}))
-	{
-		echo "Tag attributes aren't iterable! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
-		return false;
-	}
-
-	foreach ($api->tag->{"@attributes"} as $tag_attribute => $value)
+	foreach ((array) $api->tag->{"@attributes"} as $tag_attribute => $value)
 	{
 		if (!in_array($tag_attribute, $a_tag_attributes))
 		{
@@ -801,13 +795,7 @@ function cache_game_updates($cr, mysqli $db, string $gid)
 		// $count_package_attributes = count(get_object_vars($package->{"@attributes"}));
 		$a_package_attributes = array("version", "size", "sha1sum", "url", "ps3_system_ver", "drm_type");
 
-		if (!is_iterable($package->{"@attributes"}))
-		{
-			echo "Package attributes aren't iterable! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
-			return false;
-		}
-
-		foreach ($package->{"@attributes"} as $tag_package => $value)
+		foreach ((array) $package->{"@attributes"} as $tag_package => $value)
 		{
 			if (!in_array($tag_package, $a_package_attributes))
 			{
