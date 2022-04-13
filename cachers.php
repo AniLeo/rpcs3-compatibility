@@ -1111,7 +1111,8 @@ function cachePatches() : void
 	                                    ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
 	                             WHERE (`page`.`page_namespace` = 0 AND
 	                                    `game_list`.`wiki` IS NOT NULL)
-	                                OR `page`.`page_id` = {$id_patches_spu}; ");
+	                                OR `page`.`page_id` = {$id_patches_spu}
+	                             HAVING `text` LIKE '%{{patch%'; ");
 
 	// No wiki pages, return here
 	if (mysqli_num_rows($q_wiki) === 0)
@@ -1119,16 +1120,6 @@ function cachePatches() : void
 
 	// Disabled by default, but it's disabled here again in case it's enabled
 	ini_set("yaml.decode_php", '0');
-
-	// Results array [id, title, text, date]
-	$a_wiki = array();
-	while ($row = mysqli_fetch_object($q_wiki))
-	{
-		$a_wiki[] = array("id"    => (int)    $row->page_id,
-		                  "title" => (string) $row->page_title,
-		                  "text"  => (string) $row->text,
-		                  "date"  => (int)    $row->page_touched);
-	}
 
 	// Select all game patches currently on database
 	$q_patch = mysqli_query($db, "SELECT `wiki_id`, `version`, `touched`
@@ -1145,22 +1136,39 @@ function cachePatches() : void
 		}
 	}
 
-	foreach ($a_wiki as $i => $result)
+	// Results array [id, title, text, date]
+	$a_wiki = array();
+	while ($row = mysqli_fetch_object($q_wiki))
 	{
-		// Discard wiki pages with no patches
-		if (strpos($result["text"], "{{patch") === false)
-		{
-			// Delete cached data for the now patchless page if it exists
-			if (array_key_exists($result["id"], $a_patch))
-			{
-				mysqli_query($db, "DELETE FROM `rpcs3_compatibility`.`game_patch`
-				                   WHERE `wiki_id` = {$result["id"]}; ");
-			}
+		$a_wiki[] = array("id"    => (int)    $row->page_id,
+		                  "title" => (string) $row->page_title,
+		                  "text"  => (string) $row->text,
+		                  "date"  => (int)    $row->page_touched);
+	}
 
-			unset($a_wiki[$i]);
-			continue;
+	// Delete cached data for the now patchless pages if cache exists
+	foreach ($a_patch as $id => $patch)
+	{
+		$exists = false;
+
+		foreach ($a_wiki as $i => $result)
+		{
+			if ($id == $result["id"])
+			{
+				$exists = true;
+				break;
+			}
 		}
 
+		if (!$exists)
+		{
+			mysqli_query($db, "DELETE FROM `rpcs3_compatibility`.`game_patch`
+												 WHERE `wiki_id` = {$id}; ");
+		}
+	}
+
+	foreach ($a_wiki as $i => $result)
+	{
 		// Get patch header information
 		$header = get_string_between($result["text"], "{{patch", "|content");
 
