@@ -42,6 +42,10 @@ class Build
 	public ?int    $size_linux;
 	public ?string $filename_linux;
 
+	public ?string $checksum_mac;
+	public ?int    $size_mac;
+	public ?string $filename_mac;
+
 	public  int    $author_id;
 	public  string $author;
 
@@ -62,6 +66,9 @@ class Build
 	                     ?string $checksum_linux,
 	                     ?int    $size_linux,
 	                     ?string $filename_linux,
+	                     ?string $checksum_mac,
+	                     ?int    $size_mac,
+	                     ?string $filename_mac,
 	                      bool   $broken,
 	                     ?string $title)
 	{
@@ -76,6 +83,9 @@ class Build
 		$this->checksum_linux = $checksum_linux;
 		$this->size_linux     = $size_linux;
 		$this->filename_linux = $filename_linux;
+		$this->checksum_mac   = $checksum_mac;
+		$this->size_mac       = $size_mac;
+		$this->filename_mac   = $filename_mac;
 		$this->broken         = $broken;
 		$this->title          = $title;
 
@@ -131,6 +141,15 @@ class Build
 		return null;
 	}
 
+	public function get_url_mac() : ?string
+	{
+		if (!is_null($this->filename_mac))
+		{
+			return "https://github.com/RPCS3/rpcs3-binaries-mac/releases/download/build-{$this->commit}/{$this->filename_mac}";
+		}
+		return null;
+	}
+
 	public function get_url_author() : ?string
 	{
 		return "https://github.com/{$this->author}";
@@ -155,6 +174,15 @@ class Build
 		if (!is_null($this->size_linux))
 		{
 			return round($this->size_linux / 1024 / 1024, 1);
+		}
+		return null;
+	}
+
+	public function get_size_mb_mac() : ?float
+	{
+		if (!is_null($this->size_mac))
+		{
+			return round($this->size_mac / 1024 / 1024, 1);
 		}
 		return null;
 	}
@@ -207,6 +235,9 @@ class Build
 			                        $row->checksum_linux,
 			                        $row->size_linux,
 			                        $row->filename_linux,
+			                        $row->checksum_mac,
+			                        $row->size_mac,
+			                        $row->filename_mac,
 			                        !is_null($row->broken),
 			                        $row->title);
 		}
@@ -224,35 +255,7 @@ class Build
 		                            WHERE `broken` IS NULL OR `broken` != 1
 		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 
-		if (mysqli_num_rows($query) === 0)
-			return null;
-
-		$row = mysqli_fetch_object($query);
-		mysqli_close($db);
-
-		if (!$row)
-			return null;
-
-		$build = new Build($row->pr,
-		                   $row->commit,
-		                   $row->version,
-		                   $row->author,
-		                   $row->merge_datetime,
-		                   $row->additions,
-		                   $row->deletions,
-		                   $row->changed_files,
-		                   $row->checksum_win,
-		                   $row->size_win,
-		                   $row->filename_win,
-		                   $row->checksum_linux,
-		                   $row->size_linux,
-		                   $row->filename_linux,
-		                   !is_null($row->broken),
-		                   $row->title);
-
-		$ret = array($build);
-		self::import_authors($ret);
-
+		$ret = self::query_to_builds($query);
 		return $ret[0];
 	}
 }

@@ -66,6 +66,9 @@ function checkForUpdates(string $api, string $commit = '') : array
 	$results['latest_build']['linux']['download']   = $latest->get_url_linux();
 	$results['latest_build']['linux']['size']       = $latest->size_linux;
 	$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
+	$results['latest_build']['mac']['download']     = $latest->get_url_mac();
+	$results['latest_build']['mac']['size']         = $latest->size_mac;
+	$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
 
 	if (!empty($commit))
 	{
@@ -97,6 +100,9 @@ function checkForUpdates(string $api, string $commit = '') : array
 			$results['current_build']['linux']['download']   = $current->get_url_linux();
 			$results['current_build']['linux']['size']       = $current->size_linux;
 			$results['current_build']['linux']['checksum']   = $current->checksum_linux;
+			$results['current_build']['mac']['download']     = $current->get_url_mac();
+			$results['current_build']['mac']['size']         = $current->size_mac;
+			$results['current_build']['mac']['checksum']     = $current->checksum_mac;
 
 			if ($latest->pr !== $current->pr)
 			{

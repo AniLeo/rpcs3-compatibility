@@ -193,8 +193,15 @@ function cacheBuild(int $pr) : void
 	// Linux build metadata
 	$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
 
-	// Error message found: Build doesn't exist in rpcs3-binaries-win or rpcs3-binaries-linux yet, continue to check the next one
-	if (isset($info_release_win->message) || isset($info_release_linux->message))
+	// macOS build metadata
+	$info_release_mac = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr)['result'];
+
+	// Error message found: Build doesn't exist in one of the repos
+	// Continue to the next one
+	// TODO: Ignore macOS if date is prior to the first macOS build
+	if (isset($info_release_win->message) ||
+	    isset($info_release_linux->message) ||
+			isset($info_release_mac->message))
 	{
 		curl_close($cr);
 		return;
@@ -219,13 +226,15 @@ function cacheBuild(int $pr) : void
 	// Filename
 	$filename_win = $info_release_win->assets[0]->name;
 	$filename_linux = $info_release_linux->assets[0]->name;
-	if (empty($filename_win) || empty($filename_linux))
+	$filename_mac = $info_release_mac->assets[1]->name;
+	if (empty($filename_win) || empty($filename_linux) || empty($filename_mac))
 	{
 		curl_close($cr);
 		return;
 	}
 
 	// Checksum and Size
+	// TODO: Deduplicate
 	$fileinfo_win = explode(';', $info_release_win->body);
 	$checksum_win = strtoupper($fileinfo_win[0]);
 	$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
@@ -250,8 +259,21 @@ function cacheBuild(int $pr) : void
 		$size_linux *= 1024;
 	}
 
+	$fileinfo_mac = explode(';', $info_release_mac->body);
+	$checksum_mac = strtoupper($fileinfo_mac[0]);
+	$size_mac = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_mac[1]));
+	if (strpos($fileinfo_mac[1], "MB") !== false)
+	{
+		$size_mac *= 1024 * 1024;
+	}
+	elseif (strpos($fileinfo_mac[1], "KB") !== false)
+	{
+		$size_mac *= 1024;
+	}
+
 	$size_win = (string) $size_win;
 	$size_linux = (string) $size_linux;
+	$size_mac = (string) $size_mac;
 
 	$db = getDatabase();
 
@@ -273,6 +295,9 @@ function cacheBuild(int $pr) : void
 		`size_linux`     = '".mysqli_real_escape_string($db, $size_linux)."',
 		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
 		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."',
+		`size_mac`       = '".mysqli_real_escape_string($db, $size_mac)."',
+		`checksum_mac`   = '".mysqli_real_escape_string($db, $checksum_mac)."',
+		`filename_mac`   = '".mysqli_real_escape_string($db, $filename_mac)."',
 		`title`          = '".mysqli_real_escape_string($db, $title)."',
 		`body`           = '".mysqli_real_escape_string($db, $body)."'
 		WHERE `pr` = '{$pr}'
@@ -297,6 +322,9 @@ function cacheBuild(int $pr) : void
 		 `size_linux`,
 		 `checksum_linux`,
 		 `filename_linux`,
+		 `size_mac`,
+		 `checksum_mac`,
+		 `filename_mac`,
 		 `title`,
 		 `body`)
 		VALUES ('{$pr}',
@@ -315,6 +343,9 @@ function cacheBuild(int $pr) : void
 		'".mysqli_real_escape_string($db, $size_linux)."',
 		'".mysqli_real_escape_string($db, $checksum_linux)."',
 		'".mysqli_real_escape_string($db, $filename_linux)."',
+		'".mysqli_real_escape_string($db, $size_mac)."',
+		'".mysqli_real_escape_string($db, $checksum_mac)."',
+		'".mysqli_real_escape_string($db, $filename_mac)."',
 		'".mysqli_real_escape_string($db, $title)."',
 		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
