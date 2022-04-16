@@ -121,10 +121,20 @@ Profiler::addData("Index: Start");
 	elseif (isset($get['a'])) { echo "<meta property=\"og:description\" content=\"Very cool debug panel.\" />"; }
 	else                      { echo "<meta property=\"og:description\" content=\"These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest updates.\" />"; }
 ?>
-<meta name="description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux and BSD.">
-<meta name="keywords" content="rpcs3, playstation, playstation 3, ps3, emulator, debugger, windows, linux, bsd, open source, nekotekina, kd11, compatibility list">
-<meta name="author" content="RPCS3">
-<meta name="copyright" content="RPCS3">
+<meta name="description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux, macOS and FreeBSD made possible with the power of reverse engineering.">
+<meta name="keywords" content="rpcs3, playstation, playstation 3, ps3, emulator, debugger, windows, linux, macos, freebsd, open source, nekotekina, kd11, compatibility">
+<meta property="og:image" content="https://rpcs3.net/img/meta/mobile/1200.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://rpcs3.net" />
+<meta property="og:locale" content="en_US"/>
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="RPCS3" />
+<meta name="twitter:description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux, macOS and FreeBSD made possible with the power of reverse engineering.">
+<meta name="twitter:image" content="https://rpcs3.net/img/meta/mobile/1200.png">
+<meta name="twitter:site" content="@rpcs3">
+<meta name="twitter:creator" content="@rpcs3">
+<meta name="twitter:card" content="summary_large_image">
 <?php
 if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
 	trigger_error("[COMPAT] Integration: sys-meta not found", E_USER_WARNING);
