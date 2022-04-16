@@ -215,7 +215,7 @@ public static function printPagesCounter() : void
 	global $pages, $currentPage, $get;
 
 	$http_query = new HTTPQuery($get);
-	$extra = $http_query->get_except($http_query::to_exclusions(array("results, order")));
+	$extra = $http_query->get_except($http_query::to_exclusions(array("order", "results")));
 
 	$html_div = new HTMLDiv("compat-con-pages");
 	$html_div->add_content(getPagesCounter($pages, $currentPage, $extra));
