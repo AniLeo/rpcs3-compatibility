@@ -112,7 +112,7 @@ function checkForUpdates(string $api, string $commit = '') : array
 				{
 					$q_between = mysqli_query($db, "SELECT * FROM `builds`
 					                                WHERE `merge_datetime`
-					                                BETWEEN CAST('{$current->merge}' AS DATETIME)
+					                                BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
 					                                AND CAST('{$latest->merge}' AS DATETIME)
 					                                ORDER BY `merge_datetime` DESC;");
 
