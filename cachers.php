@@ -604,9 +604,6 @@ function cacheWikiIDs() : void
 {
 	$db = getDatabase();
 
-	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
-	$a_games = Game::query_to_games($q_games);
-
 	// Fetch all wiki pages that contain a Game ID
 	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
 	                             FROM `rpcs3_wiki`.`page`
@@ -630,6 +627,12 @@ function cacheWikiIDs() : void
 			$a_wiki[$match] = $row->page_id;
 		}
 	}
+
+	// Unload memory heavy object from memory after we've used it
+	unset($q_wiki);
+
+	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
+	$a_games = Game::query_to_games($q_games);
 
 	// Cached game keys
 	$a_cached  = array();
