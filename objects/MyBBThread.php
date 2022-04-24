@@ -145,8 +145,16 @@ class MyBBThread
 		return $ret;
 	}
 
-	public function get_thread_url() : string
+	public function get_thread_url(int $page = 0) : string
 	{
-		return "https://forums.rpcs3.net/thread-{$this->tid}.html";
+		// No specific page
+		if ($page === 0)
+			return "https://forums.rpcs3.net/thread-{$this->tid}.html";
+
+		// Use lastpost to jump to the last page (lastpage doesn't exist)
+		if ($page === -1)
+			return "https://forums.rpcs3.net/thread-{$this->tid}-lastpost.html";
+
+		return "https://forums.rpcs3.net/thread-{$this->tid}-page-{$page}.html";
 	}
 }
