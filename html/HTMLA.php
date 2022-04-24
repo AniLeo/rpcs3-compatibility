@@ -32,6 +32,7 @@ class HTMLA
 		$this->href    = $href;
 		$this->title   = $title;
 		$this->content = $content;
+		$this->target  = null;
 	}
 
 	public function set_target(string $target) : void
