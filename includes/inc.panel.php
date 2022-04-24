@@ -108,7 +108,7 @@ function checkInvalidThreads() : void
 			}
 			elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
 			{
-				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(-1), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
 				$html_a->set_target("_blank");
 
 				$output .= "<p class='debug-tvalidity-list'>";
@@ -120,7 +120,7 @@ function checkInvalidThreads() : void
 			}
 			elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
 			{
-				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+				$html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(-1), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
 				$html_a->set_target("_blank");
 
 				$output .= "<p class='debug-tvalidity-list'>";
@@ -217,7 +217,7 @@ function compatibilityUpdater() : void
 		// If a thread for this Game ID was already visited, continue to next thread entry
 		if (in_array($thread->get_game_id(), $a_gameIDs))
 		{
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", $thread->subject);
+			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
 			$html_a->set_target("_blank");
 
 			echo "Error! A thread for {$thread->get_game_id()} was already visited. {$html_a->to_string()} is a duplicate.<br><br>";
@@ -245,7 +245,7 @@ function compatibilityUpdater() : void
 		// New thread is a duplicate of an existing one
 		if (!is_null($tid) && $tid != $thread->tid)
 		{
-			$html_a_thread1 = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
+			$html_a_thread1 = new HTMLA($thread->get_thread_url(), "", (string) $thread->tid);
 			$html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", (string) $tid);
 			$html_a_thread1->set_target("_blank");
 			$html_a_thread2->set_target("_blank");
@@ -281,7 +281,7 @@ function compatibilityUpdater() : void
 				}
 			}
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
+			$html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
 			$html_a->set_target("_blank");
 
 			// Invalid report found
@@ -392,7 +392,7 @@ function compatibilityUpdater() : void
 			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
 			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
-			$html_a = new HTMLA("https://forums.rpcs3.net/thread-{$thread->tid}.html", "", (string) $thread->tid);
+			$html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
 			$html_a->set_target("_blank");
 
 			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
