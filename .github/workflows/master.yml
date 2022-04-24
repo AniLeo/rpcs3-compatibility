@@ -30,3 +30,4 @@ jobs:
         with:
           path: .
           level: 6
+          memory_limit: 256M
