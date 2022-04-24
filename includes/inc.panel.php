@@ -517,7 +517,7 @@ function refreshBuild() : void
 	if (!isset($_POST["refreshBuild"]))
 		return;
 
-	cacheBuild($pr);
+	cache_build($pr);
 }
 
 function mergeGames() : void

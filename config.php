@@ -114,7 +114,7 @@ $a_flags = array(
 
 // Functions available on debug panel (function_name => (title, success))
 $a_panel = array(
-	'cacheBuilds' => array(
+	'cache_builds' => array(
 		'title' => "Update Build Cache",
 		'success' => "Forced update on builds cache"
 	),

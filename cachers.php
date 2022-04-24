@@ -24,7 +24,7 @@ if(!@include_once("functions.php")) throw new Exception("Compat: functions.php i
 if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
-function cacheBuilds(bool $full = false) : void
+function cache_builds(bool $full = false) : void
 {
 	$db = getDatabase();
 	$cr = curl_init();
@@ -109,7 +109,7 @@ function cacheBuilds(bool $full = false) : void
 				continue;
 			}
 
-			cacheBuild($pr);
+			cache_build($pr);
 		}
 
 		if ($i <= $pages)
@@ -120,7 +120,78 @@ function cacheBuilds(bool $full = false) : void
 }
 
 
-function cacheBuild(int $pr) : void
+function parse_build_properties(/* object */ $info) : ?array
+{
+	$ret = array();
+
+	/*** Version name ***/
+	// API Sanity Check
+	if (!isset($info->name))
+		return null;
+
+	// Assign
+	$ret["version"] = $info->name;
+
+	// Verify: If version name doesn't contain a slash
+	//         then the current entry is invalid
+	if (strpos($ret["version"], '-') === false) // str_contains
+		return null;
+
+	// Truncate apostrophes on version name if they exist
+	if (strpos($ret["version"], '\'') !== false)
+		$ret["version"] = str_replace('\'', '', $ret["version"]);
+
+	// API Sanity Check
+	if (empty($ret["version"]))
+		return null;
+
+	/*** Filename ***/
+	// API Sanity Check
+	if (!isset($info->assets))
+		return null;
+
+	// Assign
+	foreach ($info->assets as $asset)
+	{
+		if      (strpos($asset->name, "win64.7z") !== false) // str_contains
+			$ret["filename"] = $asset->name;
+		else if (strpos($asset->name, "linux64.AppImage") !== false) // str_contains
+			$ret["filename"] = $asset->name;
+		else if (strpos($asset->name, "macos.dmg") !== false) // str_contains
+			$ret["filename"] = $asset->name;
+	}
+
+	// API Sanity Check
+	if (is_null($ret["filename"]) || empty($ret["filename"]))
+		return null;
+
+	/*** Checksum and size ***/
+	// API Sanity Check
+	if (!isset($info->body) || empty($info->body))
+		return null;
+
+	// Assign
+	$fileinfo = explode(';', $info->body);
+	$ret["checksum"] = strtoupper($fileinfo[0]);
+	$ret["size"] = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]));
+
+	// Convert size to bytes if needed
+	if      (strpos($fileinfo[1], "MB") !== false)
+		$ret["size"] *= 1024 * 1024;
+	else if (strpos($fileinfo[1], "KB") !== false)
+		$ret["size"] *= 1024;
+
+	// API Sanity Checks
+	if (empty($ret["checksum"]))
+		return null;
+	if (empty($ret["size"]))
+		return null;
+
+	return $ret;
+}
+
+
+function cache_build(int $pr) : void
 {
 	// Malformed ID
 	if ($pr <= 0)
@@ -136,7 +207,7 @@ function cacheBuild(int $pr) : void
 	// Check if we aren't rate limited
 	if (!isset($pr_info->merge_commit_sha))
 	{
-		echo "cacheBuild({$pr}): Rate limited".PHP_EOL;
+		echo "cache_build({$pr}): Rate limited".PHP_EOL;
 		curl_close($cr);
 		return;
 	}
@@ -151,7 +222,7 @@ function cacheBuild(int $pr) : void
 	    !isset($pr_info->changed_files)    ||
 	    !isset($pr_info->title))
 	{
-		echo "cacheBuild({$pr}): API error".PHP_EOL;
+		echo "cache_build({$pr}): API error".PHP_EOL;
 		curl_close($cr);
 		return;
 	}
@@ -160,9 +231,9 @@ function cacheBuild(int $pr) : void
 	$start_datetime = $pr_info->created_at;
 	$commit         = $pr_info->merge_commit_sha;
 	$author         = $pr_info->user->login;
-	$additions      = (int) $pr_info->additions;
-	$deletions      = (int) $pr_info->deletions;
-	$changed_files  = (int) $pr_info->changed_files;
+	$additions      = $pr_info->additions;
+	$deletions      = $pr_info->deletions;
+	$changed_files  = $pr_info->changed_files;
 	$title          = $pr_info->title;
 
 	if (!isset($pr_info->body) || is_null($pr_info->body))
@@ -196,84 +267,35 @@ function cacheBuild(int $pr) : void
 	// macOS build metadata
 	$info_release_mac = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr)['result'];
 
+	$is_missing = isset($info_release_win->message) ||
+	              isset($info_release_linux->message) ||
+	              isset($info_release_mac->message);
+
 	// Error message found: Build doesn't exist in one of the repos
-	// Continue to the next one
 	// TODO: Ignore macOS if date is prior to the first macOS build
-	if (isset($info_release_win->message) ||
-	    isset($info_release_linux->message) ||
-			isset($info_release_mac->message))
+	if ($is_missing)
 	{
 		curl_close($cr);
 		return;
 	}
 
-	// Version name
-	$version = $info_release_win->name;
+	$info_win   = parse_build_properties($info_release_win);
+	$info_linux = parse_build_properties($info_release_linux);
+	$info_mac   = parse_build_properties($info_release_mac);
 
-	// Simple sanity check: If version name doesn't contain a slash then the current entry is invalid
-	if (strpos($version, '-') === false)
+	if (!is_null($info_win))
+		$version = $info_win["version"];
+	else if (!is_null($info_linux))
+		$version = $info_linux["version"];
+	else if (!is_null($info_mac))
+		$version = $info_mac["version"];
+
+	// None of the builds is available or version information failed for all
+	if (!isset($version))
 	{
 		curl_close($cr);
 		return;
 	}
-
-	// Truncate apostrophes on version name if they exist
-	if (strpos($version, '\'') !== false)
-	{
-		$version = str_replace('\'', '', $version);
-	}
-
-	// Filename
-	$filename_win = $info_release_win->assets[0]->name;
-	$filename_linux = $info_release_linux->assets[0]->name;
-	$filename_mac = $info_release_mac->assets[1]->name;
-	if (empty($filename_win) || empty($filename_linux) || empty($filename_mac))
-	{
-		curl_close($cr);
-		return;
-	}
-
-	// Checksum and Size
-	// TODO: Deduplicate
-	$fileinfo_win = explode(';', $info_release_win->body);
-	$checksum_win = strtoupper($fileinfo_win[0]);
-	$size_win = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_win[1]));
-	if (strpos($fileinfo_win[1], "MB") !== false)
-	{
-		$size_win *= 1024 * 1024;
-	}
-	elseif (strpos($fileinfo_win[1], "KB") !== false)
-	{
-		$size_win *= 1024;
-	}
-
-	$fileinfo_linux = explode(';', $info_release_linux->body);
-	$checksum_linux = strtoupper($fileinfo_linux[0]);
-	$size_linux = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_linux[1]));
-	if (strpos($fileinfo_linux[1], "MB") !== false)
-	{
-		$size_linux *= 1024 * 1024;
-	}
-	elseif (strpos($fileinfo_linux[1], "KB") !== false)
-	{
-		$size_linux *= 1024;
-	}
-
-	$fileinfo_mac = explode(';', $info_release_mac->body);
-	$checksum_mac = strtoupper($fileinfo_mac[0]);
-	$size_mac = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo_mac[1]));
-	if (strpos($fileinfo_mac[1], "MB") !== false)
-	{
-		$size_mac *= 1024 * 1024;
-	}
-	elseif (strpos($fileinfo_mac[1], "KB") !== false)
-	{
-		$size_mac *= 1024;
-	}
-
-	$size_win = (string) $size_win;
-	$size_linux = (string) $size_linux;
-	$size_mac = (string) $size_mac;
 
 	$db = getDatabase();
 
@@ -286,18 +308,18 @@ function cacheBuild(int $pr) : void
 		`start_datetime` = '".mysqli_real_escape_string($db, $start_datetime)."',
 		`merge_datetime` = '".mysqli_real_escape_string($db, $merge_datetime)."',
 		`version`        = '".mysqli_real_escape_string($db, $version)."',
-		`additions`      = '{$additions}',
-		`deletions`      = '{$deletions}',
-		`changed_files`  = '{$changed_files}',
-		`size_win`       = '".mysqli_real_escape_string($db, $size_win)."',
-		`checksum_win`   = '".mysqli_real_escape_string($db, $checksum_win)."',
-		`filename_win`   = '".mysqli_real_escape_string($db, $filename_win)."',
-		`size_linux`     = '".mysqli_real_escape_string($db, $size_linux)."',
-		`checksum_linux` = '".mysqli_real_escape_string($db, $checksum_linux)."',
-		`filename_linux` = '".mysqli_real_escape_string($db, $filename_linux)."',
-		`size_mac`       = '".mysqli_real_escape_string($db, $size_mac)."',
-		`checksum_mac`   = '".mysqli_real_escape_string($db, $checksum_mac)."',
-		`filename_mac`   = '".mysqli_real_escape_string($db, $filename_mac)."',
+		`additions`      = '".mysqli_real_escape_string($db, (string) $additions)."',
+		`deletions`      = '".mysqli_real_escape_string($db, (string) $deletions)."',
+		`changed_files`  = '".mysqli_real_escape_string($db, (string) $changed_files)."',
+		`size_win`       = '".mysqli_real_escape_string($db, (string) $info_win["size"])."',
+		`checksum_win`   = '".mysqli_real_escape_string($db, $info_win["checksum"])."',
+		`filename_win`   = '".mysqli_real_escape_string($db, $info_win["filename"])."',
+		`size_linux`     = '".mysqli_real_escape_string($db, (string) $info_linux["size"])."',
+		`checksum_linux` = '".mysqli_real_escape_string($db, $info_linux["checksum"])."',
+		`filename_linux` = '".mysqli_real_escape_string($db, $info_linux["filename"])."',
+		`size_mac`       = '".mysqli_real_escape_string($db, (string) $info_mac["size"])."',
+		`checksum_mac`   = '".mysqli_real_escape_string($db, $info_mac["checksum"])."',
+		`filename_mac`   = '".mysqli_real_escape_string($db, $info_mac["filename"])."',
 		`title`          = '".mysqli_real_escape_string($db, $title)."',
 		`body`           = '".mysqli_real_escape_string($db, $body)."'
 		WHERE `pr` = '{$pr}'
@@ -334,18 +356,18 @@ function cacheBuild(int $pr) : void
 		'".mysqli_real_escape_string($db, $start_datetime)."',
 		'".mysqli_real_escape_string($db, $merge_datetime)."',
 		'".mysqli_real_escape_string($db, $version)."',
-		'{$additions}',
-		'{$deletions}',
-		'{$changed_files}',
-		'".mysqli_real_escape_string($db, $size_win)."',
-		'".mysqli_real_escape_string($db, $checksum_win)."',
-		'".mysqli_real_escape_string($db, $filename_win)."',
-		'".mysqli_real_escape_string($db, $size_linux)."',
-		'".mysqli_real_escape_string($db, $checksum_linux)."',
-		'".mysqli_real_escape_string($db, $filename_linux)."',
-		'".mysqli_real_escape_string($db, $size_mac)."',
-		'".mysqli_real_escape_string($db, $checksum_mac)."',
-		'".mysqli_real_escape_string($db, $filename_mac)."',
+		'".mysqli_real_escape_string($db, (string) $additions)."',
+		'".mysqli_real_escape_string($db, (string) $deletions)."',
+		'".mysqli_real_escape_string($db, (string) $changed_files)."',
+		'".mysqli_real_escape_string($db, (string) $info_win["size"])."',
+		'".mysqli_real_escape_string($db, $info_win["checksum"])."',
+		'".mysqli_real_escape_string($db, $info_win["filename"])."',
+		'".mysqli_real_escape_string($db, (string) $info_linux["size"])."',
+		'".mysqli_real_escape_string($db, $info_linux["checksum"])."',
+		'".mysqli_real_escape_string($db, $info_linux["filename"])."',
+		'".mysqli_real_escape_string($db, (string) $info_mac["size"])."',
+		'".mysqli_real_escape_string($db, $info_mac["checksum"])."',
+		'".mysqli_real_escape_string($db, $info_mac["checksum"])."',
 		'".mysqli_real_escape_string($db, $title)."',
 		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
