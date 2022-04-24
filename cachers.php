@@ -155,6 +155,10 @@ function parse_build_properties(object $info) : ?array
 	// Assign
 	foreach ($info->assets as $asset)
 	{
+		// Skip checksum files
+		if (strpos($asset->name, ".sha256") !== false)
+			continue;
+
 		if      (strpos($asset->name, "win64.7z") !== false) // str_contains
 			$ret["filename"] = $asset->name;
 		else if (strpos($asset->name, "linux64.AppImage") !== false) // str_contains
