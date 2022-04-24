@@ -553,19 +553,21 @@ function mergeGames() : void
 	$s_gid1 = mysqli_real_escape_string($db, $_POST['gid1']);
 	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
 
-	$game1 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');"))[0];
-	if (empty($game1))
+	$q_game1 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');");
+	if (mysqli_num_rows($q_game1) === 0)
 	{
 		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
 		return;
 	}
+	$game1 = Game::query_to_games($q_game1)[0];
 
-	$game2 = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');"))[0];
-	if (empty($game2))
+	$q_game2 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');");
+	if (mysqli_num_rows($q_game2) === 0)
 	{
 		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
 		return;
 	}
+	$game2 = Game::query_to_games($q_game2)[0];
 
 	if ($game1->key === $game2->key)
 	{
@@ -645,7 +647,7 @@ function mergeGames() : void
 		if ($game1->network !== $game2->network)
 		{
 			$network = $game1->network === 0 ? $game2->network : $game1->network;
-			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, $network)."' WHERE `key`='{$new->key}';");
+			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, (string) $network)."' WHERE `key`='{$new->key}';");
 		}
 
 		// Move IDs from the older entry to the newer entry

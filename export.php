@@ -24,6 +24,9 @@ if (!@include_once('functions.php')) throw new Exception("Compat: functions.php 
 if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
 
 
+/**
+* @return array<string, mixed> $results
+*/
 function exportDatabase() : array
 {
 	global $c_maintenance, $a_status;

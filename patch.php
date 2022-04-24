@@ -35,6 +35,10 @@ return_code
 	 0 - Newer patch found
 	 1 - No newer patches found when hash is specified
 */
+
+/**
+* @return array<string, mixed> $results
+*/
 function exportGamePatches() : array
 {
 	global $c_maintenance, $get;

@@ -31,6 +31,10 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
+
+/**
+* @return array<string, mixed> $results
+*/
 function checkForUpdates(string $api, string $commit = '') : array
 {
 	// Standalone maintenance mode

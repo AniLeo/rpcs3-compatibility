@@ -22,10 +22,10 @@
 
 class HTMLA
 {
-	public $href;    // string
-	public $title;   // string
-	public $content; // string
-	public $target;  // string
+	public  string $href;
+	public  string $title;
+	public  string $content;
+	public ?string $target;
 
 	function __construct(string $href, string $title, string $content)
 	{

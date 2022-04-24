@@ -24,7 +24,9 @@ class HTMLForm
 {
 	public string $action;
 	public string $method;
+	/** @var array<HTMLInput> $inputs **/
 	public array  $inputs;
+	/** @var array<HTMLButton> $buttons **/
 	public array  $buttons;
 
 	function __construct(string $action, string $method)

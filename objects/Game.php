@@ -40,7 +40,8 @@ class Game
 	public ?string  $commit;
 	public ?int     $wiki_id;
 	public ?string  $wiki_title;
-	public          $game_item;  // GameItem[]
+	/** @var array<GameItem> $game_item **/
+	public  array   $game_item;
 
 	function __construct( int    $key,
 	                      string $title,
@@ -108,6 +109,9 @@ class Game
 		return null;
 	}
 
+	/**
+	* @param array<Game> $games
+	*/
 	public static function import_update_tags(array &$games) : void
 	{
 		$db = getDatabase();
@@ -155,6 +159,9 @@ class Game
 	}
 
 	// Import wiki related information to a Game array
+	/**
+	* @param array<Game> $games
+	*/
 	public static function import_wiki(array &$games) : void
 	{
 		$db = getDatabase();
@@ -181,6 +188,9 @@ class Game
 	}
 
 	// Import Game Items to a Game array
+	/**
+	* @param array<Game> $games
+	*/
 	public static function import_game_items(array &$games) : void
 	{
 		$db = getDatabase();
@@ -206,6 +216,9 @@ class Game
 	}
 
 	// Returns a Game array from a mysqli_result object
+	/**
+	* @return array<Game> $games
+	*/
 	public static function query_to_games(mysqli_result $query) : array
 	{
 		$a_games = array();
@@ -236,6 +249,9 @@ class Game
 
 	// Type of sorting (2:Title, 3:Status, 4:Date)
 	// Order of sorting (a:ASC, d:DESC)
+	/**
+	* @param array<Game> $games
+	*/
 	public static function sort(array &$games, int $type, string $order) : void
 	{
 		global $a_status;

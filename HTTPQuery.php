@@ -34,6 +34,9 @@ class HTTPQuery
 	public int    $stereo_3D; // 3D support
 	public string $type;      // Application type
 
+	/**
+	* @param array<string, string> $get
+	*/
 	function __construct(array $get)
 	{
 		if      (isset($get['b']))
@@ -75,6 +78,9 @@ class HTTPQuery
 			$this->stereo_3D = (int) $get['3D'];
 	}
 
+	/**
+	* @param array<string> $exclusions
+	*/
 	function get_except(array $exclusions) : string
 	{
 		$query = array();
@@ -175,6 +181,10 @@ class HTTPQuery
 		return $ret;
 	}
 
+	/**
+	* @param array<string> $inclusions
+	* @return array<string> $exclusions
+	*/
 	public static function to_exclusions(array $inclusions) : array
 	{
 		$exclusions = array();

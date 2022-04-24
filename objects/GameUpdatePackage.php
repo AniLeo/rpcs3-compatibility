@@ -31,8 +31,10 @@ class GameUpdatePackage
 	public  string $sha1sum;
 	public ?string $ps3_system_ver;
 	public ?string $drm_type;
-	public         $changelogs;     // GameUpdateChangelog[]
-	public         $titles;         // GameUpdateTitle[]
+	/** @var array<GameUpdateChangelog> $changelogs **/
+	public  array  $changelogs;
+	/** @var array<GameUpdateTitle> $titles **/
+	public  array  $titles;
 
 	function __construct( string  $version,
 	                      int     $size,

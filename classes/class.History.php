@@ -203,6 +203,9 @@ public static function printTableHeader(bool $full = true) : void
 /************************
  * Print: Table Content *
  ************************/
+/**
+* @param array<HistoryEntry> $array
+*/
 public static function printTableContent(array $array) : void
 {
 	global $a_status, $a_media, $a_flags;
@@ -244,14 +247,10 @@ public static function printTableContent(array $array) : void
 		// Cell 3: New Status
 		$html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-status");
 
-		if (!is_null($entry->new_status))
-		{
-			$html_div_status = new HTMLDiv("txt-compat-status background-status-{$entry->new_status}");
-			$html_div_status->add_content($a_status[$entry->new_status]["name"]);
+		$html_div_status = new HTMLDiv("txt-compat-status background-status-{$entry->new_status}");
+		$html_div_status->add_content($a_status[$entry->new_status]["name"]);
 
-			$html_div_cell->add_content($html_div_status->to_string());
-		}
-
+		$html_div_cell->add_content($html_div_status->to_string());
 		$html_div_cell->print();
 
 

@@ -29,8 +29,8 @@ class GameUpdateTag
 	public  string $signoff;
 	public ?int    $popup_delay;
 	public ?string $min_system_ver;
-
-	public $packages;       // GameUpdatePackage[]
+	/** @var array<GameUpdatePackage> $packages **/
+	public  array  $packages;
 
 	function __construct( string  $tag_id,
 	                      string  $popup,
@@ -46,6 +46,9 @@ class GameUpdateTag
 		$this->packages       = array();
 	}
 
+	/**
+	* @param array<GameUpdateTag> $tags
+	*/
 	public static function import_update_titles(array &$tags) : void
 	{
 		$db = getDatabase();
@@ -77,6 +80,9 @@ class GameUpdateTag
 		mysqli_close($db);
 	}
 
+	/**
+	* @param array<GameUpdateTag> $tags
+	*/
 	public static function import_update_changelogs(array &$tags) : void
 	{
 		$db = getDatabase();
@@ -108,6 +114,9 @@ class GameUpdateTag
 		mysqli_close($db);
 	}
 
+	/**
+	* @param array<GameUpdateTag> $tags
+	*/
 	public static function import_update_packages(array &$tags) : void
 	{
 		$db = getDatabase();

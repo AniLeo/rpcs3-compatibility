@@ -27,7 +27,8 @@ class GameItem
 	public  string $game_id;
 	public  int    $thread_id;
 	public ?string $update;
-	public         $tags;      // GameUpdateTag[]
+	/** @var array<GameUpdateTag> $tags **/
+	public  array  $tags;
 
 	function __construct(string $game_id, int $thread_id, ?string $update)
 	{

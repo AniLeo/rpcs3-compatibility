@@ -117,6 +117,9 @@ function highlightText(string $str, bool $cond = true)
 }
 
 
+/**
+* @return array<string, string|int|bool|array<string>> $get
+*/
 function validateGet() : array
 {
 	global $a_pageresults, $c_pageresults, $a_status, $a_histdates, $a_currenthist, $a_media;
@@ -164,7 +167,7 @@ function validateGet() : array
 	}
 
 	// Set default values
-	$get['r'] = $c_pageresults;
+	$get['r'] = (int) $c_pageresults;
 	$get['s'] = 0; // All
 	// $get['o'] = "";
 	// $get['c'] = '';
@@ -179,7 +182,7 @@ function validateGet() : array
 	// API version
 	if (isset($_GET['api']))
 	{
-		$get['api'] = $_GET['api'];
+		$get['api'] = (string) $_GET['api'];
 	}
 
 	// Page counter
@@ -203,7 +206,7 @@ function validateGet() : array
 	// Order by
 	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd'))
 	{
-		$get['o'] = $_GET['o'];
+		$get['o'] = (string) $_GET['o'];
 	}
 
 	// Character
@@ -221,7 +224,7 @@ function validateGet() : array
 	// Searchbox
 	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
 	{
-		$get['g'] = $_GET['g'];
+		$get['g'] = (string) $_GET['g'];
 
 		// Trim all unnecessary double spaces
 		while (strpos($get['g'], "  ") !== false)
@@ -270,7 +273,7 @@ function validateGet() : array
 	// History
 	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates))
 	{
-		$get['h'] = $_GET['h'];
+		$get['h'] = (string) $_GET['h'];
 	}
 
 	// History mode
@@ -282,13 +285,13 @@ function validateGet() : array
 	// Patch system: Version
 	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2]))
 	{
-		$get['v'] = $_GET['v'];
+		$get['v'] = (string) $_GET['v'];
 	}
 
 	// Patch system: Sha256
 	if (isset($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256']))
 	{
-		$get['sha256'] = $_GET['sha256'];
+		$get['sha256'] = (string) $_GET['sha256'];
 	}
 
 	// Get debug permissions, if any
@@ -303,7 +306,7 @@ function validateGet() : array
 		// Admin debug mode
 		if (isset($_GET['a']) && array_search("debug.view", $get['w']) !== false)
 		{
-			$get['a'] = $_GET['a'];
+			$get['a'] = (string) $_GET['a'];
 		}
 	}
 
@@ -312,6 +315,9 @@ function validateGet() : array
 
 
 // Select the count of games in each status, subjective to query restrictions
+/**
+* @return array<string, array<int, int>> $count
+*/
 function countGames(mysqli $db, string $query = "") : array
 {
 	global $get, $a_status;
@@ -470,6 +476,9 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 }
 
 
+/**
+* @param array<array<string, string|int>> $headers
+*/
 function getTableHeaders(array $headers, string $extra = "") : string
 {
 	global $get;
@@ -597,9 +606,9 @@ function getCurrentPage(int $pages) : int
 
 
 // Calculate the number of pages according selected status and results per page
-function countPages(array $get, int $count) : int
+function countPages(int $results, int $count) : int
 {
-	return (int) ceil($count / $get['r']);
+	return (int) ceil($count / $results);
 }
 
 
@@ -654,6 +663,9 @@ function generateStatusModule(bool $getCount = true) : string
 
 
 // Checks if user has debug permissions
+/**
+* @return array<string> $permissions
+*/
 function getDebugPermissions() : ?array
 {
 	if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"]))
@@ -693,7 +705,7 @@ function getDebugPermissions() : ?array
 }
 
 
-function getDateDiff($datetime) : string
+function getDateDiff(string $datetime) : string
 {
 	$diff = time() - strtotime($datetime);
 	$days = (int) floor($diff / 86400);
@@ -726,7 +738,7 @@ function monthNumberToName(int $month) : string
 }
 
 
-function dumpVar($var) : void
+function dumpVar(mixed $var) : void
 {
 	echo "<br>";
 	highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
@@ -803,7 +815,11 @@ function getStatusID(string $name) : ?int
 
 // cURL JSON document and return the result as (HttpCode, JSON)
 // Note: Resources can't be type hinted
-function curlJSON(string $url, &$cr = null) : array
+/**
+* @param CurlHandle $cr
+* @return array<string, mixed> $results
+*/
+function curlJSON(string $url, /* CurlHandle */ &$cr = null) : array // PHP 8.0 TODO
 {
 	if (!defined("gh_token"))
 		exit("[COMPAT] API: Missing connection data");
@@ -844,7 +860,10 @@ function curlJSON(string $url, &$cr = null) : array
 
 
 // Based on https://stackoverflow.com/a/9826656
-function get_string_between(string $string, string $start, string $end) /* : bool|string */
+/**
+* @return bool|string $return
+*/
+function get_string_between(string $string, string $start, string $end) /* : bool|string PHP 8.0 TODO */
 {
 	// Return position of initial limit in our string
 	// If position doesn't exist, then return false as string doesn't contain our start limit

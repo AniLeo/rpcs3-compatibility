@@ -22,9 +22,9 @@
 
 class HTMLButton
 {
-	public $name;  // string
-	public $type;  // string
-	public $value; // string
+	public string $name;
+	public string $type;
+	public string $value;
 
 	function __construct(string $name, string $type, string $value)
 	{

@@ -22,8 +22,8 @@
 
 class HTMLDiv
 {
-	public $class;   // string
-	public $content; // string
+	public string $class;
+	public string $content;
 
 	function __construct(string $class)
 	{

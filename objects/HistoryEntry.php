@@ -59,6 +59,9 @@ class HistoryEntry
 		$this->game_item = new GameItem($gid, $tid, null);
 	}
 
+	/**
+	* @return array<HistoryEntry> $entries
+	*/
 	public static function query_to_history_entry(mysqli_result $query) : array
 	{
 		$a_entries = array();

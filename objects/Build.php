@@ -192,6 +192,9 @@ class Build
 		return substr($this->commit, 0, 8);
 	}
 
+	/**
+	* @param array<Build> $builds
+	*/
 	public static function import_authors(array &$builds) : void
 	{
 		$db = getDatabase();
@@ -212,6 +215,9 @@ class Build
 		mysqli_close($db);
 	}
 
+	/**
+	* @return array<Build> $builds
+	*/
 	public static function query_to_builds(mysqli_result $query) : array
 	{
 		$a_builds = array();

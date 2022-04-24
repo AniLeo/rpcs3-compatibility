@@ -29,6 +29,9 @@ class Compat {
 
 
 // Generates query from given GET parameters
+/**
+* @param array<string, string|int|bool> $get
+*/
 public static function generate_query(array $get, mysqli &$db) : string
 {
 	$genquery = "";
@@ -547,7 +550,9 @@ gameID
 	date
 		yyyy-mm-dd
 */
-
+/**
+* @return array<string, mixed> $results
+*/
 public static function APIv1() : array
 {
 	global $c_maintenance, $games, $error, $l_title, $a_status, $get;

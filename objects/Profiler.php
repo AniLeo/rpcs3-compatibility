@@ -25,7 +25,8 @@ if (!@include_once(__DIR__."/../functions.php"))
 class Profiler
 {
 	public static string $title = "Profiler";
-	public static        $data;                // [(String, Int, Float)]
+	/** @var array<array<string, string|int|float>> $data **/
+	public static array  $data;
 	public static int    $size = 0;
 	public static int    $mem_start;
 
@@ -64,7 +65,7 @@ class Profiler
 	{
 		global $get, $c_profiler;
 
-		if (is_null($get['w']) || !$c_profiler || is_null(self::$data) || empty(self::$data))
+		if (is_null($get['w']) || !$c_profiler || empty(self::$data))
 			return "";
 
 		$ret = "<p><b>".self::$title."</b><br>";

@@ -65,7 +65,7 @@ $scount = countGames($db, $genquery);
 
 // Pages / CurrentPage
 Profiler::addData("Inc: Count Pages");
-$pages = countPages($get, $scount["network"][0]);
+$pages = countPages($get["r"], $scount["network"][0]);
 
 Profiler::addData("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
@@ -148,7 +148,7 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($
 
 	// Recalculate Pages / CurrentPage
 	$scount = countGames($db, $genquery);
-	$pages = countPages($get, $scount["network"][0]);
+	$pages = countPages($get["r"], $scount["network"][0]);
 	$currentPage = getCurrentPage($pages);
 }
 

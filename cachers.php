@@ -119,8 +119,10 @@ function cache_builds(bool $full = false) : void
 	curl_close($cr);
 }
 
-
-function parse_build_properties(/* object */ $info) : ?array
+/**
+* @return array<string, string>|null $ret
+*/
+function parse_build_properties(object $info) : ?array
 {
 	$ret = array();
 
@@ -130,7 +132,7 @@ function parse_build_properties(/* object */ $info) : ?array
 		return null;
 
 	// Assign
-	$ret["version"] = $info->name;
+	$ret["version"] = (string) $info->name;
 
 	// Verify: If version name doesn't contain a slash
 	//         then the current entry is invalid
@@ -172,14 +174,14 @@ function parse_build_properties(/* object */ $info) : ?array
 
 	// Assign
 	$fileinfo = explode(';', $info->body);
-	$ret["checksum"] = strtoupper($fileinfo[0]);
+	$ret["checksum"] = (string) strtoupper($fileinfo[0]);
 	$ret["size"] = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]));
 
 	// Convert size to bytes if needed
 	if      (strpos($fileinfo[1], "MB") !== false)
-		$ret["size"] *= 1024 * 1024;
+		$ret["size"] = (string) ($ret["size"] * 1024 * 1024);
 	else if (strpos($fileinfo[1], "KB") !== false)
-		$ret["size"] *= 1024;
+		$ret["size"] = (string) ($ret["size"] * 1024);
 
 	// API Sanity Checks
 	if (empty($ret["checksum"]))
@@ -677,7 +679,7 @@ function cacheWikiIDs() : void
 			// Probably not needed as Wiki pages shouldn't be changing IDs.
 			// Different games can have the same game title, thus use key here.
 			$db_id  = mysqli_real_escape_string($db, $a_wiki[$item->game_id]);
-			$db_key = mysqli_real_escape_string($db, $game->key);
+			$db_key = mysqli_real_escape_string($db, (string) $game->key);
 
 			$q_updates .= "UPDATE `game_list`
 			               SET `wiki` = '{$db_id}'
@@ -697,8 +699,10 @@ function cacheWikiIDs() : void
 	mysqli_close($db);
 }
 
-
-function cache_game_updates($cr, mysqli $db, string $gid)
+/**
+* @param CurlHandle $cr
+*/
+function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : bool // PHP 8.0 TODO
 {
 	set_time_limit(60*60); // 1 hour
 
