@@ -91,6 +91,7 @@ public static function printTable() : void
 	// Prepare images that will be used
 	$html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
 	$html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png");
+	$html_img_mac = new HTMLImg("builds-icon", "/img/icons/compat/macos.png");
 	$html_img_pr = new HTMLImg("builds-icon", "/img/icons/compat/github.png");
 
 	// Print table body
@@ -126,6 +127,20 @@ public static function printTable() : void
 			if (!empty($version))
 				$version .= "\n";
 			$version .= "Linux Size: {$build->get_size_mb_linux()} MB";
+		}
+		if (!empty($version))
+			$version .= "\n";
+		if (!is_null($build->checksum_mac))
+		{
+			if (!empty($version))
+				$version .= "\n";
+			$version .= "macOS SHA-256: {$build->checksum_mac}";
+		}
+		if (!is_null($build->get_size_mb_linux()))
+		{
+			if (!empty($version))
+				$version .= "\n";
+			$version .= "macOS Size: {$build->get_size_mb_mac()} MB";
 		}
 
 		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">{$build->version}</span>" : $build->version;
@@ -190,6 +205,12 @@ public static function printTable() : void
 		{
 			$html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux", $html_img_linux->to_string());
 			$html_div_cell->add_content($html_a_linux->to_string());
+		}
+
+		if (!is_null($build->get_url_mac()))
+		{
+			$html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS", $html_img_mac->to_string());
+			$html_div_cell->add_content($html_a_mac->to_string());
 		}
 
 		if ($build->broken)
