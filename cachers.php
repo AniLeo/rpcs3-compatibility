@@ -373,7 +373,7 @@ function cache_build(int $pr) : void
 		'".mysqli_real_escape_string($db, $info_linux["filename"])."',
 		'".mysqli_real_escape_string($db, (string) $info_mac["size"])."',
 		'".mysqli_real_escape_string($db, $info_mac["checksum"])."',
-		'".mysqli_real_escape_string($db, $info_mac["checksum"])."',
+		'".mysqli_real_escape_string($db, $info_mac["filename"])."',
 		'".mysqli_real_escape_string($db, $title)."',
 		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
