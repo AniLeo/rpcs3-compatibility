@@ -631,33 +631,48 @@ function cacheContributor(string $username) : int
 function cacheWikiIDs() : void
 {
 	$db = getDatabase();
-
-	// Fetch all wiki pages that contain a Game ID
-	$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
-	                             FROM `rpcs3_wiki`.`page`
-	                             INNER JOIN `rpcs3_wiki`.`slots`
-	                                     ON `page`.`page_latest` = `slots`.`slot_revision_id`
-	                             INNER JOIN `rpcs3_wiki`.`content`
-	                                     ON `slots`.`slot_content_id` = `content`.`content_id`
-	                             INNER JOIN `rpcs3_wiki`.`text`
-	                                     ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-	                             WHERE `page`.`page_namespace` = 0
-	                             HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
-
 	$a_wiki = array();
-	while ($row = mysqli_fetch_object($q_wiki))
+	$break = false;
+
+	// Run this in batches of 250 pages
+	for ($count = 0; !$break; $count += 250)
 	{
-		$matches = array();
-		preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
+		// Fetch all wiki pages that contain a Game ID
+		$q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
+									 FROM `rpcs3_wiki`.`page`
+									 INNER JOIN `rpcs3_wiki`.`slots`
+											 ON `page`.`page_latest` = `slots`.`slot_revision_id`
+									 INNER JOIN `rpcs3_wiki`.`content`
+											 ON `slots`.`slot_content_id` = `content`.`content_id`
+									 INNER JOIN `rpcs3_wiki`.`text`
+											 ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+									 WHERE `page`.`page_namespace` = 0
+									 HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'
+									 LIMIT {$count}, 250; ");
 
-		foreach ($matches[0] as $match)
+		// As long as we have results
+		if (mysqli_num_rows($q_wiki) > 0)
 		{
-			$a_wiki[$match] = $row->page_id;
-		}
-	}
+			while ($row = mysqli_fetch_object($q_wiki))
+			{
+				$matches = array();
+				preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
 
-	// Unload memory heavy object from memory after we've used it
-	unset($q_wiki);
+				foreach ($matches[0] as $match)
+				{
+					$a_wiki[$match] = $row->page_id;
+				}
+			}
+		}
+		// End the cycle after the unset
+		else
+		{
+			$break = true;
+		}
+
+		// Unload memory heavy object from memory after we've used it
+		unset($q_wiki);
+	}
 
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 	$a_games = Game::query_to_games($q_games);
