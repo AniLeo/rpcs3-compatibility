@@ -292,14 +292,13 @@ function compatibilityUpdater() : void
 				continue;
 			}
 
-			// Green for existing commit, Red for non-existing commit
-			$status_commit = isset($a_inserts[$thread->tid]['commit']) ? 'green' : 'red';
-			$commit        = isset($a_inserts[$thread->tid]['commit']) ? $a_inserts[$thread->tid]['commit'] : "null";
-			$date_commit   = isset($a_inserts[$thread->tid]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
+			// Valid report found
+			$commit        = $a_inserts[$thread->tid]['commit'];
+			$date_commit   = "({$a_commits[$commit]["merge"]})";
 
 			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
-			echo "- Commit: <span style='color:{$status_commit}'>{$commit}</span> {$date_commit}<br>";
+			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}<br>";
 			echo "<br>";
 
 		}
