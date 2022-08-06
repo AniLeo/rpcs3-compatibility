@@ -179,6 +179,8 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 				?>
 				</h1>
 			</div>
+			<div class="banner-con-divider">
+			</div>
 			<div class='banner-tx2-title fade-up-onstart'>
 				<p>
 					<?php
