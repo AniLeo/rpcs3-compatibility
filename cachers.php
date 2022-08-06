@@ -168,7 +168,7 @@ function parse_build_properties(object $info) : ?array
 	}
 
 	// API Sanity Check
-	if (is_null($ret["filename"]) || empty($ret["filename"]))
+	if (!array_key_exists("filename", $ret) || is_null($ret["filename"]) || empty($ret["filename"]))
 		return null;
 
 	/*** Checksum and size ***/
