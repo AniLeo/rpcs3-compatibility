@@ -181,10 +181,9 @@ function compatibilityUpdater() : void
 
 	// Get all threads since the end of the last compatibility period
 	$a_threads = array();
-	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`
+	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible` 
 	FROM `rpcs3_forums`.`mybb_threads`
 	WHERE ({$where}) &&
-	`visible` > 0 &&
 	(`closed` = '' || `closed` = '0') &&
 	`lastpost` > {$ts_lastupdate};");
 
@@ -195,6 +194,19 @@ function compatibilityUpdater() : void
 		// Invalid Game ID
 		if (is_null($thread->get_game_id()) || is_null($thread->get_game_title()))
 		{
+			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
+			$html_a->set_target("_blank");
+
+			echo "<span style='color:red'>Error! Invalid new thread found. See: {$html_a->to_string()}.<br><br></span>";
+			continue;
+		}
+		// Thread with negative visibility (unapproved, deleted)
+		else if ($row->visible <= 0)
+		{
+			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
+			$html_a->set_target("_blank");
+
+			echo "<span style='color:red'>Error! The new thread for {$thread->get_game_id()} is not visible ({$row->visible}). See: {$html_a->to_string()}.<br><br></span>";
 			continue;
 		}
 
