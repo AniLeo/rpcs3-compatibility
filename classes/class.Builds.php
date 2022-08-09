@@ -151,7 +151,9 @@ public static function printTable() : void
 		/* Cell 1: PR */
 		$html_div_cell = new HTMLDiv("compat-table-cell");
 
-		$html_a_pr = new HTMLA($build->get_url_pr(), "Pull Request #{$build->pr}", "{$html_img_pr->to_string()}#{$build->pr}");
+		$title = is_null($build->title) ? "Pull Request #{$build->pr}" : $build->title;
+
+		$html_a_pr = new HTMLA($build->get_url_pr(), $title, "{$html_img_pr->to_string()}#{$build->pr}");
 		$html_a_pr->set_target("_blank");
 
 		$html_div_cell->add_content($html_a_pr->to_string());
