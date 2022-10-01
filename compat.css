@@ -290,6 +290,10 @@ progress[value]::-webkit-progress-value {
     padding: 4px 0
 }
 
+.icon-disabled {
+    filter: grayscale(1);
+}
+
 .compat-icon-media:hover {
     transform: scale(1.1)
 }

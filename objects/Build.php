@@ -244,7 +244,7 @@ class Build
 			                        $row->checksum_mac,
 			                        $row->size_mac,
 			                        $row->filename_mac,
-			                        !is_null($row->broken),
+			                        !is_null($row->broken) && $row->broken != 0,
 			                        $row->title);
 		}
 
@@ -258,7 +258,7 @@ class Build
 		$db = getDatabase();
 
 		$query = mysqli_query($db, "SELECT * FROM `builds`
-		                            WHERE `broken` IS NULL OR `broken` != 1
+		                            WHERE `broken` IS NULL OR `broken` = 0
 		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 
 		$ret = self::query_to_builds($query);

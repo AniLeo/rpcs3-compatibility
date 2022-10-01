@@ -277,9 +277,12 @@ function cache_build(int $pr) : void
 	              isset($info_release_linux->message) ||
 	              isset($info_release_mac->message);
 
+	$is_broken = $is_missing && time() - strtotime($merge_datetime) >= 3600;
+
 	// Error message found: Build doesn't exist in one of the repos
+	// Do not ignore if the build was merged over an hour ago, to cache as broken
 	// TODO: Ignore macOS if date is prior to the first macOS build
-	if ($is_missing)
+	if ($is_missing && !$is_broken)
 	{
 		curl_close($cr);
 		return;
@@ -294,30 +297,47 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_win["version"];
 	}
-	else
+	else if (!$is_broken)
 	{
 		curl_close($cr);
 		return;
 	}
 	
-	if (!is_null($info_linux))
+	if (!isset($version) && !is_null($info_linux))
 	{
 		$version = $info_linux["version"];
 	}
-	else
+	else if (!isset($version) && !$is_broken)
 	{
 		curl_close($cr);
 		return;
 	}
 
-	if (!is_null($info_mac))
+	if (!isset($version) && !is_null($info_mac))
 	{
 		$version = $info_mac["version"];
 	}
-	else
+	else if (!isset($version) && !$is_broken)
 	{
 		curl_close($cr);
 		return;
+	}
+
+	// No builds are available
+	// TODO: Get $version when all the builds are missing and allow caching the entry
+	if (!isset($version))
+	{
+		curl_close($cr);
+		return;
+	}
+	
+	if ($is_broken)
+	{
+		echo "A build is broken for Pull Request #{$pr}".PHP_EOL;
+		printf("Build status: Windows: %s, Linux: %s, macOS: %s", 
+		       isset($info_release_win->message)   ? $info_release_win->message : "OK",
+		       isset($info_release_linux->message) ? $info_release_linux->message : "OK",
+		       isset($info_release_mac->message)   ? $info_release_mac->message : "OK");
 	}
 
 	$db = getDatabase();
@@ -334,15 +354,16 @@ function cache_build(int $pr) : void
 		`additions`      = '".mysqli_real_escape_string($db, (string) $additions)."',
 		`deletions`      = '".mysqli_real_escape_string($db, (string) $deletions)."',
 		`changed_files`  = '".mysqli_real_escape_string($db, (string) $changed_files)."',
-		`size_win`       = '".mysqli_real_escape_string($db, (string) $info_win["size"])."',
-		`checksum_win`   = '".mysqli_real_escape_string($db, $info_win["checksum"])."',
-		`filename_win`   = '".mysqli_real_escape_string($db, $info_win["filename"])."',
-		`size_linux`     = '".mysqli_real_escape_string($db, (string) $info_linux["size"])."',
-		`checksum_linux` = '".mysqli_real_escape_string($db, $info_linux["checksum"])."',
-		`filename_linux` = '".mysqli_real_escape_string($db, $info_linux["filename"])."',
-		`size_mac`       = '".mysqli_real_escape_string($db, (string) $info_mac["size"])."',
-		`checksum_mac`   = '".mysqli_real_escape_string($db, $info_mac["checksum"])."',
-		`filename_mac`   = '".mysqli_real_escape_string($db, $info_mac["filename"])."',
+		`size_win`       = ".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["size"])."'" : "NULL").",
+		`checksum_win`   = ".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["checksum"])."'" : "NULL").",
+		`filename_win`   = ".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["filename"])."'" : "NULL").",
+		`size_linux`     = ".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["size"])."'" : "NULL").",
+		`checksum_linux` = ".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["checksum"])."'" : "NULL").",
+		`filename_linux` = ".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["filename"])."'" : "NULL").",
+		`size_mac`       = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["size"])."'" : "NULL").",
+		`checksum_mac`   = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["checksum"])."'" : "NULL").",
+		`filename_mac`   = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["filename"])."'" : "NULL").",
+		`broken`         = ".($is_broken         ? "'2'" : "NULL").",
 		`title`          = '".mysqli_real_escape_string($db, $title)."',
 		`body`           = '".mysqli_real_escape_string($db, $body)."'
 		WHERE `pr` = '{$pr}'
@@ -370,6 +391,7 @@ function cache_build(int $pr) : void
 		 `size_mac`,
 		 `checksum_mac`,
 		 `filename_mac`,
+		 `broken`,
 		 `title`,
 		 `body`)
 		VALUES ('{$pr}',
@@ -382,15 +404,16 @@ function cache_build(int $pr) : void
 		'".mysqli_real_escape_string($db, (string) $additions)."',
 		'".mysqli_real_escape_string($db, (string) $deletions)."',
 		'".mysqli_real_escape_string($db, (string) $changed_files)."',
-		'".mysqli_real_escape_string($db, (string) $info_win["size"])."',
-		'".mysqli_real_escape_string($db, $info_win["checksum"])."',
-		'".mysqli_real_escape_string($db, $info_win["filename"])."',
-		'".mysqli_real_escape_string($db, (string) $info_linux["size"])."',
-		'".mysqli_real_escape_string($db, $info_linux["checksum"])."',
-		'".mysqli_real_escape_string($db, $info_linux["filename"])."',
-		'".mysqli_real_escape_string($db, (string) $info_mac["size"])."',
-		'".mysqli_real_escape_string($db, $info_mac["checksum"])."',
-		'".mysqli_real_escape_string($db, $info_mac["filename"])."',
+		".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["size"])."'" : "NULL").",
+		".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["checksum"])."'" : "NULL").",
+		".(isset($info_win)   ? "'".mysqli_real_escape_string($db, (string) $info_win["filename"])."'" : "NULL").",
+		".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["size"])."'" : "NULL").",
+		".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["checksum"])."'" : "NULL").",
+		".(isset($info_linux) ? "'".mysqli_real_escape_string($db, (string) $info_linux["filename"])."'" : "NULL").",
+		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["size"])."'" : "NULL").",
+		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["checksum"])."'" : "NULL").",
+		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["filename"])."'" : "NULL").",
+		".($is_broken         ? "'2'" : "NULL").",
 		'".mysqli_real_escape_string($db, $title)."',
 		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
