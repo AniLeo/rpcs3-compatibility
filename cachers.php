@@ -289,15 +289,32 @@ function cache_build(int $pr) : void
 	$info_linux = parse_build_properties($info_release_linux);
 	$info_mac   = parse_build_properties($info_release_mac);
 
+	// Fail if one of the builds is not available
 	if (!is_null($info_win))
+	{
 		$version = $info_win["version"];
-	else if (!is_null($info_linux))
+	}
+	else
+	{
+		curl_close($cr);
+		return;
+	}
+	
+	if (!is_null($info_linux))
+	{
 		$version = $info_linux["version"];
-	else if (!is_null($info_mac))
-		$version = $info_mac["version"];
+	}
+	else
+	{
+		curl_close($cr);
+		return;
+	}
 
-	// None of the builds is available or version information failed for all
-	if (!isset($version))
+	if (!is_null($info_mac))
+	{
+		$version = $info_mac["version"];
+	}
+	else
 	{
 		curl_close($cr);
 		return;
