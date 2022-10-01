@@ -354,37 +354,40 @@ function compatibilityUpdater() : void
 
 			// Verify posts
 			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
-			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
-			ORDER BY `pid` DESC;");
+			                             FROM `rpcs3_forums`.`mybb_posts` 
+										 WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']} 
+			                             ORDER BY `pid` DESC;");
 
 			while ($post = mysqli_fetch_object($q_post))
 			{
 				foreach ($a_commits as $commit => $value)
 				{
-					if (stripos($post->message, (string) substr($commit, 0, 8)) !== false)
+					// Skip posts with no commits
+					if (stripos($post->message, (string) substr($commit, 0, 8)) === false)
+						continue;
+					
+					// If current commit is newer than the previously recorded one, replace
+					// TODO: Check distance between commit date and post here
+					// TODO: Remove quoted sections from $post->message before checking it
+					if (is_null($a_updates[$cur_game->key]['commit']) || 
+					    strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
 					{
-						// If current commit is newer than the previously recorded one, replace
-						// TODO: Check distance between commit date and post here
-						if (is_null($a_updates[$cur_game->key]['commit']) || strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
-						{
-							// echo "<b>Commit Replacement:</b> {$thread->get_game_id()} - {$cur_game->title} $commit $post->username <br>";
-							$a_updates[$cur_game->key]['commit'] = $commit;
-							$a_updates[$cur_game->key]['pr'] = $value["pr"];
-							$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
-							$a_updates[$cur_game->key]['author'] = $post->username;
-							$a_updates[$cur_game->key]['pid'] = $post->pid;
-							break 2;
-						}
+						$a_updates[$cur_game->key]['commit'] = $commit;
+						$a_updates[$cur_game->key]['pr'] = $value["pr"];
+						$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
+						$a_updates[$cur_game->key]['author'] = $post->username;
+						$a_updates[$cur_game->key]['pid'] = $post->pid;
+						break 2;
 					}
 				}
 			}
 
 			// If the new date is older than the current date (meaning there's no valid report post)
-			// Or no new commit was found
+			// Or no new pr was found
 			// then ignore this entry and continue
 			if (!isset($a_updates[$cur_game->key]['last_update']) ||
 			    strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
-			    is_null($a_updates[$cur_game->key]['commit']))
+			    is_null($a_updates[$cur_game->key]['pr']))
 			{
 				unset($a_updates[$cur_game->key]);
 				continue;
@@ -397,10 +400,9 @@ function compatibilityUpdater() : void
 			}
 
 			// Green for existing commit, Red for non-existing commit
-			$new_status_commit = !is_null($a_updates[$cur_game->key]['commit']) ? 'green' : 'red';
 			$old_status_commit = !is_null($cur_game->pr) ? 'green' : 'red';
-			$commit            = !is_null($a_updates[$cur_game->key]['commit']) ? $a_updates[$cur_game->key]['commit'] : "null";
-			$date_commit       = !is_null($a_updates[$cur_game->key]['commit']) ? "({$a_commits[$commit]["merge"]})" : "";
+			$commit            = $a_updates[$cur_game->key]['commit'];
+			$date_commit       = "({$a_commits[$commit]["merge"]})";
 			$old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
 			$html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
@@ -409,7 +411,7 @@ function compatibilityUpdater() : void
 			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
-			echo "- Commit: <span style='color:{$new_status_commit}'>{$commit}</span> {$date_commit}
+			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}
 						<-- <span style='color:{$old_status_commit}'>{$old_commit}</span> ({$cur_game->date})<br>";
 			echo "<br>";
 		}
