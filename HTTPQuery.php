@@ -32,7 +32,7 @@ class HTTPQuery
 	public string $order;     // Search order by
 	public int    $move;      // Move support
 	public int    $stereo_3D; // 3D support
-	public string $type;      // Application type
+	public int    $type;      // Application type
 
 	/**
 	* @param array<string, string> $get
@@ -76,6 +76,9 @@ class HTTPQuery
 
 		if (isset($get['3D']))
 			$this->stereo_3D = (int) $get['3D'];
+
+		if (isset($get['type']))
+			$this->type = (int) $get['type'];
 	}
 
 	/**
