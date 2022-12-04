@@ -659,8 +659,22 @@ function mergeGames() : void
 		// Copy network flag to new entry if necessary
 		if ($game1->network !== $game2->network)
 		{
-			$network = $game1->network === 0 ? $game2->network : $game1->network;
-			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, (string) $network)."' WHERE `key`='{$new->key}';");
+			$network = (string) ($game1->network === 0 ? $game2->network : $game1->network);
+			mysqli_query($db, "UPDATE `game_list` SET `network` = '".mysqli_real_escape_string($db, $network)."' WHERE `key`='{$new->key}';");
+		}
+
+		// Copy 3d flag to new entry if necessary
+		if ($game1->stereo_3d !== $game2->stereo_3d)
+		{
+			$stereo_3d = (string) ($game1->stereo_3d === 0 ? $game2->stereo_3d : $game1->stereo_3d);
+			mysqli_query($db, "UPDATE `game_list` SET `3d` = '".mysqli_real_escape_string($db, $stereo_3d)."' WHERE `key`='{$new->key}';");
+		}
+
+		// Copy move flag to new entry if necessary
+		if ($game1->move !== $game2->move)
+		{
+			$move = (string) ($game1->move === 0 ? $game2->move : $game1->move);
+			mysqli_query($db, "UPDATE `game_list` SET `move` = '".mysqli_real_escape_string($db, $move)."' WHERE `key`='{$new->key}';");
 		}
 
 		// Move IDs from the older entry to the newer entry
