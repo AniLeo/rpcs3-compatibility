@@ -229,8 +229,9 @@ $a_histdates = array(
 	'2022_07' => array(array('y' => 2022, 'm' => 7,  'd' => 01), array('y' => 2022, 'm' => 7,  'd' => 31)),
 	'2022_08' => array(array('y' => 2022, 'm' => 8,  'd' => 01), array('y' => 2022, 'm' => 8,  'd' => 31)),
 	'2022_09' => array(array('y' => 2022, 'm' => 9,  'd' => 01), array('y' => 2022, 'm' => 9,  'd' => 30)),
-	'2022_10' => array(array('y' => 2022, 'm' => 10, 'd' => 01), array('y' => 2022, 'm' => 10, 'd' => 31))
+	'2022_10' => array(array('y' => 2022, 'm' => 10, 'd' => 01), array('y' => 2022, 'm' => 10, 'd' => 31)),
+	'2022_11' => array(array('y' => 2022, 'm' => 11, 'd' => 01), array('y' => 2022, 'm' => 11, 'd' => 30))
 );
 
 // Current month
-$a_currenthist = array('2022_11', 'November 1st, 2022', '2022-11-01');
+$a_currenthist = array('2022_12', 'December 1st, 2022', '2022-12-01');
