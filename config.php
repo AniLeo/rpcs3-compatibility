@@ -80,6 +80,10 @@ $a_media = array(
 		'name' => "Blu-Ray",
 		'icon' => "/img/icons/compat/rom.png"
 	),
+	'M' => array(
+		'name' => "Blu-Ray",
+		'icon' => "/img/icons/compat/rom.png"
+	),
 	'N' => array(
 		'name' => "Digital (PSN)",
 		'icon' => "/img/icons/compat/psn.png"
@@ -92,13 +96,14 @@ $a_media = array(
 
 // Regions (GameIDs)
 $a_regions = array(
-'E' => "EU",
-'U' => "US",
-'J' => "JP",
-'A' => "AS",
-'K' => "KR",
-'H' => "HK",
-'I' => "IN"
+'E' => "EU", // Europe
+'U' => "US", // America
+'J' => "JP", // Japan
+'A' => "AS", // Asia
+'K' => "KR", // Korea
+'H' => "HK", // Hong Kong
+'I' => "IN", // International
+'T' => "IN"  // MRTC
 );
 
 // Region flags
@@ -108,8 +113,9 @@ $a_flags = array(
 "H" => "/img/icons/compat/HK.png", // Hong Kong
 "K" => "/img/icons/compat/KR.png", // Korea
 "J" => "/img/icons/compat/JP.png", // Japan
-"U" => "/img/icons/compat/US.png", // USA
-"I" => "/img/icons/compat/IN.png"  // International
+"U" => "/img/icons/compat/US.png", // America
+"I" => "/img/icons/compat/IN.png", // International
+"T" => "/img/icons/compat/IN.png"  // MRTC
 );
 
 // Functions available on debug panel (function_name => (title, success))
