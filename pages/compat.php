@@ -41,7 +41,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 						<span id="jump"></span>
 						Clicking on a game's ID will redirect you to the respective forum thread, clicking the title will redirect you to the respective wiki page.
 						<br>
-						Online only games on Intro, Loadable and Nothing statuses are listed with a lightning icon but not part of any game count.
+						Online only games on Intro, Loadable and Nothing statuses are listed with a network online-only icon and not part of any game count.
 					</p>
 				</div>
 
