@@ -155,8 +155,7 @@ class HTTPQuery
 		// Move Support
 		if (isset($this->move) && !in_array("move", $exclusions))
 		{
-			if ($this->move !== 0)
-				$query["move"] = $this->move;
+			$query["move"] = $this->move;
 		}
 
 		// 3D Support

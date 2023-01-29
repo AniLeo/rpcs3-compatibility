@@ -175,7 +175,7 @@ function validateGet() : array
 	// $get['d'] = "";
 	// $get['t'] = '';
 	// $get['m'] = '';
-	$get["move"] = 0;
+	// $get["move"] = 0;
 	$get["3D"] = 0;
 	$get["type"] = 0;
 
@@ -244,9 +244,18 @@ function validateGet() : array
 	}
 
 	// Move support
-	if (isset($_GET['move']) && $_GET['move'] != 0)
+	if (isset($_GET['move']))
 	{
-		$get['move'] = 1;
+		// No move support
+		if ((int) $_GET['move'] === 0)
+		{
+			$get['move'] = 0;
+		}
+		// Has move support
+		else if ((int) $_GET['move'] === 1)
+		{
+			$get['move'] = 1;
+		}
 	}
 
 	// Stereoscopic 3D support

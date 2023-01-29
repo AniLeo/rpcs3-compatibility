@@ -93,11 +93,14 @@ public static function generate_query(array $get, mysqli &$db) : string
 	}
 
 	// QUERYGEN: Search by move support
-	if ($get['move'] !== 0)
+	if (isset($get['move']))
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
-		$genquery .= " ( `move` <> 0 ) ";
+		if ($get['move'] === 0)
+			$genquery .= " ( `move` = 0 ) ";
+		else
+			$genquery .= " ( `move` <> 0 ) ";
 	}
 
 	// QUERYGEN: Search by 3D support
@@ -125,7 +128,7 @@ public static function printTypeSort() : void
 	global $get;
 
 	$http_query = new HTTPQuery($get);
-	$s_query = $http_query->get_except(array("status", "type"));
+	$s_query = $http_query->get_except(array("status", "type", "move", "3d"));
 
 	// All statuses
 	$html_a = new HTMLA("?{$s_query}", "Show applications from all types", highlightText("All", $get['type'] === 0));
@@ -308,7 +311,7 @@ public static function printTable() : void
 	$extra = $http_query->get_except(array("move"));
 
 	// Allow for filter resetting by clicking the icon again
-	if ($get['move'] !== 0)
+	if (isset($get['move']) && $get['move'] !== 0)
 	{
 		$html_a_move = new HTMLA("?{$extra}", "", $html_img_move->to_string());
 	}
@@ -331,7 +334,7 @@ public static function printTable() : void
 	{
 		$html_a_3d = new HTMLA("?{$extra}", "", $html_img_3d->to_string());
 	}
-	// Returns clickable icon for move search
+	// Returns clickable icon for 3D search
 	else
 	{
 		if (!empty($extra))
