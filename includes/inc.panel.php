@@ -308,8 +308,8 @@ function compatibilityUpdater() : void
 			$commit        = $a_inserts[$thread->tid]['commit'];
 			$date_commit   = "({$a_commits[$commit]["merge"]})";
 
-			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author:{$a_inserts[$thread->tid]['author']})<br>";
-			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']}</span><br>";
+			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author: {$a_inserts[$thread->tid]['author']})<br>";
+			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_inserts[$thread->tid]['last_update']})</span><br>";
 			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}<br>";
 			echo "<br>";
 
@@ -355,7 +355,7 @@ function compatibilityUpdater() : void
 			// Verify posts
 			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
 			                             FROM `rpcs3_forums`.`mybb_posts` 
-										 WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']} 
+			                             WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']} 
 			                             ORDER BY `pid` DESC;");
 
 			while ($post = mysqli_fetch_object($q_post))
