@@ -401,8 +401,9 @@ function count_games_all() : int
 	// Total game count (without network games)
 	$q_unique = mysqli_query($db, "SELECT count(*) AS `c`
 	                               FROM `game_list`
-	                               WHERE `network` = 0
-	                                  OR (`network` = 1 && `status` <= 2); ");
+	                               WHERE (`network` = 0
+	                                  OR (`network` = 1 && `status` <= 2))
+	                                  AND `type` = 'PS3 Game'; ");
 
 	if ($q_unique && mysqli_num_rows($q_unique) === 1)
 	{
