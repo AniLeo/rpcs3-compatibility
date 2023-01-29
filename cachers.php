@@ -1279,8 +1279,8 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Only accept PPU and SPU main patches
-		if ($type !== "PPU" && $type !== "SPU")
+		// Only accept PPU, SPU and OVL type patches
+		if ($type !== "PPU" && $type !== "SPU" && $type !== "OVL")
 		{
 			unset($a_wiki[$i]);
 			continue;
