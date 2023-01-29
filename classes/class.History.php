@@ -367,7 +367,7 @@ public static function printHistoryRSS() : void
 						</item>";
 		}
 	}
-	elseif (!empty($a_existing))
+	else /*if (!empty($a_existing)) */
 	{
 		foreach ($a_existing as $key => $entry)
 		{
