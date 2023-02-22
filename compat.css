@@ -821,6 +821,15 @@ progress[value]::-webkit-progress-value {
     .compat-table-cell {
         min-width: 100px;
     }
+    
+    .compat-footer {
+        height: auto;
+    }
+    
+    .compat-footer p {
+        overflow-wrap: break-word;
+        line-height: 25px;
+    }
 }
 
 .highlightedText {
