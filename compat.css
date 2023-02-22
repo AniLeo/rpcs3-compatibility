@@ -727,6 +727,7 @@ progress[value]::-webkit-progress-value {
 }
 
 @media screen and (max-width: 1000px) {
+    
     .compat-search-outer {
         display:grid;
         grid-template-columns: repeat(15,1fr);
@@ -770,7 +771,9 @@ progress[value]::-webkit-progress-value {
 
     .compat-hdr-right a {
         font-size: 12px;
-        margin-bottom: 10px
+        margin-bottom: 10px;
+        height: 25px;
+        line-height: 15px;
     }
 
     .compat-hdr-right .highlightedText {
