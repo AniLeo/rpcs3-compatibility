@@ -773,7 +773,7 @@ progress[value]::-webkit-progress-value {
     .compat-hdr-right a {
         font-size: 12px;
         margin-bottom: 10px;
-        height: 25px;
+        height: auto;
         line-height: 15px;
     }
 
