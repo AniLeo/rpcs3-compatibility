@@ -813,6 +813,14 @@ progress[value]::-webkit-progress-value {
     .page-con-container {
         margin: auto 15px
     }
+    
+    .compat-table-row{
+        overflow-x: scroll;
+    }
+    
+    .compat-table-cell {
+        min-width: 100px;
+    }
 }
 
 .highlightedText {
