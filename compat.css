@@ -733,7 +733,8 @@ progress[value]::-webkit-progress-value {
         grid-template-columns: repeat(15,1fr);
         grid-template-rows: 50% 50%;
         height: 60px;
-        gap: 0
+        gap: 0;
+        border-radius: 10px;
     }
 
     .compat-search-inner {
