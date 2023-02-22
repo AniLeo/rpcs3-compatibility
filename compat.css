@@ -729,9 +729,9 @@ progress[value]::-webkit-progress-value {
 @media screen and (max-width: 1000px) {
     
     .banner-tx2-title > p{
-        width:25%;
+        width:30%;
         overflow-wrap: break-word;
-        margin-left: 37.5%;
+        margin-left: 35%;
         line-height: 25px;
     }
     
