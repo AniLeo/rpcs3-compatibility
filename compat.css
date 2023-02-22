@@ -728,6 +728,13 @@ progress[value]::-webkit-progress-value {
 
 @media screen and (max-width: 1000px) {
     
+    .banner-tx2-title > p{
+        width:25%;
+        overflow-wrap: break-word;
+        margin-left: 37.5%;
+        line-height: 25px;
+    }
+    
     .compat-search-outer {
         display:grid;
         grid-template-columns: repeat(15,1fr);
