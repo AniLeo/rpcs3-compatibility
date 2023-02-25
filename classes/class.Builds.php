@@ -203,8 +203,7 @@ public static function printTable() : void
 
 		$all_builds_exist = !is_null($build->get_url_windows()) && !is_null($build->get_url_linux()) && !is_null($build->get_url_mac());
 
-		// TODO: Manual broken status for when not all builds exist
-		if ($build->broken && $all_builds_exist)
+		if ($build->broken)
 			$html_div_cell->add_content("<s>");
 
 		$html_div_cell->add_content($version);
@@ -239,7 +238,7 @@ public static function printTable() : void
 			$html_div_cell->add_content($html_img_mac_disabled->to_string());
 		}
 
-		if ($build->broken && $all_builds_exist)
+		if ($build->broken)
 			$html_div_cell->add_content("</s>");
 
 		$html_div_cell->print();

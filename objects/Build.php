@@ -244,7 +244,7 @@ class Build
 			                        $row->checksum_mac,
 			                        $row->size_mac,
 			                        $row->filename_mac,
-			                        !is_null($row->broken) && $row->broken != 0,
+			                        !is_null($row->broken) && $row->broken == 1,
 			                        $row->title);
 		}
 
