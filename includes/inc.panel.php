@@ -71,9 +71,9 @@ function checkInvalidThreads() : void
 
 	$db = getDatabase();
 
-	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`, `closed`
+	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) AND `visible` > 0 AND (`closed` = '' OR `closed` = '0'); ");
+	WHERE ({$where}) AND `visible` > 0; ");
 
 	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`; "));
 
@@ -184,7 +184,6 @@ function compatibilityUpdater() : void
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible` 
 	FROM `rpcs3_forums`.`mybb_threads`
 	WHERE ({$where}) &&
-	(`closed` = '' || `closed` = '0') &&
 	`lastpost` > {$ts_lastupdate};");
 
 	while ($row = mysqli_fetch_object($q_threads))
