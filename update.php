@@ -114,11 +114,12 @@ function checkForUpdates(string $api, string $commit = '') : array
 				// When current and old build are master builds
 				if ($api === "v2")
 				{
-					$q_between = mysqli_query($db, "SELECT * FROM `builds`
+					$q_between = mysqli_query($db, "SELECT `version`, `title` FROM `builds`
 					                                WHERE `merge_datetime`
 					                                BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
 					                                AND CAST('{$latest->merge}' AS DATETIME)
-					                                ORDER BY `merge_datetime` DESC;");
+					                                ORDER BY `merge_datetime` DESC
+																					LIMIT 500;");
 
 					while ($row = mysqli_fetch_object($q_between))
 					{
