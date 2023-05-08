@@ -393,7 +393,7 @@ function countGames(mysqli $db, string $query = "") : array
 }
 
 
-function count_games_all() : int
+function count_game_entry_all() : int
 {
 	$db = getDatabase();
 	$ret = 0;
@@ -401,6 +401,35 @@ function count_games_all() : int
 	// Total game count (without network games)
 	$q_unique = mysqli_query($db, "SELECT count(*) AS `c`
 	                               FROM `game_list`
+	                               WHERE (`network` = 0
+	                                  OR (`network` = 1 && `status` <= 2))
+	                                  AND `type` = 'PS3 Game'; ");
+
+	if ($q_unique && mysqli_num_rows($q_unique) === 1)
+	{
+		$row = mysqli_fetch_object($q_unique);
+
+		if (!isset($row->c))
+			exit("[COMPAT] Functions: Missing database fields");
+
+		$ret = (int) $row->c;
+	}
+
+	mysqli_close($db);
+	return $ret;
+}
+
+
+function count_game_id_all() : int
+{
+	$db = getDatabase();
+	$ret = 0;
+
+	// Total game count (without network games)
+	$q_unique = mysqli_query($db, "SELECT count(*) AS `c`
+	                               FROM `game_list`
+	                               LEFT JOIN `game_id`
+	                               ON `game_id`.`key` = `game_list`.`key`
 	                               WHERE (`network` = 0
 	                                  OR (`network` = 1 && `status` <= 2))
 	                                  AND `type` = 'PS3 Game'; ");

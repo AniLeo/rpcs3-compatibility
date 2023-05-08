@@ -188,7 +188,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 						if     (isset($get['h'])) { echo "History of the updates made to the compatibility list"; }
 						elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
 						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
-						else                      { echo "There are currently ".count_games_all()." games listed in our database"; }
+						else
+						{
+							Profiler::addData("Index: Count Games");
+							echo "There are currently ".count_game_entry_all()." games with ".count_game_id_all()." IDs listed in our database";
+						}
 					} else {
 						echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
 					}
