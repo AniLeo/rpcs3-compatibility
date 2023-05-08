@@ -21,7 +21,7 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 ## Requirements
 - [PHP 8.2+](https://secure.php.net/downloads.php)
 - [PHP PECL YAML Extension](https://pecl.php.net/package/yaml)
-- [MySQL 5.7](https://dev.mysql.com/downloads/mysql/5.7.html) or [MariaDB 10.3](https://downloads.mariadb.org/mariadb/10.2)
+- [MySQL 8.0](https://dev.mysql.com/downloads/mysql/8.0.html) or [MariaDB 10.4](https://downloads.mariadb.org/mariadb/10.4)
 - [RPCS3.net](https://rpcs3.net) [(Source Code)](https://github.com/DAGINATSUKO/www-rpcs3) - Place files inside lib/compat directory on the main website's source.
 
 ## License
