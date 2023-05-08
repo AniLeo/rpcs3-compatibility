@@ -258,7 +258,7 @@ class Build
 		$db = getDatabase();
 
 		$query = mysqli_query($db, "SELECT * FROM `builds`
-		                            WHERE `broken` IS NULL OR `broken` = 0
+		                            WHERE `broken` IS NULL OR `broken` != 1
 		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 
 		$ret = self::query_to_builds($query);
