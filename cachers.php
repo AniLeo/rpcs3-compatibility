@@ -242,7 +242,7 @@ function cache_build(int $pr) : void
 	$changed_files  = $pr_info->changed_files;
 	$title          = $pr_info->title;
 
-	if (!isset($pr_info->body) || is_null($pr_info->body))
+	if (!isset($pr_info->body))
 	{
 		$body = "";
 	}
@@ -302,7 +302,7 @@ function cache_build(int $pr) : void
 		curl_close($cr);
 		return;
 	}
-	
+
 	if (!isset($version) && !is_null($info_linux))
 	{
 		$version = $info_linux["version"];
@@ -330,11 +330,11 @@ function cache_build(int $pr) : void
 		curl_close($cr);
 		return;
 	}
-	
+
 	if ($is_broken)
 	{
 		echo "A build is broken for Pull Request #{$pr}".PHP_EOL;
-		printf("Build status: Windows: %s, Linux: %s, macOS: %s", 
+		printf("Build status: Windows: %s, Linux: %s, macOS: %s",
 		       isset($info_release_win->message)   ? $info_release_win->message : "OK",
 		       isset($info_release_linux->message) ? $info_release_linux->message : "OK",
 		       isset($info_release_mac->message)   ? $info_release_mac->message : "OK");

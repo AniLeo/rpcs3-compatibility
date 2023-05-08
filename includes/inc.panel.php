@@ -181,7 +181,7 @@ function compatibilityUpdater() : void
 
 	// Get all threads since the end of the last compatibility period
 	$a_threads = array();
-	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible` 
+	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
 	FROM `rpcs3_forums`.`mybb_threads`
 	WHERE ({$where}) &&
 	`lastpost` > {$ts_lastupdate};");
@@ -353,8 +353,8 @@ function compatibilityUpdater() : void
 
 			// Verify posts
 			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
-			                             FROM `rpcs3_forums`.`mybb_posts` 
-			                             WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']} 
+			                             FROM `rpcs3_forums`.`mybb_posts`
+			                             WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
 			                             ORDER BY `pid` DESC;");
 
 			while ($post = mysqli_fetch_object($q_post))
@@ -364,11 +364,11 @@ function compatibilityUpdater() : void
 					// Skip posts with no commits
 					if (stripos($post->message, (string) substr($commit, 0, 8)) === false)
 						continue;
-					
+
 					// If current commit is newer than the previously recorded one, replace
 					// TODO: Check distance between commit date and post here
 					// TODO: Remove quoted sections from $post->message before checking it
-					if (is_null($a_updates[$cur_game->key]['commit']) || 
+					if (is_null($a_updates[$cur_game->key]['commit']) ||
 					    strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
 					{
 						$a_updates[$cur_game->key]['commit'] = $commit;
@@ -461,14 +461,6 @@ function compatibilityUpdater() : void
 
 			if (!isset($row->key))
 				exit("[COMPAT] Includes: Missing database fields");
-
-			// Sanity check, this should be unreachable
-			if (is_null($row->key))
-			{
-				echo "<b>Fatal error:</b> Could not fetch key. Current game dump: <br><br>";
-				dumpVar($game);
-				continue;
-			}
 
 			// Insert Game and Thread IDs on the ID table
 			mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$row->key}, '{$db_game_id}', {$tid}); ");
