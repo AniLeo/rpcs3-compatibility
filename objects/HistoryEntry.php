@@ -53,7 +53,12 @@ class HistoryEntry
 			$this->old_status = null;
 
 		$this->old_date = $old_date;
-		$this->new_status = getStatusID($new_status);
+
+		if (getStatusID($new_status))
+			$this->new_status = getStatusID($new_status);
+		else
+			$this->new_status = 0;
+
 		$this->new_date = $new_date;
 
 		$this->game_item = new GameItem($gid, $tid, null);

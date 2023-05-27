@@ -274,7 +274,8 @@ class Game
 					!property_exists($row, "3d") ||
 					!property_exists($row, "pr") ||
 					!property_exists($row, "build_commit") ||
-					!property_exists($row, "wiki"))
+					!property_exists($row, "wiki") ||
+					is_null(getStatusID($row->status)))
 			{
 				continue;
 			}

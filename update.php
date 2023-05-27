@@ -48,6 +48,9 @@ function checkForUpdates(string $api, string $commit = '') : array
 	}
 	*/
 
+	// Default return code
+	$results['return_code'] = 0;
+
 	// If commit length is smaller than 7 chars
 	if (!empty($commit) && (!ctype_alnum($commit) || strlen($commit) < 7))
 	{
@@ -55,11 +58,14 @@ function checkForUpdates(string $api, string $commit = '') : array
 		return $results;
 	}
 
-	// Default return code
-	$results['return_code'] = 0;
-
 	// Get latest build information
 	$latest = Build::get_latest();
+
+	if (is_null($latest))
+	{
+		$results['return_code'] = -2;
+		return $results;
+	}
 
 	$results['latest_build']['pr']                  = $latest->pr;
 	$results['latest_build']['datetime']            = $latest->merge;
@@ -124,7 +130,7 @@ function checkForUpdates(string $api, string $commit = '') : array
 					                                AND CAST('{$latest->merge}' AS DATETIME)
 					                                ORDER BY `merge_datetime` DESC
 					                                LIMIT 500;");
-					
+
 					if (!is_bool($q_between))
 					{
 						while ($row = mysqli_fetch_object($q_between))

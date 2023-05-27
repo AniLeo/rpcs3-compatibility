@@ -74,7 +74,12 @@ function cache_builds(bool $full = false) : void
 	// repo:rpcs3/rpcs3, is:pr, is:merged, merged:>$date, sort=updated (asc)
 	// TODO: Sort by merged date whenever it's available on the GitHub API
 	$url = "https://api.github.com/search/issues?q=repo:rpcs3/rpcs3+is:pr+is:merged+sort:updated-asc+merged:%3E{$date}";
-	$search = curlJSON($url, $cr)['result'];
+	$json = curlJSON($url, $cr);
+
+	if (is_null($json) || array_key_exists("result", $json))
+		return;
+
+	$search = $json['result'];
 
 	// API Call Failed or no PRs to cache, end here
 	// TODO: Log and handle API call fails differently depending on the fail
@@ -135,7 +140,14 @@ function cache_builds(bool $full = false) : void
 		}
 
 		if ($i <= $pages)
-			$search = curlJSON("{$url}&page={$i}", $cr)['result'];
+		{
+			$json = curlJSON("{$url}&page={$i}", $cr);
+
+			if (is_null($json) || array_key_exists("result", $json))
+				return;
+
+			$search = $json['result'];
+		}
 	}
 	mysqli_close($db);
 	curl_close($cr);
@@ -229,8 +241,13 @@ function cache_build(int $pr) : void
 
 	$cr = curl_init();
 
+	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr);
+
+	if (is_null($json) || array_key_exists("result", $json))
+		return;
+
 	// Grab pull request information from GitHub REST API (v3)
-	$pr_info = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr)['result'];
+	$pr_info = $json['result'];
 
 	// Check if we aren't rate limited
 	if (!isset($pr_info->merge_commit_sha))
@@ -287,13 +304,22 @@ function cache_build(int $pr) : void
 	}
 
 	// Windows build metadata
-	$info_release_win = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr)['result'];
+	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr);
+	if (is_null($json) || array_key_exists("result", $json))
+		return;
+	$info_release_win = $json['result'];
 
 	// Linux build metadata
-	$info_release_linux = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr)['result'];
+	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr);
+	if (is_null($json) || array_key_exists("result", $json))
+		return;
+	$info_release_linux = $json['result'];
 
 	// macOS build metadata
-	$info_release_mac = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr)['result'];
+	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr);
+	if (is_null($json) || array_key_exists("result", $json))
+		return;
+	$info_release_mac = $json['result'];
 
 	$is_missing = isset($info_release_win->message) ||
 	              isset($info_release_linux->message) ||
@@ -688,7 +714,12 @@ function cacheStatusCount() : void
 
 function cacheContributor(string $username) : int
 {
-	$info_contributor = curlJSON("https://api.github.com/users/{$username}")['result'];
+	$json = curlJSON("https://api.github.com/users/{$username}");
+
+	if (is_null($json) || array_key_exists("result", $json))
+		return 0;
+
+	$info_contributor = $json['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
 	if (isset($info_contributor->message) || !isset($info_contributor->id))

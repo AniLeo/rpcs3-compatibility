@@ -327,7 +327,7 @@ function compatibilityUpdater() : void
 		}
 
 		// New thread for the Game ID
-		if (is_null($tid))
+		if (is_null($tid) || is_null($cur_game))
 		{
 			$a_inserts[$thread->tid] = array(
 				'thread' => $thread,
@@ -395,7 +395,11 @@ function compatibilityUpdater() : void
 			echo "<br>";
 
 		}
-		elseif ($tid == $thread->tid && ($thread->get_sid() != $cur_game->status || $thread->get_sid() == 3 || $thread->get_sid() == 4 || $thread->get_sid() == 5))
+		elseif ($tid == $thread->tid &&
+		        ($thread->get_sid() != $cur_game->status ||
+		         $thread->get_sid() == 3 ||
+		         $thread->get_sid() == 4 ||
+		         $thread->get_sid() == 5))
 		{
 			// Same status updates currently being tested
 			// For now only allowed on Intro, Loadable and Nothing games
@@ -534,6 +538,14 @@ function compatibilityUpdater() : void
 		*/
 		foreach ($a_inserts as $tid => $game)
 		{
+			// Should be unreachable
+			if (is_null($game['thread']->get_game_id()) ||
+			    is_null($game['thread']->get_game_title()) ||
+			    is_null($game['commit']))
+			{
+				continue;
+			}
+
 			$db_game_id = mysqli_real_escape_string($db, $game['thread']->get_game_id());
 			$db_game_title = mysqli_real_escape_string($db, $game['thread']->get_game_title());
 
@@ -585,6 +597,12 @@ function compatibilityUpdater() : void
 		*/
 		foreach ($a_updates as $key => $game)
 		{
+			// Should be unreachable
+			if (is_null($game['commit']))
+			{
+				continue;
+			}
+
 			// Update entry parameters on game list
 			mysqli_query($db, "UPDATE `game_list` SET
 			`build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."',

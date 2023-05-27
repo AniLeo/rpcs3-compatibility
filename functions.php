@@ -118,7 +118,7 @@ function highlightText(string $str, bool $cond = true)
 
 
 /**
-* @return array<string, string|int|bool|array<string>> $get
+* @return array<string, array<string>|bool|int|string|null> $get
 */
 function validateGet() : array
 {
