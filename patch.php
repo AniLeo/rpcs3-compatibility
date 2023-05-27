@@ -62,7 +62,7 @@ function exportGamePatches() : array
 	                              ORDER BY `wiki_id` ASC; ");
 	mysqli_close($db);
 
-	if (mysqli_num_rows($patches) === 0)
+	if (is_bool($patches) || mysqli_num_rows($patches) === 0)
 	{
 		$results['return_code'] = -1;
 		return $results;
@@ -76,6 +76,12 @@ function exportGamePatches() : array
 	$results['patch'] = "Version: {$results['version']}\n";
 	while ($row = mysqli_fetch_object($patches))
 	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row, "patch"))
+		{
+			continue;
+		}
+
 		$results['patch'] .= "\n";
 		$results['patch'] .= $row->patch;
 		$results['patch'] .= "\n";

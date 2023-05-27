@@ -25,7 +25,7 @@ if (!@include_once(__DIR__."/../classes/class.Builds.php")) throw new Exception(
 
 
 // Profiler
-Profiler::setTitle("Profiler: Builds");
+Profiler::start_profiler("Profiler: Builds");
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))
@@ -46,32 +46,41 @@ else
 	$order = $a_order[''];
 
 // Connect to database
-Profiler::addData("Inc: Database Connection");
+Profiler::add_data("Inc: Database Connection");
 $db = getDatabase();
 
 // Calculate pages and current page
-Profiler::addData("Inc: Count Pages");
-$row = mysqli_fetch_object(mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`"));
-if (!isset($row->c))
-	exit("[COMPAT] Includes: Missing database fields");
-$pages = (int) ceil($row->c / $get['r']);
+Profiler::add_data("Inc: Count Pages");
+$pages = 1;
+$q_pages = mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`");
+if (!is_bool($q_pages))
+{
+	$row = mysqli_fetch_object($q_pages);
 
-Profiler::addData("Inc: Get Current Page");
+	if ($row && property_exists($row, "c"))
+	{
+		$pages = (int) ceil($row->c / $get['r']);
+	}
+}
+
+Profiler::add_data("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 // Main query
-Profiler::addData("Inc: Execute Main Query");
+Profiler::add_data("Inc: Execute Main Query");
 $c_builds = "SELECT * FROM `builds` {$order} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $q_builds = mysqli_query($db, $c_builds);
 
 // Disconnect from database
-Profiler::addData("Inc: Close Database Connection");
+Profiler::add_data("Inc: Close Database Connection");
 mysqli_close($db);
 
 // Check if query succeeded and storing is required, stores messages for error printing
-Profiler::addData("Inc: Check Query Status");
+Profiler::add_data("Inc: Check Query Status");
 $error = NULL;
-if (!$q_builds)
+$builds = array();
+
+if (is_bool($q_builds))
 {
 	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
 }
@@ -79,12 +88,11 @@ elseif (mysqli_num_rows($q_builds) === 0)
 {
 	$error = "No builds are listed yet.";
 }
-
-// Store builds in a Build array if there are no errors
-if (is_null($error))
+else
 {
-	Profiler::addData("Inc: Store Builds in Array");
+	// Store builds in a Build array if there are no errors
+	Profiler::add_data("Inc: Store Builds in Array");
 	$builds = Build::query_to_builds($q_builds);
 }
 
-Profiler::addData("--- / ---");
+Profiler::add_data("--- / ---");

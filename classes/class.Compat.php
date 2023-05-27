@@ -51,7 +51,7 @@ public static function generate_query(array $get, mysqli &$db) : string
 		}
 		else
 		{
-			$s_c = mysqli_real_escape_string($db, $get['c']);
+			$s_c = mysqli_real_escape_string($db, (string) $get['c']);
 			$genquery .= " (`game_title` LIKE '{$s_c}%' OR `alternative_title` LIKE '{$s_c}%') ";
 		}
 	}
@@ -61,11 +61,11 @@ public static function generate_query(array $get, mysqli &$db) : string
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
-		$s_g = mysqli_real_escape_string($db, $get['g']);
+		$s_g = mysqli_real_escape_string($db, (string) $get['g']);
 		$searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ";
 
 		// Initials cache search
-		if (strlen($get['g']) >= 2)
+		if (strlen((string) $get['g']) >= 2)
 		{
 			$searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
 			OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
@@ -79,7 +79,7 @@ public static function generate_query(array $get, mysqli &$db) : string
 	{
 		if (!empty($genquery)) { $genquery .= " AND "; }
 
-		$s_t = mysqli_real_escape_string($db, $get['t']);
+		$s_t = mysqli_real_escape_string($db, (string) $get['t']);
 		$genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`, 1, 1) = '{$s_t}') ) ";
 	}
 
@@ -281,22 +281,22 @@ public static function printTable() : void
 		array(
 			'name' => 'Game IDs',
 			'class' => 'compat-table-cell compat-table-cell-gameid',
-			'sort' => 0
+			'sort' => '0'
 		),
 		array(
 			'name' => 'Game Title',
 			'class' => 'compat-table-cell',
-			'sort' => 2
+			'sort' => '2'
 		),
 		array(
 			'name' => 'Status',
 			'class' => 'compat-table-cell compat-table-cell-status',
-			'sort' => 3
+			'sort' => '3'
 		),
 		array(
 			'name' => 'Updated',
 			'class' => 'compat-table-cell compat-table-cell-updated',
-			'sort' => 4
+			'sort' => '4'
 		)
 	);
 	echo getTableHeaders($headers, $extra);
@@ -487,9 +487,19 @@ public static function printTable() : void
 
 						$changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
 
+						if (!$changelog)
+						{
+							continue;
+						}
+
 						if (strpos($changelog, "<br><br><br>") !== false)
 						{
 							$changelog = mb_ereg_replace("<br><br><br>", "<br><br>", $changelog);
+
+							if (!$changelog)
+							{
+								continue;
+							}
 						}
 
 						if (substr($changelog, -4) === "<br>")

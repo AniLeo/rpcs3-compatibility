@@ -121,11 +121,24 @@ class Game
 
 		mysqli_close($db);
 
+		if (is_bool($q_tags))
+			return;
+
 		if (mysqli_num_rows($q_tags) === 0)
 			return;
 
 		while ($row = mysqli_fetch_object($q_tags))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "name") ||
+					!property_exists($row, "popup") ||
+					!property_exists($row, "signoff") ||
+					!property_exists($row, "popup_delay") ||
+					!property_exists($row, "min_system_ver"))
+			{
+				continue;
+			}
+
 			$a_tags[] = new GameUpdateTag($row->name,
 			                              $row->popup,
 			                              $row->signoff,
@@ -171,8 +184,18 @@ class Game
 		                             FROM   `rpcs3_wiki`.`page`
 		                             WHERE  `page_namespace` = 0; ");
 
+		if (is_bool($q_wiki))
+		 	return;
+
 		while ($row = mysqli_fetch_object($q_wiki))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "page_id") ||
+					!property_exists($row, "page_title"))
+			{
+				continue;
+			}
+
 			$a_wiki[$row->page_id] = $row->page_title;
 		}
 
@@ -200,8 +223,20 @@ class Game
 		                              FROM `game_id`
 		                              ORDER BY `gid` ASC; ");
 
+		if (is_bool($q_items))
+			return;
+
 		while ($row = mysqli_fetch_object($q_items))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "key") ||
+					!property_exists($row, "gid") ||
+					!property_exists($row, "tid") ||
+					!property_exists($row, "latest_ver"))
+			{
+				continue;
+			}
+
 			$a_items[$row->key][] = new GameItem($row->gid,
 			                                     $row->tid,
 			                                     $row->latest_ver);
@@ -228,6 +263,22 @@ class Game
 
 		while ($row = mysqli_fetch_object($query))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "key") ||
+					!property_exists($row, "game_title") ||
+					!property_exists($row, "alternative_title") ||
+					!property_exists($row, "status") ||
+					!property_exists($row, "last_update") ||
+					!property_exists($row, "network") ||
+					!property_exists($row, "move") ||
+					!property_exists($row, "3d") ||
+					!property_exists($row, "pr") ||
+					!property_exists($row, "build_commit") ||
+					!property_exists($row, "wiki"))
+			{
+				continue;
+			}
+
 			$a_games[] = new Game($row->key,
 			                      $row->game_title,
 			                      $row->alternative_title,

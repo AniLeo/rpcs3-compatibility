@@ -141,32 +141,32 @@ public static function printTableHeader(bool $full = true) : void
 			array(
 				'name' => 'Game Regions',
 				'class' => 'compat-table-cell compat-table-cell-gameid',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Game Title',
 				'class' => 'compat-table-cell',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'New Status',
 				'class' => 'compat-table-cell compat-table-cell-status',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'New Date',
 				'class' => 'compat-table-cell compat-table-cell-date',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Old Status',
 				'class' => 'compat-table-cell compat-table-cell-status',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Old Date',
 				'class' => 'compat-table-cell compat-table-cell-date',
-				'sort' => 0
+				'sort' => '0'
 			)
 		);
 	}
@@ -176,22 +176,22 @@ public static function printTableHeader(bool $full = true) : void
 			array(
 				'name' => 'Game Regions',
 				'class' => 'compat-table-cell compat-table-cell-gameid',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Game Title',
 				'class' => 'compat-table-cell',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Status',
 				'class' => 'compat-table-cell compat-table-cell-status',
-				'sort' => 0
+				'sort' => '0'
 			),
 			array(
 				'name' => 'Date',
 				'class' => 'compat-table-cell compat-table-cell-date',
-				'sort' => 0
+				'sort' => '0'
 			)
 		);
 	}

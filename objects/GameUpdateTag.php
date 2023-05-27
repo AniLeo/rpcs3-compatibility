@@ -60,8 +60,22 @@ class GameUpdateTag
 		                                      `paramsfo_title`
 		                               FROM `game_update_paramsfo`; ");
 
+		if (is_bool($q_titles))
+		{
+			return;
+		}
+
 		while ($row = mysqli_fetch_object($q_titles))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "tag") ||
+					!property_exists($row, "package_version") ||
+					!property_exists($row, "paramsfo_type") ||
+					!property_exists($row, "paramsfo_title"))
+			{
+				return;
+			}
+
 			$a_titles[$row->tag][$row->package_version][] = new GameUpdateTitle($row->paramsfo_type,
 			                                                                    $row->paramsfo_title);
 		}
@@ -94,8 +108,22 @@ class GameUpdateTag
 		                                          `paramhip_content`
 		                                   FROM `game_update_paramhip`; ");
 
+		if (is_bool($q_changelogs))
+		{
+			return;
+		}
+
 		while ($row = mysqli_fetch_object($q_changelogs))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "tag") ||
+					!property_exists($row, "package_version") ||
+					!property_exists($row, "paramhip_type") ||
+					!property_exists($row, "paramhip_content"))
+			{
+				return;
+			}
+
 			$a_changelogs[$row->tag][$row->package_version][] = new GameUpdateChangelog($row->paramhip_type,
 			                                                                            $row->paramhip_content);
 		}
@@ -125,8 +153,24 @@ class GameUpdateTag
 		$q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`
 		FROM `game_update_package`");
 
+		if (is_bool($q_packages))
+		{
+			return;
+		}
+
 		while ($row = mysqli_fetch_object($q_packages))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "tag") ||
+					!property_exists($row, "version") ||
+					!property_exists($row, "size") ||
+					!property_exists($row, "sha1sum") ||
+					!property_exists($row, "ps3_system_ver") ||
+					!property_exists($row, "drm_type"))
+			{
+				return;
+			}
+
 			$a_packages[$row->tag][] = new GameUpdatePackage($row->version,
 			                                                 $row->size,
 			                                                 $row->sha1sum,

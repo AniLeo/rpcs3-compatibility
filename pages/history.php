@@ -28,20 +28,20 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 				<div class="container-tx1-block">
 					<span class="compat-text">Compatibility List History</span>
 					<?php
-						Profiler::addData("Page: Get Menu");
+						Profiler::add_data("Page: Get Menu");
 						echo getMenu(__FILE__);
 					?>
 				</div>
 
 				<div class="container-tx2-block compat-desc">
 					<?php
-						Profiler::addData("Page: Print Description");
+						Profiler::add_data("Page: Print Description");
 						History::printDescription();
 
-						Profiler::addData("Page: Print Options");
+						Profiler::add_data("Page: Print Options");
 						History::printOptions();
 
-						Profiler::addData("Page: Print Months");
+						Profiler::add_data("Page: Print Months");
 						History::printMonths();
 					?>
 				</div>
@@ -51,12 +51,12 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 			<?php
 			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php'))
 			{
-				Profiler::addData("Page: Get Status Module");
+				Profiler::add_data("Page: Get Status Module");
 				include(__DIR__.'/../modules/mod.status.nocount.php');
 			}
 			else
 			{
-				Profiler::addData("Page: Generate Status Module");
+				Profiler::add_data("Page: Generate Status Module");
 				echo generateStatusModule(false);
 			}
 			?>
@@ -64,10 +64,10 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 		</div> <!-- container-con-block -->
 
 		<?php
-			Profiler::addData("Page: Print Content");
+			Profiler::add_data("Page: Print Content");
 			History::printContent();
 
-			Profiler::addData("End");
+			Profiler::add_data("End");
 			echo getFooter();
 		?>
 

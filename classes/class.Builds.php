@@ -63,27 +63,27 @@ public static function printTable() : void
 		array(
 			'name' => 'Pull Request',
 			'class' => 'compat-table-cell',
-			'sort' => 1
+			'sort' => '1'
 		),
 		array(
 			'name' => 'Author',
 			'class' => 'compat-table-cell',
-			'sort' => 0
+			'sort' => '0'
 		),
 		array(
 			'name' => 'Lines of Code',
 			'class' => 'compat-table-cell',
-			'sort' => 0
+			'sort' => '0'
 		),
 		array(
 			'name' => 'Build Date',
 			'class' => 'compat-table-cell',
-			'sort' => 4
+			'sort' => '4'
 		),
 		array(
 			'name' => 'Download',
 			'class' => 'compat-table-cell',
-			'sort' => 0
+			'sort' => '0'
 		)
 	);
 	echo getTableHeaders($headers, 'b');

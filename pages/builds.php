@@ -28,7 +28,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 				<div class="container-tx1-block">
 					<span class="compat-text">Builds History <a href="compatibility?b&rss">(RSS)</a></span>
 					<?php
-						Profiler::addData("Page: Get Menu");
+						Profiler::add_data("Page: Get Menu");
 						echo getMenu(__FILE__);
 					?>
 				</div>
@@ -44,20 +44,20 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
 			</div> <!-- container-con-wrapper -->
 
 			<div class="builds-hdr-left">
-				<?php Profiler::addData("Page: Print Results Per Page"); ?>
+				<?php Profiler::add_data("Page: Print Results Per Page"); ?>
 				<p>Results per page <?php Builds::printResultsPerPage(); ?></p>
 			</div>
 
 		</div> <!-- container-con-block -->
 
 		<?php
-			Profiler::addData("Page: Print Table");
+			Profiler::add_data("Page: Print Table");
 			Builds::printTable();
 
-			Profiler::addData("Page: Print Pages Counter");
+			Profiler::add_data("Page: Print Pages Counter");
 			Builds::printPagesCounter();
 
-			Profiler::addData("End");
+			Profiler::add_data("End");
 			echo getFooter();
 		?>
 

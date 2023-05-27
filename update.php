@@ -78,13 +78,17 @@ function checkForUpdates(string $api, string $commit = '') : array
 	{
 		// Get user build information
 		$db = getDatabase();
+		$current = array();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
 		$q_check = mysqli_query($db, "SELECT * FROM `builds`
 		                              WHERE `commit` LIKE '{$e_commit}%'
 		                                AND `type` = 'branch'
 		                              ORDER BY `merge_datetime` DESC
 		                              LIMIT 1;");
-		$current = Build::query_to_builds($q_check);
+		if (!is_bool($q_check))
+		{
+			$current = Build::query_to_builds($q_check);
+		}
 
 		// Check if the build exists as a master build
 		if (empty($current))
@@ -119,12 +123,22 @@ function checkForUpdates(string $api, string $commit = '') : array
 					                                BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
 					                                AND CAST('{$latest->merge}' AS DATETIME)
 					                                ORDER BY `merge_datetime` DESC
-																					LIMIT 500;");
-
-					while ($row = mysqli_fetch_object($q_between))
+					                                LIMIT 500;");
+					
+					if (!is_bool($q_between))
 					{
-						$results['changelog'][] = array("version" => $row->version,
-						                                "title" => $row->title);
+						while ($row = mysqli_fetch_object($q_between))
+						{
+							// This should be unreachable unless the database structure is damaged
+							if (!property_exists($row, "version") ||
+									!property_exists($row, "title"))
+							{
+								continue;
+							}
+
+							$results['changelog'][] = array("version" => $row->version,
+							                                "title" => $row->title);
+						}
 					}
 				}
 

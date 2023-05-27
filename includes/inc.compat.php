@@ -26,7 +26,7 @@ if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception(
 
 
 // Profiler
-Profiler::setTitle("Profiler: Compat");
+Profiler::start_profiler("Profiler: Compat");
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))
@@ -52,22 +52,22 @@ else
 $games = null;
 
 // Connect to database
-Profiler::addData("Inc: Database Connection");
+Profiler::add_data("Inc: Database Connection");
 $db = getDatabase();
 
 // Generate query
-Profiler::addData("Inc: Generate Query");
+Profiler::add_data("Inc: Generate Query");
 $genquery = Compat::generate_query($get, $db);
 
 // Get game count per status
-Profiler::addData("Inc: Count Games (Search)");
+Profiler::add_data("Inc: Count Games (Search)");
 $scount = countGames($db, $genquery);
 
 // Pages / CurrentPage
-Profiler::addData("Inc: Count Pages");
+Profiler::add_data("Inc: Count Pages");
 $pages = countPages($get["r"], $scount["network"][0]);
 
-Profiler::addData("Inc: Get Current Page");
+Profiler::add_data("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
 
@@ -101,16 +101,16 @@ $c_main .= " {$order} LIMIT {$limit}, {$get['r']}; ";
 
 
 // Run the main query
-Profiler::addData("Inc: Execute Main Query ({$c_main})");
+Profiler::add_data("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
 
 // Levenshtein search
-Profiler::addData("Inc: Levenshtein");
+Profiler::add_data("Inc: Levenshtein");
 
 // Levenshtein Search (Get the closest result to the searched input)
 // If the main query didn't return anything and game search exists and isn't a Game ID
-if ($q_main && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($get['g']))
+if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($get['g']))
 {
 	$l_title = "";
 	$l_orig = "";
@@ -119,44 +119,55 @@ if ($q_main && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($
 
 	// Select all database entries
 	$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
-	while ($row = mysqli_fetch_object($q_lev))
-	{
-		$titles[] = $row->game_title;
-		if (!is_null($row->alternative_title))
-			$titles[] = $row->alternative_title;
-	}
 
-	// Calculate proximity for each database entry
-	foreach ($titles as $title)
+	if (!is_bool($q_lev))
 	{
-		$lev = levenshtein($get['g'], $title);
-		if ($lev <= $l_dist || $l_dist < 0)
+		while ($row = mysqli_fetch_object($q_lev))
 		{
-			$l_title = $title;
-			$l_dist = $lev;
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "game_title") ||
+					!property_exists($row, "alternative_title"))
+			{
+				continue;
+			}
+
+			$titles[] = $row->game_title;
+			if (!is_null($row->alternative_title))
+				$titles[] = $row->alternative_title;
 		}
+
+		// Calculate proximity for each database entry
+		foreach ($titles as $title)
+		{
+			$lev = levenshtein($get['g'], $title);
+			if ($lev <= $l_dist || $l_dist < 0)
+			{
+				$l_title = $title;
+				$l_dist = $lev;
+			}
+		}
+
+		// Replace faulty search with returned game but keep the original search for display
+		$l_orig   = $get['g'];
+		$get['g'] = $l_title;
+
+		// Re-run the main query
+		$genquery = Compat::generate_query($get, $db);
+		$c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
+		$q_main = mysqli_query($db, $c_main);
+
+		// Recalculate Pages / CurrentPage
+		$scount = countGames($db, $genquery);
+		$pages = countPages($get["r"], $scount["network"][0]);
+		$currentPage = getCurrentPage($pages);
 	}
-
-	// Replace faulty search with returned game but keep the original search for display
-	$l_orig   = $get['g'];
-	$get['g'] = $l_title;
-
-	// Re-run the main query
-	$genquery = Compat::generate_query($get, $db);
-	$c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
-	$q_main = mysqli_query($db, $c_main);
-
-	// Recalculate Pages / CurrentPage
-	$scount = countGames($db, $genquery);
-	$pages = countPages($get["r"], $scount["network"][0]);
-	$currentPage = getCurrentPage($pages);
 }
 
 // Check if query succeeded and storing is required, stores messages for error/information printing
-Profiler::addData("Inc: Check Search Status");
+Profiler::add_data("Inc: Check Search Status");
 $error = NULL;
 
-if (!$q_main)
+if (is_bool($q_main))
 {
 	$error = "ERROR_QUERY_FAIL";
 }
@@ -174,20 +185,20 @@ else if (mysqli_num_rows($q_main) === 0 && isset($l_title) && isset($l_orig) && 
 }
 
 // Store results
-if ($q_main && mysqli_num_rows($q_main) > 0)
+if (!is_bool($q_main) && mysqli_num_rows($q_main) > 0)
 {
-	Profiler::addData("Inc: Query to Games");
+	Profiler::add_data("Inc: Query to Games");
 	$games = Game::query_to_games($q_main);
 
-	Profiler::addData("Inc: Query to Games - Import Wiki");
+	Profiler::add_data("Inc: Query to Games - Import Wiki");
 	Game::import_wiki($games);
 
-	Profiler::addData("Inc: Query to Games - Import Updates");
+	Profiler::add_data("Inc: Query to Games - Import Updates");
 	Game::import_update_tags($games);
 }
 
 // Close MySQL connection.
-Profiler::addData("Inc: Close Database Connection");
+Profiler::add_data("Inc: Close Database Connection");
 mysqli_close($db);
 
-Profiler::addData("--- / ---");
+Profiler::add_data("--- / ---");

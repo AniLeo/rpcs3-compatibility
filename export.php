@@ -38,7 +38,15 @@ function exportDatabase() : array
 	}
 
 	$db = getDatabase();
-	$games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
+	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
+
+	if (is_bool($q_games))
+	{
+		$results['return_code'] = -1;
+		return $results;
+	}
+
+	$games = Game::query_to_games($q_games);
 	Game::import_update_tags($games);
 	mysqli_close($db);
 

@@ -28,7 +28,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 				<div class="container-tx1-block">
 					<span class="compat-text">Compatibility List</span>
 					<?php
-						Profiler::addData("Page: Get Menu");
+						Profiler::add_data("Page: Get Menu");
 						echo getMenu(__FILE__);
 					?>
 				</div>
@@ -47,34 +47,34 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 
 			</div> <!-- container-con-wrapper -->
 
-			<?php Profiler::addData("Page: Print Type Sort"); ?>
+			<?php Profiler::add_data("Page: Print Type Sort"); ?>
 			<div class="compat-types">
 				<span class="compat-text">Application type</span>
 				&nbsp;
 				<?php Compat::printTypeSort(); ?>
 			</div>
 			<div class="compat-hdr-left">
-				<?php Profiler::addData("Page: Print Results Per Page"); ?>
+				<?php Profiler::add_data("Page: Print Results Per Page"); ?>
 				<span class="compat-text">Results per page</span>
 				&nbsp;
 				<?php Compat::printResultsPerPage(); ?>
 			</div>
 			<div class="compat-hdr-right">
-				<?php Profiler::addData("Page: Print Status Sort"); ?>
+				<?php Profiler::add_data("Page: Print Status Sort"); ?>
 				<?php Compat::printStatusSort(); ?>
 			</div>
 
 			<?php
 			if (file_exists(__DIR__.'/../cache/mod.status.count.php')) {
-				Profiler::addData("Page: Include Status Module");
+				Profiler::add_data("Page: Include Status Module");
 				include(__DIR__.'/../cache/mod.status.count.php');
 			} else {
-				Profiler::addData("Page: Generate Status Module");
+				Profiler::add_data("Page: Generate Status Module");
 				echo generateStatusModule();
 			}
 			?>
 
-			<?php Profiler::addData("Page: Display Searchbox"); ?>
+			<?php Profiler::add_data("Page: Display Searchbox"); ?>
 			<div class="compat-con-searchbox">
 				<form method="get" id="game-search" action="#jump">
 					<div class="searchbox">
@@ -87,20 +87,20 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 			</div>
 
 			<?php
-				Profiler::addData("Page: Print Character Search");
+				Profiler::add_data("Page: Print Character Search");
 				Compat::printCharSearch();
 			?>
 
 		</div> <!-- container-con-block -->
 
 		<?php
-			Profiler::addData("Page: Print Table");
+			Profiler::add_data("Page: Print Table");
 			Compat::printTable();
 
-			Profiler::addData("Page: Print Pages Counter");
+			Profiler::add_data("Page: Print Pages Counter");
 			Compat::printPagesCounter();
 
-			Profiler::addData("End");
+			Profiler::add_data("End");
 			echo getFooter();
 		?>
 

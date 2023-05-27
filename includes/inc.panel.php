@@ -75,12 +75,29 @@ function checkInvalidThreads() : void
 	FROM `rpcs3_forums`.`mybb_threads`
 	WHERE ({$where}) AND `visible` > 0; ");
 
-	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`; "));
+	$q_games = mysqli_query($db, "SELECT * FROM `game_list`; ");
 
 	mysqli_close($db);
 
+	if (is_bool($q_games) || is_bool($q_threads))
+	{
+		echo "<b>Error while fetching the game or thread list</b>";
+		return;
+	}
+
+	$a_games = Game::query_to_games($q_games);
+
 	while ($row = mysqli_fetch_object($q_threads))
 	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row, "tid") ||
+				!property_exists($row, "subject") ||
+				!property_exists($row, "fid"))
+		{
+			echo "<b>Error while fetching the thread list</b>";
+			return;
+		}
+
 		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
 		if (is_null($thread->get_game_id()))
@@ -174,10 +191,30 @@ function compatibilityUpdater() : void
 	}
 
 	// Cache commits
-	$q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `merge_datetime` FROM `builds` ORDER BY `merge_datetime` DESC;");
 	$a_commits = array();
+	$q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `merge_datetime`
+	FROM `builds`
+	ORDER BY `merge_datetime` DESC;");
+
+	if (is_bool($q_commits))
+	{
+		echo "<b>Error while fetching the builds list</b>";
+		return;
+	}
+
 	while ($row = mysqli_fetch_object($q_commits))
+	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row, "pr") ||
+				!property_exists($row, "commit") ||
+				!property_exists($row, "merge_datetime"))
+		{
+			echo "<b>Error while fetching the builds list</b>";
+			return;
+		}
+
 		$a_commits[$row->commit] = array("pr" => $row->pr, "merge" => $row->merge_datetime);
+	}
 
 	// Get all threads since the end of the last compatibility period
 	$a_threads = array();
@@ -186,8 +223,24 @@ function compatibilityUpdater() : void
 	WHERE ({$where}) &&
 	`lastpost` > {$ts_lastupdate};");
 
+	if (is_bool($q_threads))
+	{
+		echo "<b>Error while fetching the threads list</b>";
+		return;
+	}
+
 	while ($row = mysqli_fetch_object($q_threads))
 	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row, "tid") ||
+				!property_exists($row, "fid") ||
+				!property_exists($row, "subject") ||
+				!property_exists($row, "lastpost") ||
+				!property_exists($row, "visible"))
+		{
+			continue;
+		}
+
 		$thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
 		// Invalid Game ID
@@ -213,7 +266,15 @@ function compatibilityUpdater() : void
 	}
 
 	// Get all games in the database
-	$a_games = Game::query_to_games(mysqli_query($db, "SELECT * FROM `game_list`;"));
+	$q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
+
+	if (is_bool($q_games))
+	{
+		echo "<b>Error while fetching the games list</b>";
+		return;
+	}
+
+	$a_games = Game::query_to_games($q_games);
 
 	// Script data
 	$a_inserts = array();
@@ -269,21 +330,41 @@ function compatibilityUpdater() : void
 		if (is_null($tid))
 		{
 			$a_inserts[$thread->tid] = array(
-				'thread' => $thread
+				'thread' => $thread,
+				'commit' => null,
+				'pr' => null,
+				'last_update' => null
 			);
 
 			// Verify posts
 			$q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
-			FROM `rpcs3_forums`.`mybb_posts` WHERE `tid` = {$thread->tid}
+			FROM `rpcs3_forums`.`mybb_posts`
+			WHERE `tid` = {$thread->tid}
 			ORDER BY `pid` DESC;");
+
+			if (is_bool($q_post))
+			{
+				echo "<b>Error while fetching posts list</b>";
+				return;
+			}
 
 			while ($post = mysqli_fetch_object($q_post))
 			{
+				// This should be unreachable unless the database structure is damaged
+				if (!property_exists($post, "pid") ||
+						!property_exists($post, "dateline") ||
+						!property_exists($post, "message") ||
+						!property_exists($post, "username"))
+				{
+					echo "<b>Error while fetching posts list</b>";
+					return;
+				}
+
 				foreach ($a_commits as $commit => $value)
 				{
-					if (stripos($post->message, (string) substr($commit, 0, 8)) !== false)
+					if (stripos($post->message, substr((string) $commit, 0, 8)) !== false)
 					{
-						$a_inserts[$thread->tid]['commit'] = $commit;
+						$a_inserts[$thread->tid]['commit'] = (string) $commit;
 						$a_inserts[$thread->tid]['pr'] = $value["pr"];
 						$a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
 						$a_inserts[$thread->tid]['author'] = $post->username;
@@ -296,7 +377,8 @@ function compatibilityUpdater() : void
 			$html_a->set_target("_blank");
 
 			// Invalid report found
-			if (!isset($a_inserts[$thread->tid]['commit']) || !isset($a_inserts[$thread->tid]['pr']))
+			if (is_null($a_inserts[$thread->tid]['commit']) ||
+			    is_null($a_inserts[$thread->tid]['pr']))
 			{
 				echo "<b>Error!</b> Invalid report found on tid: {$html_a->to_string()}<br><br>";
 				unset($a_inserts[$thread->tid]);
@@ -343,6 +425,7 @@ function compatibilityUpdater() : void
 					'status' => $thread->get_sid(),
 					'commit' => null,
 					'pr' => null,
+					'last_update' => null,
 					'action' => 'mov',
 					'old_date' => $cur_game->date,
 					'old_status' => $cur_game->status,
@@ -357,12 +440,28 @@ function compatibilityUpdater() : void
 			                             WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
 			                             ORDER BY `pid` DESC;");
 
+			if (is_bool($q_post))
+			{
+				echo "<b>Error while fetching posts list</b>";
+				return;
+			}
+
 			while ($post = mysqli_fetch_object($q_post))
 			{
+				// This should be unreachable unless the database structure is damaged
+				if (!property_exists($post, "pid") ||
+						!property_exists($post, "dateline") ||
+						!property_exists($post, "message") ||
+						!property_exists($post, "username"))
+				{
+					echo "<b>Error while fetching posts list</b>";
+					return;
+				}
+
 				foreach ($a_commits as $commit => $value)
 				{
 					// Skip posts with no commits
-					if (stripos($post->message, (string) substr($commit, 0, 8)) === false)
+					if (stripos($post->message, substr((string) $commit, 0, 8)) === false)
 						continue;
 
 					// If current commit is newer than the previously recorded one, replace
@@ -371,7 +470,7 @@ function compatibilityUpdater() : void
 					if (is_null($a_updates[$cur_game->key]['commit']) ||
 					    strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
 					{
-						$a_updates[$cur_game->key]['commit'] = $commit;
+						$a_updates[$cur_game->key]['commit'] = (string) $commit;
 						$a_updates[$cur_game->key]['pr'] = $value["pr"];
 						$a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
 						$a_updates[$cur_game->key]['author'] = $post->username;
@@ -384,9 +483,9 @@ function compatibilityUpdater() : void
 			// If the new date is older than the current date (meaning there's no valid report post)
 			// Or no new pr was found
 			// then ignore this entry and continue
-			if (!isset($a_updates[$cur_game->key]['last_update']) ||
-			    strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']) ||
-			    is_null($a_updates[$cur_game->key]['pr']))
+			if (is_null($a_updates[$cur_game->key]['commit']) ||
+				  is_null($a_updates[$cur_game->key]['pr']) ||
+			    strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']))
 			{
 				unset($a_updates[$cur_game->key]);
 				continue;
@@ -457,10 +556,18 @@ function compatibilityUpdater() : void
 			`type` = {$game['thread']->get_game_type()}
 			ORDER BY `key` DESC LIMIT 1");
 
+			if (is_bool($q_fetchkey))
+			{
+				exit("[COMPAT] Error while trying to fetch key from game list");
+			}
+
 			$row = mysqli_fetch_object($q_fetchkey);
 
-			if (!isset($row->key))
-				exit("[COMPAT] Includes: Missing database fields");
+			// This should be unreachable unless the database structure is damaged
+			if (!$row || !property_exists($row, "key"))
+			{
+				exit("[COMPAT] Missing key column just right after trying to insert it");
+			}
 
 			// Insert Game and Thread IDs on the ID table
 			mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$row->key}, '{$db_game_id}', {$tid}); ");
@@ -558,7 +665,7 @@ function mergeGames() : void
 	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
 
 	$q_game1 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');");
-	if (mysqli_num_rows($q_game1) === 0)
+	if (is_bool($q_game1) || mysqli_num_rows($q_game1) === 0)
 	{
 		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
 		return;
@@ -566,7 +673,7 @@ function mergeGames() : void
 	$game1 = Game::query_to_games($q_game1)[0];
 
 	$q_game2 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');");
-	if (mysqli_num_rows($q_game2) === 0)
+	if (is_bool($q_game2) || mysqli_num_rows($q_game2) === 0)
 	{
 		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
 		return;
@@ -699,7 +806,7 @@ function flag_build_as_broken() : void
 	$db = getDatabase();
 	$q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr}; ");
 
-	if (mysqli_num_rows($q_build) === 0)
+	if (is_bool($q_build) || mysqli_num_rows($q_build) === 0)
 		return;
 
 	$build = Build::query_to_builds($q_build)[0];

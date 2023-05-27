@@ -232,7 +232,7 @@ function validateGet() : array
 	}
 
 	// Date
-	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen($_GET['d']) === 8 && strpos($_GET['d'], '20') === 0)
+	if (isset($_GET['d']) && is_numeric($_GET['d']) && strlen((string) $_GET['d']) === 8 && strpos((string) $_GET['d'], '20') === 0)
 	{
 		$get['d'] = (int) $_GET['d'];
 	}
@@ -357,11 +357,18 @@ function countGames(mysqli $db, string $query = "") : array
 		$scount["network"][$id]  = 0;
 	}
 
-	if (!$q_gen1 || !$q_gen2)
+	if (is_bool($q_gen1) || is_bool($q_gen2))
 		return $scount;
 
 	while ($row1 = mysqli_fetch_object($q_gen1))
 	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row1, "statusID") ||
+				!property_exists($row1, "c"))
+		{
+			continue;
+		}
+
 		$sid   = (int) $row1->statusID;
 		$count = (int) $row1->c;
 
@@ -379,6 +386,13 @@ function countGames(mysqli $db, string $query = "") : array
 
 	while ($row2 = mysqli_fetch_object($q_gen2))
 	{
+		// This should be unreachable unless the database structure is damaged
+		if (!property_exists($row2, "statusID") ||
+				!property_exists($row2, "c"))
+		{
+			continue;
+		}
+
 		$sid   = (int) $row2->statusID;
 		$count = (int) $row2->c;
 
@@ -405,12 +419,15 @@ function count_game_entry_all() : int
 	                                  OR (`network` = 1 && `status` <= 2))
 	                                  AND `type` = 'PS3 Game'; ");
 
-	if ($q_unique && mysqli_num_rows($q_unique) === 1)
+	if (!is_bool($q_unique) && mysqli_num_rows($q_unique) === 1)
 	{
 		$row = mysqli_fetch_object($q_unique);
 
-		if (!isset($row->c))
-			exit("[COMPAT] Functions: Missing database fields");
+		// This should be unreachable unless the database structure is damaged
+		if (!$row || !property_exists($row, "c"))
+		{
+			return 0;
+		}
 
 		$ret = (int) $row->c;
 	}
@@ -434,12 +451,15 @@ function count_game_id_all() : int
 	                                  OR (`network` = 1 && `status` <= 2))
 	                                  AND `type` = 'PS3 Game'; ");
 
-	if ($q_unique && mysqli_num_rows($q_unique) === 1)
+	if (!is_bool($q_unique) && mysqli_num_rows($q_unique) === 1)
 	{
 		$row = mysqli_fetch_object($q_unique);
 
-		if (!isset($row->c))
-			exit("[COMPAT] Functions: Missing database fields");
+		// This should be unreachable unless the database structure is damaged
+		if (!$row || !property_exists($row, "c"))
+		{
+			return 0;
+		}
 
 		$ret = (int) $row->c;
 	}
@@ -516,7 +536,7 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
 
 
 /**
-* @param array<array<string, string|int>> $headers
+* @param array<array<string, string>> $headers
 */
 function getTableHeaders(array $headers, string $extra = "") : string
 {
@@ -531,7 +551,7 @@ function getTableHeaders(array $headers, string $extra = "") : string
 	{
 		$html_div = new HTMLDiv($header["class"]);
 
-		if ($header['sort'] === 0)
+		if ($header['sort'] === '0')
 		{
 			$html_div->add_content($header["name"]);
 		}
@@ -588,7 +608,7 @@ function getFooter() : string
 			$html_div->add_content("<p>Maintenance mode: <span class=\"color-red\"><b>OFF</b></span></p>");
 		}
 
-		$html_div->add_content(Profiler::getDataHTML());
+		$html_div->add_content(Profiler::get_data_html());
 
 		$s .= $html_div->to_string();
 	}
@@ -718,13 +738,16 @@ function getDebugPermissions() : ?array
 	                              WHERE `token` = '{$s_token}'
 	                              LIMIT 1; ");
 
-	if (mysqli_num_rows($q_debug) === 0)
+	if (is_bool($q_debug) || mysqli_num_rows($q_debug) === 0)
 		return null;
 
 	$row = mysqli_fetch_object($q_debug);
 
-	if (!isset($row->permissions))
-		exit("[COMPAT] Functions: Missing database fields");
+	// This should be unreachable unless the database structure is damaged
+	if (!$row || !property_exists($row, "permissions"))
+	{
+		return null;
+	}
 
 	$permissions = array();
 
@@ -773,7 +796,8 @@ function getDateDiff(string $datetime) : string
 
 function monthNumberToName(int $month) : string
 {
-	return DateTime::createFromFormat('!m', (string) $month)->format('F');
+	$datetime = DateTime::createFromFormat('!m', (string) $month);
+	return $datetime ? $datetime->format('F') : "";
 }
 
 
@@ -830,6 +854,9 @@ function isGameID(string $string) : bool
 // Returns amount of time in seconds
 function runFunctionWithCronometer(string $function) : float
 {
+	if (!is_callable($function))
+		return -1.0;
+
 	$start = microtime(true);
 	$function();
 	$finish = microtime(true);
@@ -858,7 +885,7 @@ function getStatusID(string $name) : ?int
 * @param CurlHandle $cr
 * @return array<string, mixed> $results
 */
-function curlJSON(string $url, /* CurlHandle */ &$cr = null) : array // PHP 8.0 TODO
+function curlJSON(string $url, /* CurlHandle */ &$cr = null) : ?array // PHP 8.0 TODO
 {
 	if (!defined("gh_token"))
 		exit("[COMPAT] API: Missing connection data");
@@ -883,6 +910,10 @@ function curlJSON(string $url, /* CurlHandle */ &$cr = null) : array // PHP 8.0 
 
 	// Get the response and httpcode of that response
 	$result = curl_exec($ch);
+
+	if (is_bool($result))
+		return null;
+
 	$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 	// Decode JSON

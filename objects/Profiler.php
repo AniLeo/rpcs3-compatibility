@@ -25,12 +25,20 @@ if (!@include_once(__DIR__."/../functions.php"))
 class Profiler
 {
 	public static string $title = "Profiler";
-	/** @var array<array<string, string|int|float>> $data **/
-	public static array  $data;
-	public static int    $size = 0;
+
+	// Memory usage at the start
 	public static int    $mem_start;
 
-	public static function setTitle(string $title) : void
+	// Data entries
+	/** @var array<string> $desc **/
+	public static array  $desc;
+	/** @var array<float> $time **/
+	public static array  $time;
+	/** @var array<float> $mem **/
+	public static array  $mem;
+
+
+	public static function start_profiler(string $title) : void
 	{
 		global $get, $c_profiler;
 
@@ -43,7 +51,7 @@ class Profiler
 		self::$title = $title;
 	}
 
-	public static function addData(string $description) : void
+	public static function add_data(string $description) : void
 	{
 		global $get, $c_profiler;
 
@@ -53,19 +61,17 @@ class Profiler
 		if (!isset(self::$mem_start))
 			self::$mem_start = memory_get_usage(false);
 
-		self::$data[] = array(
-			'desc' => $description,
-			'time' => microtime(true) * 1000,                   // Milliseconds
-			'mem'  => round(memory_get_usage(false)/1024, 2)    // KBs
-		);
-		self::$size++;
+		self::$desc[] = $description;
+		self::$time[] = microtime(true) * 1000;                 // Milliseconds
+		self::$mem[]  = round(memory_get_usage(false)/1024, 2); // KBs
 	}
 
-	public static function getDataHTML() : string
+	public static function get_data_html() : string
 	{
 		global $get, $c_profiler;
 
-		if (is_null($get['w']) || !$c_profiler || empty(self::$data))
+		if (is_null($get['w']) || !$c_profiler || empty(self::$desc) ||
+				empty(self::$time) || empty(self::$mem))
 			return "";
 
 		$ret = "<p><b>".self::$title."</b><br>";
@@ -73,6 +79,11 @@ class Profiler
 		if (PHP_OS_FAMILY !== "Windows")
 		{
 			$load = sys_getloadavg();
+
+			// If there is an issue with the sys_getloadavg function
+			if (!$load || count($load) < 3)
+				return "";
+
 			$ret .= "<p>";
 			$ret .= "Load (1m): {$load[0]}<br>";
 			$ret .= "Load (5m): {$load[1]}<br>";
@@ -89,15 +100,22 @@ class Profiler
 			$ret .= "</p>";
 		}
 
-		if (self::$size > 1)
+		$size = count(self::$desc);
+
+		// This should be unreachable
+		if (count(self::$time) != $size ||
+				count(self::$mem) != $size)
+				return "";
+
+		if ($size > 1)
 		{
 			$ret .= "<p>".PHP_EOL;
-			for ($i = 0; $i < self::$size - 1; $i++)
+			for ($i = 0; $i < $size - 1; $i++)
 			{
 				$ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL,
-				                self::$data[$i+1]['time'] - self::$data[$i]['time'],
-				                self::$data[$i+1]['mem'] - self::$data[$i]['mem'],
-				                self::$data[$i]['desc']);
+				                self::$time[$i+1] - self::$time[$i],
+				                self::$mem[$i+1] - self::$mem[$i],
+				                self::$desc[$i]);
 			}
 			$ret .= "</p>";
 		}

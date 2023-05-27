@@ -95,7 +95,7 @@ https://github.com/AniLeo
 2017.01.22
 **/
 $start_time = microtime(true);
-Profiler::addData("Index: Start");
+Profiler::add_data("Index: Start");
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
@@ -190,7 +190,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
 						elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
 						else
 						{
-							Profiler::addData("Index: Count Games");
+							Profiler::add_data("Index: Count Games");
 							echo "There are currently ".count_game_entry_all()." games with ".count_game_id_all()." IDs listed in our database";
 						}
 					} else {

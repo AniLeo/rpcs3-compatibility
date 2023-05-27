@@ -25,10 +25,10 @@ if (!@include_once(__DIR__."/../classes/class.History.php")) throw new Exception
 
 
 // Profiler
-Profiler::setTitle("Profiler: History");
+Profiler::start_profiler("Profiler: History");
 
 // Connect to database
-Profiler::addData("Inc: Database Connection");
+Profiler::add_data("Inc: Database Connection");
 $db = getDatabase();
 
 // Unreachable during normal usage as it's defined on index
@@ -72,13 +72,13 @@ else
 // Existing entries
 if (!isset($get['m']) || $get['m'] === "c")
 {
-	Profiler::addData("Inc: Check Existing Entries");
+	Profiler::add_data("Inc: Check Existing Entries");
 
 	$q_existing = mysqli_query($db, "{$cmd_main}
 	WHERE `old_status` IS NOT NULL {$cmd_date}
 	ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-	if (!$q_existing)
+	if (is_bool($q_existing))
 	{
 		$error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
 	}
@@ -86,22 +86,24 @@ if (!isset($get['m']) || $get['m'] === "c")
 	{
 		$error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
 	}
-
-	$a_existing = HistoryEntry::query_to_history_entry($q_existing);
+	else
+	{
+		$a_existing = HistoryEntry::query_to_history_entry($q_existing);
+	}
 }
 
 
 // New entries
 if (!isset($get['m']) || $get['m'] === "n")
 {
-	Profiler::addData("Inc: Check New Entries");
+	Profiler::add_data("Inc: Check New Entries");
 
 	$q_new = mysqli_query($db, "{$cmd_main}
 	WHERE `old_status` IS NULL
-	AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date} 
+	AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date}
 	ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-	if (!$q_new)
+	if (is_bool($q_new))
 	{
 		$error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
 	}
@@ -109,13 +111,15 @@ if (!isset($get['m']) || $get['m'] === "n")
 	{
 		$error_new = "No newer entries were reported and/or reviewed yet.";
 	}
-
-	$a_new = HistoryEntry::query_to_history_entry($q_new);
+	else
+	{
+		$a_new = HistoryEntry::query_to_history_entry($q_new);
+	}
 }
 
 
 // Disconnect from database
-Profiler::addData("Inc: Close Database Connection");
+Profiler::add_data("Inc: Close Database Connection");
 mysqli_close($db);
 
-Profiler::addData("--- / ---");
+Profiler::add_data("--- / ---");

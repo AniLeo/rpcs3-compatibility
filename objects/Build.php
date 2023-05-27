@@ -103,7 +103,13 @@ class Build
 			$this->files = null;
 		}
 
-		$this->fulldate = date_format(date_create($this->merge), "Y-m-d");
+		$datetime = date_create($this->merge);
+
+		if (!$datetime)
+			$this->fulldate = "0000-00-00";
+		else
+			$this->fulldate = date_format($datetime, "Y-m-d");
+
 		$this->diffdate = getDateDiff($this->merge);
 	}
 
@@ -202,8 +208,18 @@ class Build
 		$a_contributors = array();
 		$q_contributors = mysqli_query($db, "SELECT * FROM `contributors`;");
 
+		if (is_bool($q_contributors))
+			return;
+
 		while ($row = mysqli_fetch_object($q_contributors))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "id") ||
+					!property_exists($row, "username"))
+			{
+				continue;
+			}
+
 			$a_contributors[$row->id] = $row->username;
 		}
 
@@ -227,6 +243,30 @@ class Build
 
 		while ($row = mysqli_fetch_object($query))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "pr") ||
+					!property_exists($row, "commit") ||
+					!property_exists($row, "version") ||
+					!property_exists($row, "author") ||
+					!property_exists($row, "merge_datetime") ||
+					!property_exists($row, "additions") ||
+					!property_exists($row, "deletions") ||
+					!property_exists($row, "changed_files") ||
+					!property_exists($row, "checksum_win") ||
+					!property_exists($row, "size_win") ||
+					!property_exists($row, "filename_win") ||
+					!property_exists($row, "checksum_linux") ||
+					!property_exists($row, "size_linux") ||
+					!property_exists($row, "filename_linux") ||
+					!property_exists($row, "checksum_mac") ||
+					!property_exists($row, "size_mac") ||
+					!property_exists($row, "filename_mac") ||
+					!property_exists($row, "broken") ||
+					!property_exists($row, "title"))
+			{
+				continue;
+			}
+
 			$a_builds[] = new Build($row->pr,
 			                        $row->commit,
 			                        $row->version,
@@ -260,6 +300,9 @@ class Build
 		$query = mysqli_query($db, "SELECT * FROM `builds`
 		                            WHERE `broken` IS NULL OR `broken` != 1
 		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
+
+		if (is_bool($query))
+			return null;
 
 		$ret = self::query_to_builds($query);
 		return $ret[0];

@@ -68,6 +68,19 @@ class HistoryEntry
 
 		while ($row = mysqli_fetch_object($query))
 		{
+			// This should be unreachable unless the database structure is damaged
+			if (!property_exists($row, "game_title") ||
+					!property_exists($row, "alternative_title") ||
+					!property_exists($row, "old_status") ||
+					!property_exists($row, "new_status") ||
+					!property_exists($row, "old_date") ||
+					!property_exists($row, "new_date") ||
+					!property_exists($row, "gid") ||
+					!property_exists($row, "tid"))
+			{
+				return array();
+			}
+
 			$a_entries[] = new HistoryEntry($row->game_title,
 			                                $row->alternative_title,
 			                                $row->old_status,
