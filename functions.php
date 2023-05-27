@@ -879,13 +879,12 @@ function getStatusID(string $name) : ?int
 }
 
 
-// cURL JSON document and return the result as (HttpCode, JSON)
-// Note: Resources can't be type hinted
+// cURL JSON document and return the result as an object
 /**
 * @param CurlHandle $cr
-* @return array<string, mixed> $results
+* @return object $result
 */
-function curlJSON(string $url, /* CurlHandle */ &$cr = null) : ?array // PHP 8.0 TODO
+function curl_json(string $url, CurlHandle &$cr = null) : ?object
 {
 	if (!defined("gh_token"))
 		exit("[COMPAT] API: Missing connection data");
@@ -911,21 +910,22 @@ function curlJSON(string $url, /* CurlHandle */ &$cr = null) : ?array // PHP 8.0
 	// Get the response and httpcode of that response
 	$result = curl_exec($ch);
 
-	if (is_bool($result))
-		return null;
-
-	$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-	// Decode JSON
-	$result = json_decode($result);
-
 	// Close the temporary cURL resource or reset the given cURL resource
 	if (is_null($cr))
 		curl_close($ch);
 	else
 		curl_reset($cr);
 
-	return array('httpcode' => $httpcode, 'result' => $result);
+	if (is_bool($result))
+		return null;
+
+	// Decode JSON
+	$result = json_decode($result, false);
+
+	if (is_bool($result) || is_null($result) || !is_object($result))
+		return null;
+
+	return $result;
 }
 
 

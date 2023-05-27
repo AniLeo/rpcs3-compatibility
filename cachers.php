@@ -74,16 +74,14 @@ function cache_builds(bool $full = false) : void
 	// repo:rpcs3/rpcs3, is:pr, is:merged, merged:>$date, sort=updated (asc)
 	// TODO: Sort by merged date whenever it's available on the GitHub API
 	$url = "https://api.github.com/search/issues?q=repo:rpcs3/rpcs3+is:pr+is:merged+sort:updated-asc+merged:%3E{$date}";
-	$json = curlJSON($url, $cr);
-
-	if (is_null($json) || array_key_exists("result", $json))
-		return;
-
-	$search = $json['result'];
+	$search = curl_json($url, $cr);
 
 	// API Call Failed or no PRs to cache, end here
 	// TODO: Log and handle API call fails differently depending on the fail
-	if (!isset($search->total_count) || $search->total_count == 0)
+	if (is_null($search) ||
+	    !property_exists($search, "total_count") ||
+	    !property_exists($search, "items") ||
+	    $search->total_count == 0)
 	{
 		mysqli_close($db);
 		curl_close($cr);
@@ -141,12 +139,18 @@ function cache_builds(bool $full = false) : void
 
 		if ($i <= $pages)
 		{
-			$json = curlJSON("{$url}&page={$i}", $cr);
+			$search = curl_json("{$url}&page={$i}", $cr);
 
-			if (is_null($json) || array_key_exists("result", $json))
+			// API call failed
+			if (is_null($search) ||
+			    !property_exists($search, "total_count") ||
+			    !property_exists($search, "items") ||
+			    $search->total_count == 0)
+			{
+				mysqli_close($db);
+				curl_close($cr);
 				return;
-
-			$search = $json['result'];
+			}
 		}
 	}
 	mysqli_close($db);
@@ -241,13 +245,11 @@ function cache_build(int $pr) : void
 
 	$cr = curl_init();
 
-	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr);
-
-	if (is_null($json) || array_key_exists("result", $json))
-		return;
-
 	// Grab pull request information from GitHub REST API (v3)
-	$pr_info = $json['result'];
+	$pr_info = curl_json("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}", $cr);
+
+	if (is_null($pr_info))
+		return;
 
 	// Check if we aren't rate limited
 	if (!isset($pr_info->merge_commit_sha))
@@ -304,22 +306,19 @@ function cache_build(int $pr) : void
 	}
 
 	// Windows build metadata
-	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr);
-	if (is_null($json) || array_key_exists("result", $json))
+	$info_release_win = curl_json("https://api.github.com/repos/rpcs3/rpcs3-binaries-win/releases/tags/build-{$commit}", $cr);
+	if (is_null($info_release_win))
 		return;
-	$info_release_win = $json['result'];
 
 	// Linux build metadata
-	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr);
-	if (is_null($json) || array_key_exists("result", $json))
+	$info_release_linux = curl_json("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux/releases/tags/build-{$commit}", $cr);
+	if (is_null($info_release_linux))
 		return;
-	$info_release_linux = $json['result'];
 
 	// macOS build metadata
-	$json = curlJSON("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr);
-	if (is_null($json) || array_key_exists("result", $json))
+	$info_release_mac = curl_json("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac/releases/tags/build-{$commit}", $cr);
+	if (is_null($info_release_mac))
 		return;
-	$info_release_mac = $json['result'];
 
 	$is_missing = isset($info_release_win->message) ||
 	              isset($info_release_linux->message) ||
@@ -714,12 +713,10 @@ function cacheStatusCount() : void
 
 function cacheContributor(string $username) : int
 {
-	$json = curlJSON("https://api.github.com/users/{$username}");
+	$info_contributor = curl_json("https://api.github.com/users/{$username}");
 
-	if (is_null($json) || array_key_exists("result", $json))
+	if (is_null($info_contributor))
 		return 0;
-
-	$info_contributor = $json['result'];
 
 	// If message is set, API call did not go well. Ignore caching.
 	if (isset($info_contributor->message) || !isset($info_contributor->id))
@@ -950,7 +947,9 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 	$api = json_encode($api);
 	if (!$api)
 		return false;
-	$api = json_decode($api);
+	$api = json_decode($api, false);
+	if (!is_object($api))
+		return false;
 
 	// Sanity check the API results
 	if (!isset($api->{"@attributes"}) || !isset($api->{"@attributes"}->status) || !isset($api->{"@attributes"}->titleid))
