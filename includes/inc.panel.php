@@ -768,9 +768,17 @@ function mergeGames() : void
 			return;
 		}
 
+		// Copy the older entry's title to new entry if necessary
+		if ($old->title != $new->title)
+		{
+			mysqli_query($db, "UPDATE `game_list` SET `game_title` = '".mysqli_real_escape_string($db, $old->title)."' WHERE `key`='{$new->key}';");
+		}
+
 		// Copy alternative title to new entry if necessary
 		if (!is_null($old->title2) && is_null($new->title2))
+		{
 			mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");
+		}
 
 		// Copy network flag to new entry if necessary
 		if ($game1->network !== $game2->network)
