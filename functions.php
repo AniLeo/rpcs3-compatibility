@@ -227,7 +227,7 @@ function validateGet() : array
 		$get['g'] = (string) $_GET['g'];
 
 		// Trim all unnecessary double spaces
-		while (strpos($get['g'], "  ") !== false)
+		while (str_contains($get['g'], "  "))
 			$get['g'] = str_replace("  ", " ", $get['g']);
 	}
 
@@ -751,7 +751,7 @@ function getDebugPermissions() : ?array
 
 	$permissions = array();
 
-	if (strpos($row->permissions, ',') === false)
+	if (!str_contains($row->permissions, ','))
 	{
 		$permissions[0] = $row->permissions;
 	}
@@ -880,10 +880,6 @@ function getStatusID(string $name) : ?int
 
 
 // cURL JSON document and return the result as an object
-/**
-* @param CurlHandle $cr
-* @return object $result
-*/
 function curl_json(string $url, CurlHandle &$cr = null) : ?object
 {
 	if (!defined("gh_token"))
@@ -930,15 +926,12 @@ function curl_json(string $url, CurlHandle &$cr = null) : ?object
 
 
 // Based on https://stackoverflow.com/a/9826656
-/**
-* @return bool|string $return
-*/
-function get_string_between(string $string, string $start, string $end) /* : bool|string PHP 8.0 TODO */
+function get_string_between(string $string, string $start, string $end) : ?string
 {
 	// Return position of initial limit in our string
 	// If position doesn't exist, then return false as string doesn't contain our start limit
 	if (!($inipos = strpos($string, $start)))
-		return false;
+		return null;
 
 	// Add length of start limit, so our start position is the character AFTER the start limit
 	$inipos += strlen($start);
@@ -946,7 +939,7 @@ function get_string_between(string $string, string $start, string $end) /* : boo
 	// Look for end string position starting on initial position (offset)
 	// If position doesn't exist, then return false as string doesn't contain our end limit
 	if (!($endpos = strpos($string, $end, $inipos)))
-		return false;
+		return null;
 
 	// Start on 'start limit position' and return string with substring length
 	return substr($string, $inipos, $endpos - $inipos /*substring length*/);

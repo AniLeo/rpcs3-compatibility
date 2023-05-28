@@ -174,11 +174,11 @@ function parse_build_properties(object $info) : ?array
 
 	// Verify: If version name doesn't contain a slash
 	//         then the current entry is invalid
-	if (strpos($ret["version"], '-') === false) // str_contains
+	if (!str_contains($ret["version"], '-'))
 		return null;
 
 	// Truncate apostrophes on version name if they exist
-	if (strpos($ret["version"], '\'') !== false)
+	if (str_contains($ret["version"], '\''))
 		$ret["version"] = str_replace('\'', '', $ret["version"]);
 
 	// API Sanity Check
@@ -194,14 +194,14 @@ function parse_build_properties(object $info) : ?array
 	foreach ($info->assets as $asset)
 	{
 		// Skip checksum files
-		if (strpos($asset->name, ".sha256") !== false)
+		if (str_contains($asset->name, ".sha256"))
 			continue;
 
-		if      (strpos($asset->name, "win64.7z") !== false) // str_contains
+		if      (str_contains($asset->name, "win64.7z"))
 			$ret["filename"] = $asset->name;
-		else if (strpos($asset->name, "linux64.AppImage") !== false) // str_contains
+		else if (str_contains($asset->name, "linux64.AppImage"))
 			$ret["filename"] = $asset->name;
-		else if (strpos($asset->name, "macos.dmg") !== false) // str_contains
+		else if (str_contains($asset->name, "macos.dmg"))
 			$ret["filename"] = $asset->name;
 	}
 
@@ -220,9 +220,9 @@ function parse_build_properties(object $info) : ?array
 	$ret["size"] = floatval(preg_replace("/[^0-9.,]/", "", $fileinfo[1]));
 
 	// Convert size to bytes if needed
-	if      (strpos($fileinfo[1], "MB") !== false)
+	if      (str_contains($fileinfo[1], "MB"))
 		$ret["size"] = (string) ($ret["size"] * 1024 * 1024);
-	else if (strpos($fileinfo[1], "KB") !== false)
+	else if (str_contains($fileinfo[1], "KB"))
 		$ret["size"] = (string) ($ret["size"] * 1024);
 
 	// API Sanity Checks
@@ -874,10 +874,7 @@ function cacheWikiIDs() : void
 	mysqli_close($db);
 }
 
-/**
-* @param CurlHandle $cr
-*/
-function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : bool // PHP 8.0 TODO
+function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 {
 	set_time_limit(60*60); // 1 hour
 
@@ -1087,9 +1084,8 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 		                      '{$db_package_version}',
 		                      '{$db_package_size}',
 		                      '{$db_package_sha1sum}',
-		                      '{$db_package_url}',
-		                      '{$db_package_ps3_system_ver}',
-		                      '{$db_package_drm_type}'); ";
+		                      '{$db_package_url}'
+		                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 
 		// Extra URL (usually used with different drm_type)
 		if (isset($package->url))
@@ -1143,9 +1139,8 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 				                      '{$db_package_version}',
 				                      '{$db_package_size}',
 				                      '{$db_package_sha1sum}',
-				                      '{$db_package_url}',
-				                      '{$db_package_ps3_system_ver}',
-				                      '{$db_package_drm_type}'); ";
+				                      '{$db_package_url}'
+				                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
 			}
 		}
 
@@ -1172,7 +1167,7 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 		// PARAM.HIP data
 		foreach ($package as $key => $value)
 		{
-			if (strpos($key, "paramhip") === false)
+			if (!str_contains($key, "paramhip"))
 			{
 				continue;
 			}
@@ -1213,7 +1208,7 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 		// Check if there are any child nodes we're not handling
 		foreach ($package as $key => $value)
 		{
-			if ($key !== "@attributes" && $key !== "url" && $key !== "paramsfo" && strpos($key, "paramhip") === false)
+			if ($key !== "@attributes" && $key !== "url" && $key !== "paramsfo" && !str_contains($key, "paramhip"))
 			{
 				echo "Unhandled package child node! key:{$key}, gid:{$gid}".PHP_EOL;
 				return false;
@@ -1264,9 +1259,8 @@ function cache_game_updates(/* CurlHandle */ $cr, mysqli $db, string $gid) : boo
 	              VALUES ('{$db_tag_name}',
 	                      '{$db_tag_popup}',
 	                      '{$db_tag_signoff}',
-	                      '{$db_tag_hash}',
-	                      '{$db_tag_popup_delay}',
-	                      '{$db_tag_min_system_ver}'); ";
+	                      '{$db_tag_hash}'
+	                      {$db_tag_popup_delay}{$db_tag_min_system_ver}); ";
 
 	// Legacy field
 	$q_insert .= "UPDATE `game_id`
@@ -1465,7 +1459,7 @@ function cachePatches() : void
 		// Grab the YAML code between the designated HTML tags
 		$txt_patch = get_string_between($result["text"], "|content =", "}}");
 
-		if (is_bool($txt_patch))
+		if (is_null($txt_patch))
 		{
 			echo "Invalid YAML syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
 			unset($a_wiki[$i]);

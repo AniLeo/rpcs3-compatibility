@@ -492,7 +492,7 @@ public static function printTable() : void
 							continue;
 						}
 
-						if (strpos($changelog, "<br><br><br>") !== false)
+						if (str_contains($changelog, "<br><br><br>"))
 						{
 							$changelog = mb_ereg_replace("<br><br><br>", "<br><br>", $changelog);
 
