@@ -1421,8 +1421,22 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Get the three characters representing the patch type after "type    = "
-		$type = substr($header, strpos($header, "type    = ") + strlen("type    = "), 3);
+		// Get patch type
+		$type = null;
+		$line = strtok($header, "\r\n");
+
+		while ($line !== false)
+		{
+			if (!str_starts_with($line, "|type"))
+			{
+				$line = strtok("\r\n");
+				continue;
+			}
+
+			// Get the three characters representing the patch type after " = "
+			$type = substr($line, strpos($line, " = ") + strlen(" = "), 3);
+			break;
+		}
 
 		// Check if patch version syntax is valid (number, underscore, number)
 		if (!is_string($type) || strlen($type) !== 3 || !ctype_alpha($type))
@@ -1446,8 +1460,22 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Get the three characters representing the version number after "version = "
-		$version = substr($header, strpos($header, "version = ") + strlen("version = "), 3);
+		// Get patch version
+		$version = null;
+		$line = strtok($header, "\r\n");
+
+		while ($line !== false)
+		{
+			if (!str_starts_with($line, "|version"))
+			{
+				$line = strtok("\r\n");
+				continue;
+			}
+
+			// Get the three characters representing the patch version after " = "
+			$version = substr($line, strpos($line, " = ") + strlen(" = "), 3);
+			break;
+		}
 
 		// Check if patch version syntax is valid (number, underscore, number)
 		if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '.' || !ctype_digit($version[2]))
@@ -1457,8 +1485,10 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Grab the YAML code between the designated HTML tags
-		$txt_patch = get_string_between($result["text"], "|content =", "}}");
+		// Remove the header before extracting the YAML code
+		$txt_patch = substr($result["text"], strpos($result["text"], "|content") + strlen("|content"));
+		// Extract the YAML code
+		$txt_patch = get_string_between($txt_patch, "=", "}}");
 
 		if (is_null($txt_patch))
 		{
