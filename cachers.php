@@ -1485,6 +1485,13 @@ function cachePatches() : void
 			continue;
 		}
 
+		if ($version !== "1.2")
+		{
+			echo "Invalid patch version as it's not on the latest patch version on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+			unset($a_wiki[$i]);
+			continue;
+		}
+
 		// Remove the header before extracting the YAML code
 		$txt_patch = substr($result["text"], strpos($result["text"], "|content") + strlen("|content"));
 		// Extract the YAML code
