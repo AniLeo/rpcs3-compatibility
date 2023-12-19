@@ -201,7 +201,7 @@ function parse_build_properties(object $info) : ?array
 			$ret["filename"] = $asset->name;
 		else if (str_contains($asset->name, "linux64.AppImage"))
 			$ret["filename"] = $asset->name;
-		else if (str_contains($asset->name, "macos.dmg"))
+		else if (str_contains($asset->name, "macos.7z"))
 			$ret["filename"] = $asset->name;
 	}
 
@@ -1504,13 +1504,8 @@ function cachePatches() : void
 			continue;
 		}
 
-		// Remove any spacing and newlines before the beginning of the patch
-		while (ctype_space($txt_patch[0]))
-			$txt_patch = substr($txt_patch, 1);
-
-		// Remove any spacing and newlines before the end of the patch
-		while (ctype_space($txt_patch[-1]))
-			$txt_patch = substr($txt_patch, 0, -1);
+		// Remove any spacing and newlines before and after the patch
+		$txt_patch = trim($txt_patch);
 
 		// Validate whether the YAML code we fetched has valid YAML syntax
 		$yml_patch = yaml_parse($txt_patch);
