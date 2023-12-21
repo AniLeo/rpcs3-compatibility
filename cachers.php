@@ -869,7 +869,9 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 	if ($httpcode == 404)
 	{
 		// Game ID does not exist on the Update API (but a game with it may exist)
-		if ($api === "Not found\n")
+		// Note: The API appears to have been updated and now always returns a proper XML reply for 404
+		// Keeping the old check for plaintext 'Not found' reply just in case
+		if ($api === "Not found\n" || str_contains($api, "NoSuchKey"))
 		{
 			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`)
 			                   VALUES ('{$db_gid}'); ");
@@ -1250,8 +1252,6 @@ function cache_games_updates() : void
 	                            FROM `game_id`
 	                            WHERE `latest_ver` IS NULL;");
 
-	mysqli_close($db);
-
 	if (is_bool($q_ids))
 		return;
 
@@ -1269,6 +1269,7 @@ function cache_games_updates() : void
 	}
 
 	curl_close($cr);
+	mysqli_close($db);
 }
 
 
