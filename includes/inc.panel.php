@@ -389,7 +389,7 @@ function compatibilityUpdater() : void
 			$commit        = $a_inserts[$thread->tid]['commit'];
 			$date_commit   = "({$a_commits[$commit]["merge"]})";
 
-			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author: {$a_inserts[$thread->tid]['author']})<br>";
+			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author: {$a_inserts[$thread->tid]['author']}, type: {$thread->get_game_type_name()})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_inserts[$thread->tid]['last_update']})</span><br>";
 			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}<br>";
 			echo "<br>";
@@ -510,7 +510,7 @@ function compatibilityUpdater() : void
 			$html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
 			$html_a->set_target("_blank");
 
-			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']})<br>";
+			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']}, type: {$thread->get_game_type_name()})<br>";
 			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
 						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
 			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}

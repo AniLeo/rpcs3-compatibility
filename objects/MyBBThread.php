@@ -94,6 +94,19 @@ class MyBBThread
 		}
 	}
 
+	public function get_game_type_name() : ?string
+	{
+		switch ($this->get_game_type())
+		{
+			case 1:
+				return "PS3 Game";
+			case 2:
+				return "PS3 App";
+			default:
+				return "Invalid";
+		}
+	}
+
 	public function get_game_id() : ?string
 	{
 		// Thread title is not big enough to have a valid game id
