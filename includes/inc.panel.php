@@ -622,6 +622,8 @@ function compatibilityUpdater() : void
 		cacheInitials();
 		// Recache status modules
 		cacheStatusModules();
+		// Recache game count
+		cacheGameCount();
 	}
 	else
 	{
@@ -810,6 +812,8 @@ function mergeGames() : void
 
 		// Recache status modules
 		cacheStatusModules();
+		// Recache game count
+		cacheGameCount();
 
 		echo "<b>Games successfully merged!</b><br>";
 	}

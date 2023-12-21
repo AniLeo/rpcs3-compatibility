@@ -136,6 +136,10 @@ $a_panel = array(
 		'title' => "Update Status Module",
 		'success' => "Forced update on status modules"
 	),
+	'cacheGameCount' => array(
+		'title' => "Update Game Count",
+		'success' => "Forced update on game count"
+	),
 	'cacheWikiIDs' => array(
 		'title' => "Update Wiki IDs Cache",
 		'success' => "Forced update on Wiki IDs cache"

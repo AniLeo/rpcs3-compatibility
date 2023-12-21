@@ -666,49 +666,13 @@ function cacheStatusModules() : void
 }
 
 
-function cacheStatusCount() : void
+function cacheGameCount() : void
 {
-	$db = getDatabase();
+	// count_game_entry_all
+	file_put_contents(__DIR__.'/cache/count_game_entry_all.txt', (string) count_game_entry_all(true));
 
-	$a_cache = array();
-
-	// Fetch general count per status
-	$q_status = mysqli_query($db, "SELECT `status`+0 AS `sid`, count(*) AS `c`
-	                               FROM `game_list`
-	                               WHERE `network` = 0
-	                                  OR (`network` = 1 && `status` <= 2)
-	                               GROUP BY `status`;");
-
-	mysqli_close($db);
-
-	if (is_bool($q_status))
-		return;
-
-	$a_cache[0][0] = 0;
-
-	while ($row = mysqli_fetch_object($q_status))
-	{
-		// This should be unreachable unless the database structure is damaged
-		if (!property_exists($row, "sid") ||
-				!property_exists($row, "c"))
-		{
-			return;
-		}
-
-		$a_cache[0][$row->sid] = (int) $row->c;
-		$a_cache[0][0]        += (int) $row->c;
-	}
-
-	$a_cache[1] = $a_cache[0];
-
-	$f_count = fopen(__DIR__.'/cache/a_count.json', 'w');
-	$json_data = json_encode($a_cache);
-
-	if (!$f_count || !$json_data)
-		return;
-
-	fwrite($f_count, $json_data);
-	fclose($f_count);
+	// count_game_id_all
+	file_put_contents(__DIR__.'/cache/count_game_id_all.txt', (string) count_game_id_all(true));
 }
 
 

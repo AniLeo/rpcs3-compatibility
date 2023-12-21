@@ -407,8 +407,18 @@ function countGames(mysqli $db, string $query = "") : array
 }
 
 
-function count_game_entry_all() : int
+function count_game_entry_all(bool $ignore_cache = false) : int
 {
+	// If we don't ignore cache, try to retrieve the value from cache
+	if (!$ignore_cache)
+	{
+		$count = file_get_contents(__DIR__.'/cache/count_game_entry_all.txt');
+
+		// Return value from cache only if available
+		if ($count !== false)
+			return (int) $count;
+	}
+
 	$db = getDatabase();
 	$ret = 0;
 
@@ -437,8 +447,18 @@ function count_game_entry_all() : int
 }
 
 
-function count_game_id_all() : int
+function count_game_id_all(bool $ignore_cache = false) : int
 {
+	// If we don't ignore cache, try to retrieve the value from cache
+	if (!$ignore_cache)
+	{
+		$count = file_get_contents(__DIR__.'/cache/count_game_id_all.txt');
+
+		// Return value from cache only if available
+		if ($count !== false)
+			return (int) $count;
+	}
+
 	$db = getDatabase();
 	$ret = 0;
 
