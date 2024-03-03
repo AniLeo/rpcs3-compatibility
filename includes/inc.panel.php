@@ -220,8 +220,9 @@ function compatibilityUpdater() : void
 	$a_threads = array();
 	$q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) &&
-	`lastpost` > {$ts_lastupdate};");
+	WHERE ({$where}) AND
+	`lastpost` > {$ts_lastupdate} AND
+	`visible` > 0;");
 
 	if (is_bool($q_threads))
 	{
