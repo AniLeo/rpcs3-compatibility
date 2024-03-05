@@ -252,8 +252,9 @@ $a_histdates = array(
 	'2023_08' => array(array('y' => 2023, 'm' => 8,  'd' => 01), array('y' => 2023, 'm' => 8,  'd' => 31)),
 	'2023_09' => array(array('y' => 2023, 'm' => 9,  'd' => 01), array('y' => 2023, 'm' => 9,  'd' => 30)),
 	'2023_10' => array(array('y' => 2023, 'm' => 10, 'd' => 01), array('y' => 2023, 'm' => 10, 'd' => 31)),
-	'2023_11' => array(array('y' => 2023, 'm' => 11, 'd' => 01), array('y' => 2023, 'm' => 11, 'd' => 30))
+	'2023_11' => array(array('y' => 2023, 'm' => 11, 'd' => 01), array('y' => 2023, 'm' => 11, 'd' => 30)),
+	'2023_12' => array(array('y' => 2023, 'm' => 12, 'd' => 01), array('y' => 2023, 'm' => 12, 'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2023_12', 'December 1st, 2023', '2023-12-01');
+$a_currenthist = array('2024_01', 'January 1st, 2024', '2024-01-01');
