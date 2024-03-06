@@ -119,6 +119,17 @@ public static function generate_query(array $get, mysqli &$db) : string
 		$genquery .= " ( `type` = {$get['type']} ) ";
 	}
 
+	// QUERYGEN: Search by network requirement
+	if (isset($get['network']))
+	{
+		if (!empty($genquery)) { $genquery .= " AND "; }
+
+		if ($get['network'] === 0)
+			$genquery .= " ( `network` = 0 ) ";
+		else
+			$genquery .= " ( `network` <> 0 ) ";
+	}
+
 	return $genquery;
 }
 
@@ -156,7 +167,7 @@ public static function printTypeSort() : void
 	global $get;
 
 	$http_query = new HTTPQuery($get);
-	$s_query = $http_query->get_except(array("status", "type", "move", "3d"));
+	$s_query = $http_query->get_except(array("status", "type", "3d"));
 
 	// All statuses
 	$html_a = new HTMLA("?{$s_query}", "Show applications from all types", highlightText("All", $get['type'] === 0));

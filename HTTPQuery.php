@@ -33,6 +33,7 @@ class HTTPQuery
 	public int    $move;      // Move support
 	public int    $stereo_3D; // 3D support
 	public int    $type;      // Application type
+	public int    $network;   // Network requirement
 
 	/**
 	* @param array<string, string> $get
@@ -79,6 +80,9 @@ class HTTPQuery
 
 		if (isset($get['type']))
 			$this->type = (int) $get['type'];
+
+		if (isset($get['network']))
+			$this->network = (int) $get['network'];
 	}
 
 	/**
@@ -172,6 +176,12 @@ class HTTPQuery
 				$query["type"] = $this->type;
 		}
 
+		// Network Requirement
+		if (isset($this->network) && !in_array("network", $exclusions))
+		{
+			$query["network"] = $this->network;
+		}
+
 		if (!empty($query))
 		{
 			if (!empty($ret))
@@ -191,7 +201,7 @@ class HTTPQuery
 	{
 		$exclusions = array();
 		$parameters = array("results", "status", "character", "search",
-		                    "media", "date", "order", "move", "3D", "type");
+		                    "media", "date", "order", "move", "3D", "type", "network");
 
 		foreach ($parameters as $parameter)
 		{

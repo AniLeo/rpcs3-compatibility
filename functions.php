@@ -178,6 +178,7 @@ function validateGet() : array
 	// $get["move"] = 0;
 	$get["3D"] = 0;
 	$get["type"] = 0;
+	// $get["network"] = 0;
 
 	// API version
 	if (isset($_GET['api']))
@@ -276,6 +277,21 @@ function validateGet() : array
 		else if ((int) $_GET['type'] === 2)
 		{
 			$get['type'] = 2;
+		}
+	}
+
+	// Network requirement
+	if (isset($_GET['network']))
+	{
+		// No move support
+		if ((int) $_GET['network'] === 0)
+		{
+			$get['network'] = 0;
+		}
+		// Has move support
+		else if ((int) $_GET['network'] === 1)
+		{
+			$get['network'] = 1;
 		}
 	}
 
