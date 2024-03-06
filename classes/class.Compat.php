@@ -123,6 +123,34 @@ public static function generate_query(array $get, mysqli &$db) : string
 }
 
 
+public static function printMoveSort() : void
+{
+	global $get;
+
+	$http_query = new HTTPQuery($get);
+	$s_query = $http_query->get_except(array("move"));
+
+	$defined = array_key_exists("move", $get);
+
+	// All statuses
+	$html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	if (!empty($s_query))
+		$s_query .= "&";
+
+	$html_a = new HTMLA("?{$s_query}move=1", "Only show games with PS Move support", highlightText("Yes", $defined && $get['move'] === 1));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	$html_a = new HTMLA("?{$s_query}move=0", "Only show games without PS Move support", highlightText("No", $defined && $get['move'] === 0));
+	$html_a->print();
+}
+
+
 public static function printTypeSort() : void
 {
 	global $get;

@@ -506,7 +506,14 @@ progress[value]::-webkit-progress-value {
     box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
     border: solid 2px #fff;
     margin-bottom: 12px;
-    width: 290px
+}
+
+.compat-sort-types {
+    width: 286px
+}
+
+.compat-sort-move {
+    width: 200px
 }
 
 .compat-hdr-left {
@@ -727,14 +734,14 @@ progress[value]::-webkit-progress-value {
 }
 
 @media screen and (max-width: 1000px) {
-    
+
     .banner-tx2-title > p{
         width:30%;
         overflow-wrap: break-word;
         margin-left: 35%;
         line-height: 25px;
     }
-    
+
     .compat-search-outer {
         display:grid;
         grid-template-columns: repeat(15,1fr);
@@ -813,19 +820,19 @@ progress[value]::-webkit-progress-value {
     .page-con-container {
         margin: auto 15px
     }
-    
+
     .compat-table-row{
         overflow-x: scroll;
     }
-    
+
     .compat-table-cell {
         min-width: 100px;
     }
-    
+
     .compat-footer {
         height: auto;
     }
-    
+
     .compat-footer p {
         overflow-wrap: break-word;
         line-height: 25px;
