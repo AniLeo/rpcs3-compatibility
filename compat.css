@@ -513,7 +513,11 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-sort-move {
-    width: 200px
+    width: 182px
+}
+
+.compat-sort-network {
+    width: 204px
 }
 
 .compat-hdr-left {

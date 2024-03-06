@@ -134,6 +134,34 @@ public static function generate_query(array $get, mysqli &$db) : string
 }
 
 
+public static function printNetworkSort() : void
+{
+	global $get;
+
+	$http_query = new HTTPQuery($get);
+	$s_query = $http_query->get_except(array("network"));
+
+	$defined = array_key_exists("network", $get);
+
+	// All statuses
+	$html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	if (!empty($s_query))
+		$s_query .= "&";
+
+	$html_a = new HTMLA("?{$s_query}network=1", "Only show entries that require network", highlightText("Yes", $defined && $get['network'] === 1));
+	$html_a->print();
+
+	echo "•&nbsp;";
+
+	$html_a = new HTMLA("?{$s_query}network=0", "Only show entries that do not require network", highlightText("No", $defined && $get['network'] === 0));
+	$html_a->print();
+}
+
+
 public static function printMoveSort() : void
 {
 	global $get;
