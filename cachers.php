@@ -1250,7 +1250,9 @@ function cache_games_updates() : void
 
 	$q_ids = mysqli_query($db, "SELECT `gid`
 	                            FROM `game_id`
-	                            WHERE `latest_ver` IS NULL;");
+	                            LEFT JOIN `game_update_titlepatch`
+	                            ON `game_id`.`gid` = `game_update_titlepatch`.`titleid`
+	                            WHERE `titleid` IS NULL;");
 
 	if (is_bool($q_ids))
 		return;
