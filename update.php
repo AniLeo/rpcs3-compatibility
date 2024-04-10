@@ -122,7 +122,8 @@ function checkForUpdates(string $api, string $commit = '') : array
 			{
 				// v2 code
 				// When current and old build are master builds
-				if ($api === "v2")
+				// in_array: Workaround for builds that freeze on boot if changelog data is sent
+				if ($api === "v2" && !in_array($current->pr, array("15390", "15392", "15394", "15395")))
 				{
 					$q_between = mysqli_query($db, "SELECT `version`, `title` FROM `builds`
 					                                WHERE `merge_datetime`
