@@ -42,7 +42,9 @@ function runFunctions() : void
 		$ret = runFunctionWithCronometer($get['a']);
 
 		if (!empty($a_panel[$get['a']]['success']))
-			echo "<p><b>Debug mode:</b> {$a_panel[$get['a']]['success']} ({$ret}s).</p>";
+		{
+			printf("<p><b>Debug mode:</b> %s (%fs).</p>", $a_panel[$get['a']]['success'], $ret);
+		}
 	}
 }
 
@@ -81,7 +83,7 @@ function checkInvalidThreads() : void
 
 	if (is_bool($q_games) || is_bool($q_threads))
 	{
-		echo "<b>Error while fetching the game or thread list</b>";
+		print("<b>Error while fetching the game or thread list</b>");
 		return;
 	}
 
@@ -94,7 +96,7 @@ function checkInvalidThreads() : void
 				!property_exists($row, "subject") ||
 				!property_exists($row, "fid"))
 		{
-			echo "<b>Error while fetching the thread list</b>";
+			print("<b>Error while fetching the thread list</b>");
 			return;
 		}
 
@@ -152,14 +154,15 @@ function checkInvalidThreads() : void
 
 	if ($invalid > 0)
 	{
-		echo "<p class='debug-tvalidity-title color-red'>Attention required! {$invalid} Invalid threads detected</p>";
+		printf("<p class='debug-tvalidity-title color-red'>Attention required! %d Invalid threads detected</p>",
+		       $invalid);
 
 		if ($get['a'] === "checkInvalidThreads")
-			echo $output;
+			print($output);
 	}
 	else
 	{
-		echo "<p class='debug-tvalidity-title color-green'>No invalid threads detected</p>";
+		print("<p class='debug-tvalidity-title color-green'>No invalid threads detected</p>");
 	}
 }
 
@@ -198,7 +201,7 @@ function compatibilityUpdater() : void
 
 	if (is_bool($q_commits))
 	{
-		echo "<b>Error while fetching the builds list</b>";
+		print("<b>Error while fetching the builds list</b>");
 		return;
 	}
 
@@ -209,7 +212,7 @@ function compatibilityUpdater() : void
 				!property_exists($row, "commit") ||
 				!property_exists($row, "merge_datetime"))
 		{
-			echo "<b>Error while fetching the builds list</b>";
+			print("<b>Error while fetching the builds list</b>");
 			return;
 		}
 
@@ -226,7 +229,7 @@ function compatibilityUpdater() : void
 
 	if (is_bool($q_threads))
 	{
-		echo "<b>Error while fetching the threads list</b>";
+		print("<b>Error while fetching the threads list</b>");
 		return;
 	}
 
@@ -250,7 +253,8 @@ function compatibilityUpdater() : void
 			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
 			$html_a->set_target("_blank");
 
-			echo "<span style='color:red'>Error! Invalid new thread found. See: {$html_a->to_string()}.<br><br></span>";
+			printf("<span style='color:red'>Error! Invalid new thread found. See: %s.<br><br></span>",
+			       $html_a->to_string());
 			continue;
 		}
 		// Thread with negative visibility (unapproved, deleted)
@@ -259,7 +263,10 @@ function compatibilityUpdater() : void
 			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
 			$html_a->set_target("_blank");
 
-			echo "<span style='color:red'>Error! The new thread for {$thread->get_game_id()} is not visible ({$row->visible}). See: {$html_a->to_string()}.<br><br></span>";
+			printf("<span style='color:red'>Error! The new thread for %s is not visible (%s). See: %s.<br><br></span>",
+			       $thread->get_game_id(),
+			       $row->visible,
+			       $html_a->to_string());
 			continue;
 		}
 
@@ -271,7 +278,7 @@ function compatibilityUpdater() : void
 
 	if (is_bool($q_games))
 	{
-		echo "<b>Error while fetching the games list</b>";
+		print("<b>Error while fetching the games list</b>");
 		return;
 	}
 
@@ -283,7 +290,7 @@ function compatibilityUpdater() : void
 	// Visited Game IDs
 	$a_gameIDs = array();
 
-	echo "<p>"; // Start paragraph
+	print("<p>"); // Start paragraph
 
 	foreach ($a_threads as $thread)
 	{
@@ -293,7 +300,9 @@ function compatibilityUpdater() : void
 			$html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
 			$html_a->set_target("_blank");
 
-			echo "Error! A thread for {$thread->get_game_id()} was already visited. {$html_a->to_string()} is a duplicate.<br><br>";
+			printf("Error! A thread for %s was already visited. %s is a duplicate.<br><br>",
+			       $thread->get_game_id(),
+			       $html_a->to_string());
 			continue;
 		}
 
@@ -323,7 +332,10 @@ function compatibilityUpdater() : void
 			$html_a_thread1->set_target("_blank");
 			$html_a_thread2->set_target("_blank");
 
-			echo "<span style='color:red'><b>Error!</b> {$thread->subject} ({$html_a_thread1->to_string()}) duplicated thread of ({$html_a_thread2->to_string()}).</span><br><br>";
+			printf("<span style='color:red'><b>Error!</b> %s (%s) duplicated thread of (%s).</span><br><br>",
+			       $thread->subject,
+			       $html_a_thread1->to_string(),
+			       $html_a_thread2->to_string());
 			continue;
 		}
 
@@ -345,7 +357,7 @@ function compatibilityUpdater() : void
 
 			if (is_bool($q_post))
 			{
-				echo "<b>Error while fetching posts list</b>";
+				print("<b>Error while fetching posts list</b>");
 				return;
 			}
 
@@ -357,7 +369,7 @@ function compatibilityUpdater() : void
 						!property_exists($post, "message") ||
 						!property_exists($post, "username"))
 				{
-					echo "<b>Error while fetching posts list</b>";
+					print("<b>Error while fetching posts list</b>");
 					return;
 				}
 
@@ -381,7 +393,8 @@ function compatibilityUpdater() : void
 			if (is_null($a_inserts[$thread->tid]['commit']) ||
 			    is_null($a_inserts[$thread->tid]['pr']))
 			{
-				echo "<b>Error!</b> Invalid report found on tid: {$html_a->to_string()}<br><br>";
+				printf("<b>Error!</b> Invalid report found on tid: %s<br><br>",
+				       $html_a->to_string());
 				unset($a_inserts[$thread->tid]);
 				continue;
 			}
@@ -390,10 +403,19 @@ function compatibilityUpdater() : void
 			$commit        = $a_inserts[$thread->tid]['commit'];
 			$date_commit   = "({$a_commits[$commit]["merge"]})";
 
-			echo "<b>New:</b> {$thread->subject} (tid: {$html_a->to_string()}, author: {$a_inserts[$thread->tid]['author']}, type: {$thread->get_game_type_name()})<br>";
-			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_inserts[$thread->tid]['last_update']})</span><br>";
-			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}<br>";
-			echo "<br>";
+			printf("<b>New:</b> %s (tid: %s, author: %s, type: %s)<br>",
+			       $thread->subject,
+			       $html_a->to_string(),
+			       $a_inserts[$thread->tid]['author'],
+			       $thread->get_game_type_name());
+			printf("- Status: <span style='color:#%s'>%s (%s)</span><br>",
+			       $a_status[$thread->get_sid()]['color'],
+			       $a_status[$thread->get_sid()]['name'],
+			       $a_inserts[$thread->tid]['last_update']);
+			printf("- Commit: <span style='color:green'>%s</span> %s<br>",
+			       $commit,
+			       $date_commit);
+			print("<br>");
 
 		}
 		elseif ($tid == $thread->tid &&
@@ -412,12 +434,15 @@ function compatibilityUpdater() : void
 				// Update status
 				if ($a_updates[$cur_game->key]['status'] < $thread->get_sid())
 				{
-					echo "<b>Error!</b> Smaller status after a status update ({$thread->get_game_id()}, {$a_updates[$cur_game->key]['status']} < {$thread->get_sid()})<br><br>";
+					printf("<b>Error!</b> Smaller status after a status update (%s, %s < %s)<br><br>",
+					       $thread->get_game_id(),
+					       $a_updates[$cur_game->key]['status'],
+					       $thread->get_sid());
 					continue;
 				}
 				elseif (is_null($a_updates[$cur_game->key]['commit']))
 				{
-					echo "<b>Error!</b> Unreachable code <br><br>";
+					print("<b>Error!</b> Unreachable code <br><br>");
 					dumpVar($a_updates[$cur_game->key]);
 					continue;
 				}
@@ -447,7 +472,7 @@ function compatibilityUpdater() : void
 
 			if (is_bool($q_post))
 			{
-				echo "<b>Error while fetching posts list</b>";
+				print("<b>Error while fetching posts list</b>");
 				return;
 			}
 
@@ -459,7 +484,7 @@ function compatibilityUpdater() : void
 						!property_exists($post, "message") ||
 						!property_exists($post, "username"))
 				{
-					echo "<b>Error while fetching posts list</b>";
+					print("<b>Error while fetching posts list</b>");
 					return;
 				}
 
@@ -499,7 +524,7 @@ function compatibilityUpdater() : void
 			// Check if the distance between commit date and post is bigger than 4 weeks
 			if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) > 4 * 604804)
 			{
-				echo "<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>";
+				print("<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>");
 			}
 
 			// Green for existing commit, Red for non-existing commit
@@ -511,23 +536,37 @@ function compatibilityUpdater() : void
 			$html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
 			$html_a->set_target("_blank");
 
-			echo "<b>Mov:</b> {$thread->get_game_id()} - {$cur_game->title} (tid: {$html_a->to_string()}, pid: {$a_updates[$cur_game->key]['pid']}, author: {$a_updates[$cur_game->key]['author']}, type: {$thread->get_game_type_name()})<br>";
-			echo "- Status: <span style='color:#{$a_status[$thread->get_sid()]['color']}'>{$a_status[$thread->get_sid()]['name']} ({$a_updates[$cur_game->key]['last_update']})</span>
-						<-- <span style='color:#{$a_status[$cur_game->status]['color']}'>{$a_status[$cur_game->status]['name']} ({$cur_game->date})</span><br>";
-			echo "- Commit: <span style='color:green'>{$commit}</span> {$date_commit}
-						<-- <span style='color:{$old_status_commit}'>{$old_commit}</span> ({$cur_game->date})<br>";
-			echo "<br>";
+			printf("<b>Mov:</b> %s - %s (tid: %s, pid: %s, author: %s, type: %s)<br>",
+			       $thread->get_game_id(),
+			       $cur_game->title, $html_a->to_string(),
+			       $a_updates[$cur_game->key]['pid'],
+			       $a_updates[$cur_game->key]['author'],
+			       $thread->get_game_type_name());
+			printf("- Status: <span style='color:#%s'>%s (%s)</span> <-- <span style='color:#%s'>%s (%s)</span><br>",
+			       $a_status[$thread->get_sid()]['color'],
+			       $a_status[$thread->get_sid()]['name'],
+			       $a_updates[$cur_game->key]['last_update'],
+			       $a_status[$cur_game->status]['color'],
+			       $a_status[$cur_game->status]['name'],
+			       $cur_game->date);
+			printf("- Commit: <span style='color:green'>%s</span> %s <-- <span style='color:%s'>%s</span> (%s)<br>",
+			       $commit,
+			       $date_commit,
+			       $old_status_commit,
+			       $old_commit,
+			       $cur_game->date);
+			print("<br>");
 		}
 	}
 
-	echo "</p>"; // End paragraph
+	print("</p>"); // End paragraph
 
 	if (isset($_POST['updateCompatibility']))
 	{
 		// Permissions: Update
 		if (array_search("debug.update", $get['w']) === false)
 		{
-			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
+			print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
 			mysqli_close($db);
 			return;
 		}
@@ -671,12 +710,12 @@ function mergeGames() : void
 
 	if (!isGameID($gid1))
 	{
-		echo "<p><b>Error:</b> Game ID 1 is not a valid Game ID</p>";
+		print("<p><b>Error:</b> Game ID 1 is not a valid Game ID</p>");
 		return;
 	}
 	if (!isGameID($gid2))
 	{
-		echo "<p><b>Error:</b> Game ID 2 is not a valid Game ID</p>";
+		print("<p><b>Error:</b> Game ID 2 is not a valid Game ID</p>");
 		return;
 	}
 
@@ -688,7 +727,7 @@ function mergeGames() : void
 	$q_game1 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');");
 	if (is_bool($q_game1) || mysqli_num_rows($q_game1) === 0)
 	{
-		echo "<p><b>Error:</b> Game ID 1 could not be found</p>";
+		print("<p><b>Error:</b> Game ID 1 could not be found</p>");
 		return;
 	}
 	$game1 = Game::query_to_games($q_game1)[0];
@@ -696,24 +735,24 @@ function mergeGames() : void
 	$q_game2 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');");
 	if (is_bool($q_game2) || mysqli_num_rows($q_game2) === 0)
 	{
-		echo "<p><b>Error:</b> Game ID 2 could not be found</p>";
+		print("<p><b>Error:</b> Game ID 2 could not be found</p>");
 		return;
 	}
 	$game2 = Game::query_to_games($q_game2)[0];
 
 	if ($game1->key === $game2->key)
 	{
-		echo "<p><b>Error:</b> Both Game IDs belong to the same Game Entry</p>";
+		print("<p><b>Error:</b> Both Game IDs belong to the same Game Entry</p>");
 		return;
 	}
 
 	if (substr($game1->game_item[0]->game_id, 0, 1) !== substr($game2->game_item[0]->game_id, 0, 1))
 	{
-		echo "<p><b>Error:</b> Cannot merge entries of different Game Media</p>";
+		print("<p><b>Error:</b> Cannot merge entries of different Game Media</p>");
 		return;
 	}
 
-	echo "<p>"; // Start paragraph
+	print("<p>"); // Start paragraph
 
 	$alternative1 = !is_null($game1->title2) ? "(alternative: {$game1->title2})" : "";
 	$alternative2 = !is_null($game2->title2) ? "(alternative: {$game2->title2})" : "";
@@ -721,17 +760,41 @@ function mergeGames() : void
 	$pr1 = !is_null($game1->pr) ? $game1->pr : "null";
 	$pr2 = !is_null($game2->pr) ? $game2->pr : "null";
 
-	echo "<b>Game 1: {$game1->title} {$alternative1}";
-	echo " (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$pr1}, date: {$game1->date}, type: {$game1->type})</b><br>";
-		foreach ($game1->game_item as $item)
-			echo "- {$item->game_id} (tid: {$item->thread_id})<br>";
-	echo "<br>";
+	printf("<b>Game 1: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
+	       $game1->title,
+	       $alternative1,
+	       $a_status[$game1->status]['color'],
+	       $a_status[$game1->status]['name'],
+	       $pr1,
+	       $game1->date,
+	       $game1->type);
 
-	echo "<b>Game 2: {$game2->title} {$alternative2}";
-	echo " (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$pr2}, date: {$game2->date}, type: {$game2->type})</b><br>";
-		foreach ($game2->game_item as $item)
-			echo "- {$item->game_id} (tid: {$item->thread_id})<br>";
-	echo "<br>";
+	foreach ($game1->game_item as $item)
+	{
+		printf("- %s (tid: %d)<br>",
+		       $item->game_id,
+		       $item->thread_id);
+	}
+
+	print("<br>");
+
+	printf("<b>Game 2: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
+	       $game2->title,
+	       $alternative2,
+	       $a_status[$game2->status]['color'],
+	       $a_status[$game2->status]['name'],
+	       $pr2,
+	       $game2->date,
+	       $game2->type);
+
+	foreach ($game2->game_item as $item)
+	{
+		printf("- %s (tid: %d)<br>",
+		       $item->game_id,
+		       $item->thread_id);
+	}
+
+	print("<br>");
 
 	$time1 = strtotime($game1->date);
 	$time2 = strtotime($game2->date);
@@ -769,7 +832,7 @@ function mergeGames() : void
 		// Permissions: debug.update
 		if (array_search("debug.update", $get['w']) === false)
 		{
-			echo "<p><b>Error:</b> You do not have permission to issue database update commands</p>";
+			print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
 			return;
 		}
 
@@ -818,10 +881,10 @@ function mergeGames() : void
 		// Recache game count
 		cacheGameCount();
 
-		echo "<b>Games successfully merged!</b><br>";
+		print("<b>Games successfully merged!</b><br>");
 	}
 
-	echo "</p>"; // End paragraph
+	print("</p>"); // End paragraph
 }
 
 function flag_build_as_broken() : void
@@ -849,7 +912,7 @@ function flag_build_as_broken() : void
 	// Cannot flag builds older than a week as broken
 	if (time() - $build_time > 7 * 24 * 60 * 60)
 	{
-		echo "<b>The build is older than a week. Cannot flag as broken.</b><br>";
+		print("<b>The build is older than a week. Cannot flag as broken.</b><br>");
 		mysqli_close($db);
 		return;
 	}
@@ -857,5 +920,6 @@ function flag_build_as_broken() : void
 	mysqli_query($db, "UPDATE `builds` SET `broken` = 1 WHERE `pr` = {$pr}; ");
 	mysqli_close($db);
 
-	echo "<p>Flagged <b>{$pr}</b> as broken.</p>";
+	printf("<p>Flagged <b>%d</b> as broken.</p>",
+	       $pr);
 }
