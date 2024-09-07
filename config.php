@@ -259,8 +259,9 @@ $a_histdates = array(
 	'2024_03' => array(array('y' => 2024, 'm' => 3,  'd' => 01), array('y' => 2024, 'm' => 3,  'd' => 31)),
 	'2024_04' => array(array('y' => 2024, 'm' => 4,  'd' => 01), array('y' => 2024, 'm' => 4,  'd' => 30)),
 	'2024_05' => array(array('y' => 2024, 'm' => 5,  'd' => 01), array('y' => 2024, 'm' => 5,  'd' => 31)),
-	'2024_06' => array(array('y' => 2024, 'm' => 6,  'd' => 01), array('y' => 2024, 'm' => 6,  'd' => 30))
+	'2024_06' => array(array('y' => 2024, 'm' => 6,  'd' => 01), array('y' => 2024, 'm' => 6,  'd' => 30)),
+	'2024_07' => array(array('y' => 2024, 'm' => 7,  'd' => 01), array('y' => 2024, 'm' => 7,  'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2024_07', 'July 1st, 2024', '2024-07-01');
+$a_currenthist = array('2024_08', 'August 1st, 2024', '2024-08-01');
