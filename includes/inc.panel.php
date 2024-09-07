@@ -721,12 +721,14 @@ function mergeGames() : void
 	$pr1 = !is_null($game1->pr) ? $game1->pr : "null";
 	$pr2 = !is_null($game2->pr) ? $game2->pr : "null";
 
-	echo "<b>Game 1: {$game1->title} {$alternative1} (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$pr1}, date: {$game1->date})</b><br>";
+	echo "<b>Game 1: {$game1->title} {$alternative1}";
+	echo " (status: <span style='color:#{$a_status[$game1->status]['color']}'>{$a_status[$game1->status]['name']}</span>, pr: {$pr1}, date: {$game1->date}, type: {$game1->type})</b><br>";
 		foreach ($game1->game_item as $item)
 			echo "- {$item->game_id} (tid: {$item->thread_id})<br>";
 	echo "<br>";
 
-	echo "<b>Game 2: {$game2->title} {$alternative2} (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$pr2}, date: {$game2->date})</b><br>";
+	echo "<b>Game 2: {$game2->title} {$alternative2}";
+	echo " (status: <span style='color:#{$a_status[$game2->status]['color']}'>{$a_status[$game2->status]['name']}</span>, pr: {$pr2}, date: {$game2->date}, type: {$game2->type})</b><br>";
 		foreach ($game2->game_item as $item)
 			echo "- {$item->game_id} (tid: {$item->thread_id})<br>";
 	echo "<br>";

@@ -31,6 +31,7 @@ class Game
 	public  int     $key;
 	public  string  $title;
 	public ?string  $title2;
+	public  string  $type;
 	public  int     $status;
 	public  string  $date;
 	public  int     $network;
@@ -46,6 +47,7 @@ class Game
 	function __construct( int    $key,
 	                      string $title,
 	                     ?string $title2,
+	                      string $type,
 	                      int    $status,
 	                      string $date,
 	                      int    $network,
@@ -59,6 +61,7 @@ class Game
 		$this->key        = $key;
 		$this->title      = $title;
 		$this->title2     = $title2;
+		$this->type       = $type;
 		$this->status     = $status;
 		$this->date       = $date;
 		$this->commit     = $commit;
@@ -267,6 +270,7 @@ class Game
 			if (!property_exists($row, "key") ||
 					!property_exists($row, "game_title") ||
 					!property_exists($row, "alternative_title") ||
+					!property_exists($row, "type") ||
 					!property_exists($row, "status") ||
 					!property_exists($row, "last_update") ||
 					!property_exists($row, "network") ||
@@ -283,6 +287,7 @@ class Game
 			$a_games[] = new Game($row->key,
 			                      $row->game_title,
 			                      $row->alternative_title,
+			                      $row->type,
 			                      getStatusID($row->status),
 			                      $row->last_update,
 			                      $row->network,
