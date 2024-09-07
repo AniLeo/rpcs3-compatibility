@@ -107,7 +107,8 @@ public static function printTable() : void
 	foreach ($builds as $build)
 	{
 		// Padding formula to apply in order to align deletions in all rows
-		$padding = (7 - strlen($build->additions)) * 7;
+		$length = !is_null($build->additions) ? strlen($build->additions) : 1;
+		$padding = (7 - $length) * 7;
 
 		// Formatted version with metadata
 		$version = "";
