@@ -4,16 +4,16 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 ## Modules
 - **Compat:** The main compatibility list.
 - **History:** The history for the compatibility list.
-- **Builds:** A build history system for RPCS3's Windows and Linux artifacts.
+- **Builds:** A build history system for RPCS3's Windows, Linux and macOS builds.
 - **Debug:** A control panel to run several verification and update scripts.
 
 ## Features
 - **Sorting:** Search listed games by status, first character, media type, last test date or by searching the game's Title or ID.
 - **Ordering:** Order listed games by Game Title, Status or Last Test date (ASC and DESC).
-- **Extra details:** Click the pull request to visit it or the Game ID to visit the forum thread about it.
+- **Extra details:** Click the pull request to visit it, the Game ID to visit the forum thread about it, or the Game Title to visit its wiki page.
 - **Better searching:** You don't need to search exactly by a game's title to find it. Levenshtein string comparisons assures the closest game is returned when no results are found and initials search allows one to search by games using their initials.
 - **History:** See changes made to the games' statuses on a month-to-month basis with the History feature.
-- **Builds:** Visit the whole Windows build history since AppVeyor artifacts were added to the project with information about the pull request and its author, added and removed lines of code, build's date, artifact download link, file size and sha-256 hash for checksum purposes.
+- **Builds:** Visit the whole build history since AppVeyor artifacts were added to the project with information about the pull request and its author, added and removed lines of code, build's date, artifact download link, file size and sha-256 hash for checksum purposes.
 - **RSS:** Subscribe to the RSS feed to keep track on new game additions, updates on existent ones or new builds information.
 - **Forum Sync:** The list is able to be synced with MyBB based forums and automatically updated via the debug control panel after a review on the new submissions is done.
 - **Wiki Sync:** The list is able to automatically fetch Mediawiki pages for the respective Game ID entries and link them on the list, as well as fetching game patches from the wiki.
