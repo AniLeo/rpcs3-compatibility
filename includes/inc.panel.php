@@ -923,3 +923,50 @@ function flag_build_as_broken() : void
 	printf("<p>Flagged <b>%d</b> as broken.</p>",
 	       $pr);
 }
+
+function export_build_backup() : void
+{
+	$form = new HTMLForm("", "POST");
+	$select = new HTMLSelect("os");
+	$select->add_option(new HTMLOption("win",   "Windows (x64)"));
+	$select->add_option(new HTMLOption("linux", "Linux (x64)"));
+	$select->add_option(new HTMLOption("mac",   "macOS (x64)"));
+	$form->add_select($select);
+	$form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
+	$form->print();
+
+	if (!isset($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac")))
+	{
+		return;
+	}
+
+	print("<p>");
+	print("Save the following builds list to a text file and run command<br>");
+	print("<b>cat builds.txt | parallel --gnu \"wget -nc -nv --content-disposition --trust-server-names {}\"</b><br><br>");
+	print("</p>");
+
+	$os = $_POST['os'];
+
+	$url_prefix = "https://github.com/RPCS3/rpcs3-binaries-{$os}/releases/download/build-";
+
+	$db = getDatabase();
+
+	$q_builds = mysqli_query($db, "SELECT CONCAT('{$url_prefix}', `commit`, '/', `filename_{$os}`) AS `url`
+	                               FROM `builds` WHERE `filename_{$os}` IS NOT NULL AND `filename_{$os}` <> ''
+	                               ORDER BY `merge_datetime` DESC;");
+
+	mysqli_close($db);
+
+	if (is_bool($q_builds))
+	{
+		print("<b>Error while fetching the builds list</b>");
+		return;
+	}
+
+	print("<p>");
+	while ($row = mysqli_fetch_object($q_builds))
+	{
+		print($row->url."<br>");
+	}
+	print("</p>");
+}

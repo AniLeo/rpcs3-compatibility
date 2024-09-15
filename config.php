@@ -167,6 +167,10 @@ $a_panel = array(
 	'flag_build_as_broken' => array(
 		'title' => "Flag Build as Broken",
 		'success' => ""
+	),
+	'export_build_backup' => array(
+		'title' => "Export Build Backup",
+		'success' => ""
 	)
 );
 
