@@ -23,19 +23,14 @@
 if (!@include_once('functions.php')) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
 if (!@include_once("objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 
-/*
-return_code
-	-3 - Illegal search
-	-2 - Maintenance mode
-	-1 - Current build is not a master build
-	 0 - No newer build found
-	 1 - Newer build found
-*/
-
 /**
 * @return array<string, mixed> $results
 */
-function checkForUpdates(string $api, string $commit = '') : array
+function check_for_updates( string $api,
+                           ?string $commit,
+                           ?string $os_type,
+                           ?string $os_arch,
+                           ?string $os_version) : array
 {
 	// Standalone maintenance mode
 	/*
@@ -51,11 +46,33 @@ function checkForUpdates(string $api, string $commit = '') : array
 	// Default return code
 	$results['return_code'] = 0;
 
-	// If commit length is smaller than 7 chars
-	if (!empty($commit) && (!ctype_alnum($commit) || strlen($commit) < 7))
+	// If the API version string is valid
+	if (strlen($api) === 2 && substr($api, 0, 1) === 'v' && ctype_digit(substr($api, 1, 1)))
+	{
+		// Only accept v1 to v3
+		if (!(substr($api, 1, 1) >= 1 && substr($api, 1, 1) <= 3))
+		{
+			$results['return_code'] = -3;
+			return $results;
+		}
+	}
+
+	// If commit exists, it's not alphanumeric and length is smaller than 7 chars
+	if (!is_null($commit) && (!ctype_alnum($commit) || strlen($commit) < 7))
 	{
 		$results['return_code'] = -3;
 		return $results;
+	}
+
+	// If the API version is at least v3
+	if (substr($api, 1, 1) >= 3)
+	{
+		// If any of the v3 required parameters is null
+		if (is_null($os_type) || is_null($os_arch) || is_null($os_version))
+		{
+			$results['return_code'] = -3;
+			return $results;
+		}
 	}
 
 	// Get latest build information
@@ -80,7 +97,7 @@ function checkForUpdates(string $api, string $commit = '') : array
 	$results['latest_build']['mac']['size']         = $latest->size_mac;
 	$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
 
-	if (!empty($commit))
+	if (!is_null($commit))
 	{
 		// Get user build information
 		$db = getDatabase();
@@ -120,10 +137,10 @@ function checkForUpdates(string $api, string $commit = '') : array
 
 			if ($latest->pr !== $current->pr)
 			{
-				// v2 code
+				// API v2 or newer code
 				// When current and old build are master builds
 				// in_array: Workaround for builds that freeze on boot if changelog data is sent
-				if ($api === "v2" && !in_array($current->pr, array("15390", "15392", "15394", "15395")))
+				if (substr($api, 1, 1) >= 2 && !in_array($current->pr, array("15390", "15392", "15394", "15395")))
 				{
 					$q_between = mysqli_query($db, "SELECT `version`, `title` FROM `builds`
 					                                WHERE `merge_datetime`
@@ -171,8 +188,13 @@ function checkForUpdates(string $api, string $commit = '') : array
 
 
 /*
-API v1
+Update API
 Check for updated builds with provided commit
+
+api
+	v1 - Check for updated builds with provided commit
+	v2 - Also returns changelog
+	v3 - Accepts os_type, os_arch, os_version to determine latest compatible build
 
 return_code
 	-3 - Illegal search
@@ -181,11 +203,29 @@ return_code
 	 0 - No newer build found
 	 1 - Newer build found
 */
-if (isset($_GET['api']) && !is_array($_GET['api']) && ($_GET['api'] === "v1" || $_GET['api'] === "v2"))
+if (isset($_GET['api']) && is_string($_GET['api']))
 {
-	if (!isset($_GET['c']) || (isset($_GET['c']) && !is_array($_GET['c'])))
+	$commit     = null;
+	$os_type    = null;
+	$os_arch    = null;
+	$os_version = null;
+
+	if (isset($_GET['c']) && is_string($_GET['c']))
 	{
-		header('Content-Type: application/json');
-		echo json_encode(checkForUpdates($_GET['api'], $_GET['c']), JSON_PRETTY_PRINT);
+		$commit = $_GET['c'];
 	}
+
+	if (isset($_GET['os_type'])    && is_string($_GET['os_type']) &&
+	    isset($_GET['os_arch'])    && is_string($_GET['os_arch']) &&
+	    isset($_GET['os_version']) && is_string($_GET['os_version']))
+	{
+		$os_type    = $_GET['os_type'];
+		$os_arch    = $_GET['os_arch'];
+		$os_version = $_GET['os_version'];
+	}
+
+	$json = check_for_updates($_GET['api'], $commit, $os_type, $os_arch, $os_version);
+
+	header('Content-Type: application/json');
+	print(json_encode($json, JSON_PRETTY_PRINT));
 }
