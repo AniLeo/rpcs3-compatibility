@@ -26,6 +26,8 @@ class HTMLForm
 	public string $method;
 	/** @var array<HTMLInput> $inputs **/
 	public array  $inputs;
+	/** @var array<HTMLSelect> $selects **/
+	public array  $selects;
 	/** @var array<HTMLButton> $buttons **/
 	public array  $buttons;
 
@@ -34,12 +36,18 @@ class HTMLForm
 		$this->action  = $action;
 		$this->method  = $method;
 		$this->inputs  = array();
+		$this->selects = array();
 		$this->buttons = array();
 	}
 
 	public function add_input(HTMLInput $input) : void
 	{
 		$this->inputs[] = $input;
+	}
+
+	public function add_select(HTMLSelect $select) : void
+	{
+		$this->selects[] = $select;
 	}
 
 	public function add_button(HTMLButton $button) : void
@@ -58,6 +66,12 @@ class HTMLForm
 		foreach ($this->inputs as $input)
 		{
 			$ret .= $input->to_string();
+			$ret .= "<br>".PHP_EOL;
+		}
+
+		foreach ($this->selects as $select)
+		{
+			$ret .= $select->to_string();
 			$ret .= "<br>".PHP_EOL;
 		}
 

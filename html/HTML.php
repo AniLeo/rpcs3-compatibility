@@ -24,3 +24,5 @@ if (!@include_once(__DIR__."/HTMLButton.php")) throw new Exception("Compat: HTML
 if (!@include_once(__DIR__."/HTMLA.php")) throw new Exception("Compat: HTMLA.php is missing. Failed to include HTMLA.php");
 if (!@include_once(__DIR__."/HTMLImg.php")) throw new Exception("Compat: HTMLImg.php is missing. Failed to include HTMLImg.php");
 if (!@include_once(__DIR__."/HTMLDiv.php")) throw new Exception("Compat: HTMLDiv.php is missing. Failed to include HTMLDiv.php");
+if (!@include_once(__DIR__."/HTMLSelect.php")) throw new Exception("Compat: HTMLSelect.php is missing. Failed to include HTMLSelect.php");
+if (!@include_once(__DIR__."/HTMLOption.php")) throw new Exception("Compat: HTMLOption.php is missing. Failed to include HTMLOption.php");
