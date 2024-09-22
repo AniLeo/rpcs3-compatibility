@@ -307,4 +307,21 @@ class Build
 		$ret = self::query_to_builds($query);
 		return $ret[0];
 	}
+
+	public static function get_version(string $version) : ?Build
+	{
+		$db = getDatabase();
+		$s_version = mysqli_real_escape_string($db, $version);
+
+		$query = mysqli_query($db, "SELECT * FROM `builds`
+		                            WHERE `version` = \"{$s_version}\"
+		                            AND (`broken` IS NULL OR `broken` != 1)
+		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
+
+		if (is_bool($query))
+			return null;
+
+		$ret = self::query_to_builds($query);
+		return $ret[0];
+	}
 }

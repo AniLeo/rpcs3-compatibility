@@ -64,6 +64,10 @@ function check_for_updates( string $api,
 		return $results;
 	}
 
+  // The latest build to be returned by the API
+  // This can be the absolute latest, or an override depending on API v3 params
+  $version = "latest";
+
 	// If the API version is at least v3
 	if (substr($api, 1, 1) >= 3)
 	{
@@ -73,10 +77,16 @@ function check_for_updates( string $api,
 			$results['return_code'] = -3;
 			return $results;
 		}
+
+    // v0.0.33-16940: Latest build to support macOS 12
+    if ($os_type === "macos" && $os_arch === "x64" && (int)substr($os_version, 0, 2) < 13)
+    {
+      $version = "0.0.33-16940";
+    }
 	}
 
-	// Get latest build information
-	$latest = Build::get_latest();
+  // Get latest build information
+  $latest = $version === "latest" ? Build::get_latest() : Build::get_version($version);
 
 	if (is_null($latest))
 	{
