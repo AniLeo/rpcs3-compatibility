@@ -94,18 +94,29 @@ function check_for_updates( string $api,
 		return $results;
 	}
 
+  // For the v3 API, we only return the requested OSes
 	$results['latest_build']['pr']                  = $latest->pr;
 	$results['latest_build']['datetime']            = $latest->merge;
 	$results['latest_build']['version']             = $latest->version;
-	$results['latest_build']['windows']['download'] = $latest->get_url_windows();
-	$results['latest_build']['windows']['size']     = $latest->size_win;
-	$results['latest_build']['windows']['checksum'] = $latest->checksum_win;
-	$results['latest_build']['linux']['download']   = $latest->get_url_linux();
-	$results['latest_build']['linux']['size']       = $latest->size_linux;
-	$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
-	$results['latest_build']['mac']['download']     = $latest->get_url_mac();
-	$results['latest_build']['mac']['size']         = $latest->size_mac;
-	$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
+
+  if (substr($api, 1, 1) < 3 || (substr($api, 1, 1) >= 3 && $os_type === "windows"))
+  {
+  	$results['latest_build']['windows']['download'] = $latest->get_url_windows();
+  	$results['latest_build']['windows']['size']     = $latest->size_win;
+  	$results['latest_build']['windows']['checksum'] = $latest->checksum_win;
+  }
+  if (substr($api, 1, 1) < 3 || (substr($api, 1, 1) >= 3 && $os_type === "linux"))
+  {
+  	$results['latest_build']['linux']['download']   = $latest->get_url_linux();
+  	$results['latest_build']['linux']['size']       = $latest->size_linux;
+  	$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
+  }
+  if (substr($api, 1, 1) < 3 || (substr($api, 1, 1) >= 3 && $os_type === "macos"))
+  {
+  	$results['latest_build']['mac']['download']     = $latest->get_url_mac();
+  	$results['latest_build']['mac']['size']         = $latest->size_mac;
+  	$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
+  }
 
 	if (!is_null($commit))
 	{
