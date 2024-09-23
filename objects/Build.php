@@ -46,6 +46,10 @@ class Build
 	public ?int    $size_mac;
 	public ?string $filename_mac;
 
+	public ?string $checksum_mac_arm64;
+	public ?int    $size_mac_arm64;
+	public ?string $filename_mac_arm64;
+
 	public  int    $author_id;
 	public  string $author;
 
@@ -69,6 +73,9 @@ class Build
 	                     ?string $checksum_mac,
 	                     ?int    $size_mac,
 	                     ?string $filename_mac,
+	                     ?string $checksum_mac_arm64,
+	                     ?int    $size_mac_arm64,
+	                     ?string $filename_mac_arm64,
 	                      bool   $broken,
 	                     ?string $title)
 	{
@@ -86,6 +93,9 @@ class Build
 		$this->checksum_mac   = $checksum_mac;
 		$this->size_mac       = $size_mac;
 		$this->filename_mac   = $filename_mac;
+		$this->checksum_mac_arm64   = $checksum_mac_arm64;
+		$this->size_mac_arm64       = $size_mac_arm64;
+		$this->filename_mac_arm64   = $filename_mac_arm64;
 		$this->broken         = $broken;
 		$this->title          = $title;
 
@@ -156,6 +166,15 @@ class Build
 		return null;
 	}
 
+	public function get_url_mac_arm64() : ?string
+	{
+		if (!is_null($this->filename_mac_arm64))
+		{
+			return "https://github.com/RPCS3/rpcs3-binaries-mac-arm64/releases/download/build-{$this->commit}/{$this->filename_mac_arm64}";
+		}
+		return null;
+	}
+
 	public function get_url_author() : ?string
 	{
 		return "https://github.com/{$this->author}";
@@ -189,6 +208,15 @@ class Build
 		if (!is_null($this->size_mac))
 		{
 			return round($this->size_mac / 1024 / 1024, 1);
+		}
+		return null;
+	}
+
+	public function get_size_mb_mac_arm64() : ?float
+	{
+		if (!is_null($this->size_mac_arm64))
+		{
+			return round($this->size_mac_arm64 / 1024 / 1024, 1);
 		}
 		return null;
 	}
@@ -261,6 +289,9 @@ class Build
 					!property_exists($row, "checksum_mac") ||
 					!property_exists($row, "size_mac") ||
 					!property_exists($row, "filename_mac") ||
+					!property_exists($row, "checksum_mac_arm64") ||
+					!property_exists($row, "size_mac_arm64") ||
+					!property_exists($row, "filename_mac_arm64") ||
 					!property_exists($row, "broken") ||
 					!property_exists($row, "title"))
 			{
@@ -284,6 +315,9 @@ class Build
 			                        $row->checksum_mac,
 			                        $row->size_mac,
 			                        $row->filename_mac,
+			                        $row->checksum_mac_arm64,
+			                        $row->size_mac_arm64,
+			                        $row->filename_mac_arm64,
 			                        !is_null($row->broken) && $row->broken == 1,
 			                        $row->title);
 		}
