@@ -327,13 +327,24 @@ class Build
 		return $a_builds;
 	}
 
-	public static function get_latest() : ?Build
+	public static function get_latest(?string $platform) : ?Build
 	{
 		$db = getDatabase();
 
-		$query = mysqli_query($db, "SELECT * FROM `builds`
-		                            WHERE `broken` IS NULL OR `broken` != 1
-		                            ORDER BY `merge_datetime` DESC LIMIT 1;");
+		if (is_null($platform))
+		{
+			$query = mysqli_query($db, "SELECT * FROM `builds`
+			                            WHERE `broken` IS NULL OR `broken` != 1
+			                            ORDER BY `merge_datetime` DESC LIMIT 1;");
+		}
+		else
+		{
+			$s_platform = mysqli_real_escape_string($db, $platform);
+			
+			$query = mysqli_query($db, "SELECT * FROM `builds`
+			                            WHERE `filename_{$s_platform}` IS NOT NULL
+			                            ORDER BY `merge_datetime` DESC LIMIT 1;");
+		}
 
 		if (is_bool($query))
 			return null;
