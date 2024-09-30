@@ -340,9 +340,10 @@ class Build
 		else
 		{
 			$s_platform = mysqli_real_escape_string($db, $platform);
-			
+
 			$query = mysqli_query($db, "SELECT * FROM `builds`
 			                            WHERE `filename_{$s_platform}` IS NOT NULL
+			                            AND (`broken` IS NULL OR `broken` != 1)
 			                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 		}
 
