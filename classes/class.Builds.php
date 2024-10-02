@@ -114,43 +114,38 @@ public static function printTable() : void
 		$version = "";
 
 		// Tooltip
-		if (!is_null($build->checksum_win))
+		if (!is_null($build->checksum_win) && !is_null($build->get_size_mb_windows()))
 		{
-			$version .= "Windows SHA-256: {$build->checksum_win}";
-		}
-		if (!is_null($build->get_size_mb_windows()))
-		{
-			if (!empty($version))
-				$version .= "\n";
-			$version .= "Windows Size: {$build->get_size_mb_windows()} MB";
+			$version .= "Windows x64 SHA-256: {$build->checksum_win}\n";
+			$version .= "Windows x64 Size: {$build->get_size_mb_windows()} MB\n";
 		}
 		if (!empty($version))
 			$version .= "\n";
-		if (!is_null($build->checksum_linux))
+		if (!is_null($build->checksum_linux) && !is_null($build->get_size_mb_linux()))
 		{
-			if (!empty($version))
-				$version .= "\n";
-			$version .= "Linux SHA-256: {$build->checksum_linux}";
-		}
-		if (!is_null($build->get_size_mb_linux()))
-		{
-			if (!empty($version))
-				$version .= "\n";
-			$version .= "Linux Size: {$build->get_size_mb_linux()} MB";
+			$version .= "Linux x64 SHA-256: {$build->checksum_linux}\n";
+			$version .= "Linux x64 Size: {$build->get_size_mb_linux()} MB\n";
 		}
 		if (!empty($version))
 			$version .= "\n";
-		if (!is_null($build->checksum_mac))
+		if (!is_null($build->checksum_mac) && !is_null($build->get_size_mb_mac()))
 		{
-			if (!empty($version))
-				$version .= "\n";
-			$version .= "macOS SHA-256: {$build->checksum_mac}";
+			$version .= "macOS x64 SHA-256: {$build->checksum_mac}\n";
+			$version .= "macOS x64 Size: {$build->get_size_mb_mac()} MB\n";
 		}
-		if (!is_null($build->get_size_mb_mac()))
+		if (!empty($version))
+			$version .= "\n";
+		if (!is_null($build->checksum_linux_arm64) && !is_null($build->get_size_mb_linux_arm64()))
 		{
-			if (!empty($version))
-				$version .= "\n";
-			$version .= "macOS Size: {$build->get_size_mb_mac()} MB";
+			$version .= "Linux arm64 SHA-256: {$build->checksum_linux_arm64}\n";
+			$version .= "Linux arm64 Size: {$build->get_size_mb_linux_arm64()} MB\n";
+		}
+		if (!empty($version))
+			$version .= "\n";
+		if (!is_null($build->checksum_mac_arm64) && !is_null($build->get_size_mb_mac_arm64()))
+		{
+			$version .= "macOS arm64 SHA-256: {$build->checksum_mac_arm64}\n";
+			$version .= "macOS arm64 Size: {$build->get_size_mb_mac_arm64()} MB\n";
 		}
 
 		$version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">{$build->version}</span>" : $build->version;
