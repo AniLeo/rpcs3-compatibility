@@ -46,6 +46,10 @@ class Build
 	public ?int    $size_mac;
 	public ?string $filename_mac;
 
+	public ?string $checksum_linux_arm64;
+	public ?int    $size_linux_arm64;
+	public ?string $filename_linux_arm64;
+
 	public ?string $checksum_mac_arm64;
 	public ?int    $size_mac_arm64;
 	public ?string $filename_mac_arm64;
@@ -73,6 +77,9 @@ class Build
 	                     ?string $checksum_mac,
 	                     ?int    $size_mac,
 	                     ?string $filename_mac,
+	                     ?string $checksum_linux_arm64,
+	                     ?int    $size_linux_arm64,
+	                     ?string $filename_linux_arm64,
 	                     ?string $checksum_mac_arm64,
 	                     ?int    $size_mac_arm64,
 	                     ?string $filename_mac_arm64,
@@ -93,6 +100,9 @@ class Build
 		$this->checksum_mac   = $checksum_mac;
 		$this->size_mac       = $size_mac;
 		$this->filename_mac   = $filename_mac;
+		$this->checksum_linux_arm64 = $checksum_linux_arm64;
+		$this->size_linux_arm64     = $size_linux_arm64;
+		$this->filename_linux_arm64 = $filename_linux_arm64;
 		$this->checksum_mac_arm64   = $checksum_mac_arm64;
 		$this->size_mac_arm64       = $size_mac_arm64;
 		$this->filename_mac_arm64   = $filename_mac_arm64;
@@ -166,6 +176,15 @@ class Build
 		return null;
 	}
 
+	public function get_url_linux_arm64() : ?string
+	{
+		if (!is_null($this->filename_linux_arm64))
+		{
+			return "https://github.com/RPCS3/rpcs3-binaries-linux-arm64/releases/download/build-{$this->commit}/{$this->filename_linux_arm64}";
+		}
+		return null;
+	}
+
 	public function get_url_mac_arm64() : ?string
 	{
 		if (!is_null($this->filename_mac_arm64))
@@ -208,6 +227,15 @@ class Build
 		if (!is_null($this->size_mac))
 		{
 			return round($this->size_mac / 1024 / 1024, 1);
+		}
+		return null;
+	}
+
+	public function get_size_mb_linux_arm64() : ?float
+	{
+		if (!is_null($this->size_linux_arm64))
+		{
+			return round($this->size_linux_arm64 / 1024 / 1024, 1);
 		}
 		return null;
 	}
@@ -315,6 +343,9 @@ class Build
 			                        $row->checksum_mac,
 			                        $row->size_mac,
 			                        $row->filename_mac,
+			                        $row->checksum_linux_arm64,
+			                        $row->size_linux_arm64,
+			                        $row->filename_linux_arm64,
 			                        $row->checksum_mac_arm64,
 			                        $row->size_mac_arm64,
 			                        $row->filename_mac_arm64,

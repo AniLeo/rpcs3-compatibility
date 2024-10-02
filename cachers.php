@@ -197,14 +197,14 @@ function parse_build_properties(object $info) : ?array
 		if (str_contains($asset->name, ".sha256"))
 			continue;
 
-		if      (str_contains($asset->name, "win64.7z"))
+		if (str_contains($asset->name, "win64.7z") ||
+			  str_contains($asset->name, "linux64.AppImage") ||
+				str_contains($asset->name, "linux_aarch64.AppImage") ||
+			  str_contains($asset->name, "macos.7z") ||
+			  str_contains($asset->name, "macos_arm64.7z"))
+		{
 			$ret["filename"] = $asset->name;
-		else if (str_contains($asset->name, "linux64.AppImage"))
-			$ret["filename"] = $asset->name;
-		else if (str_contains($asset->name, "macos.7z"))
-			$ret["filename"] = $asset->name;
-		else if (str_contains($asset->name, "macos_arm64.7z"))
-			$ret["filename"] = $asset->name;
+		}
 	}
 
 	// API Sanity Check
@@ -322,6 +322,11 @@ function cache_build(int $pr) : void
 	if (is_null($info_release_mac))
 		return;
 
+	// Linux arm64 build metadata
+	$info_release_linux_arm64 = curl_json("https://api.github.com/repos/rpcs3/rpcs3-binaries-linux-arm64/releases/tags/build-{$commit}", $cr);
+	if (is_null($info_release_linux_arm64))
+		return;
+
 	// macOS arm64 build metadata
 	$info_release_mac_arm64 = curl_json("https://api.github.com/repos/rpcs3/rpcs3-binaries-mac-arm64/releases/tags/build-{$commit}", $cr);
 	if (is_null($info_release_mac_arm64))
@@ -329,6 +334,7 @@ function cache_build(int $pr) : void
 
 	$is_missing = isset($info_release_win->message) ||
 	              isset($info_release_linux->message) ||
+								isset($info_release_linux_arm64->message) ||
 	              isset($info_release_mac->message) ||
 	              isset($info_release_mac_arm64->message);
 
@@ -347,6 +353,7 @@ function cache_build(int $pr) : void
 	$info_win   = parse_build_properties($info_release_win);
 	$info_linux = parse_build_properties($info_release_linux);
 	$info_mac   = parse_build_properties($info_release_mac);
+	$info_linux_arm64 = parse_build_properties($info_release_linux_arm64);
 	$info_mac_arm64 = parse_build_properties($info_release_mac_arm64);
 
 	// Fail if one of the builds is not available until a grace period has passed
@@ -380,6 +387,16 @@ function cache_build(int $pr) : void
 		return;
 	}
 
+	if (!isset($version) && !is_null($info_linux_arm64))
+	{
+		$version = $info_linux_arm64["version"];
+	}
+	else if (!isset($version) && !$is_broken)
+	{
+		curl_close($cr);
+		return;
+	}
+
 	if (!isset($version) && !is_null($info_mac_arm64))
 	{
 		$version = $info_mac_arm64["version"];
@@ -401,10 +418,11 @@ function cache_build(int $pr) : void
 	if ($is_broken)
 	{
 		echo "A build is broken for Pull Request #{$pr}".PHP_EOL;
-		printf("Build status: Windows: %s, Linux: %s, macOS: %s, macOS arm64: %s",
+		printf("Build status: Windows: %s, Linux: %s, macOS: %s, Linux arm64: %s, macOS arm64: %s",
 		       isset($info_release_win->message)   ? $info_release_win->message : "OK",
 		       isset($info_release_linux->message) ? $info_release_linux->message : "OK",
 		       isset($info_release_mac->message)   ? $info_release_mac->message : "OK",
+					 isset($info_release_linux_arm64->message) ? $info_release_linux_arm64->message : "OK",
 		       isset($info_release_mac_arm64->message) ? $info_release_mac_arm64->message : "OK");
 	}
 
@@ -439,6 +457,9 @@ function cache_build(int $pr) : void
 		`size_mac`       = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["size"])."'" : "NULL").",
 		`checksum_mac`   = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["checksum"])."'" : "NULL").",
 		`filename_mac`   = ".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["filename"])."'" : "NULL").",
+		`size_linux_arm64`     = ".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["size"])."'" : "NULL").",
+		`checksum_linux_arm64` = ".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["checksum"])."'" : "NULL").",
+		`filename_linux_arm64` = ".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["filename"])."'" : "NULL").",
 		`size_mac_arm64`       = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["size"])."'" : "NULL").",
 		`checksum_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["checksum"])."'" : "NULL").",
 		`filename_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["filename"])."'" : "NULL").",
@@ -470,6 +491,9 @@ function cache_build(int $pr) : void
 		 `size_mac`,
 		 `checksum_mac`,
 		 `filename_mac`,
+		 `size_linux_arm64`,
+		 `checksum_linux_arm64`,
+		 `filename_linux_arm64`,
 		 `size_mac_arm64`,
 		 `checksum_mac_arm64`,
 		 `filename_mac_arm64`,
@@ -495,6 +519,9 @@ function cache_build(int $pr) : void
 		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["size"])."'" : "NULL").",
 		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["checksum"])."'" : "NULL").",
 		".(isset($info_mac)   ? "'".mysqli_real_escape_string($db, (string) $info_mac["filename"])."'" : "NULL").",
+		".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["size"])."'" : "NULL").",
+		".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["checksum"])."'" : "NULL").",
+		".(isset($info_linux_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_linux_arm64["filename"])."'" : "NULL").",
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["size"])."'" : "NULL").",
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["checksum"])."'" : "NULL").",
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["filename"])."'" : "NULL").",
