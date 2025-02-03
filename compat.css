@@ -284,8 +284,8 @@ progress[value]::-webkit-progress-value {
     position: relative;
     z-index: 1;
     float: left;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin-right: 12px;
     padding: 4px 0
 }

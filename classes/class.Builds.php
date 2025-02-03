@@ -84,6 +84,11 @@ public static function printTable() : void
 			'name' => 'Download',
 			'class' => 'compat-table-cell',
 			'sort' => '0'
+		),
+		array(
+			'name' => 'Version',
+			'class' => 'compat-table-cell',
+			'sort' => '0'
 		)
 	);
 	echo getTableHeaders($headers, 'b');
@@ -91,15 +96,23 @@ public static function printTable() : void
 	// Prepare images that will be used
 	$html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
 	$html_img_win_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows.png");
-	$html_img_win_disabled->set_title("This Windows build is not available");
+	$html_img_win_disabled->set_title("This Windows x64 build is not available");
 
 	$html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png");
 	$html_img_linux_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux.png");
-	$html_img_linux_disabled->set_title("This Linux build is not available");
+	$html_img_linux_disabled->set_title("This Linux x64 build is not available");
+
+	$html_img_linux_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/linux-arm64.png");
+	$html_img_linux_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux-arm64.png");
+	$html_img_linux_arm64_disabled->set_title("This Linux arm64 build is not available");
 
 	$html_img_mac = new HTMLImg("builds-icon", "/img/icons/compat/macos.png");
 	$html_img_mac_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos.png");
-	$html_img_mac_disabled->set_title("This macOS build is not available");
+	$html_img_mac_disabled->set_title("This macOS x64 build is not available");
+
+	$html_img_mac_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/macos-arm64.png");
+	$html_img_mac_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos-arm64.png");
+	$html_img_mac_arm64_disabled->set_title("This macOS arm64 build is not available");
 
 	$html_img_pr = new HTMLImg("builds-icon", "/img/icons/compat/github.png");
 
@@ -128,17 +141,17 @@ public static function printTable() : void
 		}
 		if (!empty($version))
 			$version .= "\n";
-		if (!is_null($build->checksum_mac) && !is_null($build->get_size_mb_mac()))
-		{
-			$version .= "macOS x64 SHA-256: {$build->checksum_mac}\n";
-			$version .= "macOS x64 Size: {$build->get_size_mb_mac()} MB\n";
-		}
-		if (!empty($version))
-			$version .= "\n";
 		if (!is_null($build->checksum_linux_arm64) && !is_null($build->get_size_mb_linux_arm64()))
 		{
 			$version .= "Linux arm64 SHA-256: {$build->checksum_linux_arm64}\n";
 			$version .= "Linux arm64 Size: {$build->get_size_mb_linux_arm64()} MB\n";
+		}
+		if (!empty($version))
+			$version .= "\n";
+		if (!is_null($build->checksum_mac) && !is_null($build->get_size_mb_mac()))
+		{
+			$version .= "macOS x64 SHA-256: {$build->checksum_mac}\n";
+			$version .= "macOS x64 Size: {$build->get_size_mb_mac()} MB\n";
 		}
 		if (!empty($version))
 			$version .= "\n";
@@ -194,19 +207,14 @@ public static function printTable() : void
 		$html_div_cell->print();
 
 
-		/* Cell 5: URL, Version, Size (MB) and Checksum */
+		/* Cell 5: URL */
 		$html_div_cell = new HTMLDiv("compat-table-cell");
 
 		$all_builds_exist = !is_null($build->get_url_windows()) && !is_null($build->get_url_linux()) && !is_null($build->get_url_mac());
 
-		if ($build->broken)
-			$html_div_cell->add_content("<s>");
-
-		$html_div_cell->add_content($version);
-
 		if (!is_null($build->get_url_windows()))
 		{
-			$html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows", $html_img_win->to_string());
+			$html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows x64", $html_img_win->to_string());
 			$html_div_cell->add_content($html_a_win->to_string());
 		}
 		else
@@ -216,7 +224,7 @@ public static function printTable() : void
 
 		if (!is_null($build->get_url_linux()))
 		{
-			$html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux", $html_img_linux->to_string());
+			$html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux x64", $html_img_linux->to_string());
 			$html_div_cell->add_content($html_a_linux->to_string());
 		}
 		else
@@ -224,15 +232,46 @@ public static function printTable() : void
 			$html_div_cell->add_content($html_img_linux_disabled->to_string());
 		}
 
+		if (!is_null($build->get_url_linux_arm64()))
+		{
+			$html_a_linux_arm64 = new HTMLA($build->get_url_linux_arm64(), "Download for Linux arm64", $html_img_linux_arm64->to_string());
+			$html_div_cell->add_content($html_a_linux_arm64->to_string());
+		}
+		else
+		{
+			$html_div_cell->add_content($html_img_linux_arm64_disabled->to_string());
+		}
+
 		if (!is_null($build->get_url_mac()))
 		{
-			$html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS", $html_img_mac->to_string());
+			$html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS x64", $html_img_mac->to_string());
 			$html_div_cell->add_content($html_a_mac->to_string());
 		}
 		else
 		{
 			$html_div_cell->add_content($html_img_mac_disabled->to_string());
 		}
+
+		if (!is_null($build->get_url_mac_arm64()))
+		{
+			$html_a_mac_arm64 = new HTMLA($build->get_url_mac_arm64(), "Download for macOS arm64", $html_img_mac_arm64->to_string());
+			$html_div_cell->add_content($html_a_mac_arm64->to_string());
+		}
+		else
+		{
+			$html_div_cell->add_content($html_img_mac_arm64_disabled->to_string());
+		}
+
+		$html_div_cell->print();
+
+
+		/* Cell 6: Version, Size (MB) and Checksum */
+		$html_div_cell = new HTMLDiv("compat-table-cell");
+
+		if ($build->broken)
+			$html_div_cell->add_content("<s>");
+
+		$html_div_cell->add_content($version);
 
 		if ($build->broken)
 			$html_div_cell->add_content("</s>");
