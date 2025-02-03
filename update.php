@@ -78,6 +78,13 @@ function check_for_updates( string $api,
 			return $results;
 		}
 
+    // If the OS type does not match the allowed values
+    if (!is_string($os_type) || !ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
+    {
+			$results['return_code'] = -3;
+			return $results;
+		}
+
 		// v0.0.33-16940: Latest build to support macOS 12
 		if ($os_type === "macos" && $os_arch === "x64" && (int)substr($os_version, 0, 2) < 13)
 		{
@@ -86,7 +93,8 @@ function check_for_updates( string $api,
 	}
 
 	// Get latest build information
-	$latest = $version === "latest" ? Build::get_latest(null) : Build::get_version($version);
+  $platform = substr($api, 1, 1) >= 3 ? $os_type : null;
+  $latest = $version === "latest" ? Build::get_latest($platform) : Build::get_version($version);
 
 	if (is_null($latest))
 	{
