@@ -334,16 +334,16 @@ function cache_build(int $pr) : void
 
 	$is_missing = isset($info_release_win->message) ||
 	              isset($info_release_linux->message) ||
-								isset($info_release_linux_arm64->message) ||
+	              isset($info_release_linux_arm64->message) ||
 	              isset($info_release_mac->message) ||
 	              isset($info_release_mac_arm64->message);
 
-	$is_broken = $is_missing && time() - strtotime($merge_datetime) >= (3600 * 2);
+	$is_missing_platform = $is_missing && time() - strtotime($merge_datetime) >= (3600 * 2);
 
 	// Error message found: Build doesn't exist in one of the repos
 	// Do not ignore if the build was merged over two hours ago, to cache as broken
 	// TODO: Ignore macOS if date is prior to the first macOS build
-	if ($is_missing && !$is_broken)
+	if ($is_missing && !$is_missing_platform)
 	{
 		printf("Error: Checking author information failed, current=%s, merge=%s", time(), strtotime($merge_datetime));
 		curl_close($cr);
@@ -361,7 +361,7 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_win["version"];
 	}
-	else if (!$is_broken)
+	else if (!$is_missing_platform)
 	{
 		curl_close($cr);
 		return;
@@ -371,7 +371,7 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_linux["version"];
 	}
-	else if (!isset($version) && !$is_broken)
+	else if (!isset($version) && !$is_missing_platform)
 	{
 		curl_close($cr);
 		return;
@@ -381,7 +381,7 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_mac["version"];
 	}
-	else if (!isset($version) && !$is_broken)
+	else if (!isset($version) && !$is_missing_platform)
 	{
 		curl_close($cr);
 		return;
@@ -391,7 +391,7 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_linux_arm64["version"];
 	}
-	else if (!isset($version) && !$is_broken)
+	else if (!isset($version) && !$is_missing_platform)
 	{
 		curl_close($cr);
 		return;
@@ -401,7 +401,7 @@ function cache_build(int $pr) : void
 	{
 		$version = $info_mac_arm64["version"];
 	}
-	else if (!isset($version) && !$is_broken)
+	else if (!isset($version) && !$is_missing_platform)
 	{
 		curl_close($cr);
 		return;
@@ -415,7 +415,15 @@ function cache_build(int $pr) : void
 		return;
 	}
 
-	if ($is_broken)
+	$is_broken_build = false;
+
+	// Broken pipeline, did a shallow clone and ended up without a commit count
+	if (str_ends_with($version, "-1"))
+	{
+		$is_broken_build = true;
+	}
+
+	if ($is_missing_platform)
 	{
 		echo "A build is broken for Pull Request #{$pr}".PHP_EOL;
 		printf("Build status: Windows: %s, Linux: %s, macOS: %s, Linux arm64: %s, macOS arm64: %s",
@@ -425,6 +433,11 @@ function cache_build(int $pr) : void
 					 isset($info_release_linux_arm64->message) ? $info_release_linux_arm64->message : "OK",
 		       isset($info_release_mac_arm64->message) ? $info_release_mac_arm64->message : "OK");
 	}
+
+	if ($is_broken_build)
+		$is_broken = "1";
+	else if ($is_missing_platform)
+		$is_broken = "2";
 
 	$db = getDatabase();
 
@@ -463,7 +476,7 @@ function cache_build(int $pr) : void
 		`size_mac_arm64`       = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["size"])."'" : "NULL").",
 		`checksum_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["checksum"])."'" : "NULL").",
 		`filename_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["filename"])."'" : "NULL").",
-		`broken`         = ".($is_broken         ? "'2'" : "NULL").",
+		`broken`         = ".(isset($is_broken) ? "'".mysqli_real_escape_string($db, $is_broken)."'" : "NULL").",
 		`title`          = '".mysqli_real_escape_string($db, $title)."',
 		`body`           = '".mysqli_real_escape_string($db, $body)."'
 		WHERE `pr` = '{$pr}'
@@ -525,7 +538,7 @@ function cache_build(int $pr) : void
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["size"])."'" : "NULL").",
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["checksum"])."'" : "NULL").",
 		".(isset($info_mac_arm64)   ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["filename"])."'" : "NULL").",
-		".($is_broken         ? "'2'" : "NULL").",
+		".(isset($is_broken)        ? "'".mysqli_real_escape_string($db, $is_broken)."'" : "NULL").",
 		'".mysqli_real_escape_string($db, $title)."',
 		'".mysqli_real_escape_string($db, $body)."'); ");
 	}
