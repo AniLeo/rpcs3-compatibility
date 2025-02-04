@@ -912,13 +912,16 @@ progress[value]::-webkit-progress-value {
     padding: 14px;
     border-radius: 6px;
     line-height: 24px;
-    margin-bottom: 20px;
-    background: #191f36;
-    border: solid 2px #2f3a65
+    margin-bottom: 20px
 }
 
 .debug-main-menu {
-    text-align: center
+    display: flex
+}
+
+.debug-main-title {
+    font-size: 16px;
+    margin-top: 10px
 }
 
 .debug-main-content {
@@ -927,6 +930,7 @@ progress[value]::-webkit-progress-value {
 
 .debug-main-content input {
     background: #161c30;
+    color: #fff;
     height: 35px;
     width: 200px;
     margin-bottom: 20px;
@@ -953,16 +957,12 @@ progress[value]::-webkit-progress-value {
 }
 
 .debug-menu-button {
-    padding-left: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 5px;
+    margin-left: 10px;
     border-radius: 6px;
-    width: 200px;
+    width: 140px;
+    text-align: center;
     display: inline-block
-}
-
-.debug-menu-button a {
-    color: #fff
 }
 
 .debug-menu-button a:hover {

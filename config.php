@@ -119,56 +119,75 @@ $a_flags = array(
 );
 
 // Functions available on debug panel (function_name => (title, success))
+$a_panel_categories = array(
+	0 => 'Recache',
+	1 => 'Builds',
+	2 => 'Forum'
+);
+
 $a_panel = array(
 	'cache_builds' => array(
+		'category' => 1,
 		'title' => "Update Build Cache",
 		'success' => "Forced update on builds cache"
 	),
 	'refreshBuild' => array(
+		'category' => 1,
 		'title' => "Refresh Build",
 		'success' => "Refreshed build"
 	),
 	'cacheInitials' => array(
-		'title' => "Update Initials Cache",
+		'category' => 0,
+		'title' => "Cache Initials",
 		'success' => "Forced update on initials cache"
 	),
 	'cacheStatusModules' => array(
-		'title' => "Update Status Module",
+		'category' => 0,
+		'title' => "Cache Status Count",
 		'success' => "Forced update on status modules"
 	),
 	'cacheGameCount' => array(
-		'title' => "Update Game Count",
+		'category' => 0,
+		'title' => "Cache Game Count",
 		'success' => "Forced update on game count"
 	),
 	'cacheWikiIDs' => array(
-		'title' => "Update Wiki IDs Cache",
+		'category' => 0,
+		'title' => "Cache Wiki IDs",
 		'success' => "Forced update on Wiki IDs cache"
 	),
 	'cache_games_updates' => array(
-		'title' => "Update Game Updates Cache",
+		'category' => 0,
+		'title' => "Cache Game Updates",
 		'success' => "Updated latest game version cache"
 	),
 	'checkInvalidThreads' => array(
+		'category' => 0,
 		'title' => "Check Invalid Threads",
 		'success' => ""
 	),
 	'compatibilityUpdater' => array(
+		'category' => 2,
 		'title' => "Compatibility Updater",
 		'success' => "Ran compatibility updater"
 	),
 	'mergeGames' => array(
+		'category' => 2,
 		'title' => "Merge Games",
 		'success' => "Ran game merger"
 	),
 	'cachePatches' => array(
+		'category' => 0,
 		'title' => "Cache Patches",
 		'success' => "Forced update on game patches cache"
 	),
 	'flag_build_as_broken' => array(
+		'category' => 1,
 		'title' => "Flag Build as Broken",
 		'success' => ""
 	),
 	'export_build_backup' => array(
+		'category' => 1,
 		'title' => "Export Build Backup",
 		'success' => ""
 	)
