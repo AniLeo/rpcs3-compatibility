@@ -362,6 +362,11 @@ class Build
 	{
 		$db = getDatabase();
 
+		if ($platform === "windows")
+			$platform = "win";
+		else if ($platform === "macos")
+			$platform = "mac";
+
 		if (is_null($platform))
 		{
 			$query = mysqli_query($db, "SELECT * FROM `builds`
