@@ -894,9 +894,13 @@ function flag_build_as_broken() : void
 	$form = new HTMLForm("", "POST");
 	$form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
 	$form->add_button(new HTMLButton("flag_build_as_broken", "submit", "Flag as broken"));
+	$form->add_button(new HTMLButton("unflag_build_as_broken", "submit", "Unflag as broken"));
 	$form->print();
 
-	if (!isset($_POST["flag_build_as_broken"]) || $pr === 0)
+	if ($pr === 0)
+		return;
+
+	if (!isset($_POST["flag_build_as_broken"]) && !isset($_POST["unflag_build_as_broken"]))
 		return;
 
 	$db = getDatabase();
@@ -917,11 +921,20 @@ function flag_build_as_broken() : void
 		return;
 	}
 
-	mysqli_query($db, "UPDATE `builds` SET `broken` = 1 WHERE `pr` = {$pr}; ");
-	mysqli_close($db);
+	if (isset($_POST["flag_build_as_broken"]))
+	{
+		mysqli_query($db, "UPDATE `builds` SET `broken` = 1 WHERE `pr` = {$pr}; ");
+		printf("<p>Flagged <b>%d</b> as broken.</p>",
+		       $pr);
+	}
+	else if (isset($_POST["unflag_build_as_broken"]))
+	{
+		mysqli_query($db, "UPDATE `builds` SET `broken` = 0 WHERE `pr` = {$pr}; ");
+		printf("<p>Unflagged <b>%d</b> as broken.</p>",
+		       $pr);
+	}
 
-	printf("<p>Flagged <b>%d</b> as broken.</p>",
-	       $pr);
+	mysqli_close($db);
 }
 
 function export_build_backup() : void
