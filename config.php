@@ -152,7 +152,7 @@ $a_panel = array(
 		'success' => "Forced update on game count"
 	),
 	'cacheWikiIDs' => array(
-		'category' => 0,
+		'category' => 3,
 		'title' => "Cache Wiki IDs",
 		'success' => "Forced update on Wiki IDs cache"
 	),
@@ -162,7 +162,7 @@ $a_panel = array(
 		'success' => "Updated latest game version cache"
 	),
 	'checkInvalidThreads' => array(
-		'category' => 0,
+		'category' => 2,
 		'title' => "Check Invalid Threads",
 		'success' => ""
 	),
@@ -177,7 +177,7 @@ $a_panel = array(
 		'success' => "Ran game merger"
 	),
 	'cachePatches' => array(
-		'category' => 0,
+		'category' => 3,
 		'title' => "Cache Patches",
 		'success' => "Forced update on game patches cache"
 	),
