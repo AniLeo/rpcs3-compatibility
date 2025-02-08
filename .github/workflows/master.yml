@@ -28,6 +28,8 @@ jobs:
       - name: PHPStan Static Analysis
         uses: php-actions/phpstan@v3
         with:
+          version: latest
+          php-version: latest
           path: .
           level: 9
           memory_limit: 256M
