@@ -370,7 +370,7 @@ class Build
 		if (is_null($platform))
 		{
 			$query = mysqli_query($db, "SELECT * FROM `builds`
-			                            WHERE `broken` IS NULL OR `broken` != 1
+			                            WHERE `broken` IS NULL
 			                            ORDER BY `merge_datetime` DESC LIMIT 1;");
 		}
 		else
