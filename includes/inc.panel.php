@@ -944,11 +944,13 @@ function export_build_backup() : void
 	$select->add_option(new HTMLOption("win",   "Windows (x64)"));
 	$select->add_option(new HTMLOption("linux", "Linux (x64)"));
 	$select->add_option(new HTMLOption("mac",   "macOS (x64)"));
+	$select->add_option(new HTMLOption("linux_arm64", "Linux (arm64)"));
+	$select->add_option(new HTMLOption("mac_arm64", "macOS (arm64)"));
 	$form->add_select($select);
 	$form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
 	$form->print();
 
-	if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac")))
+	if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac", "linux_arm64", "mac_arm64")))
 	{
 		return;
 	}
@@ -964,7 +966,7 @@ function export_build_backup() : void
 	$s_url_prefix = mysqli_escape_string($db, "https://github.com/RPCS3/rpcs3-binaries-{$_POST['os']}/releases/download/build-");
 
 	$q_builds = mysqli_query($db, "SELECT CONCAT('{$s_url_prefix}', `commit`, '/', `filename_{$s_os}`) AS `url`
-																 FROM `builds` WHERE `filename_{$s_os}` IS NOT NULL AND `filename_{$s_os}` <> ''
+	                               FROM `builds` WHERE `filename_{$s_os}` IS NOT NULL AND `filename_{$s_os}` <> ''
 	                               ORDER BY `merge_datetime` DESC;");
 
 	mysqli_close($db);
