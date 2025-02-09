@@ -314,6 +314,10 @@ public static function getBuildsRSS() : string
 	// Initialize string
 	$rssfeed = "";
 
+	// Should be unreachable, these server globals are always strings
+	if (!is_string($_SERVER['HTTP_HOST']) || !is_string($_SERVER['REQUEST_URI']))
+	 return $rssfeed;
+
 	foreach ($builds as $build)
 	{
 		// Skip broken builds

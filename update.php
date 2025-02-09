@@ -79,7 +79,7 @@ function check_for_updates( string $api,
 		}
 
     // If the OS type does not match the allowed values
-    if (!is_string($os_type) || !ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
+    if (!ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
     {
 			$results['return_code'] = -3;
 			return $results;

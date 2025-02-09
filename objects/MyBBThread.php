@@ -150,7 +150,7 @@ class MyBBThread
 		$ret = substr($this->subject, 0, -12);
 
 		// Check if thread title is invalid
-		if (substr($ret, -1) === ' ' || substr($ret, -1) === '-' || !is_string($ret))
+		if (substr($ret, -1) === ' ' || substr($ret, -1) === '-')
 		{
 			return null;
 		}

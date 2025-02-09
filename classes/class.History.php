@@ -336,6 +336,9 @@ public static function printHistoryRSS() : void
 	$error = !empty($error_new) ? $error_new : $error_existing;
 	$title = !empty($a_new) ? "New additions" : "Updates";
 
+	// Should be unreachable, these server globals are always strings
+	if (!is_string($_SERVER['HTTP_HOST']) || !is_string($_SERVER['REQUEST_URI'])) return;
+
 	$url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>

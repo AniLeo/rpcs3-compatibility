@@ -226,6 +226,8 @@ function parse_build_properties(object $info) : ?array
 		$ret["size"] = (string) ($ret["size"] * 1024 * 1024);
 	else if (str_contains($fileinfo[1], "KB"))
 		$ret["size"] = (string) ($ret["size"] * 1024);
+	else
+		$ret["size"] = (string) $ret["size"];
 
 	// API Sanity Checks
 	if (empty($ret["checksum"]))

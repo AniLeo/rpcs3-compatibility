@@ -181,37 +181,37 @@ function validateGet() : array
 	// $get["network"] = 0;
 
 	// API version
-	if (isset($_GET['api']))
+	if (isset($_GET['api']) && is_string($_GET['api']))
 	{
 		$get['api'] = (string) $_GET['api'];
 	}
 
 	// Page counter
-	if (isset($_GET['p']))
+	if (isset($_GET['p']) && is_string($_GET['p']))
 	{
 		$get['p'] = (int) $_GET['p'];
 	}
 
 	// Results per page
-	if (isset($_GET['r']) && in_array($_GET['r'], $a_pageresults))
+	if (isset($_GET['r']) && is_string($_GET['r']) && in_array($_GET['r'], $a_pageresults))
 	{
 		$get['r'] = (int) $_GET['r'];
 	}
 
 	// Status
-	if (isset($_GET['s']) && ((int) $_GET['s'] === 0 || array_key_exists($_GET['s'], $a_status)))
+	if (isset($_GET['s']) && is_string($_GET['s']) && ((int) $_GET['s'] === 0 || array_key_exists($_GET['s'], $a_status)))
 	{
 		$get['s'] = (int) $_GET['s'];
 	}
 
 	// Order by
-	if (isset($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd'))
+	if (isset($_GET['o']) && is_string($_GET['o']) && strlen($_GET['o']) == 2 && is_numeric(substr($_GET['o'], 0, 1)) && (substr($_GET['o'], 1, 1) == 'a' || substr($_GET['o'], 1, 1) == 'd'))
 	{
 		$get['o'] = (string) $_GET['o'];
 	}
 
 	// Character
-	if (isset($_GET['c']))
+	if (isset($_GET['c']) && is_string($_GET['c']))
 	{
 		// If it is a single alphabetic character
 		if (ctype_alpha($_GET['c']) && strlen($_GET['c']) === 1)
@@ -223,7 +223,7 @@ function validateGet() : array
 	}
 
 	// Searchbox
-	if (isset($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
+	if (isset($_GET['g']) && is_string($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
 	{
 		$get['g'] = (string) $_GET['g'];
 
@@ -239,13 +239,13 @@ function validateGet() : array
 	}
 
 	// Media type
-	if (isset($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media))
+	if (isset($_GET['t']) && is_string($_GET['t']) && array_key_exists(strtoupper($_GET['t']), $a_media))
 	{
 		$get['t'] = strtolower($_GET['t']);
 	}
 
 	// Move support
-	if (isset($_GET['move']))
+	if (isset($_GET['move']) && is_string($_GET['move']))
 	{
 		// No move support
 		if ((int) $_GET['move'] === 0)
@@ -260,13 +260,13 @@ function validateGet() : array
 	}
 
 	// Stereoscopic 3D support
-	if (isset($_GET['3D']) && $_GET['3D'] != 0)
+	if (isset($_GET['3D']) && is_string($_GET['3D']) && (int) $_GET['3D'] !== 0)
 	{
 		$get['3D'] = 1;
 	}
 
 	// Game type
-	if (isset($_GET['type']) && $_GET['type'] != 0)
+	if (isset($_GET['type']) && is_string($_GET['type']) && $_GET['type'] != 0)
 	{
 		// PS3 Game
 		if ((int) $_GET['type'] === 1)
@@ -281,7 +281,7 @@ function validateGet() : array
 	}
 
 	// Network requirement
-	if (isset($_GET['network']))
+	if (isset($_GET['network']) && is_string($_GET['network']))
 	{
 		// No move support
 		if ((int) $_GET['network'] === 0)
@@ -296,7 +296,7 @@ function validateGet() : array
 	}
 
 	// History
-	if (isset($_GET['h']) && array_key_exists($_GET['h'], $a_histdates))
+	if (isset($_GET['h']) && is_string($_GET['h']) && array_key_exists($_GET['h'], $a_histdates))
 	{
 		$get['h'] = (string) $_GET['h'];
 	}
@@ -308,13 +308,13 @@ function validateGet() : array
 	}
 
 	// Patch system: Version
-	if (isset($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2]))
+	if (isset($_GET['v']) && is_string($_GET['v']) && strlen($_GET['v']) === 3 && ctype_digit($_GET['v'][0]) && $_GET['v'][1] === '.' && ctype_digit($_GET['v'][2]))
 	{
 		$get['v'] = (string) $_GET['v'];
 	}
 
 	// Patch system: Sha256
-	if (isset($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256']))
+	if (isset($_GET['sha256']) && is_string($_GET['sha256']) && strlen($_GET['sha256']) === 64 && ctype_alnum($_GET['sha256']))
 	{
 		$get['sha256'] = (string) $_GET['sha256'];
 	}
@@ -329,7 +329,7 @@ function validateGet() : array
 		ini_set('display_errors', '1');
 
 		// Admin debug mode
-		if (isset($_GET['a']) && array_search("debug.view", $get['w']) !== false)
+		if (isset($_GET['a']) && is_string($_GET['a']) && array_search("debug.view", $get['w']) !== false)
 		{
 			$get['a'] = (string) $_GET['a'];
 		}
@@ -796,9 +796,6 @@ function getDebugPermissions() : ?array
 		$permissions = explode(',', $row->permissions);
 	}
 
-	if (!is_array($permissions))
-		return null;
-
 	return $permissions;
 }
 
@@ -916,13 +913,16 @@ function getStatusID(string $name) : ?int
 
 
 // cURL JSON document and return the result as an object
-function curl_json(string $url, CurlHandle &$cr = null) : ?object
+function curl_json(string $url, CurlHandle $cr = null) : ?object
 {
 	if (!defined("gh_token"))
 		exit("[COMPAT] API: Missing connection data");
 
 	// Use existing cURL resource or create a temporary one
 	$ch = (!is_null($cr)) ? $cr : curl_init();
+
+	if (empty($url))
+		return null;
 
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
@@ -936,7 +936,7 @@ function curl_json(string $url, CurlHandle &$cr = null) : ?object
 	}
 	else
 	{
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0");
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0");
 	}
 
 	// Get the response and httpcode of that response

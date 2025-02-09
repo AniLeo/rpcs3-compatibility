@@ -695,8 +695,8 @@ function mergeGames() : void
 {
 	global $a_status, $get;
 
-	$gid1 = isset($_POST['gid1']) ? $_POST['gid1'] : "";
-	$gid2 = isset($_POST['gid2']) ? $_POST['gid2'] : "";
+	$gid1 = isset($_POST['gid1']) && is_string($_POST['gid1']) ? $_POST['gid1'] : "";
+	$gid2 = isset($_POST['gid2']) && is_string($_POST['gid2']) ? $_POST['gid2'] : "";
 
 	$form = new HTMLForm("", "POST");
 	$form->add_input(new HTMLInput("gid1", "text", $gid1, "Game ID 1"));
@@ -721,8 +721,8 @@ function mergeGames() : void
 
 	$db = getDatabase();
 
-	$s_gid1 = mysqli_real_escape_string($db, $_POST['gid1']);
-	$s_gid2 = mysqli_real_escape_string($db, $_POST['gid2']);
+	$s_gid1 = mysqli_real_escape_string($db, $gid1);
+	$s_gid2 = mysqli_real_escape_string($db, $gid2);
 
 	$q_game1 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');");
 	if (is_bool($q_game1) || mysqli_num_rows($q_game1) === 0)
@@ -948,7 +948,7 @@ function export_build_backup() : void
 	$form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
 	$form->print();
 
-	if (!isset($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac")))
+	if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac")))
 	{
 		return;
 	}
@@ -958,14 +958,13 @@ function export_build_backup() : void
 	print("<b>cat builds.txt | parallel --gnu \"wget -nc -nv --content-disposition --trust-server-names {}\"</b><br><br>");
 	print("</p>");
 
-	$os = $_POST['os'];
-
-	$url_prefix = "https://github.com/RPCS3/rpcs3-binaries-{$os}/releases/download/build-";
-
 	$db = getDatabase();
 
-	$q_builds = mysqli_query($db, "SELECT CONCAT('{$url_prefix}', `commit`, '/', `filename_{$os}`) AS `url`
-	                               FROM `builds` WHERE `filename_{$os}` IS NOT NULL AND `filename_{$os}` <> ''
+	$s_os = mysqli_real_escape_string($db, $_POST['os']);
+	$s_url_prefix = mysqli_escape_string($db, "https://github.com/RPCS3/rpcs3-binaries-{$_POST['os']}/releases/download/build-");
+
+	$q_builds = mysqli_query($db, "SELECT CONCAT('{$s_url_prefix}', `commit`, '/', `filename_{$s_os}`) AS `url`
+																 FROM `builds` WHERE `filename_{$s_os}` IS NOT NULL AND `filename_{$s_os}` <> ''
 	                               ORDER BY `merge_datetime` DESC;");
 
 	mysqli_close($db);
