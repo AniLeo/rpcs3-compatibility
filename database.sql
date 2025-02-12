@@ -186,3 +186,32 @@ CREATE TABLE `game_update_paramhip` (
   `paramhip_content` mediumtext NOT NULL,
   PRIMARY KEY (`tag`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for np_players
+-- ----------------------------
+DROP TABLE IF EXISTS `np_players`;
+CREATE TABLE `np_players` (
+  `timestamp` datetime DEFAULT NULL,
+  `players` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------
+-- Table structure for np_psn_games
+-- ----------------------------
+DROP TABLE IF EXISTS `np_psn_games`;
+CREATE TABLE `np_psn_games` (
+  `timestamp` datetime NOT NULL,
+  `comm_id` varchar(12) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `players` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ----------------------------
+-- Table structure for np_ticket_games
+-- ----------------------------
+DROP TABLE IF EXISTS `np_ticket_games`;
+CREATE TABLE `np_ticket_games` (
+  `timestamp` datetime NOT NULL,
+  `content_id` varchar(19) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `players` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

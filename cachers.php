@@ -910,6 +910,7 @@ function cacheWikiIDs() : void
 	mysqli_close($db);
 }
 
+
 function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 {
 	set_time_limit(60*60); // 1 hour
@@ -1585,4 +1586,74 @@ function cachePatches() : void
 			                     AND `version` = '{$db_version}'; ");
 		}
 	}
+}
+
+
+function cache_netplay_statistics() : bool
+{
+	$q_updates = "";
+
+	// Reset current cURL resource to use default values before using it
+	$np_stats = curl_json(np_api);
+
+	if (is_null($np_stats))
+	{
+		echo "cache_netplay_statistics(): Failed to poll the NP API".PHP_EOL;
+		return false;
+	}
+
+	// Global players data
+	if (!property_exists($np_stats, "num_users"))
+	{
+		echo "cache_netplay_statistics(): NP API does not contain the num_users property".PHP_EOL;
+		return false;
+	}
+
+	$db = getDatabase();
+
+	$s_players = mysqli_real_escape_string($db, (string) $np_stats->num_users);
+	$q_updates .= "INSERT INTO `np_players` (`timestamp`, `players`) VALUES (CONVERT_TZ(NOW(),'SYSTEM','+00:00'), '{$s_players}'); ";
+
+	// PSN games data
+	if (!property_exists($np_stats, "psn_games"))
+	{
+		echo "cache_netplay_statistics(): NP API does not contain the psn_games property".PHP_EOL;
+		mysqli_close($db);
+		return false;
+	}
+
+	foreach ($np_stats->psn_games as $comm_id => $np_data)
+	{
+		if (!isset($np_data[0]))
+		{
+			echo "cache_netplay_statistics(): NP API does not contain the player count for {$comm_id}".PHP_EOL;
+			mysqli_close($db);
+			return false;
+		}
+
+		$s_comm_id  = mysqli_real_escape_string($db, (string) $comm_id);
+		$s_players  = mysqli_real_escape_string($db, (string) $np_data[0]);
+		$q_updates .= "INSERT INTO `np_psn_games` (`timestamp`, `comm_id`, `players`) ";
+		$q_updates .= "VALUES (CONVERT_TZ(NOW(),'SYSTEM','+00:00'), '{$s_comm_id}', '{$s_players}'); ";
+	}
+
+	// Ticket games data
+	if (!property_exists($np_stats, "ticket_games"))
+	{
+		echo "cache_netplay_statistics(): NP API does not contain the ticket_games property".PHP_EOL;
+		mysqli_close($db);
+		return false;
+	}
+
+	foreach ($np_stats->ticket_games as $content_id => $players)
+	{
+		$s_content_id = mysqli_real_escape_string($db, (string) $content_id);
+		$s_players    = mysqli_real_escape_string($db, (string) $players);
+		$q_updates   .= "INSERT INTO `np_ticket_games` (`timestamp`, `content_id`, `players`) ";
+		$q_updates   .= "VALUES (CONVERT_TZ(NOW(),'SYSTEM','+00:00'), '{$s_content_id}', '{$s_players}'); ";
+	}
+
+	mysqli_multi_query($db, $q_updates);
+	mysqli_close($db);
+	return true;
 }

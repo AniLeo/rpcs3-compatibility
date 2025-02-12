@@ -29,6 +29,9 @@ define('db_name', 'DATABASE_NAME');
 // GitHub Access Token (Read-only)
 define('gh_token', 'TOKEN');
 
+// Netplay Statistics API
+define('np_api', 'URL');
+
 // Global config variables
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
@@ -190,6 +193,11 @@ $a_panel = array(
 		'category' => 1,
 		'title' => "Export Build Backup",
 		'success' => ""
+	),
+	'cache_netplay_statistics' => array(
+		'category' => 0,
+		'title' => "Cache Netplay Statistics",
+		'success' => "Cached Netplay Statistics for the current timestamp"
 	)
 );
 
