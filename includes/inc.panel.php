@@ -75,7 +75,7 @@ function checkInvalidThreads() : void
 
 	$q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`
 	FROM `rpcs3_forums`.`mybb_threads`
-	WHERE ({$where}) AND `visible` > 0; ");
+	WHERE ({$where}) AND `visible` > 0 AND `closed` NOT LIKE 'moved%'; ");
 
 	$q_games = mysqli_query($db, "SELECT * FROM `game_list`; ");
 
@@ -225,7 +225,8 @@ function compatibilityUpdater() : void
 	FROM `rpcs3_forums`.`mybb_threads`
 	WHERE ({$where}) AND
 	`lastpost` > {$ts_lastupdate} AND
-	`visible` > 0;");
+	`visible` > 0 AND
+	`closed` NOT LIKE 'moved%';");
 
 	if (is_bool($q_threads))
 	{
