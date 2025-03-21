@@ -90,6 +90,12 @@ function check_for_updates( string $api,
 		{
 			$version = "0.0.33-16940";
 		}
+
+		// v0.0.35-17589: Latest build to support macOS 13
+		if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 14)
+		{
+			$version = "0.0.35-17589";
+		}
 	}
 
 	// Get latest build information
