@@ -749,7 +749,7 @@ function cacheGameCount() : void
 
 function cacheContributor(string $username) : int
 {
-	$info_contributor = curl_json("https://api.github.com/users/{$username}");
+	$info_contributor = curl_json("https://api.github.com/users/{$username}", null);
 
 	if (is_null($info_contributor))
 		return 0;
@@ -1594,7 +1594,7 @@ function cache_netplay_statistics() : bool
 	$q_updates = "";
 
 	// Reset current cURL resource to use default values before using it
-	$np_stats = curl_json(np_api);
+	$np_stats = curl_json(np_api, null);
 
 	if (is_null($np_stats))
 	{

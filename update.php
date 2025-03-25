@@ -78,9 +78,9 @@ function check_for_updates( string $api,
 			return $results;
 		}
 
-    // If the OS type does not match the allowed values
-    if (!ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
-    {
+   		// If the OS type does not match the allowed values
+		if (!ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
+		{
 			$results['return_code'] = -3;
 			return $results;
 		}
@@ -90,9 +90,8 @@ function check_for_updates( string $api,
 		{
 			$version = "0.0.33-16940";
 		}
-
 		// v0.0.35-17589: Latest build to support macOS 13
-		if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 14)
+		else if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 14)
 		{
 			$version = "0.0.35-17589";
 		}

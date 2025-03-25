@@ -913,7 +913,7 @@ function getStatusID(string $name) : ?int
 
 
 // cURL JSON document and return the result as an object
-function curl_json(string $url, CurlHandle $cr = null) : ?object
+function curl_json(string $url, ?CurlHandle $cr) : ?object
 {
 	if (!defined("gh_token"))
 		exit("[COMPAT] API: Missing connection data");
@@ -927,16 +927,12 @@ function curl_json(string $url, CurlHandle $cr = null) : ?object
 	// Set the required cURL flags
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
 	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
 
+	// We're cURLing the GitHub API, set GitHub Auth Token on headers
 	if (strlen($url) >= 23 && substr($url, 0, 23) === "https://api.github.com/")
 	{
-		// We're cURLing the GitHub API, set GitHub Auth Token on headers
-		curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
-	}
-	else
-	{
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0");
 	}
 
 	// Get the response and httpcode of that response
