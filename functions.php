@@ -616,7 +616,7 @@ function getTableHeaders(array $headers, string $extra = "") : string
 
 function getFooter() : string
 {
-	global $c_maintenance, $get, $start_time;
+	global $c_maintenance, $get, $start_time, $c_footer_before, $c_footer_after;
 
 	// Total time in milliseconds
 	$total_time = round((microtime(true) - $start_time) * 1000, 2);
@@ -648,6 +648,8 @@ function getFooter() : string
 
 		$s .= $html_div->to_string();
 	}
+
+	$s = $c_footer_before . $s . $c_footer_after;
 
 	return $s;
 }

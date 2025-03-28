@@ -40,6 +40,12 @@ $c_profiler = true; // Profiling mode
 // Default value for results per page
 $c_pageresults = 25;
 
+// Text to append at the beginning of the footer
+$c_footer_before = 	"";
+
+// Text to append at the end of the footer
+$c_footer_after = 	"";
+
 // Allowed values for results per page
 $a_pageresults = array(25, 50, 100, 200);
 
@@ -298,3 +304,4 @@ $a_histdates = array(
 
 // Current month
 $a_currenthist = array('2024_10', 'October 1st, 2024', '2024-10-01');
+
