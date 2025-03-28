@@ -72,33 +72,36 @@ function check_for_updates( string $api,
 	if (substr($api, 1, 1) >= 3)
 	{
 		// If any of the v3 required parameters is null
-		if (is_null($os_type) || is_null($os_arch) || is_null($os_version))
+		if (is_null($os_type) || is_null($os_arch))
 		{
 			$results['return_code'] = -3;
 			return $results;
 		}
 
    		// If the OS type does not match the allowed values
-		if (!ctype_alpha($os_type) || !in_array($os_type, array("windows", "linux", "macos")))
+		if (!ctype_alpha($os_type) || !in_array($os_type, array("all", "windows", "linux", "macos")))
 		{
 			$results['return_code'] = -3;
 			return $results;
 		}
 
-		// v0.0.33-16940: Latest build to support macOS 12
-		if ($os_type === "macos" && $os_arch === "x64" && (int)substr($os_version, 0, 2) < 13)
+		if (!is_null($os_version))
 		{
-			$version = "0.0.33-16940";
-		}
-		// v0.0.35-17589: Latest build to support macOS 13
-		else if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 14)
-		{
-			$version = "0.0.35-17589";
+			// v0.0.33-16940: Latest build to support macOS 12
+			if ($os_type === "macos" && $os_arch === "x64" && (int)substr($os_version, 0, 2) < 13)
+			{
+				$version = "0.0.33-16940";
+			}
+			// v0.0.35-17589: Latest build to support macOS 13
+			else if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 14)
+			{
+				$version = "0.0.35-17589";
+			}
 		}
 	}
 
 	// Get latest build information
-  $platform = substr($api, 1, 1) >= 3 ? $os_type : null;
+  $platform = substr($api, 1, 1) >= 3 && $os_type !== "all" ? $os_type : null;
   $latest = $version === "latest" ? Build::get_latest($platform) : Build::get_version($version);
 
 	if (is_null($latest))
@@ -113,7 +116,7 @@ function check_for_updates( string $api,
 	$results['latest_build']['version']             = $latest->version;
 
 	if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "windows"))
+     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
 	{
 		$results['latest_build']['windows']['download'] = $latest->get_url_windows();
 		$results['latest_build']['windows']['size']     = $latest->size_win;
@@ -121,13 +124,13 @@ function check_for_updates( string $api,
 	}
 
   if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "linux"))
+     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
 	{
 		$results['latest_build']['linux']['download']   = $latest->get_url_linux();
 		$results['latest_build']['linux']['size']       = $latest->size_linux;
 		$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
 	}
-  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && $os_type === "linux")
+  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "linux"))
   {
     $results['latest_build']['linux']['download']   = $latest->get_url_linux_arm64();
     $results['latest_build']['linux']['size']       = $latest->size_linux_arm64;
@@ -135,13 +138,13 @@ function check_for_updates( string $api,
   }
 
   if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "macos"))
+     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
 	{
 		$results['latest_build']['mac']['download']     = $latest->get_url_mac();
 		$results['latest_build']['mac']['size']         = $latest->size_mac;
 		$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
 	}
-  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && $os_type === "macos")
+  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "macos"))
 	{
 		$results['latest_build']['mac']['download']     = $latest->get_url_mac_arm64();
 		$results['latest_build']['mac']['size']         = $latest->size_mac_arm64;
@@ -272,7 +275,7 @@ Check for updated builds with provided commit
 api
 	v1 - Check for updated builds with provided commit
 	v2 - Also returns changelog
-	v3 - Accepts os_type, os_arch, os_version to determine latest compatible build
+	v3 - Requires os_type, os_arch, optionally accepts os_version to determine latest compatible build
 
 return_code
 	-3 - Illegal search
@@ -294,11 +297,14 @@ if (isset($_GET['api']) && is_string($_GET['api']))
 	}
 
 	if (isset($_GET['os_type'])    && is_string($_GET['os_type']) &&
-	    isset($_GET['os_arch'])    && is_string($_GET['os_arch']) &&
-	    isset($_GET['os_version']) && is_string($_GET['os_version']))
+	    isset($_GET['os_arch'])    && is_string($_GET['os_arch']))
 	{
 		$os_type    = $_GET['os_type'];
 		$os_arch    = $_GET['os_arch'];
+	}
+
+	if (isset($_GET['os_version']) && is_string($_GET['os_version']))
+	{
 		$os_version = $_GET['os_version'];
 	}
 
