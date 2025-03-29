@@ -90,7 +90,6 @@ class Build
 		$this->commit         = $commit;
 		$this->author_id      = $author_id;
 		$this->merge          = $merge;
-		$this->version        = substr($version, 0, 4) === "1.0." ? str_replace("1.0.", "0.0.0-", $version) : $version;
 		$this->checksum_win   = $checksum_win;
 		$this->size_win       = $size_win;
 		$this->filename_win   = $filename_win;
@@ -131,6 +130,7 @@ class Build
 			$this->fulldate = date_format($datetime, "Y-m-d");
 
 		$this->diffdate = getDateDiff($this->merge);
+		$this->version  = $this->get_version_string($version);
 	}
 
 	public function get_url_pr() : string
@@ -405,5 +405,28 @@ class Build
 
 		$ret = self::query_to_builds($query);
 		return $ret[0];
+	}
+
+	private function get_version_string(string $version) : string
+	{
+		if (substr($version, 0, 4) === "1.0.")
+		{
+			if (strtotime($this->fulldate) >= strtotime("2016-04-16") && strtotime($this->fulldate) <= strtotime("2017-01-30"))
+			{
+				return str_replace("1.0.", "0.0.0.9-", $version);
+			}
+			if (strtotime($this->fulldate) >= strtotime("2015-10-03") && strtotime($this->fulldate) <= strtotime("2016-04-16"))
+			{
+				return str_replace("1.0.", "0.0.0.6-", $version);
+			}
+			if (strtotime($this->fulldate) >= strtotime("2014-06-28") && strtotime($this->fulldate) <= strtotime("2015-10-03"))
+			{
+				return str_replace("1.0.", "0.0.0.5-", $version);
+			}
+
+			return str_replace("1.0.", "0.0.0-", $version);
+		}
+
+		return $version;
 	}
 }
