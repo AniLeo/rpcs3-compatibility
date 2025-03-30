@@ -720,7 +720,7 @@ function generateStatusModule(bool $getCount = true) : string
 	$db = getDatabase();
 
 	// Get games count per status
-	$count = countGames($db)["status"];
+	$count = countGames($db, "`type` = 'PS3 Game'")["status"];
 
 	mysqli_close($db);
 
