@@ -48,18 +48,8 @@ if(!@include_once(__DIR__.'/../includes/inc.history.php')) throw new Exception("
 
 			</div> <!-- container-con-wrapper -->
 
-			<?php
-			if (file_exists(__DIR__.'/../modules/mod.status.nocount.php'))
-			{
-				Profiler::add_data("Page: Get Status Module");
-				include(__DIR__.'/../modules/mod.status.nocount.php');
-			}
-			else
-			{
-				Profiler::add_data("Page: Generate Status Module");
-				echo generateStatusModule(false);
-			}
-			?>
+			<?php Profiler::add_data("Page: Print Status Module"); ?>
+			<?php History::printStatusModule(); ?>
 
 		</div> <!-- container-con-block -->
 

@@ -709,56 +709,6 @@ function countPages(int $results, int $count) : int
 }
 
 
-/*****************
- * Status Module *
- *****************/
-// TODO: Rework
-function generateStatusModule(bool $getCount = true) : string
-{
-	global $a_status;
-
-	$db = getDatabase();
-
-	// Get games count per status
-	$count = countGames($db, "`type` = 'PS3 Game'")["status"];
-
-	mysqli_close($db);
-
-	// Initialize string
-	$output = "";
-
-	// Pretty output for readability
-	foreach ($a_status as $id => $status)
-	{
-		$percentage = "";
-
-		$output .= "<div class='compat-status-main'>\n";
-		$output .= "<div class='compat-status-icon background-status-{$id}'></div>\n";
-		$output .= "<div class='compat-status-text'>\n";
-		$output .= "<p style='color:#{$status['color']}'><strong>{$status['name']}";
-
-		if ($getCount)
-		{
-			$percentage = round(($count[$id]/$count[0]) * 100, 2, PHP_ROUND_HALF_UP);
-			$output .= " ({$percentage}%)";
-		}
-
-		$output .= ":</strong></p>&nbsp;&nbsp;{$status['desc']}\n</div>\n";
-
-		if ($getCount)
-		{
-			$output .= "<div class='compat-status-progress'>\n";
-			$output .= "<progress class='compat-status-progressbar' id='compat-progress{$id}' style=\"color:#{$status['color']}\" max=\"100\" value=\"{$percentage}\"></progress>\n";
-			$output .= "</div>\n";
-		}
-
-		$output .= "</div>\n";
-	}
-
-	return "<div class='compat-status-container'>\n{$output}</div>";
-}
-
-
 // Checks if user has debug permissions
 /**
 * @return array<string> $permissions

@@ -60,7 +60,11 @@ Profiler::add_data("Inc: Generate Query");
 $genquery = Compat::generate_query($get, $db);
 
 // Get game count per status
-Profiler::add_data("Inc: Count Games (Search)");
+Profiler::add_data("Inc: Count Games");
+$game_scount = countGames($db, "`type` = 'PS3 Game'");
+
+// Get searched entry count per status
+Profiler::add_data("Inc: Count Entries (Search)");
 $scount = countGames($db, $genquery);
 
 // Pages / CurrentPage

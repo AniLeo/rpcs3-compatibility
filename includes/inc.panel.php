@@ -661,8 +661,6 @@ function compatibilityUpdater() : void
 
 		// Recache initials cache
 		cacheInitials();
-		// Recache status modules
-		cacheStatusModules();
 		// Recache game count
 		cacheGameCount();
 	}
@@ -877,8 +875,6 @@ function mergeGames() : void
 		// Delete older entry
 		mysqli_query($db, "DELETE FROM `game_list` WHERE (`key`='{$old->key}');");
 
-		// Recache status modules
-		cacheStatusModules();
 		// Recache game count
 		cacheGameCount();
 

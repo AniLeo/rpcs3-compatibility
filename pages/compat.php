@@ -74,15 +74,8 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
 				<?php Compat::printStatusSort(); ?>
 			</div>
 
-			<?php
-			if (file_exists(__DIR__.'/../cache/mod.status.count.php')) {
-				Profiler::add_data("Page: Include Status Module");
-				include(__DIR__.'/../cache/mod.status.count.php');
-			} else {
-				Profiler::add_data("Page: Generate Status Module");
-				echo generateStatusModule();
-			}
-			?>
+			<?php Profiler::add_data("Page: Print Status Module"); ?>
+			<?php Compat::printStatusModule(); ?>	
 
 			<?php Profiler::add_data("Page: Display Searchbox"); ?>
 			<div class="compat-con-searchbox">

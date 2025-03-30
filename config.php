@@ -150,11 +150,6 @@ $a_panel = array(
 		'title' => "Cache Initials",
 		'success' => "Forced update on initials cache"
 	),
-	'cacheStatusModules' => array(
-		'category' => 0,
-		'title' => "Cache Status Count",
-		'success' => "Forced update on status modules"
-	),
 	'cacheGameCount' => array(
 		'category' => 0,
 		'title' => "Cache Game Count",

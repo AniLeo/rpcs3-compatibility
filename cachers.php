@@ -717,26 +717,6 @@ function cacheInitials() : void
 }
 
 
-function cacheStatusModules() : void
-{
-	$f_status_count = fopen(__DIR__.'/cache/mod.status.count.php', 'w');
-	$f_status_nocount = fopen(__DIR__.'/cache/mod.status.nocount.php', 'w');
-
-	if (!$f_status_count || !$f_status_nocount)
-		return;
-
-	fwrite($f_status_count, "\n<!-- START: Status Module -->\n".
-	                        generateStatusModule().
-	                        "\n<!-- END: Status Module -->\n");
-	fclose($f_status_count);
-
-	fwrite($f_status_nocount, "\n<!-- START: Status Module -->\n".
-	                          generateStatusModule(false).
-	                          "\n<!-- END: Status Module -->\n");
-	fclose($f_status_nocount);
-}
-
-
 function cacheGameCount() : void
 {
 	// count_game_entry_all

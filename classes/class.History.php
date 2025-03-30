@@ -326,6 +326,38 @@ public static function printContent() : void
 }
 
 
+/************************
+ * Print: Status Module *
+ ************************/
+public static function printStatusModule() : void
+{
+	global $a_status;
+
+	$html_div = new HTMLDiv("compat-status-container");
+
+	// Pretty output for readability
+	foreach ($a_status as $id => $status)
+	{
+		// Initialise current status parent div
+		$html_div_main = new HTMLDiv("compat-status-main");
+
+		// Status icon
+		$html_div_icon = new HTMLDiv("compat-status-icon background-status-{$id}");
+		$html_div_main->add_content($html_div_icon->to_string());
+
+		// Status, description
+		$html_div_text = new HTMLDiv("compat-status-text");
+		$html_div_text->add_content("<p style='color:#{$status['color']}'><strong>{$status['name']}:</strong></p>&nbsp;&nbsp;{$status['desc']}");
+		$html_div_main->add_content($html_div_text->to_string());
+
+		// Add current status parent div to the root div
+		$html_div->add_content($html_div_main->to_string());
+	}
+
+	$html_div->print();
+}
+
+
 public static function printHistoryRSS() : void
 {
 	global $a_status, $a_new, $a_existing, $error_new, $error_existing;
