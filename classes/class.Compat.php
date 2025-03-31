@@ -627,6 +627,7 @@ public static function printStatusModule() : void
 	foreach ($a_status as $id => $status)
 	{
 		$percentage = round(($game_scount["nostatus"][$id]/$game_scount["nostatus"][0]) * 100, 2, PHP_ROUND_HALF_UP);
+		$percentage = sprintf("%.2f", $percentage);
 
 		// Initialise current status parent div
 		$html_div_main = new HTMLDiv("compat-status-main");
@@ -637,8 +638,10 @@ public static function printStatusModule() : void
 
 		// Status, percentage, description
 		$html_div_text = new HTMLDiv("compat-status-text");
-		$html_div_text->add_content("<p style='color:#{$status['color']}'><strong>{$status['name']}");
-		$html_div_text->add_content(" ({$percentage}%):</strong></p>&nbsp;&nbsp;{$status['desc']}");
+		$html_div_text->add_content("<span style='color:#{$status['color']}'>");
+		$html_div_text->add_content("<strong>{$status['name']} ({$percentage}%): </strong>");
+		$html_div_text->add_content("</span>");
+		$html_div_text->add_content($status['desc']);
 		$html_div_main->add_content($html_div_text->to_string());
 
 		// Progress bar

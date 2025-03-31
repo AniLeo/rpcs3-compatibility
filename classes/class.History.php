@@ -347,7 +347,10 @@ public static function printStatusModule() : void
 
 		// Status, description
 		$html_div_text = new HTMLDiv("compat-status-text");
-		$html_div_text->add_content("<p style='color:#{$status['color']}'><strong>{$status['name']}:</strong></p>&nbsp;&nbsp;{$status['desc']}");
+		$html_div_text->add_content("<span style='color:#{$status['color']}'>");
+		$html_div_text->add_content("<strong>{$status['name']}: </strong>");
+		$html_div_text->add_content("</span>");
+		$html_div_text->add_content($status['desc']);
 		$html_div_main->add_content($html_div_text->to_string());
 
 		// Add current status parent div to the root div
