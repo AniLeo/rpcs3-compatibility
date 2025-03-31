@@ -626,7 +626,7 @@ public static function printStatusModule() : void
 	// Pretty output for readability
 	foreach ($a_status as $id => $status)
 	{
-		$percentage = round(($game_scount["status"][$id]/$game_scount["status"][0]) * 100, 2, PHP_ROUND_HALF_UP);
+		$percentage = round(($game_scount["nostatus"][$id]/$game_scount["nostatus"][0]) * 100, 2, PHP_ROUND_HALF_UP);
 
 		// Initialise current status parent div
 		$html_div_main = new HTMLDiv("compat-status-main");
