@@ -27,10 +27,10 @@ if (!@include_once("objects/Build.php")) throw new Exception("Compat: Build.php 
 * @return array<string, mixed> $results
 */
 function check_for_updates( string $api,
-                           ?string $commit,
-                           ?string $os_type,
-                           ?string $os_arch,
-                           ?string $os_version) : array
+						   ?string $commit,
+						   ?string $os_type,
+						   ?string $os_arch,
+						   ?string $os_version) : array
 {
 	// Standalone maintenance mode
 	/*
@@ -78,7 +78,7 @@ function check_for_updates( string $api,
 			return $results;
 		}
 
-   		// If the OS type does not match the allowed values
+		// If the OS type does not match the allowed values
 		if (!ctype_alpha($os_type) || !in_array($os_type, array("all", "windows", "linux", "macos")))
 		{
 			$results['return_code'] = -3;
@@ -101,8 +101,8 @@ function check_for_updates( string $api,
 	}
 
 	// Get latest build information
-  $platform = substr($api, 1, 1) >= 3 && $os_type !== "all" ? $os_type : null;
-  $latest = $version === "latest" ? Build::get_latest($platform) : Build::get_version($version);
+	$platform = substr($api, 1, 1) >= 3 && $os_type !== "all" ? $os_type : null;
+	$latest = $version === "latest" ? Build::get_latest($platform) : Build::get_version($version);
 
 	if (is_null($latest))
 	{
@@ -116,35 +116,35 @@ function check_for_updates( string $api,
 	$results['latest_build']['version']             = $latest->version;
 
 	if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
+		(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
 	{
 		$results['latest_build']['windows']['download'] = $latest->get_url_windows();
 		$results['latest_build']['windows']['size']     = $latest->size_win;
 		$results['latest_build']['windows']['checksum'] = $latest->checksum_win;
 	}
 
-  if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
+	if (substr($api, 1, 1) < 3 ||
+		(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
 	{
 		$results['latest_build']['linux']['download']   = $latest->get_url_linux();
 		$results['latest_build']['linux']['size']       = $latest->size_linux;
 		$results['latest_build']['linux']['checksum']   = $latest->checksum_linux;
 	}
-  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "linux"))
-  {
-    $results['latest_build']['linux']['download']   = $latest->get_url_linux_arm64();
-    $results['latest_build']['linux']['size']       = $latest->size_linux_arm64;
-    $results['latest_build']['linux']['checksum']   = $latest->checksum_linux_arm64;
-  }
+	else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "linux"))
+	{
+		$results['latest_build']['linux']['download']   = $latest->get_url_linux_arm64();
+		$results['latest_build']['linux']['size']       = $latest->size_linux_arm64;
+		$results['latest_build']['linux']['checksum']   = $latest->checksum_linux_arm64;
+	}
 
-  if (substr($api, 1, 1) < 3 ||
-     (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
+	if (substr($api, 1, 1) < 3 ||
+		(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
 	{
 		$results['latest_build']['mac']['download']     = $latest->get_url_mac();
 		$results['latest_build']['mac']['size']         = $latest->size_mac;
 		$results['latest_build']['mac']['checksum']     = $latest->checksum_mac;
 	}
-  else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "macos"))
+	else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "macos"))
 	{
 		$results['latest_build']['mac']['download']     = $latest->get_url_mac_arm64();
 		$results['latest_build']['mac']['size']         = $latest->size_mac_arm64;
@@ -158,10 +158,10 @@ function check_for_updates( string $api,
 		$current = array();
 		$e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
 		$q_check = mysqli_query($db, "SELECT * FROM `builds`
-		                              WHERE `commit` LIKE '{$e_commit}%'
-		                                AND `type` = 'branch'
-		                              ORDER BY `merge_datetime` DESC
-		                              LIMIT 1;");
+									  WHERE `commit` LIKE '{$e_commit}%'
+										AND `type` = 'branch'
+									  ORDER BY `merge_datetime` DESC
+									  LIMIT 1;");
 		if (!is_bool($q_check))
 		{
 			$current = Build::query_to_builds($q_check);
@@ -180,36 +180,36 @@ function check_for_updates( string $api,
 			$results['current_build']['datetime']            = $current->merge;
 			$results['current_build']['version']             = $current->version;
 
-      if (substr($api, 1, 1) < 3 ||
-         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "windows"))
+			if (substr($api, 1, 1) < 3 ||
+				(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
 			{
 				$results['current_build']['windows']['download'] = $current->get_url_windows();
 				$results['current_build']['windows']['size']     = $current->size_win;
 				$results['current_build']['windows']['checksum'] = $current->checksum_win;
 			}
 
-      if (substr($api, 1, 1) < 3 ||
-         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "linux"))
+			if (substr($api, 1, 1) < 3 ||
+				(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
 			{
 				$results['current_build']['linux']['download']   = $current->get_url_linux();
 				$results['current_build']['linux']['size']       = $current->size_linux;
 				$results['current_build']['linux']['checksum']   = $current->checksum_linux;
 			}
-      else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && $os_type === "linux")
+			else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "linux"))
 			{
-        $results['current_build']['linux']['download']   = $current->get_url_linux_arm64();
+				$results['current_build']['linux']['download']   = $current->get_url_linux_arm64();
 				$results['current_build']['linux']['size']       = $current->size_linux_arm64;
 				$results['current_build']['linux']['checksum']   = $current->checksum_linux_arm64;
 			}
 
 			if (substr($api, 1, 1) < 3 ||
-         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && $os_type === "macos"))
+				(substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
 			{
 				$results['current_build']['mac']['download']     = $current->get_url_mac();
 				$results['current_build']['mac']['size']         = $current->size_mac;
 				$results['current_build']['mac']['checksum']     = $current->checksum_mac;
 			}
-      else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && $os_type === "macos")
+			else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "macos"))
 			{
 				$results['current_build']['mac']['download']     = $current->get_url_mac_arm64();
 				$results['current_build']['mac']['size']         = $current->size_mac_arm64;
@@ -224,11 +224,11 @@ function check_for_updates( string $api,
 				if (substr($api, 1, 1) >= 2 && !in_array($current->pr, array("15390", "15392", "15394", "15395")))
 				{
 					$q_between = mysqli_query($db, "SELECT `version`, `title` FROM `builds`
-					                                WHERE `merge_datetime`
-					                                BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
-					                                AND CAST('{$latest->merge}' AS DATETIME)
-					                                ORDER BY `merge_datetime` DESC
-					                                LIMIT 500;");
+													WHERE `merge_datetime`
+													BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
+													AND CAST('{$latest->merge}' AS DATETIME)
+													ORDER BY `merge_datetime` DESC
+													LIMIT 500;");
 
 					if (!is_bool($q_between))
 					{
@@ -242,23 +242,23 @@ function check_for_updates( string $api,
 							}
 
 							$results['changelog'][] = array("version" => $row->version,
-							                                "title" => $row->title);
+															"title" => $row->title);
 						}
 					}
 				}
 
 				mysqli_query($db, "UPDATE `builds`
-				                   SET `ping_outdated` = `ping_outdated` + 1
-				                   WHERE `pr` = {$current->pr}
-				                   LIMIT 1;");
+								   SET `ping_outdated` = `ping_outdated` + 1
+								   WHERE `pr` = {$current->pr}
+								   LIMIT 1;");
 				$results['return_code'] = 1;
 			}
 			else
 			{
 				mysqli_query($db, "UPDATE `builds`
-				                   SET `ping_updated` = `ping_updated` + 1
-				                   WHERE `pr` = {$current->pr}
-				                   LIMIT 1;");
+								   SET `ping_updated` = `ping_updated` + 1
+								   WHERE `pr` = {$current->pr}
+								   LIMIT 1;");
 			}
 		}
 		mysqli_close($db);
@@ -297,7 +297,7 @@ if (isset($_GET['api']) && is_string($_GET['api']))
 	}
 
 	if (isset($_GET['os_type'])    && is_string($_GET['os_type']) &&
-	    isset($_GET['os_arch'])    && is_string($_GET['os_arch']))
+		isset($_GET['os_arch'])    && is_string($_GET['os_arch']))
 	{
 		$os_type    = $_GET['os_type'];
 		$os_arch    = $_GET['os_arch'];
