@@ -960,7 +960,7 @@ progress[value]::-webkit-progress-value {
     padding: 5px;
     margin-left: 10px;
     border-radius: 6px;
-    width: 140px;
+    width: 160px;
     text-align: center;
     display: inline-block
 }
