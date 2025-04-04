@@ -94,8 +94,8 @@ function checkInvalidThreads() : void
     {
         // This should be unreachable unless the database structure is damaged
         if (!property_exists($row, "tid") ||
-                !property_exists($row, "subject") ||
-                !property_exists($row, "fid"))
+            !property_exists($row, "subject") ||
+            !property_exists($row, "fid"))
         {
             print("<b>Error while fetching the thread list</b>");
             return;
@@ -128,7 +128,7 @@ function checkInvalidThreads() : void
             }
             elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
             {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(-1), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
                 $html_a->set_target("_blank");
 
                 $output .= "<p class='debug-tvalidity-list'>";
@@ -140,7 +140,7 @@ function checkInvalidThreads() : void
             }
             elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
             {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(-1), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
                 $html_a->set_target("_blank");
 
                 $output .= "<p class='debug-tvalidity-list'>";
@@ -380,6 +380,7 @@ function compatibilityUpdater() : void
                 {
                     if (stripos($post->message, substr((string) $commit, 0, 8)) !== false)
                     {
+                        $a_inserts[$thread->tid]['thread']->set_post_id($post->pid);
                         $a_inserts[$thread->tid]['commit'] = (string) $commit;
                         $a_inserts[$thread->tid]['pr'] = $value["pr"];
                         $a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
@@ -389,7 +390,7 @@ function compatibilityUpdater() : void
                 }
             }
 
-            $html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
+            $html_a = new HTMLA($a_inserts[$thread->tid]['thread']->get_thread_url(), "", (string) $a_inserts[$thread->tid]['thread']->tid);
             $html_a->set_target("_blank");
 
             // Invalid report found
@@ -519,6 +520,7 @@ function compatibilityUpdater() : void
                             $a_updates[$cur_game->key]['attachments'][] = $attachment->filename;
                         }
 
+                        $a_updates[$cur_game->key]['thread']->set_post_id($post->pid);
                         $a_updates[$cur_game->key]['commit'] = (string) $commit;
                         $a_updates[$cur_game->key]['pr'] = $value["pr"];
                         $a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
@@ -541,14 +543,14 @@ function compatibilityUpdater() : void
                 continue;
             }
 
-            $html_a_post = new HTMLA("https://forums.rpcs3.net/post-{$a_updates[$cur_game->key]['pid']}.html#pid{$a_updates[$cur_game->key]['pid']}", 
-                                     "", 
-                                     (string) $a_updates[$cur_game->key]['pid']);
+            // Link to the forum post
+            $html_a = new HTMLA($a_updates[$cur_game->key]['thread']->get_thread_url(), "", (string) $a_updates[$cur_game->key]['pid']);
+            $html_a->set_target("_blank");
 
             // No attachments
             if (is_null($a_updates[$cur_game->key]['attachments']))
             {
-                // printf("<b>Warning:</b> No attachments found on post %s, skipping<br><br>", $html_a_post->to_string());
+                printf("<b>Warning:</b> No attachments found on post %s, skipping<br><br>", $html_a->to_string());
                 unset($a_updates[$cur_game->key]);
                 continue;
             }
@@ -567,7 +569,7 @@ function compatibilityUpdater() : void
 
                 if (!$log_detected)
                 {
-                    // printf("<b>Warning:</b> No log file attachments found on post %s, skipping<br><br>", $html_a_post->to_string());
+                    printf("<b>Warning:</b> No log file attachments found on post %s, skipping<br><br>", $html_a->to_string());
                     unset($a_updates[$cur_game->key]);
                     continue;
                 }
@@ -585,13 +587,9 @@ function compatibilityUpdater() : void
             $date_commit       = "({$a_commits[$commit]["merge"]})";
             $old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
 
-            $html_a = new HTMLA($thread->get_thread_url(-1), "", (string) $thread->tid);
-            $html_a->set_target("_blank");
-
-            printf("<b>Mov:</b> %s - %s (tid: %s, pid: %s, author: %s, type: %s)<br>",
+            printf("<b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
                    $thread->get_game_id(),
                    $cur_game->title, $html_a->to_string(),
-                   $a_updates[$cur_game->key]['pid'],
                    $a_updates[$cur_game->key]['author'],
                    $thread->get_game_type_name());
             printf("- Status: <span style='color:#%s'>%s (%s)</span> <-- <span style='color:#%s'>%s (%s)</span><br>",

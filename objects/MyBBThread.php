@@ -26,12 +26,14 @@ class MyBBThread
 {
     public int    $tid;
     public int    $fid;
+    public ?int   $pid;
     public string $subject;
 
     function __construct(int $tid, int $fid, string $subject)
     {
         $this->tid     = $tid;
         $this->fid     = $fid;
+        $this->pid     = null;
         $this->subject = $subject;
     }
 
@@ -158,16 +160,18 @@ class MyBBThread
         return $ret;
     }
 
-    public function get_thread_url(int $page = 0) : string
+    public function get_thread_url() : string
     {
-        // No specific page
-        if ($page === 0)
-            return "https://forums.rpcs3.net/thread-{$this->tid}.html";
+        if (!is_null($this->pid))
+        {
+            return "https://forums.rpcs3.net/thread-{$this->tid}-post-{$this->pid}.html#pid{$this->pid}";
+        }
 
-        // Use lastpost to jump to the last page (lastpage doesn't exist)
-        if ($page === -1)
-            return "https://forums.rpcs3.net/thread-{$this->tid}-lastpost.html";
+        return "https://forums.rpcs3.net/thread-{$this->tid}.html";
+    }
 
-        return "https://forums.rpcs3.net/thread-{$this->tid}-page-{$page}.html";
+    public function set_post_id(int $pid) : void
+    {
+        $this->pid = $pid;
     }
 }
