@@ -421,15 +421,8 @@ function compatibilityUpdater() : void
             print("<br>");
 
         }
-        elseif ($tid == $thread->tid &&
-                ($thread->get_sid() != $cur_game->status ||
-                 $thread->get_sid() == 3 ||
-                 $thread->get_sid() == 4 ||
-                 $thread->get_sid() == 5))
+        else if ($tid == $thread->tid)
         {
-            // Same status updates currently being tested
-            // For now only allowed on Intro, Loadable and Nothing games
-
             // This game entry was already checked before in this script
             // Update with the new information
             if (array_key_exists($cur_game->key, $a_updates))
