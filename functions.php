@@ -177,7 +177,7 @@ function validateGet() : array
     // $get['m'] = '';
     // $get["move"] = 0;
     $get["3D"] = 0;
-    $get["type"] = 0;
+    $get["type"] = 1;
     // $get["network"] = 0;
 
     // API version
@@ -266,8 +266,13 @@ function validateGet() : array
     }
 
     // Game type
-    if (isset($_GET['type']) && is_string($_GET['type']) && $_GET['type'] != 0)
+    if (isset($_GET['type']) && is_string($_GET['type']))
     {
+        // All
+        if ((int) $_GET['type'] === 0)
+        {
+            $get['type'] = 0;
+        }
         // PS3 Game
         if ((int) $_GET['type'] === 1)
         {

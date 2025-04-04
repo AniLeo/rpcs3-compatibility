@@ -198,7 +198,7 @@ public static function printTypeSort() : void
     $s_query = $http_query->get_except(array("status", "type", "3d"));
 
     // All statuses
-    $html_a = new HTMLA("?{$s_query}", "Show applications from all types", highlightText("All", $get['type'] === 0));
+    $html_a = new HTMLA("?{$s_query}type=0", "Show applications from all types", highlightText("All", $get['type'] === 0));
     $html_a->print();
 
     echo "•&nbsp;";
@@ -206,7 +206,7 @@ public static function printTypeSort() : void
     if (!empty($s_query))
         $s_query .= "&";
 
-    $html_a = new HTMLA("?{$s_query}type=1", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
+    $html_a = new HTMLA("?{$s_query}", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
     $html_a->print();
 
     echo "•&nbsp;";
