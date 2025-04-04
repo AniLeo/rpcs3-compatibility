@@ -925,8 +925,8 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 		// Keeping the old check for plaintext 'Not found' reply just in case
 		if (str_starts_with($api, "Not found") || str_contains($api, "NoSuchKey"))
 		{
-			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`)
-			                   VALUES ('{$db_gid}'); ");
+			mysqli_query($db, "INSERT INTO `game_update_titlepatch` (`titleid`, `status`)
+			                   VALUES ('{$db_gid}', '404'); ");
 			// Legacy field
 			mysqli_query($db, "UPDATE `game_id`
 			                   SET `latest_ver` = ''
@@ -1104,7 +1104,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 		                      '{$db_package_size}',
 		                      '{$db_package_sha1sum}',
 		                      '{$db_package_url}'
-		                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+		                      {$db_package_ps3_system_ver}{$db_package_drm_type}); \n";
 
 		// Extra URL (usually used with different drm_type)
 		if (isset($package->url))
@@ -1159,7 +1159,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 				                      '{$db_package_size}',
 				                      '{$db_package_sha1sum}',
 				                      '{$db_package_url}'
-				                      {$db_package_ps3_system_ver}{$db_package_drm_type}); ";
+				                      {$db_package_ps3_system_ver}{$db_package_drm_type}); \n";
 			}
 		}
 
@@ -1179,7 +1179,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 				              VALUES ('{$db_tag_name}',
 				                      '{$db_package_version}',
 				                      '{$db_paramsfo_type}',
-				                      '{$db_paramsfo_title}'); ";
+				                      '{$db_paramsfo_title}'); \n";
 			}
 		}
 
@@ -1221,7 +1221,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 			                      '{$db_package_version}',
 			                      '{$db_paramhip_type}',
 			                      '{$db_paramhip_url}',
-			                      '{$db_paramhip_content}'); ";
+			                      '{$db_paramhip_content}'); \n";
 		}
 
 		// Check if there are any child nodes we're not handling
@@ -1279,12 +1279,12 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 	                      '{$db_tag_popup}',
 	                      '{$db_tag_signoff}',
 	                      '{$db_tag_hash}'
-	                      {$db_tag_popup_delay}{$db_tag_min_system_ver}); ";
+	                      {$db_tag_popup_delay}{$db_tag_min_system_ver}); \n";
 
 	// Legacy field
 	$q_insert .= "UPDATE `game_id`
 	              SET `latest_ver` = '{$db_package_version_latest}'
-	              WHERE `gid` = '{$db_gid}'; ";
+	              WHERE `gid` = '{$db_gid}'; \n";
 
 	// Run all queries
 	mysqli_multi_query($db, $q_insert);
