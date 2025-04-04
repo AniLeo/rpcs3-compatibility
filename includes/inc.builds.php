@@ -1,22 +1,22 @@
 <?php
 /*
-		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-		Copyright (C) 2017 AniLeo
-		https://github.com/AniLeo or ani-leo@outlook.com
+        RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+        Copyright (C) 2017 AniLeo
+        https://github.com/AniLeo or ani-leo@outlook.com
 
-		This program is free software; you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation; either version 2 of the License, or
-		(at your option) any later version.
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        (at your option) any later version.
 
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License along
-		with this program; if not, write to the Free Software Foundation, Inc.,
-		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+        You should have received a copy of the GNU General Public License along
+        with this program; if not, write to the Free Software Foundation, Inc.,
+        51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 // Calls for the file that contains the functions needed
@@ -29,7 +29,7 @@ Profiler::start_profiler("Profiler: Builds");
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))
-	$get = validateGet();
+    $get = validateGet();
 
 // Order queries
 $a_order = array(
@@ -41,9 +41,9 @@ $a_order = array(
 );
 
 if (isset($get['o']) && isset($a_order[$get['o']]))
-	$order = $a_order[$get['o']];
+    $order = $a_order[$get['o']];
 else
-	$order = $a_order[''];
+    $order = $a_order[''];
 
 // Connect to database
 Profiler::add_data("Inc: Database Connection");
@@ -55,12 +55,12 @@ $pages = 1;
 $q_pages = mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`");
 if (!is_bool($q_pages))
 {
-	$row = mysqli_fetch_object($q_pages);
+    $row = mysqli_fetch_object($q_pages);
 
-	if ($row && property_exists($row, "c"))
-	{
-		$pages = (int) ceil($row->c / $get['r']);
-	}
+    if ($row && property_exists($row, "c"))
+    {
+        $pages = (int) ceil($row->c / $get['r']);
+    }
 }
 
 Profiler::add_data("Inc: Get Current Page");
@@ -82,17 +82,17 @@ $builds = array();
 
 if (is_bool($q_builds))
 {
-	$error = "Please try again. If this error persists, please contact the RPCS3 team.";
+    $error = "Please try again. If this error persists, please contact the RPCS3 team.";
 }
 elseif (mysqli_num_rows($q_builds) === 0)
 {
-	$error = "No builds are listed yet.";
+    $error = "No builds are listed yet.";
 }
 else
 {
-	// Store builds in a Build array if there are no errors
-	Profiler::add_data("Inc: Store Builds in Array");
-	$builds = Build::query_to_builds($q_builds);
+    // Store builds in a Build array if there are no errors
+    Profiler::add_data("Inc: Store Builds in Array");
+    $builds = Build::query_to_builds($q_builds);
 }
 
 Profiler::add_data("--- / ---");

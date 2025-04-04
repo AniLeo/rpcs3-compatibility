@@ -1,22 +1,22 @@
 <?php
 /*
-		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-		Copyright (C) 2017 AniLeo
-		https://github.com/AniLeo or ani-leo@outlook.com
+        RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+        Copyright (C) 2017 AniLeo
+        https://github.com/AniLeo or ani-leo@outlook.com
 
-		This program is free software; you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation; either version 2 of the License, or
-		(at your option) any later version.
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        (at your option) any later version.
 
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License along
-		with this program; if not, write to the Free Software Foundation, Inc.,
-		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+        You should have received a copy of the GNU General Public License along
+        with this program; if not, write to the Free Software Foundation, Inc.,
+        51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 // Calls for the file that contains the functions needed
@@ -33,11 +33,11 @@ $db = getDatabase();
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))
-	$get = validateGet();
+    $get = validateGet();
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($a_currenthist) || !isset($a_histdates))
-	die();
+    die();
 
 $a_existing = array();
 $a_new = array();
@@ -48,7 +48,7 @@ $error_new = "";
 // Default date value
 if ($get['h'] === true)
 {
-	$get['h']	= $a_currenthist[0];
+    $get['h']	= $a_currenthist[0];
 }
 
 // Main part of the query
@@ -59,62 +59,62 @@ LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key` ";
 // Generate date part of the query
 if ($get['h'] === $a_currenthist[0])
 {
-	$cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
+    $cmd_date = " AND `new_date` >= CAST('{$a_currenthist[2]}' AS DATE) ";
 }
 else
 {
-	$cmd_date = " AND `new_date` BETWEEN
-	CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
-	AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
+    $cmd_date = " AND `new_date` BETWEEN
+    CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
+    AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
 }
 
 
 // Existing entries
 if (!isset($get['m']) || $get['m'] === "c")
 {
-	Profiler::add_data("Inc: Check Existing Entries");
+    Profiler::add_data("Inc: Check Existing Entries");
 
-	$q_existing = mysqli_query($db, "{$cmd_main}
-	WHERE `old_status` IS NOT NULL {$cmd_date}
-	ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+    $q_existing = mysqli_query($db, "{$cmd_main}
+    WHERE `old_status` IS NOT NULL {$cmd_date}
+    ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-	if (is_bool($q_existing))
-	{
-		$error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
-	}
-	elseif (mysqli_num_rows($q_existing) === 0)
-	{
-		$error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
-	}
-	else
-	{
-		$a_existing = HistoryEntry::query_to_history_entry($q_existing);
-	}
+    if (is_bool($q_existing))
+    {
+        $error_existing = "Please try again. If this error persists, please contact the RPCS3 team.";
+    }
+    elseif (mysqli_num_rows($q_existing) === 0)
+    {
+        $error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
+    }
+    else
+    {
+        $a_existing = HistoryEntry::query_to_history_entry($q_existing);
+    }
 }
 
 
 // New entries
 if (!isset($get['m']) || $get['m'] === "n")
 {
-	Profiler::add_data("Inc: Check New Entries");
+    Profiler::add_data("Inc: Check New Entries");
 
-	$q_new = mysqli_query($db, "{$cmd_main}
-	WHERE `old_status` IS NULL
-	AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date}
-	ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+    $q_new = mysqli_query($db, "{$cmd_main}
+    WHERE `old_status` IS NULL
+    AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date}
+    ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
 
-	if (is_bool($q_new))
-	{
-		$error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
-	}
-	elseif (mysqli_num_rows($q_new) === 0)
-	{
-		$error_new = "No newer entries were reported and/or reviewed yet.";
-	}
-	else
-	{
-		$a_new = HistoryEntry::query_to_history_entry($q_new);
-	}
+    if (is_bool($q_new))
+    {
+        $error_new = "Please try again. If this error persists, please contact the RPCS3 team.";
+    }
+    elseif (mysqli_num_rows($q_new) === 0)
+    {
+        $error_new = "No newer entries were reported and/or reviewed yet.";
+    }
+    else
+    {
+        $a_new = HistoryEntry::query_to_history_entry($q_new);
+    }
 }
 
 

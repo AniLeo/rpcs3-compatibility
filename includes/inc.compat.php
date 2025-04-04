@@ -1,22 +1,22 @@
 <?php
 /*
-		RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
-		Copyright (C) 2017 AniLeo
-		https://github.com/AniLeo or ani-leo@outlook.com
+        RPCS3.net Compatibility List (https://github.com/AniLeo/rpcs3-compatibility)
+        Copyright (C) 2017 AniLeo
+        https://github.com/AniLeo or ani-leo@outlook.com
 
-		This program is free software; you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation; either version 2 of the License, or
-		(at your option) any later version.
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        (at your option) any later version.
 
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License along
-		with this program; if not, write to the Free Software Foundation, Inc.,
-		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+        You should have received a copy of the GNU General Public License along
+        with this program; if not, write to the Free Software Foundation, Inc.,
+        51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 // Calls for the file that contains the functions needed
@@ -30,7 +30,7 @@ Profiler::start_profiler("Profiler: Compat");
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))
-	$get = validateGet();
+    $get = validateGet();
 
 // Order queries
 $a_order = array(
@@ -44,9 +44,9 @@ $a_order = array(
 );
 
 if (isset($get['o']) && isset($a_order[$get['o']]))
-	$order = $a_order[$get['o']];
+    $order = $a_order[$get['o']];
 else
-	$order = $a_order[''];
+    $order = $a_order[''];
 
 // Game array to store games
 $games = null;
@@ -74,7 +74,6 @@ $pages = countPages($get["r"], $scount["network"][0]);
 Profiler::add_data("Inc: Get Current Page");
 $currentPage = getCurrentPage($pages);
 
-
 // Generate the main query
 $limit = $get['r'] * $currentPage - $get['r'];
 
@@ -83,22 +82,22 @@ $c_main = "SELECT * FROM `game_list` ";
 // General filters from generate_query
 if (!empty($genquery))
 {
-	$c_main .= " WHERE ({$genquery}) ";
+    $c_main .= " WHERE ({$genquery}) ";
 }
 
 // Status filter
 if ($get['s'] !== 0)
 {
-	if (!empty($genquery))
-	{
-		$c_main .= " AND ";
-	}
-	else
-	{
-		$c_main .= " WHERE ";
-	}
+    if (!empty($genquery))
+    {
+        $c_main .= " AND ";
+    }
+    else
+    {
+        $c_main .= " WHERE ";
+    }
 
-	$c_main .= " (`status` = {$get['s']}) ";
+    $c_main .= " (`status` = {$get['s']}) ";
 }
 
 $c_main .= " {$order} LIMIT {$limit}, {$get['r']}; ";
@@ -116,55 +115,55 @@ Profiler::add_data("Inc: Levenshtein");
 // If the main query didn't return anything and game search exists and isn't a Game ID
 if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($get['g']))
 {
-	$l_title = "";
-	$l_orig = "";
-	$l_dist = -1;
-	$titles = array();
+    $l_title = "";
+    $l_orig = "";
+    $l_dist = -1;
+    $titles = array();
 
-	// Select all database entries
-	$q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
+    // Select all database entries
+    $q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
 
-	if (!is_bool($q_lev))
-	{
-		while ($row = mysqli_fetch_object($q_lev))
-		{
-			// This should be unreachable unless the database structure is damaged
-			if (!property_exists($row, "game_title") ||
-					!property_exists($row, "alternative_title"))
-			{
-				continue;
-			}
+    if (!is_bool($q_lev))
+    {
+        while ($row = mysqli_fetch_object($q_lev))
+        {
+            // This should be unreachable unless the database structure is damaged
+            if (!property_exists($row, "game_title") ||
+                    !property_exists($row, "alternative_title"))
+            {
+                continue;
+            }
 
-			$titles[] = $row->game_title;
-			if (!is_null($row->alternative_title))
-				$titles[] = $row->alternative_title;
-		}
+            $titles[] = $row->game_title;
+            if (!is_null($row->alternative_title))
+                $titles[] = $row->alternative_title;
+        }
 
-		// Calculate proximity for each database entry
-		foreach ($titles as $title)
-		{
-			$lev = levenshtein($get['g'], $title);
-			if ($lev <= $l_dist || $l_dist < 0)
-			{
-				$l_title = $title;
-				$l_dist = $lev;
-			}
-		}
+        // Calculate proximity for each database entry
+        foreach ($titles as $title)
+        {
+            $lev = levenshtein($get['g'], $title);
+            if ($lev <= $l_dist || $l_dist < 0)
+            {
+                $l_title = $title;
+                $l_dist = $lev;
+            }
+        }
 
-		// Replace faulty search with returned game but keep the original search for display
-		$l_orig   = $get['g'];
-		$get['g'] = $l_title;
+        // Replace faulty search with returned game but keep the original search for display
+        $l_orig   = $get['g'];
+        $get['g'] = $l_title;
 
-		// Re-run the main query
-		$genquery = Compat::generate_query($get, $db);
-		$c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
-		$q_main = mysqli_query($db, $c_main);
+        // Re-run the main query
+        $genquery = Compat::generate_query($get, $db);
+        $c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
+        $q_main = mysqli_query($db, $c_main);
 
-		// Recalculate Pages / CurrentPage
-		$scount = countGames($db, $genquery);
-		$pages = countPages($get["r"], $scount["network"][0]);
-		$currentPage = getCurrentPage($pages);
-	}
+        // Recalculate Pages / CurrentPage
+        $scount = countGames($db, $genquery);
+        $pages = countPages($get["r"], $scount["network"][0]);
+        $currentPage = getCurrentPage($pages);
+    }
 }
 
 // Check if query succeeded and storing is required, stores messages for error/information printing
@@ -173,32 +172,32 @@ $error = NULL;
 
 if (is_bool($q_main))
 {
-	$error = "ERROR_QUERY_FAIL";
+    $error = "ERROR_QUERY_FAIL";
 }
 else if (mysqli_num_rows($q_main) === 0 && isset($get['g']) && isGameID($get['g']))
 {
-	$error = "ERROR_QUERY_EMPTY";
+    $error = "ERROR_QUERY_EMPTY";
 }
 else if ($scount["network"][0] === 0)
 {
-	$error = "ERROR_STATUS_EMPTY";
+    $error = "ERROR_STATUS_EMPTY";
 }
 else if (mysqli_num_rows($q_main) === 0 && isset($l_title) && isset($l_orig) && !empty($l_title) && !empty($l_orig))
 {
-	$error = "ERROR_QUERY_FAIL_2";
+    $error = "ERROR_QUERY_FAIL_2";
 }
 
 // Store results
 if (!is_bool($q_main) && mysqli_num_rows($q_main) > 0)
 {
-	Profiler::add_data("Inc: Query to Games");
-	$games = Game::query_to_games($q_main);
+    Profiler::add_data("Inc: Query to Games");
+    $games = Game::query_to_games($q_main);
 
-	Profiler::add_data("Inc: Query to Games - Import Wiki");
-	Game::import_wiki($games);
+    Profiler::add_data("Inc: Query to Games - Import Wiki");
+    Game::import_wiki($games);
 
-	Profiler::add_data("Inc: Query to Games - Import Updates");
-	Game::import_update_tags($games);
+    Profiler::add_data("Inc: Query to Games - Import Updates");
+    Game::import_update_tags($games);
 }
 
 // Close MySQL connection.
