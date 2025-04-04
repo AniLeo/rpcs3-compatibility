@@ -417,15 +417,20 @@ public static function printTable() : void
         $html_img_media = new HTMLImg("compat-icon-media", $a_media[$game->get_media_id()]["icon"]);
         $html_img_media->set_title($a_media[$game->get_media_id()]["name"]);
 
+        $extra = $http_query->get_except(array("media"));
+
         // Allow for filter resetting by clicking the icon again
         if (isset($get['t']) && $get['t'] === strtolower($game->get_media_id()))
         {
-            $html_a_media = new HTMLA("?", $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+            $html_a_media = new HTMLA("?{$extra}", $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
         }
         // Returns clickable icon for type (media) search
         else
         {
-            $html_a_media = new HTMLA("?t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+            if (!empty($extra))
+                $extra .= '&';
+
+            $html_a_media = new HTMLA("?{$extra}t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
         }
 
 
