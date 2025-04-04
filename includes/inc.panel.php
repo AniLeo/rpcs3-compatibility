@@ -154,7 +154,7 @@ function checkInvalidThreads() : void
 
 	if ($invalid > 0)
 	{
-		printf("<p class='debug-tvalidity-title color-red'>Attention required! %d Invalid threads detected</p>",
+		printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Invalid threads detected</p>",
 		       $invalid);
 
 		if ($get['a'] === "checkInvalidThreads")
@@ -162,7 +162,7 @@ function checkInvalidThreads() : void
 	}
 	else
 	{
-		print("<p class='debug-tvalidity-title color-green'>No invalid threads detected</p>");
+		print("<p class='debug-tvalidity-title color-green background-green'>No invalid threads detected</p>");
 	}
 }
 

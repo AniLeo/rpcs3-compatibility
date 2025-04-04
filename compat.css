@@ -148,8 +148,16 @@ progress[value]::-webkit-progress-value {
     color: #e74c3c!important
 }
 
+.background-red {
+    background: rgba(255,0,0,.2)
+}
+
 .color-green {
     color: #2ecc71!important
+}
+
+.background-green {
+    background: rgba(0,255,0,.2)
 }
 
 .compat-table-outside {
@@ -973,7 +981,6 @@ progress[value]::-webkit-progress-value {
 .debug-tvalidity-title {
     padding-left: 10px;
     border-radius: 6px;
-    background: rgba(255,0,0,.2);
     border: solid 2px;
     line-height: 32px;
     margin-bottom: 20px
