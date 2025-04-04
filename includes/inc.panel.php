@@ -48,6 +48,7 @@ function runFunctions() : void
     }
 }
 
+// TODO: Refactoring
 function checkInvalidThreads() : void
 {
     global $a_status, $get;
@@ -166,6 +167,7 @@ function checkInvalidThreads() : void
     }
 }
 
+// TODO: Refactoring
 function compatibilityUpdater() : void
 {
     global $a_histdates, $a_status, $get;
@@ -238,10 +240,10 @@ function compatibilityUpdater() : void
     {
         // This should be unreachable unless the database structure is damaged
         if (!property_exists($row, "tid") ||
-                !property_exists($row, "fid") ||
-                !property_exists($row, "subject") ||
-                !property_exists($row, "lastpost") ||
-                !property_exists($row, "visible"))
+            !property_exists($row, "fid") ||
+            !property_exists($row, "subject") ||
+            !property_exists($row, "lastpost") ||
+            !property_exists($row, "visible"))
         {
             continue;
         }
@@ -366,9 +368,9 @@ function compatibilityUpdater() : void
             {
                 // This should be unreachable unless the database structure is damaged
                 if (!property_exists($post, "pid") ||
-                        !property_exists($post, "dateline") ||
-                        !property_exists($post, "message") ||
-                        !property_exists($post, "username"))
+                    !property_exists($post, "dateline") ||
+                    !property_exists($post, "message") ||
+                    !property_exists($post, "username"))
                 {
                     print("<b>Error while fetching posts list</b>");
                     return;
@@ -451,6 +453,7 @@ function compatibilityUpdater() : void
             else
             {
                 $a_updates[$cur_game->key] = array(
+                    'attachments' => null,
                     'thread' => $thread,
                     'game_title' => $cur_game->title,
                     'status' => $thread->get_sid(),
@@ -481,9 +484,9 @@ function compatibilityUpdater() : void
             {
                 // This should be unreachable unless the database structure is damaged
                 if (!property_exists($post, "pid") ||
-                        !property_exists($post, "dateline") ||
-                        !property_exists($post, "message") ||
-                        !property_exists($post, "username"))
+                    !property_exists($post, "dateline") ||
+                    !property_exists($post, "message") ||
+                    !property_exists($post, "username"))
                 {
                     print("<b>Error while fetching posts list</b>");
                     return;
@@ -501,6 +504,28 @@ function compatibilityUpdater() : void
                     if (is_null($a_updates[$cur_game->key]['commit']) ||
                         strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
                     {
+                        $s_pid = mysqli_real_escape_string($db, $post->pid);
+                        $q_attachments = mysqli_query($db, "SELECT `filename`
+                                                            FROM `rpcs3_forums`.`mybb_attachments`
+                                                            WHERE `pid` = '{$s_pid}'");
+
+                        if (is_bool($q_attachments))
+                        {
+                            print("<b>Error while fetching attachments list</b>");
+                            return;
+                        }
+
+                        while ($attachment = mysqli_fetch_object($q_attachments))
+                        {
+                            if (!property_exists($attachment, "filename"))
+                            {
+                                print("<b>Error while fetching attachments list</b>");
+                                return;
+                            }
+
+                            $a_updates[$cur_game->key]['attachments'][] = $attachment->filename;
+                        }
+
                         $a_updates[$cur_game->key]['commit'] = (string) $commit;
                         $a_updates[$cur_game->key]['pr'] = $value["pr"];
                         $a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
@@ -515,11 +540,44 @@ function compatibilityUpdater() : void
             // Or no new pr was found
             // then ignore this entry and continue
             if (is_null($a_updates[$cur_game->key]['commit']) ||
-                  is_null($a_updates[$cur_game->key]['pr']) ||
+                is_null($a_updates[$cur_game->key]['pr']) ||
+                is_null($a_updates[$cur_game->key]['last_update']) ||
                 strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']))
             {
                 unset($a_updates[$cur_game->key]);
                 continue;
+            }
+
+            $html_a_post = new HTMLA("https://forums.rpcs3.net/post-{$a_updates[$cur_game->key]['pid']}.html#pid{$a_updates[$cur_game->key]['pid']}", 
+                                     "", 
+                                     (string) $a_updates[$cur_game->key]['pid']);
+
+            // No attachments
+            if (is_null($a_updates[$cur_game->key]['attachments']))
+            {
+                // printf("<b>Warning:</b> No attachments found on post %s, skipping<br><br>", $html_a_post->to_string());
+                unset($a_updates[$cur_game->key]);
+                continue;
+            }
+            else
+            {
+                $log_detected = false;
+
+                foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
+                {
+                    if (str_ends_with($attachment, ".gz") || str_ends_with($attachment, ".7z"))
+                    {
+                        $log_detected = true;
+                        break;
+                    }
+                }
+
+                if (!$log_detected)
+                {
+                    // printf("<b>Warning:</b> No log file attachments found on post %s, skipping<br><br>", $html_a_post->to_string());
+                    unset($a_updates[$cur_game->key]);
+                    continue;
+                }
             }
 
             // Check if the distance between commit date and post is bigger than 4 weeks
@@ -529,7 +587,7 @@ function compatibilityUpdater() : void
             }
 
             // Green for existing commit, Red for non-existing commit
-            $old_status_commit = !is_null($cur_game->pr) ? 'green' : 'red';
+            $old_status_commit = !is_null($cur_game->pr) ? 'color-green' : 'color-red';
             $commit            = $a_updates[$cur_game->key]['commit'];
             $date_commit       = "({$a_commits[$commit]["merge"]})";
             $old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
@@ -550,12 +608,17 @@ function compatibilityUpdater() : void
                    $a_status[$cur_game->status]['color'],
                    $a_status[$cur_game->status]['name'],
                    $cur_game->date);
-            printf("- Commit: <span style='color:green'>%s</span> %s <-- <span style='color:%s'>%s</span> (%s)<br>",
+            printf("- Commit: <span class='color-green'>%s</span> %s <-- <span class='%s'>%s</span> (%s)<br>",
                    $commit,
                    $date_commit,
                    $old_status_commit,
                    $old_commit,
                    $cur_game->date);
+            foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
+            {
+                printf("- Attachment: <span class='color-green'>%s</span><br>",
+                       $attachment);
+            }
             print("<br>");
         }
     }
