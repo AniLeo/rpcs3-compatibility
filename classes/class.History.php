@@ -59,7 +59,7 @@ public static function printMonths() : void
 {
     global $get, $a_histdates, $a_currenthist;
 
-    $spacer = "&nbsp;&#8226;&nbsp;";
+    $spacer = "&nbsp;&#8226;&nbsp;&nbsp;";
     $watchdog = '';
 
     echo "<p class=\"compat-history-months\">";
