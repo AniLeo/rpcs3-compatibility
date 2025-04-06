@@ -381,15 +381,18 @@ function compatibilityUpdater() : void
 
                 foreach ($a_commits as $commit => $value)
                 {
-                    if (stripos($post->message, substr((string) $commit, 0, 8)) !== false)
+                    // Skip posts with no commits
+                    if (!str_contains($post->message, substr((string) $commit, 0, 8)))
                     {
-                        $a_inserts[$thread->tid]['thread']->set_post_id($post->pid);
-                        $a_inserts[$thread->tid]['commit'] = (string) $commit;
-                        $a_inserts[$thread->tid]['pr'] = $value["pr"];
-                        $a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
-                        $a_inserts[$thread->tid]['author'] = $post->username;
-                        break 2;
+                        continue;
                     }
+
+                    $a_inserts[$thread->tid]['thread']->set_post_id($post->pid);
+                    $a_inserts[$thread->tid]['commit'] = (string) $commit;
+                    $a_inserts[$thread->tid]['pr'] = $value["pr"];
+                    $a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
+                    $a_inserts[$thread->tid]['author'] = $post->username;
+                    break 2;
                 }
             }
 
@@ -494,8 +497,10 @@ function compatibilityUpdater() : void
                 foreach ($a_commits as $commit => $value)
                 {
                     // Skip posts with no commits
-                    if (stripos($post->message, substr((string) $commit, 0, 8)) === false)
+                    if (!str_contains($post->message, substr((string) $commit, 0, 8)))
+                    {
                         continue;
+                    }
 
                     // If current commit is newer than the previously recorded one, replace
                     // TODO: Check distance between commit date and post here
