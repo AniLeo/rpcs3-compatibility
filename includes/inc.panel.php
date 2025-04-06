@@ -198,8 +198,9 @@ function compatibilityUpdater() : void
     // Cache commits
     $a_commits = array();
     $q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `merge_datetime`
-    FROM `builds`
-    ORDER BY `merge_datetime` DESC;");
+                                    FROM `builds`
+                                    WHERE `merge_datetime` > CURDATE() - INTERVAL 1 YEAR 
+                                    ORDER BY `merge_datetime` DESC;");
 
     if (is_bool($q_commits))
     {
@@ -211,8 +212,8 @@ function compatibilityUpdater() : void
     {
         // This should be unreachable unless the database structure is damaged
         if (!property_exists($row, "pr") ||
-                !property_exists($row, "commit") ||
-                !property_exists($row, "merge_datetime"))
+            !property_exists($row, "commit") ||
+            !property_exists($row, "merge_datetime"))
         {
             print("<b>Error while fetching the builds list</b>");
             return;
