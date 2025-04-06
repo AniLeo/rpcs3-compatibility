@@ -377,6 +377,8 @@ function compatibilityUpdater() : void
                     return;
                 }
 
+                MyBBThread::remove_post_quotes($post->message);
+
                 foreach ($a_commits as $commit => $value)
                 {
                     if (stripos($post->message, substr((string) $commit, 0, 8)) !== false)
@@ -486,6 +488,8 @@ function compatibilityUpdater() : void
                     print("<b>Error while fetching posts list</b>");
                     return;
                 }
+
+                MyBBThread::remove_post_quotes($post->message);
 
                 foreach ($a_commits as $commit => $value)
                 {

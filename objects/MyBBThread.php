@@ -174,4 +174,37 @@ class MyBBThread
     {
         $this->pid = $pid;
     }
+
+    public static function remove_post_quotes(string &$message) : void
+    {
+        $result = "";
+        $stack = array();
+        $length = strlen($message);
+
+        $quote_start = "[quote=";
+        $quote_end   = "[/quote]";
+
+        for ($pos = 0; $pos < $length; $pos++)
+        {
+            if (substr($message, $pos, strlen($quote_start)) == $quote_start)
+            {
+                $stack[] = $pos;
+                $pos += 6;
+            }
+            else if (substr($message, $pos, strlen($quote_end)) == $quote_end)
+            {
+                if (!empty($stack))
+                {
+                    array_pop($stack);
+                }
+                $pos += 7;
+            }
+            else if (empty($stack))
+            {
+                $result .= $message[$pos];
+            }
+        }
+
+        $message = $result;
+    }
 }
