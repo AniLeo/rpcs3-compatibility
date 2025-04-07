@@ -113,7 +113,7 @@ function isValid(string $str) : bool
     */
 function highlightText(string $str, bool $cond = true)
 {
-    return $cond ? "<span class=\"highlightedText\">{$str}</span>" : $str;
+    return $cond ? "<span class=\"compat-text text-bold text-underline\">{$str}</span>" : $str;
 }
 
 

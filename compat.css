@@ -803,11 +803,6 @@ progress[value]::-webkit-progress-value {
         line-height: 15px;
     }
 
-    .compat-hdr-right .highlightedText {
-        font-size: 12px;
-        font-weight: 700
-    }
-
     .compat-status-container {
         display: grid;
         display: flex;
@@ -849,11 +844,6 @@ progress[value]::-webkit-progress-value {
         overflow-wrap: break-word;
         line-height: 25px;
     }
-}
-
-.highlightedText {
-    font-size: 14px;
-    text-decoration: underline
 }
 
 .compat-profiler {
@@ -989,4 +979,12 @@ progress[value]::-webkit-progress-value {
 .debug-tvalidity-list {
     padding-top: 8px;
     padding-bottom: 8px
+}
+
+.text-underline {
+    text-decoration: underline
+}
+
+.text-bold {
+    font-weight: 700
 }
