@@ -46,8 +46,8 @@ public static function generate_query(array $get, mysqli &$db) : string
         }
         elseif ($get['c'] === 'sym')
         {
-            // Allowed characters: ' .
-            $genquery .= " (`game_title` LIKE '.%' OR `game_title` LIKE '\'%' OR `alternative_title` LIKE '.%' OR `alternative_title` LIKE '\'%') ";
+            // Regular expression: Does not start with an alphanumeric character
+            $genquery .= " (`game_title` NOT REGEXP '^[a-zA-Z0-9]' OR `alternative_title` NOT REGEXP '^[a-zA-Z0-9]') ";
         }
         else
         {
