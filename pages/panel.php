@@ -60,6 +60,8 @@ if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')
                     <?php
                         if (isset($get) && $get['a'] !== 'checkInvalidThreads')
                             checkInvalidThreads();
+                        if (isset($get) && $get['a'] !== 'check_duplicated_entries')
+                            check_duplicated_entries();
                     ?>
                     <?php runFunctions(); ?>
                 </div>

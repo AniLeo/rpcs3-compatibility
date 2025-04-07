@@ -199,6 +199,11 @@ $a_panel = array(
         'category' => 0,
         'title' => "Cache Netplay Statistics",
         'success' => "Cached Netplay Statistics for the current timestamp"
+    ),
+    'check_duplicated_entries' => array(
+        'category' => 2,
+        'title' => "Check Duplicated Entries",
+        'success' => ""
     )
 );
 
