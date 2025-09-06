@@ -758,8 +758,8 @@ function mergeGames() : void
 {
     global $a_status, $get;
 
-    $gid1 = isset($_POST['gid1']) && is_string($_POST['gid1']) ? $_POST['gid1'] : "";
-    $gid2 = isset($_POST['gid2']) && is_string($_POST['gid2']) ? $_POST['gid2'] : "";
+    $gid1 = isset($_POST['gid1']) && is_string($_POST['gid1']) ? trim($_POST['gid1']) : "";
+    $gid2 = isset($_POST['gid2']) && is_string($_POST['gid2']) ? trim($_POST['gid2']) : "";
 
     $form = new HTMLForm("", "POST");
     $form->add_input(new HTMLInput("gid1", "text", $gid1, "Game ID 1"));
