@@ -94,7 +94,7 @@ class HTTPQuery
         $ret = "";
 
         // Module
-        if (isset($this->module) && !in_array("module", $exclusions))
+        if (!in_array("module", $exclusions))
         {
             switch ($this->module)
             {
@@ -118,7 +118,7 @@ class HTTPQuery
         }
 
         // Status
-        if (isset($this->status) && !in_array("status", $exclusions))
+        if (!in_array("status", $exclusions))
         {
             if ($this->status !== 0)
                 $query['s'] = $this->status;
