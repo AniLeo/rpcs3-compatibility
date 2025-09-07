@@ -81,7 +81,7 @@ class Profiler
             $load = sys_getloadavg();
 
             // If there is an issue with the sys_getloadavg function
-            if (!$load || count($load) < 3)
+            if (!$load)
                 return "";
 
             $ret .= "<p>";
