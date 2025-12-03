@@ -117,12 +117,6 @@ class MyBBThread
             return null;
         }
 
-        // Dash between game title and game id
-        if (substr($this->subject, -13, 1) === '-' && substr($this->subject, -14, 1) === ' ')
-        {
-            return null;
-        }
-
         // No spacing between game title and game id
         if (substr($this->subject, -12, 1) !== ' ')
         {
@@ -152,7 +146,7 @@ class MyBBThread
         $ret = substr($this->subject, 0, -12);
 
         // Check if thread title is invalid
-        if (substr($ret, -1) === ' ' || substr($ret, -1) === '-')
+        if (substr($ret, -1) === ' ')
         {
             return null;
         }
