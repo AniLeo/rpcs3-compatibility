@@ -465,7 +465,7 @@ public static function printTable() : void
 
         if (!is_null($game->get_url_wiki()))
         {
-            $html_a_title = new HTMLA($game->get_url_wiki(), $game->wiki_title, $game->title);
+            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $game->title);
             $html_a_title->set_target("_blank");
 
             $html_div_cell->add_content($html_a_title->to_string());
@@ -727,7 +727,7 @@ public static function APIv1() : array
             $results['results'][$item->game_id] = array(
             'title' => $game->title,
             'alternative-title' => $game->title2,
-            'wiki-title' => $game->wiki_title,
+            'wiki-id' => $game->wiki_id,
             'status' => $a_status[$game->status]['name'],
             'date' => $game->date,
             'thread' => $item->thread_id,

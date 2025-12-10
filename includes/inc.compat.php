@@ -129,7 +129,7 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !
         {
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "game_title") ||
-                    !property_exists($row, "alternative_title"))
+                !property_exists($row, "alternative_title"))
             {
                 continue;
             }
@@ -192,9 +192,6 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) > 0)
 {
     Profiler::add_data("Inc: Query to Games");
     $games = Game::query_to_games($q_main);
-
-    Profiler::add_data("Inc: Query to Games - Import Wiki");
-    Game::import_wiki($games);
 
     Profiler::add_data("Inc: Query to Games - Import Updates");
     Game::import_update_tags($games);

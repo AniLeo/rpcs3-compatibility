@@ -40,7 +40,6 @@ class Game
     public ?int     $pr;
     public ?string  $commit;
     public ?int     $wiki_id;
-    public ?string  $wiki_title;
     /** @var array<GameItem> $game_item **/
     public  array   $game_item;
 
@@ -55,8 +54,7 @@ class Game
                           int    $stereo_3d,
                          ?int    $pr,
                          ?string $commit,
-                         ?int    $wiki_id,
-                         ?string $wiki_title)
+                         ?int    $wiki_id)
     {
         $this->key        = $key;
         $this->title      = $title;
@@ -70,7 +68,6 @@ class Game
         $this->move       = $move;
         $this->stereo_3d  = $stereo_3d;
         $this->wiki_id    = $wiki_id;
-        $this->wiki_title = $wiki_title;
     }
 
     public function get_media_id() : ?string
@@ -90,12 +87,6 @@ class Game
     // Get Wiki URL for this Game
     public function get_url_wiki() : ?string
     {
-        // Prefer title based URL
-        if (!is_null($this->wiki_title))
-        {
-            return "https://wiki.rpcs3.net/index.php?title=".urlencode($this->wiki_title);
-        }
-        // Fallback to ID based URL
         if (!is_null($this->wiki_id))
         {
             return "https://wiki.rpcs3.net/index.php?curid={$this->wiki_id}";
@@ -172,45 +163,6 @@ class Game
                 }
             }
         }
-    }
-
-    // Import wiki related information to a Game array
-    /**
-    * @param array<Game> $games
-    */
-    public static function import_wiki(array &$games) : void
-    {
-        $db = getDatabase();
-
-        $a_wiki = array();
-        $q_wiki = mysqli_query($db, "SELECT `page_id`, `page_title`
-                                     FROM   `rpcs3_wiki`.`page`
-                                     WHERE  `page_namespace` = 0; ");
-
-        if (is_bool($q_wiki))
-             return;
-
-        while ($row = mysqli_fetch_object($q_wiki))
-        {
-            // This should be unreachable unless the database structure is damaged
-            if (!property_exists($row, "page_id") ||
-                    !property_exists($row, "page_title"))
-            {
-                continue;
-            }
-
-            $a_wiki[$row->page_id] = $row->page_title;
-        }
-
-        foreach ($games as $game)
-        {
-            if (is_null($game->wiki_id))
-                continue;
-
-            $game->wiki_title = $a_wiki[$game->wiki_id];
-        }
-
-        mysqli_close($db);
     }
 
     // Import Game Items to a Game array
@@ -295,8 +247,7 @@ class Game
                                   $row->{"3d"},
                                   $row->pr,
                                   $row->build_commit,
-                                  $row->wiki,
-                                  NULL);
+                                  $row->wiki);
         }
 
         self::import_game_items($a_games);
