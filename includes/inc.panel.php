@@ -401,7 +401,8 @@ function compatibilityUpdater() : void
 
             // Invalid report found
             if (is_null($a_inserts[$thread->tid]['commit']) ||
-                is_null($a_inserts[$thread->tid]['pr']))
+                is_null($a_inserts[$thread->tid]['pr']) /*||
+                !str_starts_with($a_inserts[$thread->tid]['last_update'], "2025-10")*/)
             {
                 printf("<b>Error!</b> Invalid report found on tid: %s<br><br>",
                        $html_a->to_string());
@@ -547,6 +548,7 @@ function compatibilityUpdater() : void
             if (is_null($a_updates[$cur_game->key]['commit']) ||
                 is_null($a_updates[$cur_game->key]['pr']) ||
                 is_null($a_updates[$cur_game->key]['last_update']) ||
+                /*!str_starts_with(($a_updates[$cur_game->key]['last_update']), "2025-10") ||*/
                 strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']))
             {
                 unset($a_updates[$cur_game->key]);
