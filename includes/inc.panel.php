@@ -72,15 +72,17 @@ function checkInvalidThreads() : void
         }
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
+    $db_forums = get_database("forums");
 
-    $q_threads = mysqli_query($db, "SELECT `tid`, `subject`, `fid`
+    $q_threads = mysqli_query($db_forums, "SELECT `tid`, `subject`, `fid`
     FROM `rpcs3_forums`.`mybb_threads`
     WHERE ({$where}) AND `visible` > 0 AND `closed` NOT LIKE 'moved%'; ");
 
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`; ");
 
     mysqli_close($db);
+    mysqli_close($db_forums);
 
     if (is_bool($q_games) || is_bool($q_threads))
     {
@@ -173,7 +175,8 @@ function compatibilityUpdater() : void
     global $a_histdates, $a_status, $get;
 
     set_time_limit(300);
-    $db = getDatabase();
+    $db = get_database("compat");
+    $db_forums = get_database("forums");
 
     // Timestamp of the penultimate list update
     end($a_histdates);
@@ -224,7 +227,7 @@ function compatibilityUpdater() : void
 
     // Get all threads since the end of the last compatibility period
     $a_threads = array();
-    $q_threads = mysqli_query($db, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
+    $q_threads = mysqli_query($db_forums, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
     FROM `rpcs3_forums`.`mybb_threads`
     WHERE ({$where}) AND
     `lastpost` > {$ts_lastupdate} AND
@@ -354,7 +357,7 @@ function compatibilityUpdater() : void
             );
 
             // Verify posts
-            $q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
+            $q_post = mysqli_query($db_forums, "SELECT `pid`, `dateline`, `message`, `username`
             FROM `rpcs3_forums`.`mybb_posts`
             WHERE `tid` = {$thread->tid}
             ORDER BY `pid` DESC;");
@@ -470,7 +473,7 @@ function compatibilityUpdater() : void
             }
 
             // Verify posts
-            $q_post = mysqli_query($db, "SELECT `pid`, `dateline`, `message`, `username`
+            $q_post = mysqli_query($db_forums, "SELECT `pid`, `dateline`, `message`, `username`
                                          FROM `rpcs3_forums`.`mybb_posts`
                                          WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
                                          ORDER BY `pid` DESC;");
@@ -509,8 +512,8 @@ function compatibilityUpdater() : void
                     if (is_null($a_updates[$cur_game->key]['commit']) ||
                         strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
                     {
-                        $s_pid = mysqli_real_escape_string($db, $post->pid);
-                        $q_attachments = mysqli_query($db, "SELECT `filename`
+                        $s_pid = mysqli_real_escape_string($db_forums, $post->pid);
+                        $q_attachments = mysqli_query($db_forums, "SELECT `filename`
                                                             FROM `rpcs3_forums`.`mybb_attachments`
                                                             WHERE `pid` = '{$s_pid}'");
 
@@ -635,6 +638,7 @@ function compatibilityUpdater() : void
         {
             print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
             mysqli_close($db);
+            mysqli_close($db_forums);
             return;
         }
 
@@ -739,6 +743,7 @@ function compatibilityUpdater() : void
     }
 
     mysqli_close($db);
+    mysqli_close($db_forums);
 }
 
 function refreshBuild() : void
@@ -784,7 +789,7 @@ function mergeGames() : void
         return;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $s_gid1 = mysqli_real_escape_string($db, $gid1);
     $s_gid2 = mysqli_real_escape_string($db, $gid2);
@@ -966,7 +971,7 @@ function flag_build_as_broken() : void
     if (!isset($_POST["flag_build_as_broken"]) && !isset($_POST["unflag_build_as_broken"]))
         return;
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr}; ");
 
     if (is_bool($q_build) || mysqli_num_rows($q_build) === 0)
@@ -1023,7 +1028,7 @@ function export_build_backup() : void
     print("<b>cat builds.txt | parallel --gnu \"wget -nc -nv --content-disposition --trust-server-names {}\"</b><br><br>");
     print("</p>");
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $s_os = mysqli_real_escape_string($db, $_POST['os']);
     $s_url_prefix = mysqli_escape_string($db, "https://github.com/RPCS3/rpcs3-binaries-{$_POST['os']}/releases/download/build-");
@@ -1054,7 +1059,7 @@ function check_duplicated_entries() : void
 {
     global $get;
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     // Returns duplicates for Digital (N) and Disc (B) entries
     // Ignores any non alphanumeric characters on title

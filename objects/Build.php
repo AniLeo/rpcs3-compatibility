@@ -259,7 +259,7 @@ class Build
     */
     public static function import_authors(array &$builds) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_contributors = array();
         $q_contributors = mysqli_query($db, "SELECT * FROM `contributors`;");
@@ -360,7 +360,7 @@ class Build
 
     public static function get_latest(?string $platform) : ?Build
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         if ($platform === "windows")
             $platform = "win";
@@ -392,7 +392,7 @@ class Build
 
     public static function get_version(string $version) : ?Build
     {
-        $db = getDatabase();
+        $db = get_database("compat");
         $s_version = mysqli_real_escape_string($db, $version);
 
         $query = mysqli_query($db, "SELECT * FROM `builds`

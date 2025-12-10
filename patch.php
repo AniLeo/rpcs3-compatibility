@@ -55,7 +55,7 @@ function exportGamePatches() : array
         return $results;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $db_version = mysqli_real_escape_string($db, $get['v']);
     $patches = mysqli_query($db, "SELECT * FROM `game_patch`
                                   WHERE `version` = '{$db_version}'

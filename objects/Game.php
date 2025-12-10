@@ -108,7 +108,7 @@ class Game
     */
     public static function import_update_tags(array &$games) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_tags = array();
         $q_tags = mysqli_query($db, "SELECT * FROM `game_update_tag`; ");
@@ -171,7 +171,7 @@ class Game
     */
     public static function import_game_items(array &$games) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_items = array();
         $q_items = mysqli_query($db, "SELECT *

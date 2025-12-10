@@ -154,7 +154,7 @@ function check_for_updates( string $api,
     if (!is_null($commit))
     {
         // Get user build information
-        $db = getDatabase();
+        $db = get_database("compat");
         $current = array();
         $e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
         $q_check = mysqli_query($db, "SELECT * FROM `builds`
@@ -236,7 +236,7 @@ function check_for_updates( string $api,
                         {
                             // This should be unreachable unless the database structure is damaged
                             if (!property_exists($row, "version") ||
-                                    !property_exists($row, "title"))
+                                !property_exists($row, "title"))
                             {
                                 continue;
                             }

@@ -29,7 +29,7 @@ Profiler::start_profiler("Profiler: History");
 
 // Connect to database
 Profiler::add_data("Inc: Database Connection");
-$db = getDatabase();
+$db = get_database("compat");
 
 // Unreachable during normal usage as it's defined on index
 if (!isset($get))

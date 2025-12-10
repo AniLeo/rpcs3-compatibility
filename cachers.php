@@ -26,7 +26,7 @@ if (!@include_once(__DIR__."/objects/Game.php")) throw new Exception("Compat: Ga
 
 function cache_builds(bool $full = false) : void
 {
-    $db = getDatabase();
+    $db = get_database("compat");
     $cr = curl_init();
 
     if (!$full)
@@ -442,7 +442,7 @@ function cache_build(int $pr) : void
     else if ($is_missing_platform)
         $is_broken = "2";
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
 
@@ -552,7 +552,7 @@ function cache_build(int $pr) : void
 
 function cacheInitials() : void
 {
-    $db = getDatabase();
+    $db = get_database("compat");
 
     // Pack and Vol.: Idolmaster
     // GOTY: Batman
@@ -741,7 +741,7 @@ function cacheContributor(string $username) : int
         return 0;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $s_id       = mysqli_real_escape_string($db, $info_contributor->id);
     $s_username = mysqli_real_escape_string($db, $username);
@@ -789,7 +789,8 @@ function cacheContributor(string $username) : int
 
 function cacheWikiIDs() : void
 {
-    $db = getDatabase();
+    $db = get_database("compat");
+    $db_wiki = get_database("wiki");
     $a_wiki = array();
     $break = false;
 
@@ -797,7 +798,7 @@ function cacheWikiIDs() : void
     for ($count = 0; !$break; $count += 250)
     {
         // Fetch all wiki pages that contain a Game ID
-        $q_wiki = mysqli_query($db, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
+        $q_wiki = mysqli_query($db_wiki, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
                                      FROM `rpcs3_wiki`.`page`
                                      INNER JOIN `rpcs3_wiki`.`slots`
                                              ON `page`.`page_latest` = `slots`.`slot_revision_id`
@@ -819,7 +820,7 @@ function cacheWikiIDs() : void
             {
                 // This should be unreachable unless the database structure is damaged
                 if (!property_exists($row, "page_id") ||
-                        !property_exists($row, "text"))
+                    !property_exists($row, "text"))
                 {
                     return;
                 }
@@ -1299,7 +1300,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
 function cache_games_updates() : void
 {
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $q_ids = mysqli_query($db, "SELECT `gid`
                                 FROM `game_id`
@@ -1330,7 +1331,7 @@ function cache_games_updates() : void
 
 function cachePatches() : void
 {
-    $db = getDatabase();
+    $db = get_database("wiki");
 
     // ID for the SPU Patches page, containing the general use SPU patches
     $id_patches_spu = 1090;
@@ -1590,7 +1591,7 @@ function cache_netplay_statistics() : bool
         return false;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
 
     $s_players = mysqli_real_escape_string($db, (string) $np_stats->num_users);
     $q_updates .= "INSERT INTO `np_players` (`timestamp`, `players`) VALUES (CONVERT_TZ(NOW(),'SYSTEM','+00:00'), '{$s_players}'); ";

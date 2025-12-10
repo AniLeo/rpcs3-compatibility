@@ -37,7 +37,7 @@ function exportDatabase() : array
         return $results;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 
     if (is_bool($q_games))

@@ -53,7 +53,7 @@ $games = null;
 
 // Connect to database
 Profiler::add_data("Inc: Database Connection");
-$db = getDatabase();
+$db = get_database("compat");
 
 // Generate query
 Profiler::add_data("Inc: Generate Query");

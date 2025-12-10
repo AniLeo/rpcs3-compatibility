@@ -23,26 +23,45 @@ if(!@include_once("config.php")) throw new Exception("Compat: config.php is miss
 if(!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
 
 
-// Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
-
-
 /**
-    * getDatabase
+    * get_database
     *
     * Establishes a database connection and sets utf8mb4 charset
     *
-    * @return mysqli Connection to MySQL Server
+    * @return mysqli Connection to MySQL/MariaDB Server
     */
-function getDatabase() : mysqli
+function get_database(string $database) : mysqli
 {
-    if (!defined("db_host") || !defined("db_user") || !defined("db_pass") ||
-        !defined("db_name") || !defined("db_port"))
-        exit("[COMPAT] Database: Missing connection data");
+    if (!defined("db_{$database}_host") || 
+        !defined("db_{$database}_user") || 
+        !defined("db_{$database}_pass") ||
+        !defined("db_{$database}_name") || 
+        !defined("db_{$database}_port"))
+    {
+        exit("[COMPAT] Database: Missing connection data for {$database}");
+    }
 
-    $db = mysqli_connect(db_host, db_user, db_pass, db_name, (int) db_port);
+    $host = constant("db_{$database}_host");
+    $user = constant("db_{$database}_user");
+    $pass = constant("db_{$database}_pass");
+    $name = constant("db_{$database}_name");
+    $port = constant("db_{$database}_port");
+
+    if (!is_string($host) || 
+        !is_string($user) || 
+        !is_string($pass) ||
+        !is_string($name) ||
+        !is_string($port))
+    {
+        exit("[COMPAT] Database: Invalid connection data for {$database}");
+    }
+
+    $db = mysqli_connect($host, $user, $pass, $name, (int) $port);
 
     if (!$db)
-        trigger_error("[COMPAT] Database: Connection could not be established", E_USER_ERROR);
+    {
+        trigger_error("[COMPAT] Database: Connection to {$database} could not be established", E_USER_ERROR);
+    }
 
     mysqli_set_charset($db, "utf8mb4");
     return $db;
@@ -54,6 +73,7 @@ function getDatabase() : mysqli
     *
     * Obtains Game Type by checking Game ID's fourth character.
     * Returns Game Type as a string, empty if Game Type is invalid/unknown.
+    * Productcode info: PSDevWiki (http://www.psdevwiki.com/ps3/Productcode)
     *
     * @param string $gid GameID: 9 character ID that identifies a game
     *
@@ -440,7 +460,7 @@ function count_game_entry_all(bool $ignore_cache = false) : int
             return (int) $count;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $ret = 0;
 
     // Total game count (without network games)
@@ -480,7 +500,7 @@ function count_game_id_all(bool $ignore_cache = false) : int
             return (int) $count;
     }
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $ret = 0;
 
     // Total game count (without network games)
@@ -729,7 +749,7 @@ function getDebugPermissions() : ?array
     if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"]))
         return null;
 
-    $db = getDatabase();
+    $db = get_database("compat");
     $s_token = mysqli_real_escape_string($db, $_COOKIE["debug"]);
 
     $q_debug = mysqli_query($db, "SELECT *

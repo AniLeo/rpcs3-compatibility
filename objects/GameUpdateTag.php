@@ -51,7 +51,7 @@ class GameUpdateTag
     */
     public static function import_update_titles(array &$tags) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_titles = array();
         $q_titles = mysqli_query($db, "SELECT `tag`,
@@ -99,7 +99,7 @@ class GameUpdateTag
     */
     public static function import_update_changelogs(array &$tags) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_changelogs = array();
         $q_changelogs = mysqli_query($db, "SELECT `tag`,
@@ -117,9 +117,9 @@ class GameUpdateTag
         {
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "tag") ||
-                    !property_exists($row, "package_version") ||
-                    !property_exists($row, "paramhip_type") ||
-                    !property_exists($row, "paramhip_content"))
+                !property_exists($row, "package_version") ||
+                !property_exists($row, "paramhip_type") ||
+                !property_exists($row, "paramhip_content"))
             {
                 return;
             }
@@ -147,7 +147,7 @@ class GameUpdateTag
     */
     public static function import_update_packages(array &$tags) : void
     {
-        $db = getDatabase();
+        $db = get_database("compat");
 
         $a_packages = array();
         $q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`
@@ -162,11 +162,11 @@ class GameUpdateTag
         {
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "tag") ||
-                    !property_exists($row, "version") ||
-                    !property_exists($row, "size") ||
-                    !property_exists($row, "sha1sum") ||
-                    !property_exists($row, "ps3_system_ver") ||
-                    !property_exists($row, "drm_type"))
+                !property_exists($row, "version") ||
+                !property_exists($row, "size") ||
+                !property_exists($row, "sha1sum") ||
+                !property_exists($row, "ps3_system_ver") ||
+                !property_exists($row, "drm_type"))
             {
                 return;
             }

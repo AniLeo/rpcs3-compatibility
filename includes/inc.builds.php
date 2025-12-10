@@ -47,7 +47,7 @@ else
 
 // Connect to database
 Profiler::add_data("Inc: Database Connection");
-$db = getDatabase();
+$db = get_database("compat");
 
 // Calculate pages and current page
 Profiler::add_data("Inc: Count Pages");

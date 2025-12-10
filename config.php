@@ -20,11 +20,23 @@
 */
 
 // Connection details for the MySQL server
-define('db_host', 'HOSTNAME');
-define('db_port', 'PORT');
-define('db_user', 'USERNAME');
-define('db_pass', 'PASSWORD');
-define('db_name', 'DATABASE_NAME');
+define('db_compat_host', 'HOSTNAME');
+define('db_compat_port', 'PORT');
+define('db_compat_user', 'USERNAME');
+define('db_compat_pass', 'PASSWORD');
+define('db_compat_name', 'DATABASE_NAME');
+
+define('db_forums_host', 'HOSTNAME');
+define('db_forums_port', 'PORT');
+define('db_forums_user', 'USERNAME');
+define('db_forums_pass', 'PASSWORD');
+define('db_forums_name', 'DATABASE_NAME');
+
+define('db_wiki_host', 'HOSTNAME');
+define('db_wiki_port', 'PORT');
+define('db_wiki_user', 'USERNAME');
+define('db_wiki_pass', 'PASSWORD');
+define('db_wiki_name', 'DATABASE_NAME');
 
 // GitHub Access Token (Read-only)
 define('gh_token', 'TOKEN');
