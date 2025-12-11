@@ -1331,33 +1331,56 @@ function cache_games_updates() : void
 
 function cachePatches() : void
 {
-    $db = get_database("wiki");
+    $db = get_database("compat");
+    $db_wiki = get_database("wiki");
 
     // ID for the SPU Patches page, containing the general use SPU patches
     $id_patches_spu = 1090;
 
     // Select all page IDs present on game list
-    $q_wiki = mysqli_query($db, "SELECT `page_id`,
+    $q_wiki = mysqli_query($db_wiki, "SELECT `page_id`,
                                         `page_title`,
                                         `page_touched`,
                                          CONVERT(`old_text` USING utf8mb4) AS `text`
-                                 FROM `rpcs3_wiki`.`page`
-                                 LEFT JOIN `rpcs3_compatibility`.`game_list`
-                                        ON `page`.`page_id` = `game_list`.`wiki`
-                                 LEFT JOIN `rpcs3_wiki`.`slots`
-                                        ON `page`.`page_latest` = `slots`.`slot_revision_id`
-                                 LEFT JOIN `rpcs3_wiki`.`content`
-                                        ON `slots`.`slot_content_id` = `content`.`content_id`
-                                 LEFT JOIN `rpcs3_wiki`.`text`
-                                        ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-                                 WHERE (`page`.`page_namespace` = 0 AND
-                                        `game_list`.`wiki` IS NOT NULL)
-                                    OR `page`.`page_id` = {$id_patches_spu}
-                                 HAVING `text` LIKE '%{{patch%'; ");
+                                      FROM `rpcs3_wiki`.`page`
+                                      LEFT JOIN `rpcs3_wiki`.`slots`
+                                             ON `page`.`page_latest` = `slots`.`slot_revision_id`
+                                      LEFT JOIN `rpcs3_wiki`.`content`
+                                             ON `slots`.`slot_content_id` = `content`.`content_id`
+                                      LEFT JOIN `rpcs3_wiki`.`text`
+                                             ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+                                      WHERE (`page`.`page_namespace` = 0)
+                                         OR `page`.`page_id` = {$id_patches_spu}
+                                      HAVING `text` LIKE '%{{patch%'; ");
 
     // No wiki pages, return here
     if (is_bool($q_wiki) || mysqli_num_rows($q_wiki) === 0)
         return;
+
+    // Select all wiki pages that are linked to a game entry
+    $q_compat = mysqli_query($db, "SELECT UNIQUE `wiki`
+                                   FROM `rpcs3_compatibility`.`game_list`
+                                   WHERE `wiki` IS NOT NULL");
+
+    // No compat entries, return here
+    if (is_bool($q_compat) || mysqli_num_rows($q_compat) === 0)
+        return;
+
+    // List of wiki IDs currently linked to the compatibility list
+    $a_compat_wiki_ids = array();
+    $a_compat_wiki_ids[] = $id_patches_spu;
+
+    while ($row = mysqli_fetch_object($q_compat))
+    {
+        // This should be unreachable unless the database structure is damaged
+        if (!property_exists($row, "wiki"))
+        {
+            continue;
+        }
+
+        if (!in_array((int) $row->wiki, $a_compat_wiki_ids))
+            $a_compat_wiki_ids[] = (int) $row->wiki;
+    }
 
     // Disabled by default, but it's disabled here again in case it's enabled
     ini_set("yaml.decode_php", '0');
@@ -1378,8 +1401,8 @@ function cachePatches() : void
         {
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "wiki_id") ||
-                    !property_exists($row, "version") ||
-                    !property_exists($row, "touched"))
+                !property_exists($row, "version") ||
+                !property_exists($row, "touched"))
             {
                 continue;
             }
@@ -1395,9 +1418,15 @@ function cachePatches() : void
     {
         // This should be unreachable unless the database structure is damaged
         if (!property_exists($row, "page_id") ||
-                !property_exists($row, "page_title") ||
-                !property_exists($row, "text") ||
-                !property_exists($row, "page_touched"))
+            !property_exists($row, "page_title") ||
+            !property_exists($row, "text") ||
+            !property_exists($row, "page_touched"))
+        {
+            continue;
+        }
+
+        // Do not cache page IDs that are not linked on the compatibility list
+        if (!in_array((int) $row->page_id, $a_compat_wiki_ids))
         {
             continue;
         }
@@ -1425,7 +1454,7 @@ function cachePatches() : void
         if (!$exists)
         {
             mysqli_query($db, "DELETE FROM `rpcs3_compatibility`.`game_patch`
-                                                 WHERE `wiki_id` = {$id}; ");
+                               WHERE `wiki_id` = {$id}; ");
         }
     }
 
