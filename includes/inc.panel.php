@@ -727,8 +727,6 @@ function compatibilityUpdater() : void
             ({$key}, '{$game['old_status']}', '{$game['old_date']}', '{$game['status']}', '{$game['last_update']}'); ");
         }
 
-        curl_close($cr);
-
         // Recache initials cache
         cacheInitials();
         // Recache game count

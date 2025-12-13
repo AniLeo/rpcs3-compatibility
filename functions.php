@@ -921,10 +921,8 @@ function curl_json(string $url, ?CurlHandle $cr) : ?object
     // Get the response and httpcode of that response
     $result = curl_exec($ch);
 
-    // Close the temporary cURL resource or reset the given cURL resource
-    if (is_null($cr))
-        curl_close($ch);
-    else
+    // Reset the given cURL resource after utilisation
+    if (!is_null($cr))
         curl_reset($cr);
 
     if (is_bool($result))

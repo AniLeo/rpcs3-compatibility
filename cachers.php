@@ -84,7 +84,6 @@ function cache_builds(bool $full = false) : void
         $search->total_count == 0)
     {
         mysqli_close($db);
-        curl_close($cr);
         return;
     }
 
@@ -148,13 +147,11 @@ function cache_builds(bool $full = false) : void
                 $search->total_count == 0)
             {
                 mysqli_close($db);
-                curl_close($cr);
                 return;
             }
         }
     }
     mysqli_close($db);
-    curl_close($cr);
 }
 
 /**
@@ -260,7 +257,6 @@ function cache_build(int $pr) : void
     if (!isset($pr_info->merge_commit_sha))
     {
         echo "cache_build({$pr}): Rate limited".PHP_EOL;
-        curl_close($cr);
         return;
     }
 
@@ -275,7 +271,6 @@ function cache_build(int $pr) : void
         !isset($pr_info->title))
     {
         echo "cache_build({$pr}): API error".PHP_EOL;
-        curl_close($cr);
         return;
     }
 
@@ -306,7 +301,6 @@ function cache_build(int $pr) : void
     if ($aid == 0)
     {
         echo "Error: Checking author information failed";
-        curl_close($cr);
         return;
     }
 
@@ -349,7 +343,6 @@ function cache_build(int $pr) : void
     if ($is_missing && !$is_missing_platform)
     {
         printf("Error: Checking author information failed, current=%s, merge=%s", time(), $merge_datetime);
-        curl_close($cr);
         return;
     }
 
@@ -366,7 +359,6 @@ function cache_build(int $pr) : void
     }
     else if (!$is_missing_platform)
     {
-        curl_close($cr);
         return;
     }
 
@@ -376,7 +368,6 @@ function cache_build(int $pr) : void
     }
     else if (!isset($version) && !$is_missing_platform)
     {
-        curl_close($cr);
         return;
     }
 
@@ -386,7 +377,6 @@ function cache_build(int $pr) : void
     }
     else if (!isset($version) && !$is_missing_platform)
     {
-        curl_close($cr);
         return;
     }
 
@@ -396,7 +386,6 @@ function cache_build(int $pr) : void
     }
     else if (!isset($version) && !$is_missing_platform)
     {
-        curl_close($cr);
         return;
     }
 
@@ -406,7 +395,6 @@ function cache_build(int $pr) : void
     }
     else if (!isset($version) && !$is_missing_platform)
     {
-        curl_close($cr);
         return;
     }
 
@@ -414,7 +402,6 @@ function cache_build(int $pr) : void
     // TODO: Get $version when all the builds are missing and allow caching the entry
     if (!isset($version))
     {
-        curl_close($cr);
         return;
     }
 
@@ -1324,7 +1311,6 @@ function cache_games_updates() : void
         cache_game_updates($cr, $db, $row->gid);
     }
 
-    curl_close($cr);
     mysqli_close($db);
 }
 
