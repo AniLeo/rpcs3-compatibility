@@ -19,10 +19,10 @@ Source code for [RPCS3.net/compatibility](https://rpcs3.net/compatibility), a sm
 - **Wiki Sync:** The list is able to automatically fetch Mediawiki pages for the respective Game ID entries and link them on the list, as well as fetching game patches from the wiki.
 
 ## Requirements
-- [PHP 8.2+](https://secure.php.net/downloads.php)
-- [PHP PECL YAML Extension 2.2.3+](https://pecl.php.net/package/yaml)
+- [PHP 8.5+](https://secure.php.net/downloads.php)
+- [PHP PECL YAML Extension 2.3.0+](https://pecl.php.net/package/yaml)
 - [libyaml 0.2.5+](https://pyyaml.org/wiki/LibYAML)
-- [MySQL 8.2](https://dev.mysql.com/downloads/mysql/8.2.html) or [MariaDB 10.11](https://downloads.mariadb.org/mariadb/)
+- [MariaDB 10.11](https://downloads.mariadb.org/mariadb/)
 - [RPCS3.net](https://rpcs3.net) [(Source Code)](https://github.com/DAGINATSUKO/www-rpcs3) - Place files inside lib/compat directory on the main website's source.
 
 ## License
