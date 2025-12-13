@@ -65,6 +65,11 @@ class GameUpdateTag
             return;
         }
 
+        // List the tags that were provided
+        $a_tags = array();
+        foreach ($tags as $tag)
+            $a_tags[] = $tag->tag_id;
+
         while ($row = mysqli_fetch_object($q_titles))
         {
             // This should be unreachable unless the database structure is damaged
@@ -75,6 +80,10 @@ class GameUpdateTag
             {
                 return;
             }
+
+            // Skip update titles for tags that were not provided
+            if (!in_array($row->tag, $a_tags))
+                continue;
 
             $a_titles[$row->tag][$row->package_version][] = new GameUpdateTitle($row->paramsfo_type,
                                                                                 $row->paramsfo_title);
@@ -113,6 +122,11 @@ class GameUpdateTag
             return;
         }
 
+        // List the tags that were provided
+        $a_tags = array();
+        foreach ($tags as $tag)
+            $a_tags[] = $tag->tag_id;
+
         while ($row = mysqli_fetch_object($q_changelogs))
         {
             // This should be unreachable unless the database structure is damaged
@@ -123,6 +137,10 @@ class GameUpdateTag
             {
                 return;
             }
+
+            // Skip update changelogs for tags that were not provided
+            if (!in_array($row->tag, $a_tags))
+                continue;
 
             $a_changelogs[$row->tag][$row->package_version][] = new GameUpdateChangelog($row->paramhip_type,
                                                                                         $row->paramhip_content);
@@ -158,6 +176,11 @@ class GameUpdateTag
             return;
         }
 
+        // List the tags that were provided
+        $a_tags = array();
+        foreach ($tags as $tag)
+            $a_tags[] = $tag->tag_id;
+
         while ($row = mysqli_fetch_object($q_packages))
         {
             // This should be unreachable unless the database structure is damaged
@@ -170,6 +193,10 @@ class GameUpdateTag
             {
                 return;
             }
+
+            // Skip update packages for tags that were not provided
+            if (!in_array($row->tag, $a_tags))
+                continue;
 
             $a_packages[$row->tag][] = new GameUpdatePackage($row->version,
                                                              $row->size,

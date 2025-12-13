@@ -121,6 +121,12 @@ class Game
         if (mysqli_num_rows($q_tags) === 0)
             return;
 
+        // List the game IDs that were provided
+        $a_game_ids = array();
+        foreach ($games as $game)
+            foreach ($game->game_item as $game_item)
+                $a_game_ids[] = $game_item->game_id;
+
         while ($row = mysqli_fetch_object($q_tags))
         {
             // This should be unreachable unless the database structure is damaged
@@ -132,6 +138,10 @@ class Game
             {
                 continue;
             }
+
+            // Skip update tags for game IDs that were not provided
+            if (!in_array(substr($row->name, 0, 9), $a_game_ids))
+                continue;
 
             $a_tags[] = new GameUpdateTag($row->name,
                                           $row->popup,
