@@ -792,7 +792,10 @@ function mergeGames() : void
     $s_gid1 = mysqli_real_escape_string($db, $gid1);
     $s_gid2 = mysqli_real_escape_string($db, $gid2);
 
-    $q_game1 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}');");
+    $q_game1 = mysqli_query($db, "SELECT * 
+                                  FROM `game_list` 
+                                  WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid1}') 
+                                  LIMIT 1;");
     if (is_bool($q_game1) || mysqli_num_rows($q_game1) === 0)
     {
         print("<p><b>Error:</b> Game ID 1 could not be found</p>");
@@ -800,7 +803,10 @@ function mergeGames() : void
     }
     $game1 = Game::query_to_games($q_game1)[0];
 
-    $q_game2 = mysqli_query($db, "SELECT * FROM `game_list` WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}');");
+    $q_game2 = mysqli_query($db, "SELECT * 
+                                  FROM `game_list` 
+                                  WHERE `key` IN(SELECT `key` FROM `game_id` WHERE `gid` = '{$s_gid2}') 
+                                  LIMIT 1;");
     if (is_bool($q_game2) || mysqli_num_rows($q_game2) === 0)
     {
         print("<p><b>Error:</b> Game ID 2 could not be found</p>");
@@ -970,7 +976,10 @@ function flag_build_as_broken() : void
         return;
 
     $db = get_database("compat");
-    $q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr}; ");
+    $q_build = mysqli_query($db, "SELECT * 
+                                  FROM `builds` 
+                                  WHERE `pr` = '{$pr}' 
+                                  LIMIT 1; ");
 
     if (is_bool($q_build) || mysqli_num_rows($q_build) === 0)
         return;

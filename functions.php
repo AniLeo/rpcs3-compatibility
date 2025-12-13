@@ -752,7 +752,7 @@ function getDebugPermissions() : ?array
     $db = get_database("compat");
     $s_token = mysqli_real_escape_string($db, $_COOKIE["debug"]);
 
-    $q_debug = mysqli_query($db, "SELECT *
+    $q_debug = mysqli_query($db, "SELECT `permissions` 
                                   FROM `debug_whitelist`
                                   WHERE `token` = '{$s_token}'
                                   LIMIT 1; ");

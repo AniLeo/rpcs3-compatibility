@@ -115,11 +115,11 @@ function cache_builds(bool $full = false) : void
             $a_PR[]  = $pr;
 
             // Check if PR is already cached
-            $q_pr = mysqli_query($db, "SELECT *
-                                          FROM `builds`
-                                          WHERE `pr` = {$pr}
+            $q_pr = mysqli_query($db,  "SELECT `pr` 
+                                        FROM `builds` 
+                                        WHERE `pr` = {$pr}
                                             AND `title` IS NOT NULL
-                                          LIMIT 1; ");
+                                        LIMIT 1; ");
 
             // This should be unreachable
             if (is_bool($q_pr))
@@ -433,7 +433,7 @@ function cache_build(int $pr) : void
 
     $db = get_database("compat");
 
-    $q_build = mysqli_query($db, "SELECT * FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
+    $q_build = mysqli_query($db, "SELECT `pr` FROM `builds` WHERE `pr` = {$pr} LIMIT 1; ");
 
     if (is_bool($q_build))
     {
@@ -669,9 +669,9 @@ function cacheInitials() : void
             $s_initials = mysqli_real_escape_string($db, $initials);
 
             // Check if value is already cached (two games can have the same initials so we use game_title)
-            $q_check = mysqli_query($db, "SELECT *
-                                          FROM `initials_cache`
-                                          WHERE `game_title` = '{$original}'
+            $q_check = mysqli_query($db, "SELECT `initials` 
+                                          FROM `initials_cache` 
+                                          WHERE `game_title` = '{$original}' 
                                           LIMIT 1; ");
 
             if (is_bool($q_check))
@@ -735,7 +735,7 @@ function cacheContributor(string $username) : int
     $s_id       = mysqli_real_escape_string($db, $info_contributor->id);
     $s_username = mysqli_real_escape_string($db, $username);
 
-    $q_contributor = mysqli_query($db, "SELECT *
+    $q_contributor = mysqli_query($db, "SELECT `username`
                                         FROM `contributors`
                                         WHERE `id` = {$s_id}
                                         LIMIT 1; ");

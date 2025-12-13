@@ -157,9 +157,10 @@ function check_for_updates( string $api,
         $db = get_database("compat");
         $current = array();
         $e_commit = mysqli_real_escape_string($db, substr($commit, 0, 7));
-        $q_check = mysqli_query($db, "SELECT * FROM `builds`
+        $q_check = mysqli_query($db, "SELECT * 
+                                      FROM `builds`
                                       WHERE `commit` LIKE '{$e_commit}%'
-                                        AND `type` = 'branch'
+                                          AND `type` = 'branch'
                                       ORDER BY `merge_datetime` DESC
                                       LIMIT 1;");
         if (!is_bool($q_check))

@@ -52,9 +52,12 @@ if ($get['h'] === true)
 }
 
 // Main part of the query
-$cmd_main = "SELECT * FROM `game_history`
-LEFT JOIN `game_list` ON `game_history`.`game_key` = `game_list`.`key`
-LEFT JOIN `game_id` ON `game_history`.`game_key` = `game_id`.`key` ";
+$cmd_main = "SELECT * 
+             FROM `game_history`
+             LEFT JOIN `game_list` 
+                 ON `game_history`.`game_key` = `game_list`.`key`
+             LEFT JOIN `game_id` 
+                 ON `game_history`.`game_key` = `game_id`.`key` ";
 
 // Generate date part of the query
 if ($get['h'] === $a_currenthist[0])
