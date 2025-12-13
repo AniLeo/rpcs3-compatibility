@@ -335,14 +335,16 @@ function cache_build(int $pr) : void
                   isset($info_release_mac->message) ||
                   isset($info_release_mac_arm64->message);
 
-    $is_missing_platform = $is_missing && time() - $merge_datetime >= (3600 * 2);
+    $hour_limit = 2;
+    $is_missing_platform = $is_missing && time() - $merge_datetime >= (3600 * $hour_limit);
 
     // Error message found: Build doesn't exist in one of the repos
     // Do not ignore if the build was merged over two hours ago, to cache as broken
     // TODO: Ignore macOS if date is prior to the first macOS build
     if ($is_missing && !$is_missing_platform)
     {
-        printf("Error: Checking author information failed, current=%s, merge=%s", time(), $merge_datetime);
+        printf("Error: One of the platforms is still not available, waiting up to %dh before assuming as missing, %d seconds remaining", 
+               $hour_limit, time() - $merge_datetime);
         return;
     }
 
