@@ -279,8 +279,8 @@ function cache_build(int $pr) : void
         return;
     }
 
-    $merge_datetime = $pr_info->merged_at;
-    $start_datetime = $pr_info->created_at;
+    $merge_datetime = strtotime($pr_info->merged_at);
+    $start_datetime = strtotime($pr_info->created_at);
     $commit         = $pr_info->merge_commit_sha;
     $author         = $pr_info->user->login;
     $additions      = $pr_info->additions;
@@ -341,14 +341,14 @@ function cache_build(int $pr) : void
                   isset($info_release_mac->message) ||
                   isset($info_release_mac_arm64->message);
 
-    $is_missing_platform = $is_missing && time() - strtotime($merge_datetime) >= (3600 * 2);
+    $is_missing_platform = $is_missing && time() - $merge_datetime >= (3600 * 2);
 
     // Error message found: Build doesn't exist in one of the repos
     // Do not ignore if the build was merged over two hours ago, to cache as broken
     // TODO: Ignore macOS if date is prior to the first macOS build
     if ($is_missing && !$is_missing_platform)
     {
-        printf("Error: Checking author information failed, current=%s, merge=%s", time(), strtotime($merge_datetime));
+        printf("Error: Checking author information failed, current=%s, merge=%s", time(), $merge_datetime);
         curl_close($cr);
         return;
     }
@@ -458,8 +458,8 @@ function cache_build(int $pr) : void
         `commit`         = '".mysqli_real_escape_string($db, $commit)."',
         `type`           = '".mysqli_real_escape_string($db, $type)."',
         `author`         = '".mysqli_real_escape_string($db, (string) $aid)."',
-        `start_datetime` = '".mysqli_real_escape_string($db, $start_datetime)."',
-        `merge_datetime` = '".mysqli_real_escape_string($db, $merge_datetime)."',
+        `start_datetime` = FROM_UNIXTIME('".mysqli_real_escape_string($db, (string) $start_datetime)."'),
+        `merge_datetime` = FROM_UNIXTIME('".mysqli_real_escape_string($db, (string) $merge_datetime)."'),
         `version`        = '".mysqli_real_escape_string($db, $version)."',
         `additions`      = '".mysqli_real_escape_string($db, (string) $additions)."',
         `deletions`      = '".mysqli_real_escape_string($db, (string) $deletions)."',
@@ -520,8 +520,8 @@ function cache_build(int $pr) : void
         '".mysqli_real_escape_string($db, $commit)."',
         '".mysqli_real_escape_string($db, $type)."',
         '".mysqli_real_escape_string($db, (string) $aid)."',
-        '".mysqli_real_escape_string($db, $start_datetime)."',
-        '".mysqli_real_escape_string($db, $merge_datetime)."',
+        FROM_UNIXTIME('".mysqli_real_escape_string($db, (string) $start_datetime)."'),
+        FROM_UNIXTIME('".mysqli_real_escape_string($db, (string) $merge_datetime)."'),
         '".mysqli_real_escape_string($db, $version)."',
         '".mysqli_real_escape_string($db, (string) $additions)."',
         '".mysqli_real_escape_string($db, (string) $deletions)."',
