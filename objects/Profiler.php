@@ -85,9 +85,9 @@ class Profiler
                 return "";
 
             $ret .= "<p>";
-            $ret .= "Load (1m): {$load[0]}<br>";
-            $ret .= "Load (5m): {$load[1]}<br>";
-            $ret .= "Load (15m): {$load[2]}<br>";
+            $ret .= sprintf("Load (1m):  %.2f<br>", $load[0]);
+            $ret .= sprintf("Load (5m):  %.2f<br>", $load[1]);
+            $ret .= sprintf("Load (15m): %.2f<br>", $load[2]);
             $ret .= "</p>";
         }
 
@@ -103,9 +103,8 @@ class Profiler
         $size = count(self::$desc);
 
         // This should be unreachable
-        if (count(self::$time) != $size ||
-                count(self::$mem) != $size)
-                return "";
+        if (count(self::$time) != $size || count(self::$mem) != $size)
+            return "";
 
         if ($size > 1)
         {
