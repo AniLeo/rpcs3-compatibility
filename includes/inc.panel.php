@@ -432,6 +432,7 @@ function compatibilityUpdater() : void
             print("<br>");
 
         }
+        // TODO: Distinguish different game ID / thread IDs within the update object
         else if ($tid == $thread->tid)
         {
             // This game entry was already checked before in this script
@@ -441,10 +442,15 @@ function compatibilityUpdater() : void
                 // Update status
                 if ($a_updates[$cur_game->key]['status'] < $thread->get_sid())
                 {
-                    printf("<b>Error!</b> Smaller status after a status update (%s, %s < %s)<br><br>",
+                    $html_a = new HTMLA($a_updates[$cur_game->key]['thread']->get_thread_url(), "", (string) $a_updates[$cur_game->key]['thread']->tid);
+                    $html_a->set_target("_blank");
+
+                    printf("<b>Error!</b> %s [%s] cannot be downgraded to a lower status (%s) as another report for the same game entry (tid:%s) upgrades it to a newer status (%s)<br><br>",
+                           $a_updates[$cur_game->key]['game_title'],
                            $thread->get_game_id(),
-                           $a_updates[$cur_game->key]['status'],
-                           $thread->get_sid());
+                           $a_status[$a_updates[$cur_game->key]['status']]['name'],
+                           $html_a->to_string(),
+                           $a_status[$thread->get_sid()]['name']);
                     continue;
                 }
                 elseif (is_null($a_updates[$cur_game->key]['commit']))
