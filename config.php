@@ -323,8 +323,9 @@ $a_histdates = array(
     '2025_06' => array(array('y' => 2025, 'm' => 6,  'd' => 01), array('y' => 2025, 'm' => 6,  'd' => 30)),
     '2025_07' => array(array('y' => 2025, 'm' => 7,  'd' => 01), array('y' => 2025, 'm' => 7,  'd' => 31)),
     '2025_08' => array(array('y' => 2025, 'm' => 8,  'd' => 01), array('y' => 2025, 'm' => 8,  'd' => 31)),
-    '2025_09' => array(array('y' => 2025, 'm' => 9,  'd' => 01), array('y' => 2025, 'm' => 9,  'd' => 30))
+    '2025_09' => array(array('y' => 2025, 'm' => 9,  'd' => 01), array('y' => 2025, 'm' => 9,  'd' => 30)),
+    '2025_10' => array(array('y' => 2025, 'm' => 10, 'd' => 01), array('y' => 2025, 'm' => 10, 'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2025_10', 'October 1st, 2025', '2025-10-01');
+$a_currenthist = array('2025_11', 'November 1st, 2025', '2025-11-01');
