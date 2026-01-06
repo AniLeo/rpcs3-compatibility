@@ -114,7 +114,7 @@ public static function printTable() : void
     $html_img_mac_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos-arm64.png");
     $html_img_mac_arm64_disabled->set_title("This macOS arm64 build is not available");
 
-    $html_img_pr = new HTMLImg("builds-icon", "/img/icons/compat/github.png");
+    $html_img_pr = new HTMLImg("builds-icon darkmode-invert", "/img/icons/compat/github.png");
 
     // Print table body
     foreach ($builds as $build)
