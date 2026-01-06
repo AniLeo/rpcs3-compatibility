@@ -142,7 +142,7 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !
         // Calculate proximity for each database entry
         foreach ($titles as $title)
         {
-            $lev = levenshtein($get['g'], $title);
+            $lev = grapheme_levenshtein($get['g'], $title);
             if ($lev <= $l_dist || $l_dist < 0)
             {
                 $l_title = $title;
