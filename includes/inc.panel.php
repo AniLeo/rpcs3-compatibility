@@ -1122,3 +1122,81 @@ function check_duplicated_entries() : void
         print("<p class='debug-tvalidity-title color-green background-green'>No duplicated threads detected</p>");
     }
 }
+
+function export_wiki_settings() : void
+{
+    global $get;
+
+    $db_wiki   = get_database("wiki");
+    $db_compat = get_database("compat");
+
+    // Wiki page to setting
+    $q_settings = mysqli_query($db_wiki, "SELECT cl_from AS wiki, replace(replace(replace(replace(cl_to, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
+                                          FROM categorylinks
+                                          WHERE cl_to LIKE '%(Config)%' AND cl_to LIKE '%:%' 
+                                          ORDER BY cl_from;");
+
+    // Invalid query or database
+    if (is_bool($q_settings) || mysqli_num_rows($q_settings) == 0)
+    {
+        return;
+    }
+
+    // Wiki page to game id
+    $q_game = mysqli_query($db_compat, "SELECT wiki, gid 
+                                        FROM game_list
+                                        LEFT JOIN game_id ON game_list.`key` = game_id.`key`
+                                        WHERE wiki IS NOT NULL
+                                        ORDER BY wiki ASC ");
+
+    // Invalid query or database
+    if (is_bool($q_game) || mysqli_num_rows($q_game) == 0)
+    {
+        return;
+    }
+
+    // Wiki page to array of game ids
+    $a_wiki = array();
+    // Game id to array of settings
+    $a_gid = array();
+
+    // Store wiki page to game id links
+    while ($row = mysqli_fetch_object($q_game))
+    {
+        $a_wiki[$row->wiki][] = $row->gid;
+    }
+
+    while ($row = mysqli_fetch_object($q_settings))
+    {
+        // Skip wiki pages that have settings but are not linked to compat db
+        if (!array_key_exists($row->wiki, $a_wiki))
+            continue;
+
+        $gid_list = $a_wiki[$row->wiki];
+
+        foreach ($gid_list as $gid)
+        {
+            // Currently incompatible
+            if (str_starts_with($row->setting, "Firmware libraries"))
+                continue;
+
+            $a_gid[$gid][] = $row->setting;
+        }
+    }
+
+    $json = json_encode($a_gid, JSON_PRETTY_PRINT);
+    
+    // JSON encoder error
+    if (!$json)
+    {
+        return;
+    }
+
+    print("<p>");
+    print("<b>JSON object listing the recommended settings from wiki pages, per game ID:</b><br><br>");
+    print("</p>");
+
+    print("<p style='white-space: pre'>");
+    print(str_replace("\n", "<br>", $json));
+    print("</p>");
+}

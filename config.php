@@ -216,6 +216,11 @@ $a_panel = array(
         'category' => 2,
         'title' => "Check Duplicated Entries",
         'success' => ""
+    ),
+    'export_wiki_settings' => array(
+        'category' => 3,
+        'title' => "Export Wiki Settings",
+        'success' => ""
     )
 );
 
