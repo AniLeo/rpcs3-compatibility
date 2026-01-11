@@ -330,8 +330,12 @@ $a_histdates = array(
     '2025_08' => array(array('y' => 2025, 'm' => 8,  'd' => 01), array('y' => 2025, 'm' => 8,  'd' => 31)),
     '2025_09' => array(array('y' => 2025, 'm' => 9,  'd' => 01), array('y' => 2025, 'm' => 9,  'd' => 30)),
     '2025_10' => array(array('y' => 2025, 'm' => 10, 'd' => 01), array('y' => 2025, 'm' => 10, 'd' => 31)),
-    '2025_11' => array(array('y' => 2025, 'm' => 11, 'd' => 01), array('y' => 2025, 'm' => 11, 'd' => 30))
+    '2025_11' => array(array('y' => 2025, 'm' => 11, 'd' => 01), array('y' => 2025, 'm' => 11, 'd' => 30)),
+    '2025_12' => array(array('y' => 2025, 'm' => 12, 'd' => 01), array('y' => 2025, 'm' => 12, 'd' => 31))
 );
 
 // Current month
-$a_currenthist = array('2025_12', 'December 1st, 2025', '2025-12-01');
+$currenthist = '2026-01-01';
+$a_currenthist = array(date('Y_m', strtotime($currenthist)),
+                       date('F jS, Y', strtotime($currenthist)),
+                       $currenthist);
