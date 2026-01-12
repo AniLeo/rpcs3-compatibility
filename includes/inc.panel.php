@@ -1025,13 +1025,14 @@ function export_build_backup() : void
     $select->add_option(new HTMLOption("win",   "Windows (x64)"));
     $select->add_option(new HTMLOption("linux", "Linux (x64)"));
     $select->add_option(new HTMLOption("mac",   "macOS (x64)"));
+    $select->add_option(new HTMLOption("win-arm64", "Windows (arm64)"));
     $select->add_option(new HTMLOption("linux-arm64", "Linux (arm64)"));
     $select->add_option(new HTMLOption("mac-arm64", "macOS (arm64)"));
     $form->add_select($select);
     $form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
     $form->print();
 
-    if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac", "linux-arm64", "mac-arm64")))
+    if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac", "win-arm64", "linux-arm64", "mac-arm64")))
     {
         return;
     }
