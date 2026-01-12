@@ -98,6 +98,10 @@ public static function printTable() : void
     $html_img_win_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows.png");
     $html_img_win_disabled->set_title("This Windows x64 build is not available");
 
+    $html_img_win_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/windows-arm64.png");
+    $html_img_win_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows-arm64.png");
+    $html_img_win_arm64_disabled->set_title("This Windows arm64 build is not available");
+
     $html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png");
     $html_img_linux_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux.png");
     $html_img_linux_disabled->set_title("This Linux x64 build is not available");
@@ -131,6 +135,13 @@ public static function printTable() : void
         {
             $version .= "Windows x64 SHA-256: {$build->checksum_win}\n";
             $version .= "Windows x64 Size: {$build->get_size_mb_windows()} MB\n";
+        }
+        if (!empty($version))
+            $version .= "\n";
+        if (!is_null($build->checksum_win_arm64) && !is_null($build->get_size_mb_windows_arm64()))
+        {
+            $version .= "Windows arm64 SHA-256: {$build->checksum_win_arm64}\n";
+            $version .= "Windows arm64 Size: {$build->get_size_mb_windows_arm64()} MB\n";
         }
         if (!empty($version))
             $version .= "\n";
@@ -220,6 +231,16 @@ public static function printTable() : void
         else
         {
             $html_div_cell->add_content($html_img_win_disabled->to_string());
+        }
+
+        if (!is_null($build->get_url_windows_arm64()))
+        {
+            $html_a_win_arm64 = new HTMLA($build->get_url_windows_arm64(), "Download for Windows arm64", $html_img_win_arm64->to_string());
+            $html_div_cell->add_content($html_a_win_arm64->to_string());
+        }
+        else
+        {
+            $html_div_cell->add_content($html_img_win_arm64_disabled->to_string());
         }
 
         if (!is_null($build->get_url_linux()))

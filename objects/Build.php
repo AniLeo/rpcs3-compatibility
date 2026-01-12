@@ -46,6 +46,10 @@ class Build
     public ?int    $size_mac;
     public ?string $filename_mac;
 
+    public ?string $checksum_win_arm64;
+    public ?int    $size_win_arm64;
+    public ?string $filename_win_arm64;
+
     public ?string $checksum_linux_arm64;
     public ?int    $size_linux_arm64;
     public ?string $filename_linux_arm64;
@@ -77,6 +81,9 @@ class Build
                          ?string $checksum_mac,
                          ?int    $size_mac,
                          ?string $filename_mac,
+                         ?string $checksum_win_arm64,
+                         ?int    $size_win_arm64,
+                         ?string $filename_win_arm64,
                          ?string $checksum_linux_arm64,
                          ?int    $size_linux_arm64,
                          ?string $filename_linux_arm64,
@@ -86,27 +93,30 @@ class Build
                           bool   $broken,
                          ?string $title)
     {
-        $this->pr             = $pr;
-        $this->commit         = $commit;
-        $this->author_id      = $author_id;
-        $this->merge          = $merge;
-        $this->checksum_win   = $checksum_win;
-        $this->size_win       = $size_win;
-        $this->filename_win   = $filename_win;
-        $this->checksum_linux = $checksum_linux;
-        $this->size_linux     = $size_linux;
-        $this->filename_linux = $filename_linux;
-        $this->checksum_mac   = $checksum_mac;
-        $this->size_mac       = $size_mac;
-        $this->filename_mac   = $filename_mac;
+        $this->pr                   = $pr;
+        $this->commit               = $commit;
+        $this->author_id            = $author_id;
+        $this->merge                = $merge;
+        $this->checksum_win         = $checksum_win;
+        $this->size_win             = $size_win;
+        $this->filename_win         = $filename_win;
+        $this->checksum_linux       = $checksum_linux;
+        $this->size_linux           = $size_linux;
+        $this->filename_linux       = $filename_linux;
+        $this->checksum_mac         = $checksum_mac;
+        $this->size_mac             = $size_mac;
+        $this->filename_mac         = $filename_mac;
+        $this->checksum_win_arm64   = $checksum_win_arm64;
+        $this->size_win_arm64       = $size_win_arm64;
+        $this->filename_win_arm64   = $filename_win_arm64;
         $this->checksum_linux_arm64 = $checksum_linux_arm64;
         $this->size_linux_arm64     = $size_linux_arm64;
         $this->filename_linux_arm64 = $filename_linux_arm64;
         $this->checksum_mac_arm64   = $checksum_mac_arm64;
         $this->size_mac_arm64       = $size_mac_arm64;
         $this->filename_mac_arm64   = $filename_mac_arm64;
-        $this->broken         = $broken;
-        $this->title          = $title;
+        $this->broken               = $broken;
+        $this->title                = $title;
 
         // A bug in GitHub API returns +0 -0 on some PRs
         if (!is_null($files) && $files > 0)
@@ -176,6 +186,15 @@ class Build
         return null;
     }
 
+    public function get_url_windows_arm64() : ?string
+    {
+        if (!is_null($this->filename_win_arm64))
+        {
+            return "https://github.com/RPCS3/rpcs3-binaries-win-arm64/releases/download/build-{$this->commit}/{$this->filename_win_arm64}";
+        }
+        return null;
+    }
+
     public function get_url_linux_arm64() : ?string
     {
         if (!is_null($this->filename_linux_arm64))
@@ -227,6 +246,15 @@ class Build
         if (!is_null($this->size_mac))
         {
             return round($this->size_mac / 1024 / 1024, 1);
+        }
+        return null;
+    }
+
+    public function get_size_mb_windows_arm64() : ?float
+    {
+        if (!is_null($this->size_win_arm64))
+        {
+            return round($this->size_win_arm64 / 1024 / 1024, 1);
         }
         return null;
     }
@@ -317,6 +345,12 @@ class Build
                 !property_exists($row, "checksum_mac") ||
                 !property_exists($row, "size_mac") ||
                 !property_exists($row, "filename_mac") ||
+                !property_exists($row, "checksum_win_arm64") ||
+                !property_exists($row, "size_win_arm64") ||
+                !property_exists($row, "filename_win_arm64") ||
+                !property_exists($row, "checksum_linux_arm64") ||
+                !property_exists($row, "size_linux_arm64") ||
+                !property_exists($row, "filename_linux_arm64") ||
                 !property_exists($row, "checksum_mac_arm64") ||
                 !property_exists($row, "size_mac_arm64") ||
                 !property_exists($row, "filename_mac_arm64") ||
@@ -343,6 +377,9 @@ class Build
                                     $row->checksum_mac,
                                     $row->size_mac,
                                     $row->filename_mac,
+                                    $row->checksum_win_arm64,
+                                    $row->size_win_arm64,
+                                    $row->filename_win_arm64,
                                     $row->checksum_linux_arm64,
                                     $row->size_linux_arm64,
                                     $row->filename_linux_arm64,

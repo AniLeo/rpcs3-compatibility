@@ -294,7 +294,7 @@ progress[value]::-webkit-progress-value {
     float: left;
     width: 24px;
     height: 24px;
-    margin-right: 12px;
+    margin-right: 8px;
     padding: 4px 0
 }
 
