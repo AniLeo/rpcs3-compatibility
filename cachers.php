@@ -342,7 +342,7 @@ function cache_build(int $pr) : void
                   isset($info_release_mac->message) ||
                   isset($info_release_mac_arm64->message);
 
-    $hour_limit = 2;
+    $hour_limit = 1;
     $is_missing_platform = $is_missing && time() - $merge_datetime >= (3600 * $hour_limit);
 
     // Error message found: Build doesn't exist in one of the repos
