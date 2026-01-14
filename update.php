@@ -122,6 +122,12 @@ function check_for_updates( string $api,
         $results['latest_build']['windows']['size']     = $latest->size_win;
         $results['latest_build']['windows']['checksum'] = $latest->checksum_win;
     }
+    else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "windows"))
+    {
+        $results['latest_build']['windows']['download'] = $latest->get_url_windows_arm64();
+        $results['latest_build']['windows']['size']     = $latest->size_win_arm64;
+        $results['latest_build']['windows']['checksum'] = $latest->checksum_win_arm64;
+    }
 
     if (substr($api, 1, 1) < 3 ||
         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
@@ -187,6 +193,12 @@ function check_for_updates( string $api,
                 $results['current_build']['windows']['download'] = $current->get_url_windows();
                 $results['current_build']['windows']['size']     = $current->size_win;
                 $results['current_build']['windows']['checksum'] = $current->checksum_win;
+            }
+            else if (substr($api, 1, 1) >= 3 && $os_arch === "arm64" && ($os_type === "all" || $os_type === "windows"))
+            {
+                $results['current_build']['windows']['download'] = $current->get_url_windows_arm64();
+                $results['current_build']['windows']['size']     = $current->size_win_arm64;
+                $results['current_build']['windows']['checksum'] = $current->checksum_win_arm64;
             }
 
             if (substr($api, 1, 1) < 3 ||
