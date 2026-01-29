@@ -200,7 +200,8 @@ function parse_build_properties(object $info) : ?array
             str_contains($asset->name, "linux64.AppImage") ||
             str_contains($asset->name, "linux_aarch64.AppImage") ||
             str_contains($asset->name, "macos.7z") ||
-            str_contains($asset->name, "macos_arm64.7z"))
+            str_contains($asset->name, "macos_arm64.7z") ||
+            str_contains($asset->name, "macos_aarch64.7z"))
         {
             $ret["filename"] = $asset->name;
         }
