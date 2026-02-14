@@ -62,4 +62,9 @@ class GameUpdatePackage
         }
         return null;
     }
+
+    public function get_size_mb() : float
+    {
+        return $this->size / 1024 / 1024;
+    }
 }

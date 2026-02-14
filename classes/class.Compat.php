@@ -529,8 +529,8 @@ public static function printTable() : void
         echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
         echo "<div class=\"compat-table-row compat-table-dropdown\">";
 
-
-        // TODO: Better printing of dropdown contents
+        // Update information
+        $changelog = "";
         $has_updates = false;
 
         foreach ($game->game_item as $item)
@@ -538,59 +538,51 @@ public static function printTable() : void
             foreach ($item->tags as $tag)
             {
                 if ($has_updates)
-                    echo "<hr>";
-
-                $has_updates = true;
-                $patchset = substr($tag->tag_id, 10);
-
-                echo "<p>Available updates for <b>{$item->game_id}</b>, latest patchset {$patchset}:<br>";
+                    print("<hr>");
+                else
+                    $has_updates = true;
+                
+                printf("<p>Available updates for <b>%s</b>, latest patchset %s:<br>", 
+                       $item->game_id, 
+                       substr($tag->tag_id, 10));
 
                 foreach ($tag->packages as $package)
                 {
-                    $size_mb = round($package->size / 1024 / 1024, 2);
-                    echo "- <b>Update v{$package->version}</b> ({$size_mb} MB)<br>";
+                    printf("- <b>Update v%s</b> (%.2f MB)<br>", 
+                           $package->version, 
+                           $package->get_size_mb());
 
-                    $changelog = $package->get_main_changelog();
-
-                    if (!is_null($changelog))
+                    if (!is_null($package->get_main_changelog()) && 
+                        !str_contains($changelog, $package->get_main_changelog()))
                     {
-                        echo "<br>";
-                        echo "<i>";
-
-                        $changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
-
-                        if (!$changelog)
-                        {
-                            continue;
-                        }
-
-                        if (str_contains($changelog, "<br><br><br>"))
-                        {
-                            $changelog = mb_ereg_replace("<br><br><br>", "<br><br>", $changelog);
-
-                            if (!$changelog)
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (substr($changelog, -4) === "<br>")
-                        {
-                            $changelog = substr($changelog, 0, -4);
-                        }
-
-                        echo $changelog;
-                        echo "</i>";
+                        $changelog .= $package->get_main_changelog();
                     }
                 }
 
-                echo "</p>";
+                print("</p>");
             }
         }
 
-        if (!$has_updates)
+        if (!empty($changelog))
         {
-            echo "<p>This game entry contains no available game updates</p>";
+            print("<br>");
+
+            // Replace DOS/Unix line-breaks with HTML line-breaks
+            $changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
+            while (str_contains($changelog, "<br><br>"))
+            {
+                $changelog = mb_ereg_replace("<br><br>", "<br>", $changelog);
+            }
+            while (str_ends_with($changelog, "<br>"))
+            {
+                $changelog = substr($changelog, 0, -4);
+            }
+
+            printf("<i>%s</i>", $changelog);
+        } 
+        else if (!$has_updates)
+        {
+            print("<p>This game entry contains no available game updates</p>");
         }
 
         echo "</div>";
