@@ -569,11 +569,11 @@ public static function printTable() : void
 
             // Replace DOS/Unix line-breaks with HTML line-breaks
             $changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
-            while (str_contains($changelog, "<br><br>"))
+            while (!empty($changelog) && str_contains($changelog, "<br><br>"))
             {
                 $changelog = mb_ereg_replace("<br><br>", "<br>", $changelog);
             }
-            while (str_ends_with($changelog, "<br>"))
+            while (!empty($changelog) && str_ends_with($changelog, "<br>"))
             {
                 $changelog = substr($changelog, 0, -4);
             }
