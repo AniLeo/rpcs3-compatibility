@@ -594,12 +594,32 @@ function compatibilityUpdater() : void
                     unset($a_updates[$cur_game->key]);
                     continue;
                 }
+
+                $attachment_count = count($a_updates[$cur_game->key]['attachments']);
+                $to_playable = $a_status[$thread->get_sid()]['name'] == "Playable";
+
+                if ($to_playable && $attachment_count < 4)
+                {
+                    printf("<b>Warning:</b> Attempted update to Playable with less than 4 attachments on post %s, only %d uploaded<br><br>",
+                           $html_a->to_string(),
+                           $attachment_count);
+                    continue;
+                }
+                else if (!$to_playable && $attachment_count < 2)
+                {
+                    printf("<b>Warning:</b> Attempted update to %s with less than 2 attachments on post %s, only %d uploaded<br><br>", 
+                           $a_status[$thread->get_sid()]['name'],
+                           $html_a->to_string(),
+                           $attachment_count);
+                    continue;
+                }
             }
 
             // Check if the distance between commit date and post is bigger than 4 weeks
             if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) > 4 * 604804)
             {
-                print("<b>Warning:</b> Distance between commit date and post bigger than 4 weeks<br>");
+                printf("<b>Warning:</b> Distance between commit and post dates bigger than 4 weeks on post %s<br><br>",
+                       $html_a->to_string());
             }
 
             // Green for existing commit, Red for non-existing commit
