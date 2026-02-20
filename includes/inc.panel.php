@@ -1234,7 +1234,25 @@ function export_wiki_settings() : void
         }
     }
 
-    $json = json_encode($a_gid, JSON_PRETTY_PRINT);
+    $api_result = array();
+
+    foreach ($a_gid as $gid => $settings)
+    {
+        $yaml = yaml_emit($settings);
+
+        // Remove leading dashes that have a space in front
+        $yaml = str_replace("- ", "  ", $yaml);
+        // Remove quotes
+        $yaml = str_replace("'", "", $yaml);
+        // Remove beginning and ending yaml delimiters
+        $yaml = str_replace("---\n", "", $yaml);
+        $yaml = str_replace("\n...\n", "", $yaml);
+
+        $api_result[$gid] = $yaml;
+    }
+
+    // Game ID string to valid config.yml as a string
+    $json = json_encode($api_result, JSON_PRETTY_PRINT);
     
     // JSON encoder error
     if (!$json)
