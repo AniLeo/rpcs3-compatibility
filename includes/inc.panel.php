@@ -1150,6 +1150,31 @@ function export_wiki_settings() : void
 
     $db_wiki   = get_database("wiki");
     $db_compat = get_database("compat");
+     
+    // Setting to category
+    $q_categories = mysqli_query($db_wiki, "SELECT cl_to AS category, REPLACE(REPLACE(REPLACE(REPLACE(page_title, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
+                                            FROM `categorylinks`
+                                            LEFT JOIN `page` 
+                                            ON `page`.`page_id` = `categorylinks`.`cl_from` 
+                                            WHERE `page_title` LIKE '%:%' AND `categorylinks`.`cl_to` IN
+                                                (SELECT `page_title` FROM page WHERE `page_id` IN 
+                                                    (SELECT `cl_from` FROM `categorylinks` WHERE `cl_to` = \"Config_file\")
+                                                );");
+
+    // Invalid query or database
+    if (is_bool($q_categories) || mysqli_num_rows($q_categories) == 0)
+    {
+        return;
+    }
+
+    // Setting name to setting category
+    $a_settings = array();
+
+    // Store setting name to setting category links
+    while ($row = mysqli_fetch_object($q_categories))
+    {
+        $a_settings[$row->setting] = $row->category;
+    }
 
     // Wiki page to setting
     $q_settings = mysqli_query($db_wiki, "SELECT cl_from AS wiki, replace(replace(replace(replace(cl_to, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
@@ -1201,7 +1226,11 @@ function export_wiki_settings() : void
             if (str_starts_with($row->setting, "Firmware libraries"))
                 continue;
 
-            $a_gid[$gid][] = $row->setting;
+            // Skip settings without a category link (Debug)
+            if (!array_key_exists($row->setting, $a_settings))
+                continue;
+
+            $a_gid[$gid][$a_settings[$row->setting]][] = $row->setting;
         }
     }
 
