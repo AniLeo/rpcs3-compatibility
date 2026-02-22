@@ -44,9 +44,6 @@ define('gh_token', 'TOKEN');
 // Netplay Statistics API
 define('np_api', 'URL');
 
-// Ensure timezone is set to UTC
-date_default_timezone_set('UTC');
-
 // Global config variables
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
