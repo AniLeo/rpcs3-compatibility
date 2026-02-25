@@ -33,56 +33,53 @@ $get = validateGet();
 
 // Non-HTML requests: These need to be displayed before any HTML code is loaded or the syntax is broken.
 
-// RSS Feed Request
-if (isset($get['rss']))
-{
-    if (isset($get['b']))
-    {
-        if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
-        header('Content-Type: text/xml');
-        $Builds = new Builds();
-        echo $Builds->getBuildsRSS();
-
-        // No need to load the rest of the page.
-        exit();
-    }
-    elseif (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n'))
-    {
-        if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
-        header('Content-Type: text/xml');
-        $History = new History();
-        $History->printHistoryRSS();
-
-        // No need to load the rest of the page.
-        exit();
-    }
-}
-
-// JSON API Request
+// API Request
 if (isset($get['api']))
 {
     // API: v1
     if ($get['api'] === "v1")
     {
-        if (isset($_GET['export']))
+        // RSS Feed Request
+        if (isset($get['rss']))
         {
-            if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
-            $results = exportDatabase();
-        }
-        elseif (isset($_GET['patch']))
-        {
-            if (!@include_once('patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
-            $results = exportGamePatches();
-        }
+            if (isset($get['b']))
+            {
+                if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
+                header('Content-Type: text/xml');
+                $Builds = new Builds();
+                echo $Builds->getBuildsRSS();
+            }
+            elseif (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n'))
+            {
+                if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
+                header('Content-Type: text/xml');
+                $History = new History();
+                $History->printHistoryRSS();
+            }
+        }  
+        // JSON APIs
         else
         {
-            if (!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
-            $Compat = new Compat();
-            $results = $Compat->APIv1();
-        }
+            if (isset($_GET['export']))
+            {
+                if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
+                $results = exportDatabase();
+            }
+            else if (isset($_GET['patch']))
+            {
+                if (!@include_once('patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
+                $results = exportGamePatches();
+            }
+            else
+            {
+                if (!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
+                $Compat = new Compat();
+                $results = $Compat->APIv1();
+            }
 
-        header('Content-Type: application/json');
-        echo json_encode($results, JSON_PRETTY_PRINT);
+            header('Content-Type: application/json');
+            echo json_encode($results, JSON_PRETTY_PRINT);
+        }   
     }
 
     // No need to load the rest of the page.

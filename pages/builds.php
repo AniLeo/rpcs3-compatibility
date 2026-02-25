@@ -26,7 +26,7 @@ if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("C
             <div class="container-con-wrapper">
 
                 <div class="container-tx1-block">
-                    <span class="compat-text">Builds History <a href="compatibility?b&rss">(RSS)</a></span>
+                    <span class="compat-text">Builds History <a href="compatibility?b&rss&api=v1" target="_blank">(RSS)</a></span>
                     <?php
                         Profiler::add_data("Page: Get Menu");
                         echo getMenu(__FILE__);
