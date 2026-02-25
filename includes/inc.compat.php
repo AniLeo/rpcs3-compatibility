@@ -151,7 +151,7 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !
         }
 
         // Replace faulty search with returned game but keep the original search for display
-        $l_orig   = $get['g'];
+        $l_orig   = htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8');
         $get['g'] = $l_title;
 
         // Re-run the main query
