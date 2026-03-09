@@ -1232,6 +1232,17 @@ function export_wiki_settings() : void
 
             $category = $a_settings[$row->setting];
 
+            // Unfold this setting as the UI dropdown changes two different config.yml settings
+            if (str_starts_with($row->setting, "ZCULL accuracy"))
+            {
+                $accurate_stats = str_ends_with($row->setting, "Precise") ? "true" : "false";
+                $relaxed_sync   = str_ends_with($row->setting, "Relaxed") ? "true" : "false";
+
+                $a_gid[$gid][$category][] = "Accurate ZCull stats: {$accurate_stats}";
+                $a_gid[$gid][$category][] = "Relaxed ZCull Sync: {$relaxed_sync}";
+                continue;
+            }
+
             // Skip network settings as netplay requires manual user setup
             if ($category === "Net")
                 continue;
