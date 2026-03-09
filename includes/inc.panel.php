@@ -1230,7 +1230,13 @@ function export_wiki_settings() : void
             if (!array_key_exists($row->setting, $a_settings))
                 continue;
 
-            $a_gid[$gid][$a_settings[$row->setting]][] = $row->setting;
+            $category = $a_settings[$row->setting];
+
+            // Skip network settings as netplay requires manual user setup
+            if ($category === "Net")
+                continue;
+
+            $a_gid[$gid][$category][] = $row->setting;
         }
     }
 
