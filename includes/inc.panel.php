@@ -1222,15 +1222,15 @@ function export_wiki_settings() : void
 
         foreach ($gid_list as $gid)
         {
-            // Currently incompatible
-            if (str_starts_with($row->setting, "Firmware libraries"))
-                continue;
-
             // Skip settings without a category link (Debug)
             if (!array_key_exists($row->setting, $a_settings))
                 continue;
 
             $category = $a_settings[$row->setting];
+
+            // Skip network settings as netplay requires manual user setup
+            if ($category === "Net")
+                continue;
 
             // Unfold this setting as the UI dropdown changes two different config.yml settings
             if (str_starts_with($row->setting, "ZCULL accuracy"))
@@ -1243,9 +1243,21 @@ function export_wiki_settings() : void
                 continue;
             }
 
-            // Skip network settings as netplay requires manual user setup
-            if ($category === "Net")
+            // This setting is a list in the configuration file
+            if (str_starts_with($row->setting, "Firmware libraries"))
+            {
+                $lib = explode(': ', $row->setting);
+
+                // Malformed category
+                if (count($lib) != 2)
+                    continue;
+
+                $lib = $lib[1];
+                $setting = "Libraries Control";
+
+                $a_gid[$gid][$category][$setting][] = sprintf("%s:lle", $lib);
                 continue;
+            }
 
             $a_gid[$gid][$category][] = $row->setting;
         }
@@ -1258,7 +1270,7 @@ function export_wiki_settings() : void
         $yaml = yaml_emit($settings);
 
         // Remove leading dashes that have a space in front
-        $yaml = str_replace("- ", "  ", $yaml);
+        $yaml = str_replace("\n- ", "\n  ", $yaml);
         // Remove quotes
         $yaml = str_replace("'", "", $yaml);
         // Remove beginning and ending yaml delimiters
