@@ -1249,7 +1249,7 @@ function export_wiki_settings() : void
                 $lib = explode(': ', $row->setting);
 
                 // Malformed category
-                if (count($lib) != 2)
+                if (count($lib) != 2 || !str_ends_with($lib[1], ".sprx"))
                     continue;
 
                 $lib = $lib[1];
@@ -1276,6 +1276,8 @@ function export_wiki_settings() : void
         // Remove beginning and ending yaml delimiters
         $yaml = str_replace("---\n", "", $yaml);
         $yaml = str_replace("\n...\n", "", $yaml);
+        // Remove category default array key
+        $yaml = preg_replace('/\d+:/', '', $yaml);
 
         $api_result[$gid] = $yaml;
     }
