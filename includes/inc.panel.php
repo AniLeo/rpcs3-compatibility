@@ -1151,15 +1151,23 @@ function export_wiki_settings() : void
     $db_wiki   = get_database("wiki");
     $db_compat = get_database("compat");
      
-    // Setting to category
+    // Setting to category and subcategory
     $q_categories = mysqli_query($db_wiki, "SELECT cl_to AS category, REPLACE(REPLACE(REPLACE(REPLACE(page_title, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
                                             FROM `categorylinks`
                                             LEFT JOIN `page` 
                                             ON `page`.`page_id` = `categorylinks`.`cl_from` 
-                                            WHERE `page_title` LIKE '%:%' AND `categorylinks`.`cl_to` IN
-                                                (SELECT `page_title` FROM page WHERE `page_id` IN 
-                                                    (SELECT `cl_from` FROM `categorylinks` WHERE `cl_to` = \"Config_file\")
-                                                );");
+                                            WHERE page_title LIKE '%:%' AND categorylinks.cl_to IN
+                                            (SELECT page_title FROM page WHERE page_id IN 
+                                                (SELECT cl_from FROM categorylinks WHERE cl_to = \"Config_file\")
+                                                OR 
+                                                (page_title NOT LIKE '%(Config)%' and page_id IN
+                                                    (SELECT cl_from FROM categorylinks WHERE cl_to IN
+                                                        (SELECT page_title FROM page WHERE page_id IN 
+                                                            (SELECT cl_from FROM categorylinks WHERE cl_to = \"Config_file\")
+                                                        )
+                                                    )
+                                                )
+                                            );");
 
     // Invalid query or database
     if (is_bool($q_categories) || mysqli_num_rows($q_categories) == 0)
@@ -1174,6 +1182,33 @@ function export_wiki_settings() : void
     while ($row = mysqli_fetch_object($q_categories))
     {
         $a_settings[$row->setting] = $row->category;
+    }
+
+    // Subcategories to category
+    $q_subcategories = mysqli_query($db_wiki, "SELECT category_page.page_title AS category, page.page_title AS subcategory
+                                     FROM page
+                                     JOIN categorylinks cl_subcategory 
+                                         ON cl_subcategory.cl_from = page.page_id
+                                     JOIN page category_page 
+                                         ON category_page.page_title = cl_subcategory.cl_to
+                                     JOIN categorylinks cl_category 
+                                         ON cl_category.cl_from = category_page.page_id
+                                     WHERE page.page_title NOT LIKE \"%(Config)%\"
+                                     AND cl_category.cl_to = \"Config_file\";");
+
+    // Invalid query or database
+    if (is_bool($q_subcategories) || mysqli_num_rows($q_subcategories) == 0)
+    {
+        return;
+    }
+
+    // Subcategory to category
+    $a_subcategories = array();
+
+    // Store subcategory to category links
+    while ($row = mysqli_fetch_object($q_subcategories))
+    {
+        $a_subcategories[$row->subcategory] = $row->category;
     }
 
     // Wiki page to setting
@@ -1232,6 +1267,16 @@ function export_wiki_settings() : void
             if ($category === "Net")
                 continue;
 
+            // Subcategories (only one level of depth supported)
+            if (array_key_exists($category, $a_subcategories))
+            {
+                $subcategory = $category;
+                $category = $a_subcategories[$subcategory];
+
+                $a_gid[$gid][$category][$subcategory][] = $row->setting;
+                continue;
+            }
+
             // Unfold this setting as the UI dropdown changes two different config.yml settings
             if (str_starts_with($row->setting, "ZCULL accuracy"))
             {
@@ -1270,6 +1315,7 @@ function export_wiki_settings() : void
         $yaml = yaml_emit($settings);
 
         // Remove leading dashes that have a space in front
+        $yaml = str_replace("\n  - ", "\n    ", $yaml);
         $yaml = str_replace("\n- ", "\n  ", $yaml);
         // Remove quotes
         $yaml = str_replace("'", "", $yaml);
@@ -1277,7 +1323,7 @@ function export_wiki_settings() : void
         $yaml = str_replace("---\n", "", $yaml);
         $yaml = str_replace("\n...\n", "", $yaml);
         // Remove category default array key
-        $yaml = preg_replace('/\d+:/', '', $yaml);
+        $yaml = preg_replace('/\d+: /', '', $yaml);
 
         $api_result[$gid] = $yaml;
     }
