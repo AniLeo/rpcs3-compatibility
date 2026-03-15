@@ -1300,7 +1300,7 @@ function export_wiki_settings() : void
                 $lib = $lib[1];
                 $setting = "Libraries Control";
 
-                $a_gid[$gid][$category][$setting][] = sprintf("%s:lle", $lib);
+                $a_gid[$gid][$category][$setting][] = sprintf("- %s:lle", $lib);
                 continue;
             }
 
