@@ -236,7 +236,7 @@ function check_for_updates( string $api,
                 // in_array: Workaround for builds that freeze on boot if changelog data is sent
                 if (substr($api, 1, 1) >= 2 && !in_array($current->pr, array("15390", "15392", "15394", "15395")))
                 {
-                    $q_between = mysqli_query($db, "SELECT `version`, `title` FROM `builds`
+                    $q_between = mysqli_query($db, "SELECT `version`, `title`, `pr` FROM `builds`
                                                     WHERE `merge_datetime`
                                                     BETWEEN CAST('{$current->merge}' AS DATETIME) + INTERVAL 1 SECOND
                                                     AND CAST('{$latest->merge}' AS DATETIME)
@@ -249,13 +249,15 @@ function check_for_updates( string $api,
                         {
                             // This should be unreachable unless the database structure is damaged
                             if (!property_exists($row, "version") ||
-                                !property_exists($row, "title"))
+                                !property_exists($row, "title") ||
+                                !property_exists($row, "pr"))
                             {
                                 continue;
                             }
 
                             $results['changelog'][] = array("version" => $row->version,
-                                                            "title" => $row->title);
+                                                            "title" => $row->title,
+                                                            "pr" => (int) $row->pr);
                         }
                     }
                 }
