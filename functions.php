@@ -673,7 +673,7 @@ function getFooter() : string
         $extensions = get_loaded_extensions();
         $yamlversion = in_array("yaml", $extensions) ? phpversion("yaml") : "<span class=\"color-red\">Missing</span>";
 
-        $html_div->add_content("<p><b>PHP:</b> {$phpversion}<br>YAML: {$yamlversion}</p>");
+        $html_div->add_content("<p><b>PHP Information</b></p><p><b>PHP:</b> {$phpversion}<br>YAML: {$yamlversion}</p>");
 
         $html_div->add_content(Profiler::get_data_html());
 

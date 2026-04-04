@@ -76,8 +76,19 @@ class Profiler
 
         $ret = "<p><b>".self::$title."</b><br>";
 
+        if (isset(self::$mem_start))
+        {
+            $ret .= "<p>".PHP_EOL;
+            $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "</p>";
+        }
+
         if (PHP_OS_FAMILY !== "Windows")
         {
+            $ret .= "<p><b>System Information</b><br>";
+
             $load = sys_getloadavg();
 
             // If there is an issue with the sys_getloadavg function
@@ -89,15 +100,33 @@ class Profiler
             $ret .= sprintf("Load (5m):  %.2f<br>", $load[1]);
             $ret .= sprintf("Load (15m): %.2f<br>", $load[2]);
             $ret .= "</p>";
-        }
 
-        if (isset(self::$mem_start))
-        {
-            $ret .= "<p>".PHP_EOL;
-            $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "</p>";
+            // Include total/available meminfo if readable
+            $meminfo = file_get_contents("/proc/meminfo");
+            if ($meminfo !== false)
+            {
+                $lines = explode(PHP_EOL, $meminfo);
+                $mem_total = 0;
+                $mem_available = 0;
+                
+                foreach ($lines as $line)
+                {
+                    $pieces = array();
+
+                    if (preg_match("/^MemTotal:\s+(\d+)\skB$/", $line, $pieces))
+                        $mem_total = $pieces[1];
+                    else if (preg_match("/^MemAvailable:\s+(\d+)\skB$/", $line, $pieces))
+                        $mem_available = $pieces[1];
+
+                    if ($mem_total > 0 && $mem_available > 0)
+                        break;
+                }
+
+                $ret .= "<p>";
+                $ret .= "Total Memory: ".round($mem_total/1024, 2)." MB<br>".PHP_EOL;
+                $ret .= "Available Memory: ".round($mem_available/1024, 2)." MB<br>".PHP_EOL;
+                $ret .= "</p>";
+            }
         }
 
         $size = count(self::$desc);
