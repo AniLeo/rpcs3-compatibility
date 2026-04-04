@@ -1273,6 +1273,10 @@ function export_wiki_settings() : void
                 $subcategory = $category;
                 $category = $a_subcategories[$subcategory];
 
+                // Initialise subcategory array as we're going to use it
+                if (!isset($a_gid[$gid][$category][$subcategory]) || !is_array($a_gid[$gid][$category][$subcategory]))
+                    $a_gid[$gid][$category][$subcategory] = array();
+
                 $a_gid[$gid][$category][$subcategory][] = $row->setting;
                 continue;
             }
@@ -1299,6 +1303,10 @@ function export_wiki_settings() : void
 
                 $lib = $lib[1];
                 $setting = "Libraries Control";
+
+                // Initialise firmware libraries array as we're going to use it
+                if (!isset($a_gid[$gid][$category][$setting]) || !is_array($a_gid[$gid][$category][$setting]))
+                    $a_gid[$gid][$category][$setting] = array();
 
                 $a_gid[$gid][$category][$setting][] = sprintf("- %s:lle", $lib);
                 continue;
