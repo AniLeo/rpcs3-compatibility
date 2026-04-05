@@ -180,7 +180,7 @@ public static function printTable() : void
         /* Cell 1: PR */
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
-        $title = is_null($build->title) ? "Pull Request #{$build->pr}" : $build->title;
+        $title = is_null($build->title) ? "Pull Request #{$build->pr}" : htmlspecialchars($build->title, ENT_QUOTES, 'UTF-8');
 
         $html_a_pr = new HTMLA($build->get_url_pr(), $title, "{$html_img_pr->to_string()}#{$build->pr}");
         $html_a_pr->set_target("_blank");
