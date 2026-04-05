@@ -266,9 +266,6 @@ public static function printCharSearch() : void
     // Get combined search parameters
     $s_query = $http_query->get_except(array("character", "search", "order"));
 
-    if (!empty($s_query))
-        $s_query .= '&';
-
     // Build characters array
     $a_chars[''] = 'All';
     $a_chars['09'] = '0-9';
@@ -286,7 +283,15 @@ public static function printCharSearch() : void
         $html_div_char = new HTMLDiv("compat-search-character");
         $html_div_char->add_content(highlightText($value, isset($get['c']) && $get['c'] === $key));
 
-        $html_a = new HTMLA("?{$s_query}c={$key}", $value, $html_div_char->to_string());
+        if (!empty($key))
+        {
+            if (!empty($s_query))
+                $s_query .= '&';
+
+            $s_query = "c={$key}";
+        }
+
+        $html_a = new HTMLA("?{$s_query}", $value, $html_div_char->to_string());
 
         $html_div_inner->add_content($html_a->to_string());
         $html_div_outer->add_content($html_div_inner->to_string());
