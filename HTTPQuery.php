@@ -172,7 +172,7 @@ class HTTPQuery
         // Application Type
         if (isset($this->type) && !in_array("type", $exclusions))
         {
-            if ($this->type !== 0)
+            if ($this->type !== 1)
                 $query["type"] = $this->type;
         }
 
