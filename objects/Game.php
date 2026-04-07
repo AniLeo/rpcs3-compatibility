@@ -24,6 +24,8 @@ if (!@include_once(__DIR__."/GameItem.php"))
     throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
 if (!@include_once(__DIR__."/GameUpdateTag.php"))
     throw new Exception("Compat: GameUpdateTag.php is missing. Failed to include GameUpdateTag.php");
+if (!@include_once(__DIR__."/Build.php"))
+    throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
 
 
 class Game
@@ -39,6 +41,7 @@ class Game
     public  int     $stereo_3d;
     public ?int     $pr;
     public ?string  $commit;
+    public ?string  $version;
     public ?int     $wiki_id;
     /** @var array<GameItem> $game_item **/
     public  array   $game_item;
@@ -210,6 +213,36 @@ class Game
         foreach ($games as $game)
         {
             $game->game_item = $a_items[$game->key];
+        }
+
+        mysqli_close($db);
+    }
+
+    // Import Build Version data to a Game array
+    /**
+    * @param array<Game> $games
+    */
+    public static function import_build_version(array &$games) : void
+    {
+        $db = get_database("compat");
+
+        $a_versions = array();
+        $q_versions = mysqli_query($db, "SELECT `pr`, `version`, DATE_FORMAT(`merge_datetime`, \"%Y-%m-%d\") as `datetime`
+                                         FROM `builds`
+                                         ORDER BY `version` ASC; ");
+
+        if (is_bool($q_versions))
+            return;
+
+        while ($row = mysqli_fetch_object($q_versions))
+        {
+            $a_versions[$row->pr] = Build::get_version_string($row->version, $row->datetime);
+        }
+
+        foreach ($games as $game)
+        {
+            if (!is_null($game->pr))
+                $game->version = $a_versions[$game->pr];
         }
 
         mysqli_close($db);

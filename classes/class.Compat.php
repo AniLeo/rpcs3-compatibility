@@ -514,9 +514,9 @@ public static function printTable() : void
 
         $html_div_cell->add_content($html_a_date->to_string());
 
-        if (!is_null($game->pr))
+        if (!is_null($game->pr) && !is_null($game->version))
         {
-            $html_a_pr = new HTMLA($game->get_url_pr(), "Tested on PR #{$game->pr}", "#{$game->pr}");
+            $html_a_pr = new HTMLA($game->get_url_pr(), "Tested on PR #{$game->pr}", "v{$game->version}");
             $html_a_pr->set_target("_blank");
 
             $html_div_cell->add_content("&nbsp;&nbsp;{$html_a_pr->to_string()}");

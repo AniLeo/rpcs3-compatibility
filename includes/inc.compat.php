@@ -195,6 +195,9 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) > 0)
 
     Profiler::add_data("Inc: Query to Games - Import Updates");
     Game::import_update_tags($games);
+
+    Profiler::add_data("Inc: Query to Games - Import Build Versions");
+    Game::import_build_version($games);
 }
 
 // Close MySQL connection.
