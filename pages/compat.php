@@ -80,6 +80,7 @@ if (!@include_once(__DIR__.'/../includes/inc.compat.php')) throw new Exception("
             <?php Profiler::add_data("Page: Display Searchbox"); ?>
             <div class="compat-con-searchbox">
                 <form method="get" id="game-search" action="#jump">
+                    <input type="hidden" name="type" value="0"> 
                     <div class="searchbox">
                         <input name="g" type="text" value="<?php if (isset($get['g'])) echo htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="Game Title / Game ID" />
                     </div>
