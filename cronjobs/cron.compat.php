@@ -23,3 +23,4 @@ if(!@include_once(__DIR__.'/../cachers.php')) throw new Exception("Compat: cache
 // Secondary tasks: Running every 5 minutes.
 cacheWikiIDs();
 cachePatches();
+cache_game_settings();
