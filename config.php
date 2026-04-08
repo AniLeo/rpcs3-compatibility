@@ -194,8 +194,8 @@ $a_panel = array(
     ),
     'cachePatches' => array(
         'category' => 3,
-        'title' => "Cache Patches",
-        'success' => "Forced update on game patches cache"
+        'title' => "Cache Game Patches",
+        'success' => "Updated the game patches cache"
     ),
     'flag_build_as_broken' => array(
         'category' => 1,
@@ -217,10 +217,10 @@ $a_panel = array(
         'title' => "Check Duplicated Entries",
         'success' => ""
     ),
-    'export_wiki_settings' => array(
+    'cache_game_settings' => array(
         'category' => 3,
-        'title' => "Export Wiki Settings",
-        'success' => ""
+        'title' => "Cache Game Settings",
+        'success' => "Updated the game settings cache"
     )
 );
 
