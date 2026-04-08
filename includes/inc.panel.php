@@ -1212,7 +1212,7 @@ function export_wiki_settings() : void
     }
 
     // Wiki page to setting
-    $q_settings = mysqli_query($db_wiki, "SELECT cl_from AS wiki, replace(replace(replace(replace(cl_to, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
+    $q_settings = mysqli_query($db_wiki, "SELECT cl_from AS wiki, replace(replace(replace(replace(cl_to, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting, cl_timestamp AS `timestamp`
                                           FROM categorylinks
                                           WHERE cl_to LIKE '%(Config)%' AND cl_to LIKE '%:%' 
                                           ORDER BY cl_from;");
@@ -1237,23 +1237,27 @@ function export_wiki_settings() : void
     }
 
     // Wiki page to array of game ids
-    $a_wiki = array();
+    $a_wiki_to_gid = array();
+    $a_gid_to_wiki = array();
     // Game id to array of settings
-    $a_gid = array();
+    $a_games = array();
+    // Wiki id to timestamp
+    $a_timestamp = array();
 
     // Store wiki page to game id links
     while ($row = mysqli_fetch_object($q_game))
     {
-        $a_wiki[$row->wiki][] = $row->gid;
+        $a_wiki_to_gid[$row->wiki][] = $row->gid;
+        $a_gid_to_wiki[$row->gid] = $row->wiki;
     }
 
     while ($row = mysqli_fetch_object($q_settings))
     {
         // Skip wiki pages that have settings but are not linked to compat db
-        if (!array_key_exists($row->wiki, $a_wiki))
+        if (!array_key_exists($row->wiki, $a_wiki_to_gid))
             continue;
 
-        $gid_list = $a_wiki[$row->wiki];
+        $gid_list = $a_wiki_to_gid[$row->wiki];
 
         foreach ($gid_list as $gid)
         {
@@ -1267,6 +1271,12 @@ function export_wiki_settings() : void
             if ($category === "Net")
                 continue;
 
+            if (!array_key_exists($row->wiki, $a_timestamp) ||
+                $a_timestamp[$row->wiki] < $row->timestamp)
+            {
+                $a_timestamp[$row->wiki] = $row->timestamp;
+            }
+
             // Subcategories (only one level of depth supported)
             if (array_key_exists($category, $a_subcategories))
             {
@@ -1274,10 +1284,10 @@ function export_wiki_settings() : void
                 $category = $a_subcategories[$subcategory];
 
                 // Initialise subcategory array as we're going to use it
-                if (!isset($a_gid[$gid][$category][$subcategory]) || !is_array($a_gid[$gid][$category][$subcategory]))
-                    $a_gid[$gid][$category][$subcategory] = array();
+                if (!isset($a_games[$gid][$category][$subcategory]) || !is_array($a_games[$gid][$category][$subcategory]))
+                    $a_games[$gid][$category][$subcategory] = array();
 
-                $a_gid[$gid][$category][$subcategory][] = $row->setting;
+                $a_games[$gid][$category][$subcategory][] = $row->setting;
                 continue;
             }
 
@@ -1287,8 +1297,8 @@ function export_wiki_settings() : void
                 $accurate_stats = str_ends_with($row->setting, "Precise") ? "true" : "false";
                 $relaxed_sync   = str_ends_with($row->setting, "Relaxed") ? "true" : "false";
 
-                $a_gid[$gid][$category][] = "Accurate ZCull stats: {$accurate_stats}";
-                $a_gid[$gid][$category][] = "Relaxed ZCull Sync: {$relaxed_sync}";
+                $a_games[$gid][$category][] = "Accurate ZCull stats: {$accurate_stats}";
+                $a_games[$gid][$category][] = "Relaxed ZCull Sync: {$relaxed_sync}";
                 continue;
             }
 
@@ -1305,20 +1315,20 @@ function export_wiki_settings() : void
                 $setting = "Libraries Control";
 
                 // Initialise firmware libraries array as we're going to use it
-                if (!isset($a_gid[$gid][$category][$setting]) || !is_array($a_gid[$gid][$category][$setting]))
-                    $a_gid[$gid][$category][$setting] = array();
+                if (!isset($a_games[$gid][$category][$setting]) || !is_array($a_games[$gid][$category][$setting]))
+                    $a_games[$gid][$category][$setting] = array();
 
-                $a_gid[$gid][$category][$setting][] = sprintf("- %s:lle", $lib);
+                $a_games[$gid][$category][$setting][] = sprintf("- %s:lle", $lib);
                 continue;
             }
-
-            $a_gid[$gid][$category][] = $row->setting;
+            
+            $a_games[$gid][$category][] = $row->setting;
         }
     }
 
     $api_result = array();
 
-    foreach ($a_gid as $gid => $settings)
+    foreach ($a_games as $gid => $settings)
     {
         $yaml = yaml_emit($settings);
 
@@ -1335,6 +1345,74 @@ function export_wiki_settings() : void
 
         $api_result[$gid] = $yaml;
     }
+
+    // Add to database
+    $db = get_database("compat");
+
+    // Get the timestamps from all game configs currently on database
+    $q_config = mysqli_query($db, "SELECT `game_id`, `timestamp`
+                                   FROM `rpcs3_compatibility`.`game_settings`; ");
+
+    // This should be unreachable unless the database structure is damaged
+    if (is_bool($q_config))
+        return;
+
+    // Results
+    $a_config = array();
+    if (mysqli_num_rows($q_config) !== 0)
+    {
+        while ($row = mysqli_fetch_object($q_config))
+        {
+            // This should be unreachable unless the database structure is damaged
+            if (!property_exists($row, "game_id") ||
+                !property_exists($row, "timestamp"))
+            {
+                continue;
+            }
+
+            $a_config[$row->game_id] = $row->timestamp;
+        }
+    }
+
+    foreach ($api_result as $gid => $config)
+    {
+        if (!is_string($config))
+            continue;
+        
+        $wiki_id   = $a_gid_to_wiki[$gid];
+        $timestamp = $a_timestamp[$wiki_id];
+
+        $db_game_id   = mysqli_real_escape_string($db, $gid);
+        $db_wiki_id   = mysqli_real_escape_string($db, $wiki_id);
+        $db_timestamp = mysqli_real_escape_string($db, $timestamp);
+        $db_config    = mysqli_real_escape_string($db, $config);
+
+        // No existing config found, insert new config
+        if (!isset($a_config[$gid]))
+        {
+            mysqli_query($db, "INSERT INTO `rpcs3_compatibility`.`game_settings`
+                               (`game_id`,
+                                `wiki_id`,
+                                `timestamp`,
+                                `config`)
+                               VALUES ('{$db_game_id}',
+                                       '{$db_wiki_id}',
+                                       '{$db_timestamp}',
+                                       '{$db_config}'); ");     
+        }
+        // Existing config found with a different timestamp, update it
+        else if ($db_timestamp !== $a_config[$gid])
+        {
+            mysqli_query($db, "UPDATE `rpcs3_compatibility`.`game_settings`
+                               SET `timestamp` = '{$db_timestamp}',
+                                   `config`    = '{$db_config}'
+                               WHERE `game_id` = '{$db_game_id}'
+                                 AND `wiki_id` = '{$db_wiki_id}'; ");
+        }
+        
+    }
+
+    mysqli_close($db);
 
     // Game ID string to valid config.yml as a string
     $json = json_encode($api_result, JSON_PRETTY_PRINT);

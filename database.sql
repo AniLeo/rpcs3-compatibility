@@ -128,6 +128,18 @@ CREATE TABLE `game_patch` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
+-- Table structure for game_settings
+-- ----------------------------
+DROP TABLE IF EXISTS `game_settings`;
+CREATE TABLE `game_settings` (
+  `game_id` varchar(11) NOT NULL,
+  `wiki_id` int(11) NOT NULL,
+  `timestamp` timestamp NOT NULL,
+  `config` mediumtext NOT NULL,
+  PRIMARY KEY (`game_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
 -- Table structure for game_update_titlepatch
 -- ----------------------------
 DROP TABLE IF EXISTS `game_update_titlepatch`;
