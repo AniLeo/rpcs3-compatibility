@@ -62,12 +62,12 @@ if (isset($get['api']))
         {
             if (isset($_GET['export']))
             {
-                if (!@include_once('export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
+                if (!@include_once('api/export.php')) throw new Exception("Compat: export.php is missing. Failed to include export.php");
                 $results = exportDatabase();
             }
             else if (isset($_GET['patch']))
             {
-                if (!@include_once('patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
+                if (!@include_once('api/patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
                 $results = exportGamePatches();
             }
             else
