@@ -1807,14 +1807,18 @@ function cache_game_settings() : void
             if (!array_key_exists($row->setting, $a_settings))
                 continue;
 
+            // Skip malformed setting values
+            if (!preg_match("/[^A-Za-z0-9 ()\-_]/", $row->setting))
+                continue;
+
             $category = $a_settings[$row->setting];
 
             // Skip network settings as netplay requires manual user setup
             if ($category === "Net")
                 continue;
 
-            if (!array_key_exists($row->wiki, $a_timestamp) ||
-                $a_timestamp[$row->wiki] < $row->timestamp)
+            // Update last update timestamp for the current game
+            if (!array_key_exists($row->wiki, $a_timestamp) || $a_timestamp[$row->wiki] < $row->timestamp)
             {
                 $a_timestamp[$row->wiki] = $row->timestamp;
             }
@@ -1862,6 +1866,12 @@ function cache_game_settings() : void
 
                 $a_games[$gid][$category][$setting][] = sprintf("- %s:lle", $lib);
                 continue;
+            }
+
+            // Normalise AF frontend values to their config value setting
+            if (str_starts_with($row->setting, "Anisotropic Filter Override"))
+            {
+                $row->setting = "Anisotropic Filter Override: " . (int) preg_replace("/\D+/", "", $row->setting);
             }
             
             $a_games[$gid][$category][] = $row->setting;
