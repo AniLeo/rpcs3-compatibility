@@ -18,11 +18,11 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
-if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Profiler.php is missing. Failed to include Profiler.php");
-if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
-if (!@include_once(__DIR__."/../http/HTTPQuery.php")) throw new Exception("Compat: HTTPQuery.php is missing. Failed to include HTTPQuery.php");
+if (!@include_once(__DIR__."/../functions.php"))        throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/Build.php"))    throw new Exception("Compat: Failed to include objects/Build.php");
+if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Failed to include objects/Profiler.php");
+if (!@include_once(__DIR__."/../html/HTML.php"))        throw new Exception("Compat: Failed to include html/HTML.php");
+if (!@include_once(__DIR__."/../http/HTTPQuery.php"))   throw new Exception("Compat: Failed to include http/HTTPQuery.php");
 
 
 class Builds {

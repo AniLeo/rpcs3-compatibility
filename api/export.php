@@ -18,10 +18,8 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-// Calls for the file that contains the functions needed
-if (!@include_once(__DIR__.'/../functions.php')) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
+if (!@include_once(__DIR__."/../functions.php"))    throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Failed to include objects/Game.php");
 
 
 /**

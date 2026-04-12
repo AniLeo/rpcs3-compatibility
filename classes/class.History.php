@@ -18,9 +18,9 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../objects/HistoryEntry.php")) throw new Exception("Compat: HistoryEntry.php is missing. Failed to include HistoryEntry.php");
-if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+if (!@include_once(__DIR__."/../functions.php"))            throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/../objects/HistoryEntry.php")) throw new Exception("Compat: Failed to include objects/HistoryEntry.php");
+if (!@include_once(__DIR__."/../html/HTML.php"))            throw new Exception("Compat: Failed to include html/HTML.php");
 
 
 class History {

@@ -18,14 +18,10 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../functions.php"))
-    throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/GameItem.php"))
-    throw new Exception("Compat: GameItem.php is missing. Failed to include GameItem.php");
-if (!@include_once(__DIR__."/GameUpdateTag.php"))
-    throw new Exception("Compat: GameUpdateTag.php is missing. Failed to include GameUpdateTag.php");
-if (!@include_once(__DIR__."/Build.php"))
-    throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
+if (!@include_once(__DIR__."/../functions.php"))  throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/GameItem.php"))      throw new Exception("Compat: Failed to include objects/GameItem.php");
+if (!@include_once(__DIR__."/GameUpdateTag.php")) throw new Exception("Compat: Failed to include objects/GameUpdateTag.php");
+if (!@include_once(__DIR__."/Build.php"))         throw new Exception("Compat: Failed to include objects/Build.php");
 
 
 class Game

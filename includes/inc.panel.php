@@ -18,13 +18,12 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
-if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Game.php is missing. Failed to include Game.php");
-if (!@include_once(__DIR__."/../objects/Build.php")) throw new Exception("Compat: Build.php is missing. Failed to include Build.php");
-if (!@include_once(__DIR__."/../objects/MyBBThread.php")) throw new Exception("Compat: MyBBThread.php is missing. Failed to include MyBBThread.php");
-if (!@include_once(__DIR__."/../html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+if (!@include_once(__DIR__."/../functions.php"))          throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/../cachers.php"))            throw new Exception("Compat: Failed to include cachers.php");
+if (!@include_once(__DIR__."/../objects/Game.php"))       throw new Exception("Compat: Failed to include objects/Game.php");
+if (!@include_once(__DIR__."/../objects/Build.php"))      throw new Exception("Compat: Failed to include objects/Build.php");
+if (!@include_once(__DIR__."/../objects/MyBBThread.php")) throw new Exception("Compat: Failed to include objects/MyBBThread.php");
+if (!@include_once(__DIR__."/../html/HTML.php"))          throw new Exception("Compat: Failed to include html/HTML.php");
 
 
 /*

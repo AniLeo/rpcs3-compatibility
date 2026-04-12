@@ -18,10 +18,8 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/GameUpdateChangelog.php"))
-    throw new Exception("Compat: GameUpdateChangelog.php is missing. Failed to include GameUpdateChangelog.php");
-if (!@include_once(__DIR__."/GameUpdateTitle.php"))
-    throw new Exception("Compat: GameUpdateTitle.php is missing. Failed to include GameUpdateTitle.php");
+if (!@include_once(__DIR__."/GameUpdateChangelog.php")) throw new Exception("Compat: Failed to include objects/GameUpdateChangelog.php");
+if (!@include_once(__DIR__."/GameUpdateTitle.php"))     throw new Exception("Compat: Failed to include objects/GameUpdateTitle.php");
 
 
 class GameUpdatePackage

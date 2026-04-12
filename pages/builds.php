@@ -18,7 +18,7 @@
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <?php
-if(!@include_once(__DIR__.'/../includes/inc.builds.php')) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
+if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("Compat: Failed to include includes/inc.builds.php");
 ?>
 <div class="page-con-container">
     <div class="page-in-container">

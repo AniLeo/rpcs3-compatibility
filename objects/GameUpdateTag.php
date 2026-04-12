@@ -18,8 +18,7 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/GameUpdatePackage.php"))
-    throw new Exception("Compat: GameUpdatePackage.php is missing. Failed to include GameUpdatePackage.php");
+if (!@include_once(__DIR__."/GameUpdatePackage.php")) throw new Exception("Compat: Failed to include objects/GameUpdatePackage.php");
 
 
 class GameUpdateTag

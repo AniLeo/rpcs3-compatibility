@@ -18,9 +18,8 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-if (!@include_once("functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: objects/Profiler.php is missing. Failed to include objects/Profiler.php");
+if (!@include_once("functions.php"))        throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: Failed to include objects/Profiler.php");
 
 // Check if we're running PHP 8.2 or above
 if (phpversion()[0] < 8 || ((int) phpversion()[0] === 8 && phpversion()[2] < 2))

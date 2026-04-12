@@ -18,7 +18,10 @@
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <?php
-if (isset($get['a'])) { if (!@include_once(__DIR__.'/../includes/inc.panel.php')) throw new Exception("Compat: inc.panel.php is missing. Failed to include inc.panel.php"); }
+if (isset($get['a']))
+{ 
+    if (!@include_once(__DIR__."/../includes/inc.panel.php")) throw new Exception("Compat: Failed to include includes/inc.panel.php");
+}
 ?>
 <div class="page-con-container">
     <div class="page-in-container">

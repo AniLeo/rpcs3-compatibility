@@ -18,9 +18,8 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-if(!@include_once("config.php")) throw new Exception("Compat: config.php is missing. Failed to include config.php");
-if(!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: HTML.php is missing. Failed to include HTML.php");
+if (!@include_once(__DIR__."/config.php"))    throw new Exception("Compat: Failed to include config.php");
+if (!@include_once(__DIR__."/html/HTML.php")) throw new Exception("Compat: Failed to include html/HTML.php");
 
 
 /**

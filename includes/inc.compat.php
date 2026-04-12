@@ -18,11 +18,9 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-// Calls for the file that contains the functions needed
-if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: functions.php is missing. Failed to include functions.php");
-if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: cachers.php is missing. Failed to include cachers.php");
-if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception("Compat: class.Compat.php is missing. Failed to include class.Compat.php");
+if (!@include_once(__DIR__."/../functions.php"))            throw new Exception("Compat: Failed to include functions.php");
+if (!@include_once(__DIR__."/../cachers.php"))              throw new Exception("Compat: Failed to include cachers.php");
+if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception("Compat: Failed to include classes/class.Compat.php");
 
 
 // Profiler
