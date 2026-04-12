@@ -236,7 +236,7 @@ class Game
 
         while ($row = mysqli_fetch_object($q_versions))
         {
-            $a_versions[$row->pr] = Build::get_version_string($row->version, $row->datetime);
+            $a_versions[$row->pr] = $row->version;
         }
 
         foreach ($games as $game)

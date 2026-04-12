@@ -140,7 +140,7 @@ class Build
             $this->fulldate = date_format($datetime, "Y-m-d");
 
         $this->diffdate = getDateDiff($this->merge);
-        $this->version  = self::get_version_string($version, $this->fulldate);
+        $this->version  = $version;
     }
 
     public function get_url_pr() : string
@@ -442,28 +442,5 @@ class Build
 
         $ret = self::query_to_builds($query);
         return $ret[0];
-    }
-
-    public static function get_version_string(string $version, string $fulldate) : string
-    {
-        if (substr($version, 0, 4) === "1.0.")
-        {
-            if (strtotime($fulldate) >= strtotime("2016-04-16") && strtotime($fulldate) <= strtotime("2017-01-30"))
-            {
-                return str_replace("1.0.", "0.0.0.9-", $version);
-            }
-            if (strtotime($fulldate) >= strtotime("2015-10-03") && strtotime($fulldate) <= strtotime("2016-04-16"))
-            {
-                return str_replace("1.0.", "0.0.0.6-", $version);
-            }
-            if (strtotime($fulldate) >= strtotime("2014-06-28") && strtotime($fulldate) <= strtotime("2015-10-03"))
-            {
-                return str_replace("1.0.", "0.0.0.5-", $version);
-            }
-
-            return str_replace("1.0.", "0.0.0-", $version);
-        }
-
-        return $version;
     }
 }
