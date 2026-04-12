@@ -11,6 +11,7 @@ CREATE TABLE `game_list` (
   `last_update` date NOT NULL,
   `wiki` int(11) DEFAULT NULL,
   `pr` int(11) DEFAULT NULL,
+  `version` varchar(64) DEFAULT NULL,
   `build_commit` varchar(64) DEFAULT NULL,
   `network` tinyint(1) NOT NULL DEFAULT '0',
   `3d` tinyint(1) NOT NULL DEFAULT '0',

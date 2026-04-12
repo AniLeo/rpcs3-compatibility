@@ -200,7 +200,7 @@ function compatibilityUpdater() : void
 
     // Cache commits
     $a_commits = array();
-    $q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `merge_datetime`
+    $q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `version`, `merge_datetime`
                                     FROM `builds`
                                     WHERE `merge_datetime` > CURDATE() - INTERVAL 1 YEAR 
                                     ORDER BY `merge_datetime` DESC;");
@@ -216,13 +216,16 @@ function compatibilityUpdater() : void
         // This should be unreachable unless the database structure is damaged
         if (!property_exists($row, "pr") ||
             !property_exists($row, "commit") ||
+            !property_exists($row, "version") ||
             !property_exists($row, "merge_datetime"))
         {
             print("<b>Error while fetching the builds list</b>");
             return;
         }
 
-        $a_commits[$row->commit] = array("pr" => $row->pr, "merge" => $row->merge_datetime);
+        $a_commits[$row->commit] = array("pr" => $row->pr, 
+                                         "version" => $row->version, 
+                                         "merge" => $row->merge_datetime);
     }
 
     // Get all threads since the end of the last compatibility period
@@ -393,6 +396,7 @@ function compatibilityUpdater() : void
                     $a_inserts[$thread->tid]['thread']->set_post_id($post->pid);
                     $a_inserts[$thread->tid]['commit'] = (string) $commit;
                     $a_inserts[$thread->tid]['pr'] = $value["pr"];
+                    $a_inserts[$thread->tid]['version'] = $value["version"];
                     $a_inserts[$thread->tid]['last_update'] = date('Y-m-d', $post->dateline);
                     $a_inserts[$thread->tid]['author'] = $post->username;
                     break 2;
@@ -404,7 +408,8 @@ function compatibilityUpdater() : void
 
             // Invalid report found
             if (is_null($a_inserts[$thread->tid]['commit']) ||
-                is_null($a_inserts[$thread->tid]['pr']) /*||
+                is_null($a_inserts[$thread->tid]['pr']) ||
+                is_null($a_inserts[$thread->tid]['version']) /*||
                 !str_starts_with($a_inserts[$thread->tid]['last_update'], "2025-10")*/)
             {
                 printf("<b>Error!</b> Invalid report found on tid: %s<br><br>",
@@ -414,6 +419,7 @@ function compatibilityUpdater() : void
             }
 
             // Valid report found
+            $version       = $a_inserts[$thread->tid]['version'];
             $commit        = $a_inserts[$thread->tid]['commit'];
             $date_commit   = "({$a_commits[$commit]["merge"]})";
 
@@ -426,8 +432,8 @@ function compatibilityUpdater() : void
                    $a_status[$thread->get_sid()]['color'],
                    $a_status[$thread->get_sid()]['name'],
                    $a_inserts[$thread->tid]['last_update']);
-            printf("- Commit: <span style='color:green'>%s</span> %s<br>",
-                   $commit,
+            printf("- Version: <span style='color:green'>%s</span> %s<br>",
+                   $version,
                    $date_commit);
             print("<br>");
 
@@ -469,6 +475,7 @@ function compatibilityUpdater() : void
                     'status' => $thread->get_sid(),
                     'commit' => null,
                     'pr' => null,
+                    'version' => null,
                     'last_update' => null,
                     'action' => 'mov',
                     'old_date' => $cur_game->date,
@@ -543,6 +550,7 @@ function compatibilityUpdater() : void
                         $a_updates[$cur_game->key]['thread']->set_post_id($post->pid);
                         $a_updates[$cur_game->key]['commit'] = (string) $commit;
                         $a_updates[$cur_game->key]['pr'] = $value["pr"];
+                        $a_updates[$cur_game->key]['version'] = $value["version"];
                         $a_updates[$cur_game->key]['last_update'] = date('Y-m-d', $post->dateline);
                         $a_updates[$cur_game->key]['author'] = $post->username;
                         $a_updates[$cur_game->key]['pid'] = $post->pid;
@@ -556,6 +564,7 @@ function compatibilityUpdater() : void
             // then ignore this entry and continue
             if (is_null($a_updates[$cur_game->key]['commit']) ||
                 is_null($a_updates[$cur_game->key]['pr']) ||
+                is_null($a_updates[$cur_game->key]['version']) ||
                 is_null($a_updates[$cur_game->key]['last_update']) ||
                 /*!str_starts_with(($a_updates[$cur_game->key]['last_update']), "2025-10") ||*/
                 strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']))
@@ -624,9 +633,10 @@ function compatibilityUpdater() : void
 
             // Green for existing commit, Red for non-existing commit
             $old_status_commit = !is_null($cur_game->pr) ? 'color-green' : 'color-red';
+            $version           = $a_updates[$cur_game->key]['version'];
             $commit            = $a_updates[$cur_game->key]['commit'];
             $date_commit       = "({$a_commits[$commit]["merge"]})";
-            $old_commit        = !is_null($cur_game->commit) ? substr($cur_game->commit, 0, 8) : "null";
+            $old_version        = !is_null($cur_game->version) ? $cur_game->version : "null";
 
             printf("<b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
                    $thread->get_game_id(),
@@ -640,11 +650,11 @@ function compatibilityUpdater() : void
                    $a_status[$cur_game->status]['color'],
                    $a_status[$cur_game->status]['name'],
                    $cur_game->date);
-            printf("- Commit: <span class='color-green'>%s</span> %s <-- <span class='%s'>%s</span> (%s)<br>",
-                   $commit,
+            printf("- Version: <span class='color-green'>%s</span> %s <-- <span class='%s'>%s</span> (%s)<br>",
+                   $version,
                    $date_commit,
                    $old_status_commit,
-                   $old_commit,
+                   $old_version,
                    $cur_game->date);
             foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
             {
@@ -687,22 +697,24 @@ function compatibilityUpdater() : void
             $db_game_title = mysqli_real_escape_string($db, $game['thread']->get_game_title());
 
             // Insert new entry on the game list
-            mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `last_update`, `status`, `type`) VALUES
+            mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `version`, `last_update`, `status`, `type`) VALUES
             ('{$db_game_title}',
             '".mysqli_real_escape_string($db, $game['commit'])."',
             '".mysqli_real_escape_string($db, $game['pr'])."',
+            '".mysqli_real_escape_string($db, $game['version'])."',
             '{$game['last_update']}',
             {$game['thread']->get_sid()},
             {$game['thread']->get_game_type()});");
 
             // Get the key from the entry that was just inserted
             $q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
-            `game_title` = '{$db_game_title}' AND
+            `game_title`   = '{$db_game_title}' AND
             `build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
-            `pr` = '".mysqli_real_escape_string($db, $game['pr'])."' AND
-            `last_update` = '{$game['last_update']}' AND
-            `status` = {$game['thread']->get_sid()} AND
-            `type` = {$game['thread']->get_game_type()}
+            `pr`           = '".mysqli_real_escape_string($db, $game['pr'])."' AND
+            `version`      = '".mysqli_real_escape_string($db, $game['version'])."' AND
+            `last_update`  = '{$game['last_update']}' AND
+            `status`       = {$game['thread']->get_sid()} AND
+            `type`         = {$game['thread']->get_game_type()}
             ORDER BY `key` DESC LIMIT 1");
 
             if (is_bool($q_fetchkey))
@@ -743,9 +755,10 @@ function compatibilityUpdater() : void
             // Update entry parameters on game list
             mysqli_query($db, "UPDATE `game_list` SET
             `build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."',
-            `pr` = '".mysqli_real_escape_string($db, $game['pr'])."',
-            `last_update` = '{$game['last_update']}',
-            `status` = '{$game['status']}'
+            `pr`           = '".mysqli_real_escape_string($db, $game['pr'])."',
+            `version`      = '".mysqli_real_escape_string($db, $game['version'])."',
+            `last_update`  = '{$game['last_update']}',
+            `status`       = '{$game['status']}'
             WHERE `key` = {$key};");
 
             // Log change to game history

@@ -40,8 +40,8 @@ class Game
     public  int     $move;
     public  int     $stereo_3d;
     public ?int     $pr;
-    public ?string  $commit;
     public ?string  $version;
+    public ?string  $commit;
     public ?int     $wiki_id;
     /** @var array<GameItem> $game_item **/
     public  array   $game_item;
@@ -56,6 +56,7 @@ class Game
                           int    $move,
                           int    $stereo_3d,
                          ?int    $pr,
+                         ?string $version,
                          ?string $commit,
                          ?int    $wiki_id)
     {
@@ -65,8 +66,9 @@ class Game
         $this->type       = $type;
         $this->status     = $status;
         $this->date       = $date;
-        $this->commit     = $commit;
         $this->pr         = $pr;
+        $this->version    = $version;
+        $this->commit     = $commit;
         $this->network    = $network;
         $this->move       = $move;
         $this->stereo_3d  = $stereo_3d;
@@ -218,36 +220,6 @@ class Game
         mysqli_close($db);
     }
 
-    // Import Build Version data to a Game array
-    /**
-    * @param array<Game> $games
-    */
-    public static function import_build_version(array &$games) : void
-    {
-        $db = get_database("compat");
-
-        $a_versions = array();
-        $q_versions = mysqli_query($db, "SELECT `pr`, `version`, DATE_FORMAT(`merge_datetime`, \"%Y-%m-%d\") as `datetime`
-                                         FROM `builds`
-                                         ORDER BY `version` ASC; ");
-
-        if (is_bool($q_versions))
-            return;
-
-        while ($row = mysqli_fetch_object($q_versions))
-        {
-            $a_versions[$row->pr] = $row->version;
-        }
-
-        foreach ($games as $game)
-        {
-            if (!is_null($game->pr))
-                $game->version = $a_versions[$game->pr];
-        }
-
-        mysqli_close($db);
-    }
-
     // Returns a Game array from a mysqli_result object
     /**
     * @return array<Game> $games
@@ -272,6 +244,7 @@ class Game
                 !property_exists($row, "move") ||
                 !property_exists($row, "3d") ||
                 !property_exists($row, "pr") ||
+                !property_exists($row, "version") ||
                 !property_exists($row, "build_commit") ||
                 !property_exists($row, "wiki") ||
                 is_null(getStatusID($row->status)))
@@ -289,6 +262,7 @@ class Game
                                   $row->move,
                                   $row->{"3d"},
                                   $row->pr,
+                                  $row->version,
                                   $row->build_commit,
                                   $row->wiki);
         }
