@@ -21,10 +21,10 @@
 if (!@include_once("functions.php"))        throw new Exception("Compat: Failed to include functions.php");
 if (!@include_once("objects/Profiler.php")) throw new Exception("Compat: Failed to include objects/Profiler.php");
 
-// Check if we're running PHP 8.2 or above
-if (phpversion()[0] < 8 || ((int) phpversion()[0] === 8 && phpversion()[2] < 2))
+// Check if we're running PHP 8.5 or above
+if (phpversion()[0] < 8 || ((int) phpversion()[0] === 8 && phpversion()[2] < 5))
 {
-    trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 8.2+", E_USER_ERROR);
+    trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 8.5+", E_USER_ERROR);
 }
 
 // Parses the GET data before any other code
