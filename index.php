@@ -69,6 +69,11 @@ if (isset($get['api']))
                 if (!@include_once('api/patch.php')) throw new Exception("Compat: patch.php is missing. Failed to include patch.php");
                 $results = exportGamePatches();
             }
+            else if (isset($_GET['config']))
+            {
+                if (!@include_once('api/config.php')) throw new Exception("Compat: config.php is missing. Failed to include config.php");
+                $results = exportGameConfigs();
+            }
             else
             {
                 if (!@include_once("includes/inc.compat.php")) throw new Exception("Compat: inc.compat.php is missing. Failed to include inc.compat.php");
