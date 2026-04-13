@@ -147,6 +147,26 @@ $a_panel_categories = array(
 );
 
 $a_panel = array(
+    'cache_initials' => array(
+        'category' => 0,
+        'title' => "Cache Initials",
+        'success' => "Forced update on initials cache"
+    ),
+    'cache_game_count' => array(
+        'category' => 0,
+        'title' => "Cache Game Count",
+        'success' => "Forced update on game count"
+    ),
+    'cache_games_updates' => array(
+        'category' => 0,
+        'title' => "Cache Game Updates",
+        'success' => "Updated latest game version cache"
+    ),
+    'cache_netplay_statistics' => array(
+        'category' => 0,
+        'title' => "Cache Netplay Statistics",
+        'success' => "Cached Netplay Statistics for the current timestamp"
+    ),
     'cache_builds' => array(
         'category' => 1,
         'title' => "Update Build Cache",
@@ -157,25 +177,15 @@ $a_panel = array(
         'title' => "Refresh Build",
         'success' => "Refreshed build"
     ),
-    'cacheInitials' => array(
-        'category' => 0,
-        'title' => "Cache Initials",
-        'success' => "Forced update on initials cache"
+    'flag_build_as_broken' => array(
+        'category' => 1,
+        'title' => "Flag Build as Broken",
+        'success' => ""
     ),
-    'cacheGameCount' => array(
-        'category' => 0,
-        'title' => "Cache Game Count",
-        'success' => "Forced update on game count"
-    ),
-    'cacheWikiIDs' => array(
-        'category' => 3,
-        'title' => "Cache Wiki IDs",
-        'success' => "Forced update on Wiki IDs cache"
-    ),
-    'cache_games_updates' => array(
-        'category' => 0,
-        'title' => "Cache Game Updates",
-        'success' => "Updated latest game version cache"
+    'export_build_backup' => array(
+        'category' => 1,
+        'title' => "Export Build Backup",
+        'success' => ""
     ),
     'checkInvalidThreads' => array(
         'category' => 2,
@@ -192,30 +202,20 @@ $a_panel = array(
         'title' => "Merge Games",
         'success' => "Ran game merger"
     ),
-    'cachePatches' => array(
-        'category' => 3,
-        'title' => "Cache Game Patches",
-        'success' => "Updated the game patches cache"
-    ),
-    'flag_build_as_broken' => array(
-        'category' => 1,
-        'title' => "Flag Build as Broken",
-        'success' => ""
-    ),
-    'export_build_backup' => array(
-        'category' => 1,
-        'title' => "Export Build Backup",
-        'success' => ""
-    ),
-    'cache_netplay_statistics' => array(
-        'category' => 0,
-        'title' => "Cache Netplay Statistics",
-        'success' => "Cached Netplay Statistics for the current timestamp"
-    ),
     'check_duplicated_entries' => array(
         'category' => 2,
         'title' => "Check Duplicated Entries",
         'success' => ""
+    ),
+    'cache_wiki_ids' => array(
+        'category' => 3,
+        'title' => "Cache Wiki IDs",
+        'success' => "Forced update on Wiki IDs cache"
+    ),
+    'cache_patches' => array(
+        'category' => 3,
+        'title' => "Cache Game Patches",
+        'success' => "Updated the game patches cache"
     ),
     'cache_game_settings' => array(
         'category' => 3,

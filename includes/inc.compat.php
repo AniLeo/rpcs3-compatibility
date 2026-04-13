@@ -19,7 +19,6 @@
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 if (!@include_once(__DIR__."/../functions.php"))            throw new Exception("Compat: Failed to include functions.php");
-if (!@include_once(__DIR__."/../cachers.php"))              throw new Exception("Compat: Failed to include cachers.php");
 if (!@include_once(__DIR__."/../classes/class.Compat.php")) throw new Exception("Compat: Failed to include classes/class.Compat.php");
 
 

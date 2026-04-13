@@ -18,9 +18,9 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-if (!@include_once(__DIR__."/../cachers.php")) throw new Exception("Compat: Failed to include cachers.php");
+if (!@include_once(__DIR__."/../services/Mediawiki.php")) throw new Exception("Compat: Failed to include services/Compat.php");
 
 // Secondary tasks: Running every 5 minutes.
-cacheWikiIDs();
-cachePatches();
+cache_wiki_ids();
+cache_patches();
 cache_game_settings();
