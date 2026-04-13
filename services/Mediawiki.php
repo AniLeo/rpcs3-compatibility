@@ -585,6 +585,12 @@ function cache_game_settings() : void
                 $row->setting = "Anisotropic Filter Override: " . (int) preg_replace("/\D+/", "", $row->setting);
             }
             
+            // Normalise Frame Limit Off value setting as it conflicts with frontend true/false values represented by On/Off
+            if (strcmp($row->setting, "Frame limit: false") === 0)
+            {
+                $row->setting = "Frame limit: Off";
+            }
+
             $a_games[$gid][$category][] = $row->setting;
         }
     }
