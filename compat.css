@@ -248,6 +248,19 @@ progress[value]::-webkit-progress-value {
     width: 200px
 }
 
+.compat-table-cell-pr {
+    width: 800px;
+    padding-left: 30px
+}
+
+.compat-table-cell-loc {
+    width: 800px
+}
+
+.compat-table-cell-version {
+    width: 600px
+}
+
 .compat-table-dropdown {
     display: none;
     padding-left: 5px

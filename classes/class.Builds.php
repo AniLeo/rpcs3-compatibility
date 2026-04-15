@@ -62,7 +62,7 @@ public static function printTable() : void
     $headers = array(
         array(
             'name' => 'Pull Request',
-            'class' => 'compat-table-cell',
+            'class' => 'compat-table-cell compat-table-cell-pr',
             'sort' => '1'
         ),
         array(
@@ -72,7 +72,7 @@ public static function printTable() : void
         ),
         array(
             'name' => 'Lines of Code',
-            'class' => 'compat-table-cell',
+            'class' => 'compat-table-cell compat-table-cell-loc',
             'sort' => '0'
         ),
         array(
@@ -87,7 +87,7 @@ public static function printTable() : void
         ),
         array(
             'name' => 'Version',
-            'class' => 'compat-table-cell',
+            'class' => 'compat-table-cell compat-table-cell-version',
             'sort' => '0'
         )
     );
@@ -178,7 +178,7 @@ public static function printTable() : void
 
 
         /* Cell 1: PR */
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-pr");
 
         $title = is_null($build->title) ? "Pull Request #{$build->pr}" : htmlspecialchars($build->title, ENT_QUOTES, 'UTF-8');
 
@@ -201,7 +201,7 @@ public static function printTable() : void
 
 
         /* Cell 3: Lines of Code */
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-loc");
 
         $additions = !is_null($build->additions) ? $build->additions : "?";
         $deletions = !is_null($build->deletions) ? $build->deletions : "?";
@@ -287,7 +287,7 @@ public static function printTable() : void
 
 
         /* Cell 6: Version, Size (MB) and Checksum */
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-version");
 
         if ($build->broken)
             $html_div_cell->add_content("<s>");
