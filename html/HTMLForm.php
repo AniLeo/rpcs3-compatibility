@@ -75,6 +75,11 @@ class HTMLForm
             $ret .= "<br>".PHP_EOL;
         }
 
+        if ((!empty($this->inputs) || !empty($this->selects)) && !empty($this->buttons))
+        {
+            $ret .= "<br>";
+        }
+
         foreach ($this->buttons as $button)
         {
             $ret .= $button->to_string();

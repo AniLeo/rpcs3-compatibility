@@ -1064,6 +1064,28 @@ function export_build_backup() : void
     $select->add_option(new HTMLOption("linux-arm64", "Linux (arm64)"));
     $select->add_option(new HTMLOption("mac-arm64", "macOS (arm64)"));
     $form->add_select($select);
+
+    $db = get_database("compat");
+
+    $q_version_tags = mysqli_query($db, "SELECT DISTINCT(SUBSTRING_INDEX(`version`, '-', 1)) as `version_tag` 
+                                         FROM `builds` 
+                                         ORDER BY `merge_datetime` DESC");
+
+    if (is_bool($q_version_tags))
+    {
+        print("<b>Error while fetching the builds tag list</b>");
+        mysqli_close($db);
+        return;
+    }
+
+    $select_tag = new HTMLSelect("tag");
+    $select_tag->add_option(new HTMLOption("all", "All"));
+    while ($row = mysqli_fetch_object($q_version_tags))
+    {
+        $select_tag->add_option(new HTMLOption($row->version_tag, $row->version_tag));
+    }
+
+    $form->add_select($select_tag);
     $form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
     $form->print();
 
@@ -1072,20 +1094,21 @@ function export_build_backup() : void
         return;
     }
 
-    print("<p>");
-    print("Save the following builds list to a text file and run command<br>");
-    print("<b>cat builds.txt | parallel --gnu \"wget -nc -nv --content-disposition --trust-server-names {}\"</b><br><br>");
-    print("</p>");
-
-    $db = get_database("compat");
-
     $s_os = mysqli_real_escape_string($db, $_POST['os']);
     $s_url_prefix = mysqli_escape_string($db, "https://github.com/RPCS3/rpcs3-binaries-{$_POST['os']}/releases/download/build-");
 
     $s_rowname = mysqli_real_escape_string($db, "filename_".str_replace('-', '_', $_POST['os']));
 
+    $optional_tag = "";
+    if (isset($_POST['tag']) && is_string($_POST['tag']) && $_POST['tag'] != 'all')
+    {
+        $s_tag = mysqli_real_escape_string($db, $_POST['tag']);
+        $optional_tag = " AND `version` LIKE '{$s_tag}%' ";
+    }
+
     $q_builds = mysqli_query($db, "SELECT CONCAT('{$s_url_prefix}', `commit`, '/', `{$s_rowname}`) AS `url`
-                                   FROM `builds` WHERE `{$s_rowname}` IS NOT NULL AND `{$s_rowname}` <> ''
+                                   FROM `builds`
+                                   WHERE `{$s_rowname}` IS NOT NULL AND `{$s_rowname}` <> '' {$optional_tag}
                                    ORDER BY `merge_datetime` DESC;");
 
     mysqli_close($db);
@@ -1095,6 +1118,11 @@ function export_build_backup() : void
         print("<b>Error while fetching the builds list</b>");
         return;
     }
+
+    print("<p>");
+    print("Save the following builds list to a text file and run command<br>");
+    print("<b>cat builds.txt | parallel --gnu \"wget -nc -nv --content-disposition --trust-server-names {}\"</b><br><br>");
+    print("</p>");
 
     print("<p>");
     while ($row = mysqli_fetch_object($q_builds))
