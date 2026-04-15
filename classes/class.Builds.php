@@ -221,66 +221,75 @@ public static function printTable() : void
         /* Cell 5: URL */
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
-        $all_builds_exist = !is_null($build->get_url_windows()) && !is_null($build->get_url_linux()) && !is_null($build->get_url_mac());
+        $is_only_archived = strtotime($build->fulldate) < strtotime("2018-06-07");
 
-        if (!is_null($build->get_url_windows()))
+        if (!$is_only_archived)
         {
-            $html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows x64", $html_img_win->to_string());
-            $html_div_cell->add_content($html_a_win->to_string());
+            if (!is_null($build->get_url_windows()))
+            {
+                $html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows x64", $html_img_win->to_string());
+                $html_div_cell->add_content($html_a_win->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_win_disabled->to_string());
+            }
+
+            if (!is_null($build->get_url_windows_arm64()))
+            {
+                $html_a_win_arm64 = new HTMLA($build->get_url_windows_arm64(), "Download for Windows arm64", $html_img_win_arm64->to_string());
+                $html_div_cell->add_content($html_a_win_arm64->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_win_arm64_disabled->to_string());
+            }
+
+            if (!is_null($build->get_url_linux()))
+            {
+                $html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux x64", $html_img_linux->to_string());
+                $html_div_cell->add_content($html_a_linux->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_linux_disabled->to_string());
+            }
+
+            if (!is_null($build->get_url_linux_arm64()))
+            {
+                $html_a_linux_arm64 = new HTMLA($build->get_url_linux_arm64(), "Download for Linux arm64", $html_img_linux_arm64->to_string());
+                $html_div_cell->add_content($html_a_linux_arm64->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_linux_arm64_disabled->to_string());
+            }
+
+            if (!is_null($build->get_url_mac()))
+            {
+                $html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS x64", $html_img_mac->to_string());
+                $html_div_cell->add_content($html_a_mac->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_mac_disabled->to_string());
+            }
+
+            if (!is_null($build->get_url_mac_arm64()))
+            {
+                $html_a_mac_arm64 = new HTMLA($build->get_url_mac_arm64(), "Download for macOS arm64", $html_img_mac_arm64->to_string());
+                $html_div_cell->add_content($html_a_mac_arm64->to_string());
+            }
+            else
+            {
+                $html_div_cell->add_content($html_img_mac_arm64_disabled->to_string());
+            }
         }
         else
         {
-            $html_div_cell->add_content($html_img_win_disabled->to_string());
-        }
-
-        if (!is_null($build->get_url_windows_arm64()))
-        {
-            $html_a_win_arm64 = new HTMLA($build->get_url_windows_arm64(), "Download for Windows arm64", $html_img_win_arm64->to_string());
-            $html_div_cell->add_content($html_a_win_arm64->to_string());
-        }
-        else
-        {
-            $html_div_cell->add_content($html_img_win_arm64_disabled->to_string());
-        }
-
-        if (!is_null($build->get_url_linux()))
-        {
-            $html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux x64", $html_img_linux->to_string());
-            $html_div_cell->add_content($html_a_linux->to_string());
-        }
-        else
-        {
-            $html_div_cell->add_content($html_img_linux_disabled->to_string());
-        }
-
-        if (!is_null($build->get_url_linux_arm64()))
-        {
-            $html_a_linux_arm64 = new HTMLA($build->get_url_linux_arm64(), "Download for Linux arm64", $html_img_linux_arm64->to_string());
-            $html_div_cell->add_content($html_a_linux_arm64->to_string());
-        }
-        else
-        {
-            $html_div_cell->add_content($html_img_linux_arm64_disabled->to_string());
-        }
-
-        if (!is_null($build->get_url_mac()))
-        {
-            $html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS x64", $html_img_mac->to_string());
-            $html_div_cell->add_content($html_a_mac->to_string());
-        }
-        else
-        {
-            $html_div_cell->add_content($html_img_mac_disabled->to_string());
-        }
-
-        if (!is_null($build->get_url_mac_arm64()))
-        {
-            $html_a_mac_arm64 = new HTMLA($build->get_url_mac_arm64(), "Download for macOS arm64", $html_img_mac_arm64->to_string());
-            $html_div_cell->add_content($html_a_mac_arm64->to_string());
-        }
-        else
-        {
-            $html_div_cell->add_content($html_img_mac_arm64_disabled->to_string());
+            $html_a_archive = new HTMLA("https://archive.org/details/@rpcs3?sort=date", "Get on The Internet Archive", "Get on The Internet Archive");
+            $html_a_archive->set_target("_blank");
+            $html_div_cell->add_content($html_a_archive->to_string());
         }
 
         $html_div_cell->print();
