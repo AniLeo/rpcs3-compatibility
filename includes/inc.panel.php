@@ -1142,17 +1142,19 @@ function check_duplicated_entries() : void
     // Ignores any non alphanumeric characters on title
     $q_duplicates = mysqli_query($db,  "WITH subquery AS 
                                         (
-                                            SELECT `game_list`.`key`, `game_title`, `status`, SUBSTR(`gid`, 1, 1) AS gid_type
-                                            FROM game_list 
-                                            LEFT JOIN game_id
-                                            ON game_list.`key` = game_id.`key`
+                                            SELECT `game_title`, SUBSTR(`gid`, 1, 1) AS `gid_type`
+                                            FROM `game_list` 
+                                            LEFT JOIN `game_id`
+                                            ON `game_list`.`key` = `game_id`.`key`
                                             WHERE SUBSTR(`gid`, 1, 1) IN (\"N\", \"B\")
                                             GROUP BY `game_list`.`key`
                                         )
-                                        SELECT game_title, gid_type
+                                        SELECT `game_title`, `gid_type`
                                         FROM subquery
-                                        GROUP BY REGEXP_REPLACE(game_title, '[^a-zA-Z0-9]', ''), gid_type
-                                        HAVING COUNT(REGEXP_REPLACE(game_title, '[^a-zA-Z0-9]', '')) >= 2;");
+                                        GROUP BY REGEXP_REPLACE(`game_title`, '[^a-zA-Z0-9]', ''), `gid_type`
+                                        HAVING COUNT(REGEXP_REPLACE(`game_title`, '[^a-zA-Z0-9]', '')) >= 2;");
+
+    mysqli_close($db);
 
     if (is_bool($q_duplicates))
     {
@@ -1161,28 +1163,29 @@ function check_duplicated_entries() : void
 
     $count = mysqli_num_rows($q_duplicates);
 
-    if ($count > 0)
-    {
-        $output = "";
-
-        while ($row = mysqli_fetch_object($q_duplicates))
-        {
-            $search = htmlentities($row->game_title);
-            $html_a = new HTMLA("https://rpcs3.net/compatibility?g={$search}&type=0#jump", $row->game_title, $row->game_title);
-            $html_a->set_target("_blank");
-    
-            $output .= sprintf("<p>- [%s] %s</p>", 
-                               $row->gid_type, 
-                               $html_a->to_string());
-        }
-
-        printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
-        
-        if ($get['a'] === "check_duplicated_entries")
-            print($output);
-    }
-    else
+    if ($count === 0)
     {
         print("<p class='debug-tvalidity-title color-green background-green'>No duplicated threads detected</p>");
+        return;
+    }
+    
+    $output = "";
+
+    while ($row = mysqli_fetch_object($q_duplicates))
+    {
+        $search = urlencode($row->game_title);
+        $html_a = new HTMLA("compatibility?g={$search}#jump", $row->game_title, $row->game_title);
+        $html_a->set_target("_blank");
+    
+        $output .= sprintf("<p>- [%s] %s</p>", 
+                           $row->gid_type, 
+                           $html_a->to_string());
+    }
+
+    printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
+        
+    if ($get['a'] === "check_duplicated_entries")
+    {
+        print($output);
     }
 }
