@@ -554,8 +554,8 @@ function cache_game_settings() : void
                 $accurate_stats = str_ends_with($row->setting, "Precise") ? "true" : "false";
                 $relaxed_sync   = str_ends_with($row->setting, "Relaxed") ? "true" : "false";
 
-                $a_games[$gid][$category][] = "Accurate ZCull stats: {$accurate_stats}";
-                $a_games[$gid][$category][] = "Relaxed ZCull Sync: {$relaxed_sync}";
+                $a_games[$gid][$category][] = "Accurate ZCULL stats: {$accurate_stats}";
+                $a_games[$gid][$category][] = "Relaxed ZCULL Sync: {$relaxed_sync}";
                 continue;
             }
 
