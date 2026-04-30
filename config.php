@@ -38,6 +38,12 @@ define('db_wiki_user', 'USERNAME');
 define('db_wiki_pass', 'PASSWORD');
 define('db_wiki_name', 'DATABASE_NAME');
 
+define('db_netplay_host', 'HOSTNAME');
+define('db_netplay_port', 'PORT');
+define('db_netplay_user', 'USERNAME');
+define('db_netplay_pass', 'PASSWORD');
+define('db_netplay_name', 'DATABASE_NAME');
+
 // GitHub Access Token (Read-only)
 define('gh_token', 'TOKEN');
 

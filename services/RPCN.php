@@ -41,7 +41,7 @@ function cache_netplay_statistics() : bool
         return false;
     }
 
-    $db = get_database("compat");
+    $db = get_database("netplay");
 
     $s_players = mysqli_real_escape_string($db, (string) $np_stats->num_users);
     $q_updates .= "INSERT INTO `np_players` (`timestamp`, `players`) VALUES (CONVERT_TZ(NOW(),'SYSTEM','+00:00'), '{$s_players}'); ";
