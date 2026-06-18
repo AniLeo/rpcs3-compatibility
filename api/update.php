@@ -95,6 +95,11 @@ function check_for_updates( string $api,
             {
                 $version = "0.0.35-17589";
             }
+            // 0.0.41-19492: Latest build to support macOS 14
+            else if ($os_type === "macos" && (int)substr($os_version, 0, 2) < 15)
+            {
+                $version = "0.0.41-19492";
+            }
         }
     }
 
