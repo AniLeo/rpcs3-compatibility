@@ -26,6 +26,7 @@ class HTMLA
     public  string $title;
     public  string $content;
     public ?string $target;
+    public ?string $rel;
 
     function __construct(string $href, string $title, string $content)
     {
@@ -33,11 +34,17 @@ class HTMLA
         $this->title   = $title;
         $this->content = $content;
         $this->target  = null;
+        $this->rel     = null;
     }
 
     public function set_target(string $target) : void
     {
         $this->target = $target;
+    }
+
+    public function set_rel(string $rel) : void
+    {
+        $this->rel = $rel;
     }
 
     public function to_string() : string
@@ -46,6 +53,9 @@ class HTMLA
 
         if (!is_null($this->target))
             $ret .= "target=\"{$this->target}\" ";
+
+        if (!is_null($this->rel))
+            $ret .= "rel=\"{$this->rel}\" ";
 
         $ret .= "title=\"{$this->title}\">{$this->content}</a>".PHP_EOL;
 
