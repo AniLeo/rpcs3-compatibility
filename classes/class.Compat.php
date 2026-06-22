@@ -511,6 +511,7 @@ public static function printTable() : void
         $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-updated");
 
         $html_a_date = new HTMLA("?d=".str_replace('-', '', $game->date), "Updated on {$game->date}", $game->date);
+        $html_a_date->set_rel("nofollow");
 
         $html_div_cell->add_content($html_a_date->to_string());
 
