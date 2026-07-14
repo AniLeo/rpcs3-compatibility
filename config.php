@@ -340,11 +340,12 @@ $a_histdates = array(
     '2025_12' => array(array('y' => 2025, 'm' => 12, 'd' => 01), array('y' => 2025, 'm' => 12, 'd' => 31)),
     '2026_01' => array(array('y' => 2026, 'm' => 1,  'd' => 01), array('y' => 2026, 'm' => 1,  'd' => 31)),
     '2026_02' => array(array('y' => 2026, 'm' => 2,  'd' => 01), array('y' => 2026, 'm' => 2,  'd' => 28)),
-    '2026_03' => array(array('y' => 2026, 'm' => 3,  'd' => 01), array('y' => 2026, 'm' => 3,  'd' => 31))
+    '2026_03' => array(array('y' => 2026, 'm' => 3,  'd' => 01), array('y' => 2026, 'm' => 3,  'd' => 31)),
+    '2026_04' => array(array('y' => 2026, 'm' => 4,  'd' => 01), array('y' => 2026, 'm' => 4,  'd' => 30))
 );
 
 // Current month
-$currenthist = '2026-04-01';
+$currenthist = '2026-05-01';
 $a_currenthist = array(date('Y_m', strtotime($currenthist)),
                        date('F jS, Y', strtotime($currenthist)),
                        $currenthist);
