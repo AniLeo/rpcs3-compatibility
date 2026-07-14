@@ -1174,7 +1174,7 @@ function check_duplicated_entries() : void
     while ($row = mysqli_fetch_object($q_duplicates))
     {
         $search = urlencode($row->game_title);
-        $html_a = new HTMLA("compatibility?g={$search}#jump", $row->game_title, $row->game_title);
+        $html_a = new HTMLA("compatibility?g={$search}&type=0#jump", $row->game_title, $row->game_title);
         $html_a->set_target("_blank");
     
         $output .= sprintf("<p>- [%s] %s</p>", 
