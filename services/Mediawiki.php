@@ -586,9 +586,15 @@ function cache_game_settings() : void
             }
             
             // Normalise Frame Limit Off value setting as it conflicts with frontend true/false values represented by On/Off
-            if (strcmp($row->setting, "Frame limit: false") === 0)
+            if (str_contains($row->setting, "Frame limit: false"))
             {
                 $row->setting = "Frame limit: Off";
+            }
+
+            if (str_starts_with($row->setting, "MFC Commands Shuffling Limit"))
+            {
+                $row->setting = "MFC Commands Shuffling Limit: ";
+                $row->setting .= str_contains($row->setting, "false") ? "0" : "1";
             }
 
             $a_games[$gid][$category][] = $row->setting;
