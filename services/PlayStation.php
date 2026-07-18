@@ -370,11 +370,6 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
         echo "Missing tag hash value! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
         return false;
     }
-    else if (is_null($db_package_version_latest))
-    {
-        echo "Missing package version latest! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
-        return false;
-    }
 
 
     $db_tag_hash = mysqli_real_escape_string($db, $tag_hash);
