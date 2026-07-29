@@ -227,6 +227,11 @@ $a_panel = array(
         'category' => 3,
         'title' => "Cache Game Settings",
         'success' => "Updated the game settings cache"
+    ),
+    'cache_netplay_statistics_peak' => array(
+        'category' => 0,
+        'title' => "Cache Netplay Peak Statistics",
+        'success' => "Cached Netplay Peak Statistics for the current timestamp"
     )
 );
 

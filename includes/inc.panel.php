@@ -26,6 +26,7 @@ if (!@include_once(__DIR__."/../services/Compat.php"))      throw new Exception(
 if (!@include_once(__DIR__."/../services/GitHub.php"))      throw new Exception("Compat: Failed to include services/GitHub.php");
 if (!@include_once(__DIR__."/../services/PlayStation.php")) throw new Exception("Compat: Failed to include services/PlayStation.php");
 if (!@include_once(__DIR__."/../services/Mediawiki.php"))   throw new Exception("Compat: Failed to include services/Mediawiki.php");
+if (!@include_once(__DIR__."/../services/RPCN.php"))        throw new Exception("Compat: Failed to include services/RPCN.php");
 if (!@include_once(__DIR__."/../html/HTML.php"))            throw new Exception("Compat: Failed to include html/HTML.php");
 
 

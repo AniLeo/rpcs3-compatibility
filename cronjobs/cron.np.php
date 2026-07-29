@@ -22,3 +22,4 @@ if (!@include_once(__DIR__."/../services/RPCN.php")) throw new Exception("Compat
 
 // Running every 5 minutes.
 cache_netplay_statistics();
+cache_netplay_statistics_peak();
