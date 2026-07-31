@@ -947,7 +947,7 @@ function get_string_between(string $string, string $start, string $end) : ?strin
 {
     // Return position of initial limit in our string
     // If position doesn't exist, then return false as string doesn't contain our start limit
-    if (!($inipos = strpos($string, $start)))
+    if (($inipos = strpos($string, $start)) === false)
         return null;
 
     // Add length of start limit, so our start position is the character AFTER the start limit
@@ -955,7 +955,7 @@ function get_string_between(string $string, string $start, string $end) : ?strin
 
     // Look for end string position starting on initial position (offset)
     // If position doesn't exist, then return false as string doesn't contain our end limit
-    if (!($endpos = strpos($string, $end, $inipos)))
+    if (($endpos = strpos($string, $end, $inipos)) === false)
         return null;
 
     // Start on 'start limit position' and return string with substring length
