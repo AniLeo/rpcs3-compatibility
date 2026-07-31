@@ -118,6 +118,7 @@ function check_for_updates( string $api,
     $results['latest_build']['datetime']            = $latest->merge;
     $results['latest_build']['version']             = $latest->version;
 
+    // Windows
     if (substr($api, 1, 1) < 3 ||
         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
     {
@@ -132,6 +133,7 @@ function check_for_updates( string $api,
         $results['latest_build']['windows']['checksum'] = $latest->checksum_win_arm64;
     }
 
+    // Linux
     if (substr($api, 1, 1) < 3 ||
         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
     {
@@ -146,6 +148,7 @@ function check_for_updates( string $api,
         $results['latest_build']['linux']['checksum']   = $latest->checksum_linux_arm64;
     }
 
+    // macOS
     if (substr($api, 1, 1) < 3 ||
         (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
     {
@@ -190,6 +193,7 @@ function check_for_updates( string $api,
             $results['current_build']['datetime']            = $current->merge;
             $results['current_build']['version']             = $current->version;
 
+            // Windows
             if (substr($api, 1, 1) < 3 ||
                 (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "windows")))
             {
@@ -204,6 +208,7 @@ function check_for_updates( string $api,
                 $results['current_build']['windows']['checksum'] = $current->checksum_win_arm64;
             }
 
+            // Linux
             if (substr($api, 1, 1) < 3 ||
                 (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "linux")))
             {
@@ -218,6 +223,7 @@ function check_for_updates( string $api,
                 $results['current_build']['linux']['checksum']   = $current->checksum_linux_arm64;
             }
 
+            // macOS
             if (substr($api, 1, 1) < 3 ||
                 (substr($api, 1, 1) >= 3 && $os_arch === "x64" && ($os_type === "all" || $os_type === "macos")))
             {
@@ -264,20 +270,14 @@ function check_for_updates( string $api,
                         }
                     }
                 }
+            }
 
-                mysqli_query($db, "UPDATE `builds`
-                                   SET `ping_outdated` = `ping_outdated` + 1
-                                   WHERE `pr` = {$current->pr}
-                                   LIMIT 1;");
-                $results['return_code'] = 1;
-            }
-            else
-            {
-                mysqli_query($db, "UPDATE `builds`
-                                   SET `ping_updated` = `ping_updated` + 1
-                                   WHERE `pr` = {$current->pr}
-                                   LIMIT 1;");
-            }
+            $ping_type = $latest->pr === $current->pr ? "updated" : "outdated";
+            mysqli_query($db, "UPDATE `builds`
+                               SET `ping_{$ping_type}` = `ping_{$ping_type}` + 1
+                               WHERE `pr` = {$current->pr}
+                               LIMIT 1;");
+            $results['return_code'] = 1;
         }
         mysqli_close($db);
     }

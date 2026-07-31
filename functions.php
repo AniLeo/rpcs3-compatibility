@@ -244,11 +244,14 @@ function validateGet() : array
     // Searchbox
     if (isset($_GET['g']) && is_string($_GET['g']) && !empty($_GET['g']) && mb_strlen($_GET['g']) <= 128 && isValid($_GET['g']))
     {
-        $get['g'] = (string) $_GET['g'];
+        if (is_string($_GET['g'])) // Workaround PHPStan cast.string analysis bug with is_string
+        {
+            $get['g'] = (string) $_GET['g'];
 
-        // Trim all unnecessary double spaces
-        while (str_contains($get['g'], "  "))
-            $get['g'] = str_replace("  ", " ", $get['g']);
+            // Trim all unnecessary double spaces
+            while (str_contains($get['g'], "  "))
+                $get['g'] = str_replace("  ", " ", $get['g']);
+        }
     }
 
     // Date
@@ -748,8 +751,10 @@ function getDebugPermissions() : ?array
     if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"]))
         return null;
 
+    $debug_cookie = (string) $_COOKIE["debug"];
+    
     $db = get_database("compat");
-    $s_token = mysqli_real_escape_string($db, $_COOKIE["debug"]);
+    $s_token = mysqli_real_escape_string($db, $debug_cookie);
 
     $q_debug = mysqli_query($db, "SELECT `permissions` 
                                   FROM `debug_whitelist`
