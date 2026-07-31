@@ -202,3 +202,18 @@ CREATE TABLE `game_update_paramhip` (
   `paramhip_content` mediumtext NOT NULL,
   PRIMARY KEY (`tag`,`package_version`,`paramhip_type`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for update_statistics
+-- ----------------------------
+DROP TABLE IF EXISTS `update_statistics`;
+CREATE TABLE `update_statistics` (
+  `date` date NOT NULL,
+  `version_tag` varchar(16) NOT NULL,
+  `os_type` varchar(16) NOT NULL,
+  `os_arch` varchar(8) NOT NULL,
+  `os_version` varchar(128) NOT NULL,
+  `ping_type` varchar(16) NOT NULL,
+  `count` int(11) DEFAULT NULL,
+  PRIMARY KEY (`date`,`version_tag`,`os_type`,`os_arch`,`os_version`,`ping_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

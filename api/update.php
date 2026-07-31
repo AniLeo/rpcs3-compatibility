@@ -270,6 +270,7 @@ function check_for_updates( string $api,
                         }
                     }
                 }
+                $results['return_code'] = 1;
             }
 
             $ping_type = $latest->pr === $current->pr ? "updated" : "outdated";
@@ -277,7 +278,62 @@ function check_for_updates( string $api,
                                SET `ping_{$ping_type}` = `ping_{$ping_type}` + 1
                                WHERE `pr` = {$current->pr}
                                LIMIT 1;");
-            $results['return_code'] = 1;
+
+            // Log update API daily statistics
+            $ua = $_SERVER['HTTP_USER_AGENT'];
+            if (is_string($ua) && str_starts_with($ua, "RPCS3/") && str_ends_with($ua, ")"))
+            {
+                $version_tag = get_string_between($ua, "RPCS3/", " (");
+                $os          = get_string_between($ua, "(", ")");
+                
+                if (!is_null($version_tag) && !is_null($os) && !empty($version_tag) && !empty($os))
+                {
+                    $os         = explode(" ", $os);
+                    $os_type    = (string) $os[0];
+                    $os_version = str_replace(";", "", (string) $os[1]);
+                    $os_arch    = (string) $os[2];
+
+                    if (!empty($os_type) && !empty($os_version) && !empty($os_arch))
+                    {
+                        $db_version_tag = mysqli_real_escape_string($db, $version_tag);
+                        $db_os_type     = mysqli_real_escape_string($db, $os_type);
+                        $db_os_version  = mysqli_real_escape_string($db, $os_version);
+                        $db_os_arch     = mysqli_real_escape_string($db, $os_arch);
+
+                        $q_select = mysqli_query($db, "SELECT * FROM `update_statistics` 
+                                                       WHERE `date` = CURDATE() 
+                                                         AND `version_tag` = '{$db_version_tag}' 
+                                                         AND `os_type`     = '{$db_os_type}' 
+                                                         AND `os_arch`     = '{$db_os_arch}' 
+                                                         AND `os_version`  = '{$db_os_version}' 
+                                                         AND `ping_type`   = '{$ping_type}'
+                                                       LIMIT 1;");
+
+                        if (!is_bool($q_select))
+                        {
+                            if (mysqli_num_rows($q_select) === 0)
+                            {
+                                mysqli_query($db, "INSERT INTO `update_statistics` 
+                                                   (`date`, `version_tag`, `os_type`, `os_arch`, `os_version`, `ping_type`, `count`) 
+                                                   VALUES 
+                                                   (CURDATE(), '{$db_version_tag}', '{$db_os_type}', '{$db_os_arch}', '{$db_os_version}', '{$ping_type}', 1);");
+                            }
+                            else if (mysqli_num_rows($q_select) === 1)
+                            {
+                                mysqli_query($db, "UPDATE `update_statistics` 
+                                                   SET `count` = `count` + 1 
+                                                   WHERE `date` = CURDATE()  
+                                                     AND `version_tag` = '{$db_version_tag}' 
+                                                     AND `os_type`     = '{$db_os_type}' 
+                                                     AND `os_arch`     = '{$db_os_arch}' 
+                                                     AND `os_version`  = '{$db_os_version}' 
+                                                     AND `ping_type`   = '{$ping_type}' 
+                                                   LIMIT 1;");
+                            }
+                        }
+                    }
+                }
+            }
         }
         mysqli_close($db);
     }
