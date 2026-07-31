@@ -63,6 +63,7 @@ function get_database(string $database) : mysqli
     }
 
     mysqli_set_charset($db, "utf8mb4");
+    mysqli_report(MYSQLI_REPORT_OFF);
     return $db;
 }
 
