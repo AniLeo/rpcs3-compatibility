@@ -220,6 +220,9 @@ public static function printTableContent(array $array) : void
         $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$entry->game_item->get_region_id()]);
         $html_img_region->set_title($entry->game_item->game_id);
 
+        $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
+        $html_img_move->set_title("PS Move");
+
         echo "<div class=\"compat-table-row\">";
 
 
@@ -236,7 +239,12 @@ public static function printTableContent(array $array) : void
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
         $html_div_cell->add_content($html_img_media->to_string());
-        $html_div_cell->add_content($entry->title);
+        $html_div_cell->add_content($entry->title.PHP_EOL);
+
+        if ($entry->move === 1)
+        {
+            $html_div_cell->add_content($html_img_move->to_string());
+        }
 
         if (!is_null($entry->title2))
         {

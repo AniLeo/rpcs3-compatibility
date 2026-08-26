@@ -30,6 +30,7 @@ class HistoryEntry
     public  int      $new_status;
     public ?string   $old_date;
     public  string   $new_date;
+    public  int      $move;
 
     public GameItem $game_item;
 
@@ -40,7 +41,8 @@ class HistoryEntry
                          ?string $old_date,
                           string $new_date,
                           string $gid,
-                          int    $tid)
+                          int    $tid,
+                          int    $move)
     {
         $this->title = $title;
         $this->title2 = $title2;
@@ -58,6 +60,7 @@ class HistoryEntry
             $this->new_status = 0;
 
         $this->new_date = $new_date;
+        $this->move     = $move;
 
         $this->game_item = new GameItem($gid, $tid, null);
     }
@@ -79,7 +82,8 @@ class HistoryEntry
                 !property_exists($row, "old_date") ||
                 !property_exists($row, "new_date") ||
                 !property_exists($row, "gid") ||
-                !property_exists($row, "tid"))
+                !property_exists($row, "tid") ||
+                !property_exists($row, "move"))
             {
                 return array();
             }
@@ -91,7 +95,8 @@ class HistoryEntry
                                             $row->old_date,
                                             $row->new_date,
                                             $row->gid,
-                                            $row->tid);
+                                            $row->tid,
+                                            $row->move);
         }
 
         return $a_entries;
