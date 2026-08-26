@@ -47,9 +47,6 @@ define('db_netplay_name', 'DATABASE_NAME');
 // GitHub Access Token (Read-only)
 define('gh_token', 'TOKEN');
 
-// Netplay Statistics API
-define('np_api', 'URL');
-
 // Global config variables
 $c_pagelimit = 7; // Default page limit on pages counter (lim/2)
 $c_maintenance = false; // Maintenance Mode
@@ -168,11 +165,6 @@ $a_panel = array(
         'title' => "Cache Game Updates",
         'success' => "Updated latest game version cache"
     ),
-    'cache_netplay_statistics' => array(
-        'category' => 0,
-        'title' => "Cache Netplay Statistics",
-        'success' => "Cached Netplay Statistics for the current timestamp"
-    ),
     'cache_builds' => array(
         'category' => 1,
         'title' => "Update Build Cache",
@@ -227,11 +219,6 @@ $a_panel = array(
         'category' => 3,
         'title' => "Cache Game Settings",
         'success' => "Updated the game settings cache"
-    ),
-    'cache_netplay_statistics_peak' => array(
-        'category' => 0,
-        'title' => "Cache Netplay Peak Statistics",
-        'success' => "Cached Netplay Peak Statistics for the current timestamp"
     )
 );
 
