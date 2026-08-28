@@ -405,19 +405,30 @@ function cache_game_settings() : void
     $db_compat = get_database("compat");
      
     // Setting to category and subcategory
-    $q_categories = mysqli_query($db_wiki, "SELECT cl_to AS category, REPLACE(REPLACE(REPLACE(REPLACE(page_title, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting
-                                            FROM `categorylinks`
-                                            LEFT JOIN `page` 
-                                            ON `page`.`page_id` = `categorylinks`.`cl_from` 
-                                            WHERE page_title LIKE '%:%' AND categorylinks.cl_to IN
-                                            (SELECT page_title FROM page WHERE page_id IN 
-                                                (SELECT cl_from FROM categorylinks WHERE cl_to = \"Config_file\")
-                                                OR 
-                                                (page_title NOT LIKE '%(Config)%' and page_id IN
-                                                    (SELECT cl_from FROM categorylinks WHERE cl_to IN
-                                                        (SELECT page_title FROM page WHERE page_id IN 
-                                                            (SELECT cl_from FROM categorylinks WHERE cl_to = \"Config_file\")
+    $q_categories = mysqli_query($db_wiki, "SELECT lt.lt_title AS category,
+                                                REPLACE(REPLACE(REPLACE(REPLACE(page.page_title, '_(Config)', ''), '_', ' '), ': On', ': true'), ': Off', ': false') AS setting
+                                            FROM categorylinks cl
+                                            JOIN linktarget lt ON cl.cl_target_id = lt.lt_id
+                                            LEFT JOIN page ON page.page_id = cl.cl_from
+                                            WHERE page.page_title LIKE '%:%'
+                                            AND lt.lt_title IN (
+                                                SELECT page_title FROM page WHERE
+                                                page_id IN (
+                                                    SELECT cl_from FROM categorylinks cl
+                                                    JOIN linktarget lt ON cl.cl_target_id = lt.lt_id
+                                                    WHERE lt.lt_title = 'Config_file'
+                                                )
+                                                OR (
+                                                    page_title NOT LIKE '%(Config)%' AND page_id IN (
+                                                    SELECT cl_from FROM categorylinks cl
+                                                    JOIN linktarget lt ON cl.cl_target_id = lt.lt_id
+                                                    WHERE lt.lt_title IN (
+                                                        SELECT page_title FROM page WHERE page_id IN (
+                                                        SELECT cl_from FROM categorylinks cl
+                                                        JOIN linktarget lt ON cl.cl_target_id = lt.lt_id
+                                                        WHERE lt.lt_title = 'Config_file'
                                                         )
+                                                    )
                                                     )
                                                 )
                                             );");
@@ -425,6 +436,7 @@ function cache_game_settings() : void
     // Invalid query or database
     if (is_bool($q_categories) || mysqli_num_rows($q_categories) == 0)
     {
+        print("Invalid query or no results");
         return;
     }
 
@@ -438,20 +450,21 @@ function cache_game_settings() : void
     }
 
     // Subcategories to category
-    $q_subcategories = mysqli_query($db_wiki, "SELECT category_page.page_title AS category, page.page_title AS subcategory
-                                     FROM page
-                                     JOIN categorylinks cl_subcategory 
-                                         ON cl_subcategory.cl_from = page.page_id
-                                     JOIN page category_page 
-                                         ON category_page.page_title = cl_subcategory.cl_to
-                                     JOIN categorylinks cl_category 
-                                         ON cl_category.cl_from = category_page.page_id
-                                     WHERE page.page_title NOT LIKE \"%(Config)%\"
-                                     AND cl_category.cl_to = \"Config_file\";");
+    $q_subcategories = mysqli_query($db_wiki, "SELECT cat.page_title AS category,
+                                                   sub.page_title AS subcategory
+                                               FROM categorylinks cl_cfg
+                                               JOIN linktarget lt_cfg ON lt_cfg.lt_id = cl_cfg.cl_target_id
+                                               JOIN page cat ON cat.page_id = cl_cfg.cl_from
+                                               JOIN linktarget lt_sub ON lt_sub.lt_title = cat.page_title
+                                               JOIN categorylinks cl_sub ON cl_sub.cl_target_id = lt_sub.lt_id
+                                               JOIN page sub ON sub.page_id = cl_sub.cl_from
+                                               WHERE lt_cfg.lt_title = 'Config_file'
+                                               AND sub.page_title NOT LIKE '%(Config)%';");
 
     // Invalid query or database
     if (is_bool($q_subcategories) || mysqli_num_rows($q_subcategories) == 0)
     {
+        print("Invalid query or no results");
         return;
     }
 
@@ -465,14 +478,19 @@ function cache_game_settings() : void
     }
 
     // Wiki page to setting
-    $q_settings = mysqli_query($db_wiki, "SELECT cl_from AS wiki, replace(replace(replace(replace(cl_to, \"_(Config)\", \"\"), \"_\", \" \"), \": On\", \": true\"), \": Off\", \": false\") AS setting, cl_timestamp AS `timestamp`
-                                          FROM categorylinks
-                                          WHERE cl_to LIKE '%(Config)%' AND cl_to LIKE '%:%' 
-                                          ORDER BY cl_from;");
+    $q_settings = mysqli_query($db_wiki, "SELECT cl.cl_from AS wiki,
+                                              REPLACE(REPLACE(REPLACE(REPLACE(CAST(lt.lt_title AS CHAR), '_(Config)', ''), '_', ' '), ': On', ': true'), ': Off', ': false') AS setting,
+                                              cl.cl_timestamp AS `timestamp`
+                                          FROM categorylinks cl
+                                          JOIN linktarget lt ON cl.cl_target_id = lt.lt_id
+                                          WHERE lt.lt_title LIKE '%(Config)%'
+                                          AND lt.lt_title LIKE '%:%'
+                                          ORDER BY cl.cl_from;");
 
     // Invalid query or database
     if (is_bool($q_settings) || mysqli_num_rows($q_settings) == 0)
     {
+        print("Invalid query or no results");
         return;
     }
 
@@ -486,6 +504,7 @@ function cache_game_settings() : void
     // Invalid query or database
     if (is_bool($q_game) || mysqli_num_rows($q_game) == 0)
     {
+        print("Invalid query or no results");
         return;
     }
 
