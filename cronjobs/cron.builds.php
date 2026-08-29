@@ -18,6 +18,12 @@
         with this program; if not, write to the Free Software Foundation, Inc.,
         51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+if (PHP_SAPI !== 'cli')
+{
+    http_response_code(403);
+    exit;
+}
+
 if (!@include_once(__DIR__."/../services/GitHub.php")) throw new Exception("Compat: Failed to include services/GitHub.php");
 
 // Running every 5 minutes
