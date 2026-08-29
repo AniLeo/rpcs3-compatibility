@@ -492,18 +492,16 @@ public static function printTable() : void
         // Game media image
         $html_div_cell->add_content($html_a_media->to_string());
 
-        $html_title = htmlspecialchars($game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
         if (!is_null($game->get_url_wiki()))
         {
-            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $html_title);
+            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $game->title);
             $html_a_title->set_target("_blank");
 
             $html_div_cell->add_content($html_a_title->to_string());
         }
         else
         {
-            $html_div_cell->add_content($html_title);
+            $html_div_cell->add_content($game->title);
         }
         if ($game->network === 1)
         {
@@ -519,8 +517,7 @@ public static function printTable() : void
         }
         if (!is_null($game->title2))
         {
-            $html_title2 = htmlspecialchars($game->title2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$html_title2})");
+            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})");
         }
 
         $html_div_cell->print();

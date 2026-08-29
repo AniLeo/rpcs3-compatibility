@@ -251,8 +251,7 @@ public static function printTableContent(array $array) : void
 
         $html_div_cell->add_content($html_img_media->to_string());
         
-        $html_title = htmlspecialchars($entry->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $html_div_cell->add_content($html_title.PHP_EOL);
+        $html_div_cell->add_content($entry->title.PHP_EOL);
 
         if ($entry->move === 1)
         {
@@ -261,8 +260,7 @@ public static function printTableContent(array $array) : void
 
         if (!is_null($entry->title2))
         {
-            $html_title2 = htmlspecialchars($entry->title2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$html_title2})");
+            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})");
         }
 
         $html_div_cell->print();
