@@ -95,10 +95,6 @@ progress[value]::-webkit-progress-value {
     width: 400px;
     height: 18px;
     padding-right: 10px;
-    -webkit-border-top-left-radius: 24px;
-    -webkit-border-bottom-left-radius: 24px;
-    -moz-border-radius-topleft: 24px;
-    -moz-border-radius-bottomleft: 24px;
     border-top-left-radius: 24px;
     border-bottom-left-radius: 24px
 }
@@ -171,10 +167,6 @@ progress[value]::-webkit-progress-value {
     margin: 1px
 }
 
-.compat-table-checkbox {
-    display: none
-}
-
 .compat-table-header {
     font-weight: 700;
     font-size: 14px;
@@ -239,9 +231,6 @@ progress[value]::-webkit-progress-value {
 
 .compat-table-cell-updated a:hover {
     background: #686de0;
-    padding: 4px 6px;
-    border-radius: 6px;
-    color: #fff
 }
 
 .compat-table-cell-date {
@@ -590,10 +579,6 @@ progress[value]::-webkit-progress-value {
     box-shadow: 0 5px 16px 0 rgba(0,0,0,.1)
 }
 
-.compat-hdr-right b {
-    color: #fff
-}
-
 .compat-hdr-right a:hover {
     opacity: .8;
     color: #fff
@@ -655,26 +640,6 @@ progress[value]::-webkit-progress-value {
     background: #fff
 }
 
-.txt-compat-build {
-    line-height: 20px;
-    position: relative;
-    height: 20px;
-    padding: 2px 8px;
-    text-align: center;
-    color: #fff!important;
-    background: #20b2aa
-}
-
-.txt-compat-nobuild {
-    line-height: 20px;
-    position: relative;
-    width: 68px;
-    height: 20px;
-    cursor: pointer;
-    text-align: center;
-    color: #fff!important
-}
-
 .txt-compat-status {
     line-height: 15px;
     position: relative;
@@ -686,14 +651,6 @@ progress[value]::-webkit-progress-value {
     text-transform: none;
     color: #fff!important;
     border-radius: 6px
-}
-
-.txt-compat-build:hover {
-    opacity: .8
-}
-
-.txt-compat-nobuild:hover {
-    opacity: .8
 }
 
 .compat-status-progressbar {
@@ -813,7 +770,6 @@ progress[value]::-webkit-progress-value {
     }
 
     .compat-status-container {
-        display: grid;
         display: flex;
         flex-direction: column;
         gap: 1%
@@ -866,7 +822,7 @@ progress[value]::-webkit-progress-value {
     border: solid 2px #2f3a65
 }
 
-.compat-profiler p:nth-child(n) {
+.compat-profiler p {
     background: rgba(0,0,0,.1);
     margin-bottom: 20px;
     padding-left: 10px;
