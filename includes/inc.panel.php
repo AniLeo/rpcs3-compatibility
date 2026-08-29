@@ -957,6 +957,7 @@ function mergeGames() : void
         if (array_search("debug.update", $get['w']) === false)
         {
             print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
+            mysqli_close($db);
             return;
         }
 
@@ -1011,6 +1012,8 @@ function mergeGames() : void
 
 function flag_build_as_broken() : void
 {
+    global $get;
+
     $pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
 
     $form = new HTMLForm("", "POST");
@@ -1042,6 +1045,14 @@ function flag_build_as_broken() : void
     if (time() - $build_time > 7 * 24 * 60 * 60)
     {
         print("<b>The build is older than a week. Cannot flag as broken.</b><br>");
+        mysqli_close($db);
+        return;
+    }
+
+    // Permissions: Update
+    if (array_search("debug.update", $get['w']) === false)
+    {
+        print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
         mysqli_close($db);
         return;
     }
