@@ -30,6 +30,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
     // Set the required cURL flags
     curl_setopt($cr, CURLOPT_RETURNTRANSFER, true);  // Return result as raw output
+    curl_setopt($cr, CURLOPT_TIMEOUT, 5);
     curl_setopt($cr, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
     curl_setopt($cr, CURLOPT_URL, "https://a0.ww.np.dl.playstation.net/tpl/np/{$gid}/{$gid}-ver.xml");
 
@@ -326,6 +327,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
             // Fetch PARAM.HIP contents
             curl_setopt($cr, CURLOPT_RETURNTRANSFER, true);  // Return result as raw output
+            curl_setopt($cr, CURLOPT_TIMEOUT, 5);
             curl_setopt($cr, CURLOPT_SSL_VERIFYPEER, false); // Do not verify SSL certs (PS3 Update API uses Private CA)
             curl_setopt($cr, CURLOPT_URL, $value->{"@attributes"}->url);
 

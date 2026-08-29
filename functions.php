@@ -914,11 +914,12 @@ function curl_json(string $url, ?CurlHandle $cr) : ?object
 
     // Set the required cURL flags
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return result as raw output
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
 
     // We're cURLing the GitHub API, set GitHub Auth Token on headers
-    if (strlen($url) >= 23 && substr($url, 0, 23) === "https://api.github.com/")
+    if (str_starts_with($url, "https://api.github.com/"))
     {
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
     }
