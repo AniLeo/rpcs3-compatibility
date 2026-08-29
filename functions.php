@@ -133,7 +133,8 @@ function isValid(string $str) : bool
     */
 function highlightText(string $str, bool $cond = true)
 {
-    return $cond ? "<span class=\"compat-text text-bold text-underline\">{$str}</span>" : $str;
+    $html_str = htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+    return $cond ? sprintf("<span class=\"compat-text text-bold text-underline\">%s</span>", $html_str) : $html_str;
 }
 
 
@@ -824,7 +825,6 @@ function monthNumberToName(int $month) : string
 
 function dumpVar(mixed $var) : void
 {
-    echo "<br>";
     highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");
 }
 

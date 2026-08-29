@@ -170,7 +170,7 @@ function cache_build(int $pr) : void
     // Check if we aren't rate limited
     if (!isset($pr_info->merge_commit_sha))
     {
-        echo "cache_build({$pr}): Rate limited".PHP_EOL;
+        printf("cache_build(%d): Rate limited".PHP_EOL, $pr);
         return;
     }
 
@@ -184,7 +184,7 @@ function cache_build(int $pr) : void
         !isset($pr_info->changed_files)    ||
         !isset($pr_info->title))
     {
-        echo "cache_build({$pr}): API error".PHP_EOL;
+        printf("cache_build(%d): API error".PHP_EOL, $pr);
         return;
     }
 
@@ -214,7 +214,7 @@ function cache_build(int $pr) : void
     // TODO: This should probably be logged, as other API call fails
     if ($aid == 0)
     {
-        echo "Error: Checking author information failed";
+        print("Error: Checking author information failed");
         return;
     }
 
@@ -347,7 +347,7 @@ function cache_build(int $pr) : void
 
     if ($is_missing_platform)
     {
-        echo "A build is broken for Pull Request #{$pr}".PHP_EOL;
+        printf("A build is broken for Pull Request #%d".PHP_EOL, $pr);
         printf("Build status: Windows: %s, Linux: %s, macOS: %s, Windows arm64: %s, Linux arm64: %s, macOS arm64: %s",
                isset($info_release_win->message)         ? $info_release_win->message : "OK",
                isset($info_release_linux->message)       ? $info_release_linux->message : "OK",

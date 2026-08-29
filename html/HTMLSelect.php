@@ -54,6 +54,6 @@ class HTMLSelect
 
     public function print() : void
     {
-        echo $this->to_string();
+        print($this->to_string());
     }
 }

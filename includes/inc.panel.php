@@ -105,11 +105,12 @@ function checkInvalidThreads() : void
             return;
         }
 
+        $html_subject = htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
         $thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
         if (is_null($thread->get_game_id()))
         {
-            $html_a = new HTMLA($thread->get_thread_url(), "", "{$row->subject}");
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
             $html_a->set_target("_blank");
 
             $output .= "<p>Thread {$html_a->to_string()} is incorrectly formatted.</p>";
@@ -123,28 +124,31 @@ function checkInvalidThreads() : void
     {
         foreach ($game->game_item as $item)
         {
+            $html_title = htmlspecialchars($game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
             if (!array_key_exists($item->thread_id, $a_threads))
             {
                 $output .= "<p class='debug-tvalidity-list'>";
-                $output .= "Thread {$item->thread_id}: [{$item->game_id}] {$game->title} doesn't exist.<br>";
+                $output .= "Thread {$item->thread_id}: [{$item->game_id}] {$html_title} doesn't exist.<br>";
                 $output .= "</p>";
                 $invalid++;
             }
             elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
             {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
                 $html_a->set_target("_blank");
+
 
                 $output .= "<p class='debug-tvalidity-list'>";
                 $output .= "Thread {$html_a->to_string()} is incorrect.<br>";
-                $output .= "- Compat: {$game->title} [{$item->game_id}]<br>";
+                $output .= "- Compat: {$html_title} [{$item->game_id}]<br>";
                 $output .= "- Forums: {$a_threads[$item->thread_id]->get_game_id()}<br>";
                 $output .= "</p>";
                 $invalid++;
             }
             elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
             {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$game->title}");
+                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
                 $html_a->set_target("_blank");
 
                 $output .= "<p class='debug-tvalidity-list'>";
@@ -258,11 +262,12 @@ function compatibilityUpdater() : void
         }
 
         $thread = new MyBBThread($row->tid, $row->fid, $row->subject);
+        $html_subject = htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
 
         // Invalid Game ID
         if (is_null($thread->get_game_id()) || is_null($thread->get_game_title()))
         {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
             $html_a->set_target("_blank");
 
             printf("<span style='color:red'>Error! Invalid new thread found. See: %s.<br><br></span>",
@@ -272,7 +277,7 @@ function compatibilityUpdater() : void
         // Thread with negative visibility (unapproved, deleted)
         else if ($row->visible <= 0)
         {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
             $html_a->set_target("_blank");
 
             printf("<span style='color:red'>Error! The new thread for %s is not visible (%s). See: %s.<br><br></span>",
@@ -309,7 +314,8 @@ function compatibilityUpdater() : void
         // If a thread for this Game ID was already visited, continue to next thread entry
         if (in_array($thread->get_game_id(), $a_gameIDs))
         {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $thread->subject);
+            $html_subject = htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
             $html_a->set_target("_blank");
 
             printf("Error! A thread for %s was already visited. %s is a duplicate.<br><br>",
@@ -344,8 +350,10 @@ function compatibilityUpdater() : void
             $html_a_thread1->set_target("_blank");
             $html_a_thread2->set_target("_blank");
 
+            $html_subject = htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
             printf("<span style='color:red'><b>Error!</b> %s (%s) duplicated thread of (%s).</span><br><br>",
-                   $thread->subject,
+                   $html_subject,
                    $html_a_thread1->to_string(),
                    $html_a_thread2->to_string());
             continue;
@@ -426,9 +434,9 @@ function compatibilityUpdater() : void
             $date_commit   = "({$a_commits[$commit]["merge"]})";
 
             printf("<b>New:</b> %s (tid: %s, author: %s, type: %s)<br>",
-                   $thread->subject,
+                   htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                    $html_a->to_string(),
-                   $a_inserts[$thread->tid]['author'],
+                   htmlspecialchars($a_inserts[$thread->tid]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                    $thread->get_game_type_name());
             printf("- Status: <span style='color:#%s'>%s (%s)</span><br>",
                    $a_status[$thread->get_sid()]['color'],
@@ -642,8 +650,9 @@ function compatibilityUpdater() : void
 
             printf("<b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
                    $thread->get_game_id(),
-                   $cur_game->title, $html_a->to_string(),
-                   $a_updates[$cur_game->key]['author'],
+                   htmlspecialchars($cur_game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), 
+                   $html_a->to_string(),
+                   htmlspecialchars($a_updates[$cur_game->key]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                    $thread->get_game_type_name());
             printf("- Status: <span style='color:#%s'>%s (%s)</span> <-- <span style='color:#%s'>%s (%s)</span><br>",
                    $a_status[$thread->get_sid()]['color'],
@@ -661,7 +670,7 @@ function compatibilityUpdater() : void
             foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
             {
                 printf("- Attachment: <span class='color-green'>%s</span><br>",
-                       $attachment);
+                       htmlspecialchars($attachment, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
             }
             print("<br>");
         }
@@ -876,8 +885,8 @@ function mergeGames() : void
     $pr2 = !is_null($game2->pr) ? $game2->pr : "null";
 
     printf("<b>Game 1: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
-           $game1->title,
-           $alternative1,
+           htmlspecialchars($game1->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($alternative1, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            $a_status[$game1->status]['color'],
            $a_status[$game1->status]['name'],
            $pr1,
@@ -894,8 +903,8 @@ function mergeGames() : void
     print("<br>");
 
     printf("<b>Game 2: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
-           $game2->title,
-           $alternative2,
+           htmlspecialchars($game2->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($alternative2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            $a_status[$game2->status]['color'],
            $a_status[$game2->status]['name'],
            $pr2,
@@ -1174,7 +1183,9 @@ function check_duplicated_entries() : void
     while ($row = mysqli_fetch_object($q_duplicates))
     {
         $search = urlencode($row->game_title);
-        $html_a = new HTMLA("compatibility?g={$search}&type=0#jump", $row->game_title, $row->game_title);
+        $html_title = htmlspecialchars($row->game_title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+        $html_a = new HTMLA("compatibility?g={$search}&type=0#jump", $row->game_title, $html_title);
         $html_a->set_target("_blank");
     
         $output .= sprintf("<p>- [%s] %s</p>", 

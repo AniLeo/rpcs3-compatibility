@@ -64,7 +64,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
             return true;
         }
 
-        echo "Unknown return type! gid:{$gid}, httpcode:{$httpcode}, api:{$api}".PHP_EOL;
+        printf("Unknown return type! gid:%s, httpcode:%d, api:%s".PHP_EOL, $gid, $httpcode, $api);
         return false;
     }
     else if ($httpcode == 200)
@@ -84,7 +84,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
     else
     {
         // Unknown HTTP return code
-        echo "Unknown return code! gid:{$gid}, httpcode:{$httpcode}, api:{$api}".PHP_EOL;
+        printf("Unknown return code! gid:%s, httpcode:%d, api:%s".PHP_EOL, $gid, $httpcode, $api);
         return false;
     }
 
@@ -100,32 +100,32 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
     // Sanity check the API results
     if (!isset($api->{"@attributes"}) || !isset($api->{"@attributes"}->status) || !isset($api->{"@attributes"}->titleid))
     {
-        echo "Missing titlepatch attributes! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Missing titlepatch attributes! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
     if (count(get_object_vars($api->{"@attributes"})) !== 2)
     {
-        echo "Unexpected titlepatch attributes count! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Unexpected titlepatch attributes count! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
     if ($api->{"@attributes"}->titleid !== $gid)
     {
-        echo "Mismatching game IDs?! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Mismatching game IDs?! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
     if (!isset($api->tag->{"@attributes"}->name) || !isset($api->tag->{"@attributes"}->popup) || !isset($api->tag->{"@attributes"}->signoff))
     {
-        echo "Missing tag core attributes! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Missing tag core attributes! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
     if ($api->tag->{"@attributes"}->popup !== "true" && $api->tag->{"@attributes"}->popup !== "false")
     {
-        echo "Unexpected tag popup value! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Unexpected tag popup value! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
     if ($api->tag->{"@attributes"}->signoff !== "true" && $api->tag->{"@attributes"}->signoff !== "false")
     {
-        echo "Unexpected tag signoff value! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Unexpected tag signoff value! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
 
@@ -137,7 +137,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
     {
         if (!in_array($tag_attribute, $a_tag_attributes))
         {
-            echo "Unexpected tag attribute {$tag_attribute}! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+            printf("Unexpected tag attribute %s! gid:%s, httpcode:%d".PHP_EOL, $tag_attribute, $gid, $httpcode);
             return false;
         }
     }
@@ -165,17 +165,17 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
         if (count($url_split) !== 9)
         {
-            echo "Unexpected package URL! gid:{$gid}, httpcode:{$httpcode}, url:{$package->{"@attributes"}->url}".PHP_EOL;
+            printf("Unexpected package URL! gid:%s, httpcode:%d, url:%s".PHP_EOL, $gid, $httpcode, $package->{"@attributes"}->url);
             return false;
         }
         if (!is_null($tag_hash) && $tag_hash !== $url_split[7])
         {
-            echo "Unexpected package hash! gid:{$gid}, httpcode:{$httpcode}, url:{$package->{"@attributes"}->url}".PHP_EOL;
+            printf("Unexpected package hash! gid:%s, httpcode:%d, url:%s".PHP_EOL, $gid, $httpcode, $package->{"@attributes"}->url);
             return false;
         }
         if (!isset($package->{"@attributes"}->version) || !isset($package->{"@attributes"}->size) || !isset($package->{"@attributes"}->sha1sum) || !isset($package->{"@attributes"}->url))
         {
-            echo "Missing package core attributes! gid:{$gid}, httpcode:{$httpcode}, url:{$package->{"@attributes"}->url}".PHP_EOL;
+            printf("Missing package core attributes! gid:%s, httpcode:%d, url:%s".PHP_EOL, $gid, $httpcode, $package->{"@attributes"}->url);
             return false;
         }
 
@@ -187,7 +187,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
         {
             if (!in_array($tag_package, $a_package_attributes))
             {
-                echo "Unexpected package attribute {$tag_package}! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+                printf("Unexpected package attribute %s! gid:%s, httpcode:%d".PHP_EOL, $tag_package, $gid, $httpcode);
                 return false;
             }
         }
@@ -335,7 +335,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
             if ($httpcode !== 200 || is_bool($paramhip_content))
             {
-                echo "Failed to fetch PARAM.HIP! httpcode:{$httpcode}, return:{$paramhip_content}, url:{$value->{"@attributes"}->url}".PHP_EOL;
+                printf("Failed to fetch PARAM.HIP! httpcode:%s, return:%s, url:%s".PHP_EOL, $httpcode, $paramhip_content, $value->{"@attributes"}->url);
                 return false;
             }
 
@@ -359,7 +359,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
         {
             if ($key !== "@attributes" && $key !== "url" && $key !== "paramsfo" && !str_contains($key, "paramhip"))
             {
-                echo "Unhandled package child node! key:{$key}, gid:{$gid}".PHP_EOL;
+                printf("Unhandled package child node! key:%s, gid:%s".PHP_EOL, $key, $gid);
                 return false;
             }
         }
@@ -367,7 +367,7 @@ function cache_game_updates(CurlHandle $cr, mysqli $db, string $gid) : bool
 
     if (is_null($tag_hash))
     {
-        echo "Missing tag hash value! gid:{$gid}, httpcode:{$httpcode}".PHP_EOL;
+        printf("Missing tag hash value! gid:%s, httpcode:%d".PHP_EOL, $gid, $httpcode);
         return false;
     }
 

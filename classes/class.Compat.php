@@ -147,7 +147,7 @@ public static function printNetworkSort() : void
     $html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
     $html_a->print();
 
-    echo "•&nbsp;";
+    print("•&nbsp;");
 
     if (!empty($s_query))
         $s_query .= "&";
@@ -155,7 +155,7 @@ public static function printNetworkSort() : void
     $html_a = new HTMLA("?{$s_query}network=1", "Only show entries that require network", highlightText("Yes", $defined && $get['network'] === 1));
     $html_a->print();
 
-    echo "•&nbsp;";
+    print("•&nbsp;");
 
     $html_a = new HTMLA("?{$s_query}network=0", "Only show entries that do not require network", highlightText("No", $defined && $get['network'] === 0));
     $html_a->print();
@@ -175,7 +175,7 @@ public static function printMoveSort() : void
     $html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
     $html_a->print();
 
-    echo "•&nbsp;";
+    print("•&nbsp;");
 
     if (!empty($s_query))
         $s_query .= "&";
@@ -183,7 +183,7 @@ public static function printMoveSort() : void
     $html_a = new HTMLA("?{$s_query}move=1", "Only show games with PS Move support", highlightText("Yes", $defined && $get['move'] === 1));
     $html_a->print();
 
-    echo "•&nbsp;";
+    print("•&nbsp;");
 
     $html_a = new HTMLA("?{$s_query}move=0", "Only show games without PS Move support", highlightText("No", $defined && $get['move'] === 0));
     $html_a->print();
@@ -206,9 +206,9 @@ public static function printTypeSort() : void
     $html_a_apps = new HTMLA("?{$s_query}type=2", "Only show PS3 Apps", highlightText("PS3 Apps", $get['type'] === 2));
 
     $html_a_all->print();
-    echo "•&nbsp;";
+    print("•&nbsp;");
     $html_a_games->print();
-    echo "•&nbsp;";
+    print("•&nbsp;");
     $html_a_apps->print();
 }
 
@@ -250,7 +250,7 @@ public static function printResultsPerPage() : void
 
     $http_query = new HTTPQuery($get);
 
-    echo resultsPerPage($http_query->get_except(array("results")));
+    print(resultsPerPage($http_query->get_except(array("results"))));
 }
 
 
@@ -313,26 +313,26 @@ public static function printTable() : void
         switch ($error)
         {
             case "ERROR_QUERY_FAIL":
-                echo "<p class=\"compat-tx1-criteria\">Could not fetch contents (e=1), please report to a developer.</p>";
+                print("<p class=\"compat-tx1-criteria\">Could not fetch contents (e=1), please report to a developer.</p>");
                 return;
             case "ERROR_QUERY_EMPTY":
-                echo "<p class=\"compat-tx1-criteria\">The Game ID you searched for doesn't exist in our database.</p>";
+                print("<p class=\"compat-tx1-criteria\">The Game ID you searched for doesn't exist in our database.</p>");
                 return;
             case "ERROR_STATUS_EMPTY":
-                echo "<p class=\"compat-tx1-criteria\">No results found for the specified search on the indicated status.</p>";
+                print("<p class=\"compat-tx1-criteria\">No results found for the specified search on the indicated status.</p>");
                 return;
             case "ERROR_QUERY_FAIL_2":
-                echo "<p class=\"compat-tx1-criteria\">Could not fetch contents (e=2), please report to a developer.</p>";
+                print("<p class=\"compat-tx1-criteria\">Could not fetch contents (e=2), please report to a developer.</p>");
                 return;
         }
     }
     else if (isset($l_orig) && isset($l_title))
     {
-        $html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
+        $html_a = new HTMLA("?g=".urlencode($l_title), $l_title, htmlspecialchars($l_title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
-        echo "<p class=\"compat-tx1-criteria\">No results found for <i>{$l_orig}</i>.";
-        echo "<br>";
-        echo "Displaying results for <b>{$html_a->to_string()}</b></p>";
+        printf("<p class=\"compat-tx1-criteria\">No results found for <i>%s</i>.<br>Displaying results for <b>%s</b></p>", 
+               htmlspecialchars($l_orig, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+               $html_a->to_string());
     }
 
     if (is_null($games))
@@ -341,8 +341,8 @@ public static function printTable() : void
     $http_query = new HTTPQuery($get);
 
     // Start table
-    echo "<div class=\"compat-table-outside\">";
-    echo "<div class=\"compat-table-inside\">";
+    print("<div class=\"compat-table-outside\">");
+    print("<div class=\"compat-table-inside\">");
 
     // Print table headers
     $extra = $http_query->get_except(array("order"));
@@ -368,7 +368,7 @@ public static function printTable() : void
             'sort' => '4'
         )
     );
-    echo getTableHeaders($headers, $extra);
+    print(getTableHeaders($headers, $extra));
 
     // Prepare images that will be used
     $html_img_network = new HTMLImg("compat-icon", "/img/icons/compat/onlineonly.png");
@@ -436,7 +436,7 @@ public static function printTable() : void
         }
 
 
-        echo "<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">";
+        print("<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">");
 
 
         // Cell 1: Regions and GameIDs
@@ -465,16 +465,18 @@ public static function printTable() : void
         // Game media image
         $html_div_cell->add_content($html_a_media->to_string());
 
+        $html_title = htmlspecialchars($game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
         if (!is_null($game->get_url_wiki()))
         {
-            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $game->title);
+            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $html_title);
             $html_a_title->set_target("_blank");
 
             $html_div_cell->add_content($html_a_title->to_string());
         }
         else
         {
-            $html_div_cell->add_content($game->title);
+            $html_div_cell->add_content($html_title);
         }
         if ($game->network === 1)
         {
@@ -490,7 +492,8 @@ public static function printTable() : void
         }
         if (!is_null($game->title2))
         {
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})");
+            $html_title2 = htmlspecialchars($game->title2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$html_title2})");
         }
 
         $html_div_cell->print();
@@ -526,11 +529,11 @@ public static function printTable() : void
         $html_div_cell->print();
 
 
-        echo "</label>";
+        print("</label>");
 
         // Dropdown
-        echo "<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">";
-        echo "<div class=\"compat-table-row compat-table-dropdown\">";
+        print("<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">");
+        print("<div class=\"compat-table-row compat-table-dropdown\">");
 
         // Update information
         $changelog = "";
@@ -570,6 +573,8 @@ public static function printTable() : void
         {
             print("<br>");
 
+            $changelog = htmlspecialchars($changelog, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
             // Replace DOS/Unix line-breaks with HTML line-breaks
             $changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
             while (!empty($changelog) && str_contains($changelog, "<br><br>"))
@@ -588,12 +593,12 @@ public static function printTable() : void
             print("<p>This game entry contains no available game updates</p>");
         }
 
-        echo "</div>";
+        print("</div>");
     }
 
     // End table
-    echo "</div>";
-    echo "</div>";
+    print("</div>");
+    print("</div>");
 }
 
 

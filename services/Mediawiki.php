@@ -264,7 +264,7 @@ function cache_patches() : void
         // Invalid information header
         if (!is_string($header) || empty($header))
         {
-            echo "Invalid patch header syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid patch header syntax on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }
@@ -289,7 +289,7 @@ function cache_patches() : void
         // Check if patch version syntax is valid (number, underscore, number)
         if (!is_string($type) || strlen($type) !== 3 || !ctype_alpha($type))
         {
-            echo "Invalid patch type syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid patch type syntax on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }
@@ -328,14 +328,14 @@ function cache_patches() : void
         // Check if patch version syntax is valid (number, underscore, number)
         if (!is_string($version) || strlen($version) !== 3 || !ctype_digit($version[0]) || $version[1] !== '.' || !ctype_digit($version[2]))
         {
-            echo "Invalid patch version syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid patch version syntax on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }
 
         if ($version !== "1.2")
         {
-            echo "Invalid patch version as it's not on the latest patch version on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid patch version as it's not on the latest patch version on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }
@@ -347,7 +347,7 @@ function cache_patches() : void
 
         if (is_null($txt_patch))
         {
-            echo "Invalid YAML syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid YAML syntax on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }
@@ -361,7 +361,7 @@ function cache_patches() : void
         // Discard patches with invalid YAML syntax
         if ($yml_patch === false)
         {
-            echo "Invalid YAML syntax on Wiki Page {$result["id"]}: {$result["title"]} <br>";
+            printf("Invalid YAML syntax on Wiki Page %s: %s <br>", $result["id"], $result["title"]);
             unset($a_wiki[$i]);
             continue;
         }

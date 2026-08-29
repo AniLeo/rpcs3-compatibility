@@ -29,7 +29,7 @@ if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("
                     <span class="compat-text">Builds History <a href="compatibility?b&rss&api=v1" target="_blank">(RSS)</a></span>
                     <?php
                         Profiler::add_data("Page: Get Menu");
-                        echo getMenu(__FILE__);
+                        print(getMenu(__FILE__));
                     ?>
                 </div>
 
@@ -58,7 +58,7 @@ if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("
             Builds::printPagesCounter();
 
             Profiler::add_data("End");
-            echo getFooter();
+            print(getFooter());
         ?>
 
     </div> <!-- page-in-container -->

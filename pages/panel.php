@@ -31,7 +31,7 @@ if (isset($get['a']))
 
                 <div class="container-tx1-block">
                     <span class="compat-text">Debug Panel</span>
-                    <?php echo getMenu(__FILE__); ?>
+                    <?php print(getMenu(__FILE__)); ?>
                 </div>
 
             </div>
@@ -43,18 +43,18 @@ if (isset($get['a']))
                         {
                             foreach ($a_panel_categories as $id => $category)
                             {
-                                echo "<div class=\"debug-main-title compat-text\">{$category}</div>";
-                                echo "<div class=\"debug-main-menu\">";
+                                printf("<div class=\"debug-main-title compat-text\">%s</div>", $category);
+                                print("<div class=\"debug-main-menu\">");
 
                                 foreach ($a_panel as $function => $data)
                                 {
                                     if ($data["category"] !== $id)
                                         continue;
 
-                                    echo "<div class=\"debug-menu-button\"><a href=\"?a={$function}\">{$data['title']}</a></div>";
+                                    printf("<div class=\"debug-menu-button\"><a href=\"?a=%s\">%s</a></div>", $function, $data["title"]);
                                 }
 
-                                echo "</div>";
+                                print("</div>");
                             }
                         }
                     ?>
@@ -72,7 +72,7 @@ if (isset($get['a']))
 
         </div>
 
-        <?php echo getFooter(); ?>
+        <?php print(getFooter()); ?>
 
     </div>
 </div>

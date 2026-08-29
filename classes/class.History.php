@@ -33,22 +33,22 @@ public static function printDescription() : void
 {
     global $get, $a_histdates, $a_currenthist;
 
-    echo "<p>";
-    echo "You're now watching the updates that altered a game's status for RPCS3's Compatibility List ";
+    print("<p>");
+    print("You're now watching the updates that altered a game's status for RPCS3's Compatibility List ");
 
     if ($get['h'] === $a_currenthist[0])
     {
-        echo "since <b>{$a_currenthist[1]}</b>.";
+        print("since <b>{$a_currenthist[1]}</b>.");
     }
     else
     {
         $v = $a_histdates[$get['h']];
         $m1 = monthNumberToName($v[0]['m']);
         $m2 = monthNumberToName($v[1]['m']);
-        echo "from <b>{$m1} {$v[0]['d']}, {$v[0]['y']}</b> to <b>{$m2} {$v[1]['d']}, {$v[1]['y']}</b>.";
+        printf("from <b>%s %s, %s</b> to <b>%s %s, %s</b>.", $m1, $v[0]['d'], $v[0]['y'], $m2, $v[1]['d'], $v[1]['y']);
     }
 
-    echo "</p>";
+    print("</p>");
 }
 
 
@@ -62,7 +62,7 @@ public static function printMonths() : void
     $spacer = "&nbsp;&#8226;&nbsp;&nbsp;";
     $watchdog = '';
 
-    echo "<p class=\"compat-history-months\">";
+    print("<p class=\"compat-history-months\">");
 
     foreach ($a_histdates as $k => $v)
     {
@@ -72,28 +72,28 @@ public static function printMonths() : void
         if ($watchdog != $year)
         {
             if (!empty($watchdog))
-                echo "<br>";
+                print("<br>");
 
-            echo "<strong>{$year}:</strong>&nbsp;";
+            printf("<strong>%s:</strong>&nbsp;", $year);
             $watchdog = $year;
         }
 
-        $html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", $month);
-        echo highlightText($html_a_month->to_string(), $get['h'] === $k);
+        $html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", highlightText($month, $get['h'] === $k));
+        print($html_a_month->to_string());
 
         if ($month != "December" && $v != end($a_histdates))
-            echo $spacer;
+            print($spacer);
     }
 
-    echo "<br><strong>Current:</strong>&nbsp;";
+    print("<br><strong>Current:</strong>&nbsp;");
 
     $month = monthNumberToName((int) substr($a_currenthist[0], -2));
     $year = substr($a_currenthist[0], 0, 4);
 
-    $html_a_month = new HTMLA("?h", "{$month} {$year}", "{$month} {$year}");
-    echo highlightText($html_a_month->to_string(), $get['h'] === $a_currenthist[0]);
+    $html_a_month = new HTMLA("?h", "{$month} {$year}", highlightText("{$month} {$year}", $get['h'] === $a_currenthist[0]));
+    print($html_a_month->to_string());
 
-    echo "</p>";
+    print("</p>");
 }
 
 
@@ -107,28 +107,28 @@ public static function printOptions() : void
     $h = $get['h'] !== $a_currenthist[0] ? "={$get['h']}" : "";
     $spacer = "&nbsp;&#8226;&nbsp;";
 
-    echo "<p>";
+    print("<p>");
 
-    $html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
-    echo highlightText($html_a->to_string(), !isset($get['m']));
-    echo $spacer;
+    $html_a = new HTMLA("?h{$h}", "Show all entries", highlightText("Show all entries", !isset($get['m'])));
+    print($html_a->to_string());
+    print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Show only previously existent entries");
-    echo highlightText($html_a->to_string(), isset($get['m']) && $get['m'] === 'c');
+    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", highlightText("Show only previously existent entries", isset($get['m']) && $get['m'] === 'c'));
+    print($html_a->to_string());
 
     $html_a = new HTMLA("?h{$h}&m=c&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
     $html_a->print();
-    echo $spacer;
+    print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "Show only new entries");
-    echo highlightText($html_a->to_string(), isset($get['m']) && $get['m'] === 'n');
+    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", highlightText("Show only new entries", isset($get['m']) && $get['m'] === 'n'));
+    print($html_a->to_string());
 
     $html_a = new HTMLA("?h{$h}&m=n&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
     $html_a->print();
 
-    echo "</p>";
+    print("</p>");
 }
 
 
@@ -198,7 +198,7 @@ public static function printTableHeader(bool $full = true) : void
         );
     }
 
-    echo getTableHeaders($headers);
+    print(getTableHeaders($headers));
 }
 
 
@@ -223,7 +223,7 @@ public static function printTableContent(array $array) : void
         $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
         $html_img_move->set_title("PS Move");
 
-        echo "<div class=\"compat-table-row\">";
+        print("<div class=\"compat-table-row\">");
 
 
         // Cell 1: Regions
@@ -239,7 +239,9 @@ public static function printTableContent(array $array) : void
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
         $html_div_cell->add_content($html_img_media->to_string());
-        $html_div_cell->add_content($entry->title.PHP_EOL);
+        
+        $html_title = htmlspecialchars($entry->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $html_div_cell->add_content($html_title.PHP_EOL);
 
         if ($entry->move === 1)
         {
@@ -248,7 +250,8 @@ public static function printTableContent(array $array) : void
 
         if (!is_null($entry->title2))
         {
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})");
+            $html_title2 = htmlspecialchars($entry->title2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$html_title2})");
         }
 
         $html_div_cell->print();
@@ -291,7 +294,7 @@ public static function printTableContent(array $array) : void
         }
 
 
-        echo "</div>";
+        print("</div>");
     }
 }
 
@@ -306,32 +309,32 @@ public static function printContent() : void
     // Existing entries table
     if (!empty($error_existing))
     {
-        echo "<p class=\"compat-tx1-criteria\">{$error_existing}</p>";
+        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error_existing);
     }
     elseif (!empty($a_existing))
     {
-        echo "<div class=\"compat-table-outside\">";
-        echo "<div class=\"compat-table-inside\">";
+        print("<div class=\"compat-table-outside\">");
+        print("<div class=\"compat-table-inside\">");
         self::printTableHeader();
         self::printTableContent($a_existing);
-        echo "</div>";
-        echo "</div>";
+        print("</div>");
+        print("</div>");
     }
 
     // New entries table
     if (!empty($error_new))
     {
-        echo "<p class=\"compat-tx1-criteria\">{$error_new}</p>";
+        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error_new);
     }
     elseif (!empty($a_new))
     {
-        echo "<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>";
-        echo "<div class=\"compat-table-outside\">";
-        echo "<div class=\"compat-table-inside\">";
+        print("<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>");
+        print("<div class=\"compat-table-outside\">");
+        print("<div class=\"compat-table-inside\">");
         self::printTableHeader(false);
         self::printTableContent($a_new);
-        echo "</div>";
-        echo "</div>";
+        print("</div>");
+        print("</div>");
     }
 }
 
@@ -386,50 +389,58 @@ public static function printHistoryRSS() : void
 
     $url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 
-    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-    <rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
-    <channel>
-    <title>RPCS3 Compatibility List History - {$title}</title>
-    <link>https://rpcs3.net/compatibility?h</link>
-    <description>For more information about RPCS3 visit https://rpcs3.net</description>
-    <language>en-uk</language>
-    <atom:link href=\"{$url}\" rel=\"self\" type=\"application/rss+xml\" />";
+    printf(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
+        <channel>
+        <title>RPCS3 Compatibility List History - %s</title>
+        <link>https://rpcs3.net/compatibility?h</link>
+        <description>For more information about RPCS3 visit https://rpcs3.net</description>
+        <language>en-uk</language>
+        <atom:link href=\"%s\" rel=\"self\" type=\"application/rss+xml\" />",
+        $title, $url);
 
     if (!empty($error))
     {
-        echo "<item>
-                        <title><![CDATA[{$error}]]></title>
-                        <description>{$error}</description>
-                        <pubDate>".date('r', time())."</pubDate>
-                    </item>";
+        printf(
+            "<item>
+                <title><![CDATA[%s]]></title>
+                <description>%s</description>
+                <pubDate>%s</pubDate>
+            </item>",
+            $error, $error, date('r', time()));
     }
     elseif (!empty($a_new))
     {
         foreach ($a_new as $key => $entry)
         {
-            echo "<item>
-                        <title><![CDATA[{$entry->title}]]></title>
-                        <guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}</guid>
-                        <description>New entry for {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
-                        <pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
-                        </item>";
+            printf(
+                "<item>
+                    <title><![CDATA[%s]]></title>
+                    <guid isPermaLink=\"false\">rpcs3-compatibility-history-%s_%s</guid>
+                    <description>New entry for %s (%s)</description>
+                    <pubDate>%s</pubDate>
+                </item>",
+                $entry->title, $entry->game_item->game_id, $entry->new_date, $a_status[$entry->new_status]["name"], $entry->new_date, date('r', strtotime($entry->new_date)));
         }
     }
     else /*if (!empty($a_existing)) */
     {
         foreach ($a_existing as $key => $entry)
         {
-            echo "<item>
-                        <title><![CDATA[{$entry->title}]]></title>
-                        <guid isPermaLink=\"false\">rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}</guid>
-                        <description>Updated from {$a_status[$entry->old_status]["name"]} ({$entry->old_date}) to {$a_status[$entry->new_status]["name"]} ({$entry->new_date})</description>
-                        <pubDate>".date('r', strtotime($entry->new_date))."</pubDate>
-                        </item>";
+            printf(
+                "<item>
+                    <title><![CDATA[%s]]></title>
+                    <guid isPermaLink=\"false\">rpcs3-compatibility-history-%s_%s</guid>
+                    <description>Updated from %s (%s) to %s (%s)</description>
+                    <pubDate>%s</pubDate>
+                </item>",
+                $entry->title, $entry->game_item->game_id, $entry->new_date, $a_status[$entry->old_status]["name"], $entry->old_date, $a_status[$entry->new_status]["name"], $entry->new_date, date('r', strtotime($entry->new_date)));
         }
     }
 
-    echo "</channel>
-    </rss>";
+    print("</channel>");
+    print("</rss>");
 }
 
 } // End of Class

@@ -46,7 +46,7 @@ if (isset($get['api']))
                 if (!@include_once("includes/inc.builds.php")) throw new Exception("Compat: inc.builds.php is missing. Failed to include inc.builds.php");
                 header('Content-Type: text/xml');
                 $Builds = new Builds();
-                echo $Builds->getBuildsRSS();
+                print($Builds->getBuildsRSS());
             }
             elseif (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n'))
             {
@@ -82,7 +82,7 @@ if (isset($get['api']))
             }
 
             header('Content-Type: application/json');
-            echo json_encode($results, JSON_PRETTY_PRINT);
+            print(json_encode($results, JSON_PRETTY_PRINT));
         }   
     }
 
@@ -103,27 +103,26 @@ Profiler::add_data("Index: Start");
 <head>
 <title>
 <?php
-    if     (isset($get['h'])) { echo "RPCS3 - Compatibility History"; }
-    elseif (isset($get['b'])) { echo "RPCS3 - Builds History"; }
-    elseif (isset($get['a'])) { echo "RPCS3 - Debug Panel"; }
-    else                      { echo "RPCS3 - Compatibility List"; }
+    if     (isset($get['h'])) { print("RPCS3 - Compatibility History"); }
+    elseif (isset($get['b'])) { print("RPCS3 - Builds History"); }
+    elseif (isset($get['a'])) { print("RPCS3 - Debug Panel"); }
+    else                      { print("RPCS3 - Compatibility List"); }
 ?>
 </title>
 <meta charset=UTF-8>
-<?php
-    if     (isset($get['h'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Compatibility History\" />"; }
-    elseif (isset($get['b'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Builds History\" />"; }
-    elseif (isset($get['a'])) { echo "<meta property=\"og:title\" content=\"RPCS3 - Debug Panel\" />"; }
-    else                      { echo "<meta property=\"og:title\" content=\"RPCS3 - Compatibility List\" />"; }
-?>
-<?php
-    if     (isset($get['h'])) { echo "<meta property=\"og:description\" content=\"You're now watching the updates that altered a game's status for RPCS3's Compatibility List for the current month.\" />"; }
-    elseif (isset($get['b'])) { echo "<meta property=\"og:description\" content=\"This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project. Hovering over the build number displays the SHA-256 checksum and the build size.\" />"; }
-    elseif (isset($get['a'])) { echo "<meta property=\"og:description\" content=\"Very cool debug panel.\" />"; }
-    else                      { echo "<meta property=\"og:description\" content=\"These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest updates.\" />"; }
-?>
-<meta name="description" content="RPCS3 is a multi-platform open-source Sony PlayStation 3 emulator and debugger written in C++ for Windows, Linux, macOS and FreeBSD made possible with the power of reverse engineering.">
 <meta name="keywords" content="rpcs3, playstation, playstation 3, ps3, emulator, debugger, windows, linux, macos, freebsd, open source, nekotekina, kd11, compatibility">
+<?php
+    if     (isset($get['h'])) { print("<meta property=\"og:title\" content=\"RPCS3 - Compatibility History\" />".PHP_EOL); }
+    elseif (isset($get['b'])) { print("<meta property=\"og:title\" content=\"RPCS3 - Builds History\" />".PHP_EOL); }
+    elseif (isset($get['a'])) { print("<meta property=\"og:title\" content=\"RPCS3 - Debug Panel\" />".PHP_EOL); }
+    else                      { print("<meta property=\"og:title\" content=\"RPCS3 - Compatibility List\" />".PHP_EOL); }
+?>
+<?php
+    if     (isset($get['h'])) { print("<meta property=\"og:description\" content=\"You're now watching the updates that altered a game's status for RPCS3's Compatibility List for the current month.\" />".PHP_EOL); }
+    elseif (isset($get['b'])) { print("<meta property=\"og:description\" content=\"This is the history of all RPCS3 master builds made per pull request after AppVeyor artifacts were firstly added to the project. Hovering over the build number displays the SHA-256 checksum and the build size.\" />".PHP_EOL); }
+    elseif (isset($get['a'])) { print("<meta property=\"og:description\" content=\"Very cool debug panel.\" />".PHP_EOL); }
+    else                      { print("<meta property=\"og:description\" content=\"These are the current compatible games that have been tested with the emulator. This list is subject to change frequently. Be sure to check this page often to follow the latest updates.\" />".PHP_EOL); }
+?>
 <meta property="og:image" content="https://rpcs3.net/img/meta/mobile/1200.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -143,11 +142,11 @@ if (!@include(__DIR__.'/../../lib/module/sys-meta.php'))
 if (!@include(__DIR__.'/../../lib/module/sys-css.php'))
 {
     trigger_error("[COMPAT] Integration: sys-css not found", E_USER_WARNING);
-    echo "<link rel=\"stylesheet\" href=\"compat.css\"/>";
+    print("<link rel=\"stylesheet\" href=\"compat.css\"/>".PHP_EOL);
 }
 else
 {
-    echo "<link rel=\"stylesheet\" href=\"/lib/compat/compat.css\"/>";
+    print("<link rel=\"stylesheet\" href=\"/lib/compat/compat.css\"/>".PHP_EOL);
 }
 
 if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
@@ -173,10 +172,10 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
             <div class='banner-tx1-title fade-up-onstart pulsate'>
                 <h1>
                 <?php
-                    if     (isset($get['h'])) { echo "History"; }
-                    elseif (isset($get['b'])) { echo "Builds"; }
-                    elseif (isset($get['a'])) { echo "Debug Panel"; }
-                    else                      { echo "Compatibility"; }
+                    if     (isset($get['h'])) { print("History"); }
+                    elseif (isset($get['b'])) { print("Builds"); }
+                    elseif (isset($get['a'])) { print("Debug Panel"); }
+                    else                      { print("Compatibility"); }
                 ?>
                 </h1>
             </div>
@@ -187,16 +186,16 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
                     <?php
                     if ((isset($c_maintenance) && !$c_maintenance) || $get['w'] != NULL) 
                     {
-                        if     (isset($get['h'])) { echo "History of the updates made to the compatibility list"; }
-                        elseif (isset($get['b'])) { echo "History of RPCS3 builds per merged pull request"; }
-                        elseif (isset($get['a'])) { echo "Super cool compatibility list debug control panel"; }
+                        if     (isset($get['h'])) { print("History of the updates made to the compatibility list"); }
+                        elseif (isset($get['b'])) { print("History of RPCS3 builds per merged pull request"); }
+                        elseif (isset($get['a'])) { print("Super cool compatibility list debug control panel"); }
                         else
                         {
                             Profiler::add_data("Index: Count Games");
-                            echo "There are currently ".count_game_entry_all()." games with ".count_game_id_all()." IDs listed in our database";
+                            printf("There are currently %d games with %d IDs listed in our database", count_game_entry_all(), count_game_id_all());
                         }
                     } else {
-                        echo "Compatibility is undergoing maintenance. Please try again in a few minutes.";
+                        print("Compatibility is undergoing maintenance. Please try again in a few minutes.");
                     }
                     ?>
                 </p>

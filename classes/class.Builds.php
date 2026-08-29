@@ -37,7 +37,7 @@ public static function printResultsPerPage() : void
 
     $http_query = new HTTPQuery($get);
 
-    echo resultsPerPage($http_query->get_except($http_query::to_exclusions(array("order"))));
+    print(resultsPerPage($http_query->get_except($http_query::to_exclusions(array("order")))));
 }
 
 
@@ -50,13 +50,13 @@ public static function printTable() : void
 
     if (!is_null($error))
     {
-         echo "<p class=\"compat-tx1-criteria\">{$error}</p>";
+        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error);
         return;
     }
 
     // Start table
-    echo "<div class=\"compat-table-outside\">";
-    echo "<div class=\"compat-table-inside\">";
+    print("<div class=\"compat-table-outside\">");
+    print("<div class=\"compat-table-inside\">");
 
     // Print table headers
     $headers = array(
@@ -91,7 +91,7 @@ public static function printTable() : void
             'sort' => '0'
         )
     );
-    echo getTableHeaders($headers, 'b');
+    print(getTableHeaders($headers, 'b'));
 
     // Prepare images that will be used
     $html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
@@ -172,15 +172,17 @@ public static function printTable() : void
             $version .= "macOS arm64 Size: {$build->get_size_mb_mac_arm64()} MB\n";
         }
 
-        $version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$version}\">{$build->version}</span>" : $build->version;
+        $html_version = htmlspecialchars($build->version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $html_title = htmlspecialchars($version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$html_title}\">{$html_version}</span>" : $html_version;
 
-         echo "<div class=\"compat-table-row\">";
+        print("<div class=\"compat-table-row\">");
 
 
         /* Cell 1: PR */
         $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-pr");
 
-        $title = is_null($build->title) ? "Pull Request #{$build->pr}" : htmlspecialchars($build->title, ENT_QUOTES, 'UTF-8');
+        $title = is_null($build->title) ? "Pull Request #{$build->pr}" : $build->title;
 
         $html_a_pr = new HTMLA($build->get_url_pr(), $title, "{$html_img_pr->to_string()}#{$build->pr}");
         $html_a_pr->set_target("_blank");
@@ -193,7 +195,8 @@ public static function printTable() : void
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
         $html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar());
-        $html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$html_img_author->to_string()}{$build->author}");
+        $author = htmlspecialchars($build->author, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$html_img_author->to_string()}{$author}");
         $html_a_author->set_target("_blank");
 
         $html_div_cell->add_content($html_a_author->to_string());
@@ -206,7 +209,7 @@ public static function printTable() : void
         $additions = !is_null($build->additions) ? $build->additions : "?";
         $deletions = !is_null($build->deletions) ? $build->deletions : "?";
 
-         $html_div_cell->add_content("<span style='color:#4cd137;'>+{$additions}</span>");
+        $html_div_cell->add_content("<span style='color:#4cd137;'>+{$additions}</span>");
         $html_div_cell->add_content("<span style='color:#e84118; padding-left: {$padding}px;'>-{$deletions}</span>");
         $html_div_cell->print();
 
@@ -309,12 +312,12 @@ public static function printTable() : void
         $html_div_cell->print();
 
 
-        echo "</div>";
+        print("</div>");
     }
 
     // End table
-    echo "</div>";
-    echo "</div>";
+    print("</div>");
+    print("</div>");
 }
 
 
