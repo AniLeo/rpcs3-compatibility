@@ -22,11 +22,13 @@
 
 class HTMLA
 {
-    public  string $href;
-    public  string $title;
-    public  string $content;
-    public ?string $target;
-    public ?string $rel;
+    public  string  $href;
+    public  string  $title;
+    public  string  $content;
+    public ?string  $target;
+    public ?string  $rel;
+    public ?string  $class;
+    public ?HTMLImg $img;
 
     function __construct(string $href, string $title, string $content)
     {
@@ -35,6 +37,8 @@ class HTMLA
         $this->content = $content;
         $this->target  = null;
         $this->rel     = null;
+        $this->class   = null;
+        $this->img     = null;
     }
 
     public function set_target(string $target) : void
@@ -47,26 +51,54 @@ class HTMLA
         $this->rel = $rel;
     }
 
+    public function set_class(string $class) : void
+    {
+        $this->class = $class;
+    }
+
+    public function set_img(HTMLImg $img) : void
+    {
+        $this->img = $img;
+    }
+
     public function to_string() : string
     {
         $ret = sprintf("<a href=\"%s\" ", 
                        htmlspecialchars($this->href, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
-        if (!is_null($this->target))
+        if (!is_null($this->class) && !empty($this->class))
+        {
+            $ret .= sprintf("class=\"%s\" ", 
+                            htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
+
+        if (!is_null($this->target) && !empty($this->target))
         {
             $ret .= sprintf("target=\"%s\" ", 
                             htmlspecialchars($this->target, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
         }
 
-        if (!is_null($this->rel))
+        if (!is_null($this->rel) && !empty($this->rel))
         {
             $ret .= sprintf("rel=\"%s\" ",
                             htmlspecialchars($this->rel, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
         }
 
-        $ret .= sprintf("title=\"%s\">%s</a>".PHP_EOL, 
-                        htmlspecialchars($this->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                        $this->content);
+        if (!empty($this->title))
+        {
+            $ret .= sprintf("title=\"%s\" ", 
+                            htmlspecialchars($this->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
+
+        $ret .= '>';
+
+        if (!is_null($this->img))
+        {
+            $ret .= $this->img->to_string();
+        }
+
+        $ret .= sprintf("%s</a>".PHP_EOL, 
+                        htmlspecialchars($this->content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         return $ret;
     }

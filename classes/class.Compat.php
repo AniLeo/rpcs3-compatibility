@@ -144,7 +144,9 @@ public static function printNetworkSort() : void
     $defined = array_key_exists("network", $get);
 
     // All statuses
-    $html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
+    $html_a = new HTMLA("?{$s_query}", "Show all applications", "All");
+    if (!$defined)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     print("•&nbsp;");
@@ -152,12 +154,16 @@ public static function printNetworkSort() : void
     if (!empty($s_query))
         $s_query .= "&";
 
-    $html_a = new HTMLA("?{$s_query}network=1", "Only show entries that require network", highlightText("Yes", $defined && $get['network'] === 1));
+    $html_a = new HTMLA("?{$s_query}network=1", "Only show entries that require network", "Yes");
+    if ($defined && $get['network'] === 1)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     print("•&nbsp;");
 
-    $html_a = new HTMLA("?{$s_query}network=0", "Only show entries that do not require network", highlightText("No", $defined && $get['network'] === 0));
+    $html_a = new HTMLA("?{$s_query}network=0", "Only show entries that do not require network", "No");
+    if ($defined && $get['network'] === 0)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 }
 
@@ -172,7 +178,9 @@ public static function printMoveSort() : void
     $defined = array_key_exists("move", $get);
 
     // All statuses
-    $html_a = new HTMLA("?{$s_query}", "Show all applications", highlightText("All", !$defined));
+    $html_a = new HTMLA("?{$s_query}", "Show all applications", "All");
+    if (!$defined)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     print("•&nbsp;");
@@ -180,12 +188,16 @@ public static function printMoveSort() : void
     if (!empty($s_query))
         $s_query .= "&";
 
-    $html_a = new HTMLA("?{$s_query}move=1", "Only show games with PS Move support", highlightText("Yes", $defined && $get['move'] === 1));
+    $html_a = new HTMLA("?{$s_query}move=1", "Only show games with PS Move support", "Yes");
+    if ($defined && $get['move'] === 1)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     print("•&nbsp;");
 
-    $html_a = new HTMLA("?{$s_query}move=0", "Only show games without PS Move support", highlightText("No", $defined && $get['move'] === 0));
+    $html_a = new HTMLA("?{$s_query}move=0", "Only show games without PS Move support", "No");
+    if ($defined && $get['move'] === 0)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 }
 
@@ -197,13 +209,20 @@ public static function printTypeSort() : void
     $http_query = new HTTPQuery($get);
     $s_query = $http_query->get_except(array("status", "type", "3d"));
 
-    $html_a_games = new HTMLA("?{$s_query}", "Only show PS3 Games", highlightText("PS3 Games", $get['type'] === 1));
+    $html_a_games = new HTMLA("?{$s_query}", "Only show PS3 Games", "PS3 Games");
+    if ($get['type'] === 1)
+        $html_a_games->set_class("compat-text text-bold text-underline");
 
     if (!empty($s_query))
         $s_query .= "&";
 
-    $html_a_all = new HTMLA("?{$s_query}type=0", "Show applications from all types", highlightText("All", $get['type'] === 0));
-    $html_a_apps = new HTMLA("?{$s_query}type=2", "Only show PS3 Apps", highlightText("PS3 Apps", $get['type'] === 2));
+    $html_a_all = new HTMLA("?{$s_query}type=0", "Show applications from all types", "All");
+    if ($get['type'] === 0)
+        $html_a_all->set_class("compat-text text-bold text-underline");
+
+    $html_a_apps = new HTMLA("?{$s_query}type=2", "Only show PS3 Apps", "PS3 Apps");
+    if ($get['type'] === 2)
+        $html_a_apps->set_class("compat-text text-bold text-underline");
 
     $html_a_all->print();
     print("•&nbsp;");
@@ -229,13 +248,17 @@ public static function printStatusSort() : void
         $s_query .= "&";
 
     // All statuses
-    $html_a = new HTMLA("?{$s_query}s=0", "Show games from all statuses", highlightText("All ({$scount["nostatus"][0]})", $get['s'] === 0));
+    $html_a = new HTMLA("?{$s_query}s=0", "Show games from all statuses", "All ({$scount["nostatus"][0]})");
+    if ($get['s'] === 0)
+        $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     // Individual statuses
     foreach ($a_status as $id => $status)
     {
-        $html_a = new HTMLA("?{$s_query}s={$id}", $status["desc"], highlightText("{$status["name"]} ({$scount["nostatus"][$id]})", $get['s'] === $id));
+        $html_a = new HTMLA("?{$s_query}s={$id}", $status["desc"], "{$status["name"]} ({$scount["nostatus"][$id]})");
+        if ($get['s'] === $id)
+            $html_a->set_class("compat-text text-bold text-underline");
         $html_a->print();
     }
 }
@@ -278,11 +301,6 @@ public static function printCharSearch() : void
 
     foreach ($a_chars as $key => $value)
     {
-        $html_div_inner = new HTMLDiv("compat-search-inner");
-
-        $html_div_char = new HTMLDiv("compat-search-character");
-        $html_div_char->add_content(highlightText($value, isset($get['c']) && $get['c'] === $key));
-
         if (!empty($key))
         {
             if (!empty($s_query))
@@ -291,9 +309,12 @@ public static function printCharSearch() : void
             $s_query = "c={$key}";
         }
 
-        $html_a = new HTMLA("?{$s_query}", $value, $html_div_char->to_string());
+        $html_a = new HTMLA("?{$s_query}", $value, $value);
+        $html_a->set_class("compat-search-character");
 
+        $html_div_inner = new HTMLDiv("compat-search-inner");
         $html_div_inner->add_content($html_a->to_string());
+
         $html_div_outer->add_content($html_div_inner->to_string());
     }
 
@@ -382,7 +403,8 @@ public static function printTable() : void
     // Allow for filter resetting by clicking the icon again
     if (isset($get['move']) && $get['move'] !== 0)
     {
-        $html_a_move = new HTMLA("?{$extra}", "", $html_img_move->to_string());
+        $html_a_move = new HTMLA("?{$extra}", "", "");
+        $html_a_move->set_img($html_img_move);
     }
     // Returns clickable icon for move search
     else
@@ -390,7 +412,8 @@ public static function printTable() : void
         if (!empty($extra))
             $extra .= '&';
 
-        $html_a_move = new HTMLA("?{$extra}move=1", "", $html_img_move->to_string());
+        $html_a_move = new HTMLA("?{$extra}move=1", "", "");
+        $html_a_move->set_img($html_img_move);
     }
 
     $html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png");
@@ -401,7 +424,8 @@ public static function printTable() : void
     // Allow for filter resetting by clicking the icon again
     if ($get['3D'] !== 0)
     {
-        $html_a_3d = new HTMLA("?{$extra}", "", $html_img_3d->to_string());
+        $html_a_3d = new HTMLA("?{$extra}", "", "");
+        $html_a_3d->set_img($html_img_3d);
     }
     // Returns clickable icon for 3D search
     else
@@ -409,7 +433,8 @@ public static function printTable() : void
         if (!empty($extra))
             $extra .= '&';
 
-        $html_a_3d = new HTMLA("?{$extra}3D=1", "", $html_img_3d->to_string());
+        $html_a_3d = new HTMLA("?{$extra}3D=1", "", "");
+        $html_a_3d->set_img($html_img_3d);
     }
 
     // Print table body
@@ -424,7 +449,8 @@ public static function printTable() : void
         // Allow for filter resetting by clicking the icon again
         if (isset($get['t']) && $get['t'] === strtolower($game->get_media_id()))
         {
-            $html_a_media = new HTMLA("?{$extra}", $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+            $html_a_media = new HTMLA("?{$extra}", $a_media[$game->get_media_id()]["name"], "");
+            $html_a_media->set_img($html_img_media);
         }
         // Returns clickable icon for type (media) search
         else
@@ -432,7 +458,8 @@ public static function printTable() : void
             if (!empty($extra))
                 $extra .= '&';
 
-            $html_a_media = new HTMLA("?{$extra}t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], $html_img_media->to_string());
+            $html_a_media = new HTMLA("?{$extra}t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], "");
+            $html_a_media->set_img($html_img_media);
         }
 
 

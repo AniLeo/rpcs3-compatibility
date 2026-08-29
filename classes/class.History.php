@@ -78,8 +78,10 @@ public static function printMonths() : void
             $watchdog = $year;
         }
 
-        $html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", highlightText($month, $get['h'] === $k));
-        print($html_a_month->to_string());
+        $html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", $month);
+        if ($get['h'] === $k)
+            $html_a_month->set_class("compat-text text-bold text-underline");
+        $html_a_month->print();
 
         if ($month != "December" && $v != end($a_histdates))
             print($spacer);
@@ -90,8 +92,10 @@ public static function printMonths() : void
     $month = monthNumberToName((int) substr($a_currenthist[0], -2));
     $year = substr($a_currenthist[0], 0, 4);
 
-    $html_a_month = new HTMLA("?h", "{$month} {$year}", highlightText("{$month} {$year}", $get['h'] === $a_currenthist[0]));
-    print($html_a_month->to_string());
+    $html_a_month = new HTMLA("?h", "{$month} {$year}", "{$month} {$year}");
+    if ($get['h'] === $a_currenthist[0])
+        $html_a_month->set_class("compat-text text-bold text-underline");
+    $html_a_month->print();
 
     print("</p>");
 }
@@ -109,20 +113,26 @@ public static function printOptions() : void
 
     print("<p>");
 
-    $html_a = new HTMLA("?h{$h}", "Show all entries", highlightText("Show all entries", !isset($get['m'])));
-    print($html_a->to_string());
+    $html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
+    if (!isset($get['m']))
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", highlightText("Show only previously existent entries", isset($get['m']) && $get['m'] === 'c'));
-    print($html_a->to_string());
+    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Show only previously existent entries");
+    if (isset($get['m']) && $get['m'] === 'c')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
 
     $html_a = new HTMLA("?h{$h}&m=c&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
     $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", highlightText("Show only new entries", isset($get['m']) && $get['m'] === 'n'));
-    print($html_a->to_string());
+    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "Show only new entries");
+    if (isset($get['m']) && $get['m'] === 'n')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
 
     $html_a = new HTMLA("?h{$h}&m=n&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
@@ -229,8 +239,9 @@ public static function printTableContent(array $array) : void
         // Cell 1: Regions
         $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-gameid");
 
-        $html_a_thread = new HTMLA($entry->game_item->get_thread_url(), "", "{$html_img_region->to_string()}{$entry->game_item->game_id}");
+        $html_a_thread = new HTMLA($entry->game_item->get_thread_url(), "", $entry->game_item->game_id);
 
+        $html_div_cell->add_content($html_img_region->to_string());
         $html_div_cell->add_content($html_a_thread->to_string());
         $html_div_cell->print();
 

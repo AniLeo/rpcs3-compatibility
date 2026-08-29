@@ -184,9 +184,10 @@ public static function printTable() : void
 
         $title = is_null($build->title) ? "Pull Request #{$build->pr}" : $build->title;
 
-        $html_a_pr = new HTMLA($build->get_url_pr(), $title, "{$html_img_pr->to_string()}#{$build->pr}");
+        $html_a_pr = new HTMLA($build->get_url_pr(), $title, "#{$build->pr}");
         $html_a_pr->set_target("_blank");
 
+        $html_div_cell->add_content($html_img_pr->to_string());
         $html_div_cell->add_content($html_a_pr->to_string());
         $html_div_cell->print();
 
@@ -196,9 +197,10 @@ public static function printTable() : void
 
         $html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar());
         $author = htmlspecialchars($build->author, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$html_img_author->to_string()}{$author}");
+        $html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$author}");
         $html_a_author->set_target("_blank");
 
+        $html_div_cell->add_content($html_img_author->to_string());
         $html_div_cell->add_content($html_a_author->to_string());
         $html_div_cell->print();
 
@@ -230,7 +232,8 @@ public static function printTable() : void
         {
             if (!is_null($build->get_url_windows()))
             {
-                $html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows x64", $html_img_win->to_string());
+                $html_a_win = new HTMLA($build->get_url_windows(), "Download for Windows x64", "");
+                $html_a_win->set_img($html_img_win);
                 $html_div_cell->add_content($html_a_win->to_string());
             }
             else
@@ -240,7 +243,8 @@ public static function printTable() : void
 
             if (!is_null($build->get_url_windows_arm64()))
             {
-                $html_a_win_arm64 = new HTMLA($build->get_url_windows_arm64(), "Download for Windows arm64", $html_img_win_arm64->to_string());
+                $html_a_win_arm64 = new HTMLA($build->get_url_windows_arm64(), "Download for Windows arm64", "");
+                $html_a_win_arm64->set_img($html_img_win_arm64);
                 $html_div_cell->add_content($html_a_win_arm64->to_string());
             }
             else
@@ -250,7 +254,8 @@ public static function printTable() : void
 
             if (!is_null($build->get_url_linux()))
             {
-                $html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux x64", $html_img_linux->to_string());
+                $html_a_linux = new HTMLA($build->get_url_linux(), "Download for Linux x64", "");
+                $html_a_linux->set_img($html_img_linux);
                 $html_div_cell->add_content($html_a_linux->to_string());
             }
             else
@@ -260,7 +265,8 @@ public static function printTable() : void
 
             if (!is_null($build->get_url_linux_arm64()))
             {
-                $html_a_linux_arm64 = new HTMLA($build->get_url_linux_arm64(), "Download for Linux arm64", $html_img_linux_arm64->to_string());
+                $html_a_linux_arm64 = new HTMLA($build->get_url_linux_arm64(), "Download for Linux arm64", "");
+                $html_a_linux_arm64->set_img($html_img_linux_arm64);
                 $html_div_cell->add_content($html_a_linux_arm64->to_string());
             }
             else
@@ -270,7 +276,8 @@ public static function printTable() : void
 
             if (!is_null($build->get_url_mac()))
             {
-                $html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS x64", $html_img_mac->to_string());
+                $html_a_mac = new HTMLA($build->get_url_mac(), "Download for macOS x64", "");
+                $html_a_mac->set_img($html_img_mac);
                 $html_div_cell->add_content($html_a_mac->to_string());
             }
             else
@@ -280,7 +287,8 @@ public static function printTable() : void
 
             if (!is_null($build->get_url_mac_arm64()))
             {
-                $html_a_mac_arm64 = new HTMLA($build->get_url_mac_arm64(), "Download for macOS arm64", $html_img_mac_arm64->to_string());
+                $html_a_mac_arm64 = new HTMLA($build->get_url_mac_arm64(), "Download for macOS arm64", "");
+                $html_a_mac_arm64->set_img($html_img_mac_arm64);
                 $html_div_cell->add_content($html_a_mac_arm64->to_string());
             }
             else

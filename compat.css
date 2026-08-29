@@ -554,10 +554,6 @@ progress[value]::-webkit-progress-value {
     border: solid 2px #fff
 }
 
-.compat-hdr-left a {
-    color: #000
-}
-
 .builds-hdr-left {
     font-size: 14px;
     line-height: 35px;

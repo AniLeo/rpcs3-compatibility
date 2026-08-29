@@ -48,22 +48,22 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
             </div> <!-- container-con-wrapper -->
 
             <?php Profiler::add_data("Page: Print Type Sort"); ?>
-            <div class="compat-types compat-sort-types">
+            <div class="compat-types compat-sort-types compat-text">
                 <span class="compat-text">Application type</span>
                 &nbsp;
                 <?php Compat::printTypeSort(); ?>
             </div>
-            <div class="compat-types compat-sort-move">
+            <div class="compat-types compat-sort-move compat-text">
                 <span class="compat-text">Move support</span>
                 &nbsp;
                 <?php Compat::printMoveSort(); ?>
             </div>
-            <div class="compat-types compat-sort-network">
+            <div class="compat-types compat-sort-network compat-text">
                 <span class="compat-text">Requires network</span>
                 &nbsp;
                 <?php Compat::printNetworkSort(); ?>
             </div>
-            <div class="compat-hdr-left">
+            <div class="compat-hdr-left compat-text">
                 <?php Profiler::add_data("Page: Print Results Per Page"); ?>
                 <span class="compat-text">Results per page</span>
                 &nbsp;

@@ -122,23 +122,6 @@ function isValid(string $str) : bool
 
 
 /**
-    * highlightText
-    *
-    * Returns provided string with increased size and font-weight
-    *
-    * @param string $str  Some text
-    * @param bool   $cond Condition to be met for text to be highlighted
-    *
-    * @return string
-    */
-function highlightText(string $str, bool $cond = true)
-{
-    $html_str = htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-    return $cond ? sprintf("<span class=\"compat-text text-bold text-underline\">%s</span>", $html_str) : $html_str;
-}
-
-
-/**
 * @return array<string, array<string>|bool|int|string|null> $get
 */
 function validateGet() : array
@@ -566,9 +549,11 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
     {
         if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) )
         {
+            $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", str_pad((string) $i, 2, "0", STR_PAD_LEFT));
+            
             // Highlights the page if it's the one we're currently in
-            $content = highlightText(str_pad((string) $i, 2, "0", STR_PAD_LEFT), $i === $currentPage);
-            $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $content);
+            if ($i === $currentPage)
+                $html_a->set_class("compat-text text-bold text-underline");
 
             $s_pagescounter .= $html_a->to_string();
             $s_pagescounter .= "&nbsp;&#32;";
@@ -840,9 +825,12 @@ function resultsPerPage(string $combined_search) : string
 
     foreach ($a_pageresults as $pageresult)
     {
+        $html_a = new HTMLA("?{$combined_search}r={$pageresult}", $pageresult, $pageresult);
+        
         // If it's the current selected item, highlight
-        $content = highlightText($pageresult, $get['r'] === $pageresult);
-        $html_a = new HTMLA("?{$combined_search}r={$pageresult}", $pageresult, $content);
+        if ($get['r'] === $pageresult)
+            $html_a->set_class("compat-text text-bold text-underline");
+
         $s_pageresults .= $html_a->to_string();
 
         // If not the last value then add a separator for the next value
