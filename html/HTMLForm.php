@@ -61,7 +61,9 @@ class HTMLForm
         if ($this->method !== "POST" && $this->method !== "GET")
             return null;
 
-        $ret = "<form action=\"{$this->action}\" method=\"{$this->method}\">".PHP_EOL;
+        $ret = sprintf("<form action=\"%s\" method=\"%s\">".PHP_EOL,
+                       htmlspecialchars($this->action, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->method, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         foreach ($this->inputs as $input)
         {

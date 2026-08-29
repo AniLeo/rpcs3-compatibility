@@ -40,7 +40,11 @@ class HTMLInput
 
     public function to_string() : string
     {
-        return "<input name=\"{$this->name}\" type=\"{$this->type}\" value=\"{$this->value}\" placeholder=\"{$this->placeholder}\">".PHP_EOL;
+        return sprintf("<input name=\"%s\" type=\"%s\" value=\"%s\" placeholder=\"%s\">".PHP_EOL,
+                       htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
     }
 
     public function print() : void

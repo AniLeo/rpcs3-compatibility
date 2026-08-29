@@ -23,17 +23,19 @@
 class HTMLOption
 {
     public string $value;
-  public string $text;
+    public string $text;
 
     function __construct(string $value, string $text)
     {
         $this->value = $value;
-    $this->text = $text;
+        $this->text = $text;
     }
 
     public function to_string() : string
     {
-        return "<option value=\"{$this->value}\">{$this->text}</option>".PHP_EOL;
+        return sprintf("<option value=\"%s\">%s</option>".PHP_EOL,
+                       htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
     }
 
     public function print() : void

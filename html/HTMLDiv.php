@@ -38,7 +38,9 @@ class HTMLDiv
 
     public function to_string() : string
     {
-        return "<div class=\"{$this->class}\">{$this->content}</div>".PHP_EOL;
+        return sprintf("<div class=\"%s\">%s</div>".PHP_EOL,
+                       htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       $this->content);
     }
 
     public function print() : void

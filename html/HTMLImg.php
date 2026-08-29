@@ -40,12 +40,17 @@ class HTMLImg
 
     public function to_string() : string
     {
-        $ret = "<img class=\"{$this->class}\" ";
+        $ret = sprintf("<img class=\"%s\" ", 
+                       htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         if (!is_null($this->title))
-            $ret .= " title=\"{$this->title}\" ";
+        {
+            $ret .= sprintf(" title=\"%s\" ",
+                            htmlspecialchars($this->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
 
-        $ret .= "src=\"{$this->src}\">".PHP_EOL;
+        $ret .= sprintf("src=\"%s\">".PHP_EOL,
+                        htmlspecialchars($this->src, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         return $ret;
     }

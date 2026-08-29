@@ -23,32 +23,33 @@
 class HTMLSelect
 {
     public string $name;
-  /** @var array<HTMLOption> $options **/
+    /** @var array<HTMLOption> $options **/
     public array  $options;
 
     function __construct(string $name)
     {
         $this->name = $name;
-    $this->options = array();
+        $this->options = array();
     }
 
-  public function add_option(HTMLOption $option) : void
+    public function add_option(HTMLOption $option) : void
     {
         $this->options[] = $option;
     }
 
     public function to_string() : string
     {
-        $ret = "<select name=\"{$this->name}\">".PHP_EOL;
+        $ret = sprintf("<select name=\"%s\">".PHP_EOL,
+                       htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
-    foreach ($this->options as $option)
-    {
-      $ret .= $option->to_string();
-    }
+        foreach ($this->options as $option)
+        {
+            $ret .= $option->to_string();
+        }
 
-    $ret .= "</select>".PHP_EOL;
+        $ret .= "</select>".PHP_EOL;
 
-    return $ret;
+        return $ret;
     }
 
     public function print() : void

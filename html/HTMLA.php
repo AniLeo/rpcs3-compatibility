@@ -49,15 +49,24 @@ class HTMLA
 
     public function to_string() : string
     {
-        $ret = "<a href=\"{$this->href}\" ";
+        $ret = sprintf("<a href=\"%s\" ", 
+                       htmlspecialchars($this->href, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         if (!is_null($this->target))
-            $ret .= "target=\"{$this->target}\" ";
+        {
+            $ret .= sprintf("target=\"%s\" ", 
+                            htmlspecialchars($this->target, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
 
         if (!is_null($this->rel))
-            $ret .= "rel=\"{$this->rel}\" ";
+        {
+            $ret .= sprintf("rel=\"%s\" ",
+                            htmlspecialchars($this->rel, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
 
-        $ret .= "title=\"{$this->title}\">{$this->content}</a>".PHP_EOL;
+        $ret .= sprintf("title=\"%s\">%s</a>".PHP_EOL, 
+                        htmlspecialchars($this->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                        $this->content);
 
         return $ret;
     }

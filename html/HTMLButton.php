@@ -35,7 +35,10 @@ class HTMLButton
 
     public function to_string() : string
     {
-        return "<button name=\"{$this->name}\" type=\"{$this->type}\">{$this->value}</button>".PHP_EOL;
+        return sprintf("<button name=\"%s\" type=\"%s\">%s</button>".PHP_EOL,
+                       htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
     }
 
     public function print() : void
