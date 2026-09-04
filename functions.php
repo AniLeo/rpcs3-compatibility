@@ -607,12 +607,12 @@ function getTableHeaders(array $headers, string $extra = "") : string
         }
         else if (isset($get['o']) && $get['o'] === "{$header['sort']}a")
         {
-            $html_a = new HTMLA("?{$extra}o={$header['sort']}d", $header["name"], "{$header['name']} &nbsp; &#8593;");
+            $html_a = new HTMLA("?{$extra}o={$header['sort']}d", $header["name"], "{$header['name']} ↑");
             $html_div->add_content($html_a->to_string());
         }
         elseif (isset($get['o']) && $get['o'] === "{$header['sort']}d")
         {
-            $html_a = new HTMLA("?{$extra}", $header["name"], "{$header['name']} &nbsp; &#8595;");
+            $html_a = new HTMLA("?{$extra}", $header["name"], "{$header['name']} ↓");
             $html_div->add_content($html_a->to_string());
         }
         else
