@@ -105,6 +105,8 @@ function check_for_updates( string $api,
 
     // Get latest build information
     $platform = substr($api, 1, 1) >= 3 && $os_type !== "all" ? $os_type : null;
+    if (!is_null($platform) && $os_arch === "arm64")
+        $platform .= "_arm64";
     $latest = $version === "latest" ? Build::get_latest($platform) : Build::get_version($version);
 
     if (is_null($latest))

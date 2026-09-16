@@ -398,11 +398,6 @@ class Build
     {
         $db = get_database("compat");
 
-        if ($platform === "windows")
-            $platform = "win";
-        else if ($platform === "macos")
-            $platform = "mac";
-
         if (is_null($platform))
         {
             $query = mysqli_query($db, "SELECT * FROM `builds`
@@ -411,6 +406,8 @@ class Build
         }
         else
         {
+            $platform = str_replace("windows", "win", $platform);
+            $platform = str_replace("macos", "mac", $platform);
             $s_platform = mysqli_real_escape_string($db, $platform);
 
             $query = mysqli_query($db, "SELECT * FROM `builds`
