@@ -951,3 +951,11 @@ function get_string_between(string $string, string $start, string $end) : ?strin
     // Start on 'start limit position' and return string with substring length
     return substr($string, $inipos, $endpos - $inipos /*substring length*/);
 }
+
+function normalize_search(string $s) : string
+{
+    // Keep letters and digits; turn everything else into a wildcard.
+    $s = preg_replace('/[^\p{L}\p{N}]+/u', '%', $s) ?? $s;
+    $s = preg_replace('/%+/', '%', $s) ?? $s;
+    return trim($s, "% \t\n\r");
+}

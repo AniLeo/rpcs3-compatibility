@@ -61,14 +61,22 @@ public static function generate_query(array $get, mysqli &$db) : string
     {
         if (!empty($genquery)) { $genquery .= " AND "; }
 
-        $s_g = mysqli_real_escape_string($db, (string) $get['g']);
-        $searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' OR `key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` LIKE '%{$s_g}%') ";
-
-        // Initials cache search
-        if (strlen((string) $get['g']) >= 2)
+        if (isGameID((string) $get['g']))
         {
-            $searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
-            OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
+            $gid = mysqli_real_escape_string($db, strtoupper((string) $get['g']));
+            $searchbox = " (`key` = ANY (SELECT `key` FROM `game_id` WHERE `gid` = '{$gid}')) ";
+        }
+        else
+        {
+            $s_g = mysqli_real_escape_string($db, normalize_search((string) $get['g']));
+            $searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' ";
+
+            // Initials cache search
+            if (strlen((string) $get['g']) >= 2)
+            {
+                $searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
+                                OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
+            }
         }
 
         $genquery .= " ({$searchbox}) ";
