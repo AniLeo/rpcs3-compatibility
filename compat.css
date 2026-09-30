@@ -475,7 +475,6 @@ progress[value]::-webkit-progress-value {
 
 .compat-con-pages {
     font-size: 14px;
-    font-weight: 700;
     line-height: 60px;
     position: relative;
     height: auto;
@@ -487,13 +486,16 @@ progress[value]::-webkit-progress-value {
     background: rgba(0,102,204,.04)
 }
 
+.compat-con-pages span {
+    font-weight: 700;
+}
+
 .compat-con-pages a {
     padding: 12px 12px;
     border-radius: 6px;
     box-shadow: 0 10px 16px 0 rgba(0,0,0,.1);
     background: #fff;
     border: solid 2px transparent;
-    font-weight: 700;
     color: #000
 }
 
@@ -947,7 +949,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .text-underline {
-    text-decoration: underline
+    text-decoration: underline!important
 }
 
 .text-bold {

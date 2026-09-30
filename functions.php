@@ -534,7 +534,7 @@ function getPagesCounter(int $pages, int $currentPage, string $extra) : string
         return "No results found using the selected search criteria.";
 
     // Shows current page and total pages
-    $s_pagescounter .= "Page {$currentPage} of {$pages} - ";
+    $s_pagescounter .= "<span>Page {$currentPage} of {$pages}: &nbsp;&nbsp;</span>";
 
     // If there's less pages to the left than current limit it loads the excess amount to the right for balance
     if ($c_pagelimit > $currentPage)
