@@ -352,47 +352,59 @@ public static function getBuildsRSS() : string
     if (!is_null($info))
         return $info;
 
-    // Initialize string
-    $rssfeed = "";
+    if (!is_array($builds))
+        return "";
 
-    // Should be unreachable, these server globals are always strings
-    if (!is_string($_SERVER['HTTP_HOST']) || !is_string($_SERVER['REQUEST_URI']))
-     return $rssfeed;
+    $items = "";
 
     foreach ($builds as $build)
     {
-        // Skip broken builds
+        if (!$build instanceof Build)
+            continue;
+
         if ($build->broken)
             continue;
 
-        $rssfeed .= "
-                <item>
-                    <title><![CDATA[{$build->version} (#{$build->pr})]]></title>
-                    <description><![CDATA[Pull Request #{$build->pr} by {$build->author} was merged {$build->diffdate}]]></description>
-                    <guid>{$build->get_url_pr()}</guid>
-                    <pubDate>".date('r', strtotime($build->merge))."</pubDate>
-                    <link>{$build->get_url_pr()}</link>
-                    <comments>{$build->get_url_pr()}</comments>
-                    <dc:creator>{$build->author}</dc:creator>
-                </item>
-        ";
+        $merge_ts = strtotime($build->merge);
+        
+        if ($merge_ts === false)
+            continue;
+
+        $pr      = (string) $build->pr;
+        $version = xml_escape($build->version);
+        $author  = xml_escape($build->author);
+        $when    = xml_escape($build->diffdate);
+        $pr_xml  = xml_escape($pr);
+        $url_pr  = xml_escape($build->get_url_pr());
+        $pub     = xml_escape(date("r", $merge_ts));
+
+        $items .=
+            "<item>".
+                "<title>{$version} (#{$pr_xml})</title>".
+                "<description>Pull Request #{$pr_xml} by {$author} was merged {$when}</description>".
+                "<guid isPermaLink=\"true\">{$url_pr}</guid>".
+                "<pubDate>{$pub}</pubDate>".
+                "<link>{$url_pr}</link>".
+                "<comments>{$url_pr}</comments>".
+                "<dc:creator>{$author}</dc:creator>".
+            "</item>";
     }
 
-    $url = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-    $url = str_replace('&', '&amp;', $url);
+    $self = xml_escape("https://rpcs3.net/compatibility?api=v1&rss&b");
 
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-    <rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">
-        <channel>
-            <title>RPCS3 Builds History's RSS feed</title>
-            <link>https://rpcs3.net/compatibility?b</link>
-            <description>For more information about RPCS3 visit https://rpcs3.net</description>
-            <language>en-uk</language>
-            <category>Emulation</category>
-            <atom:link href=\"{$url}\" rel=\"self\" type=\"application/atom+xml\" />
-                {$rssfeed}
-            </channel>
-    </rss>";
+    return
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>".
+        "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">".
+            "<channel>".
+                "<title>RPCS3 Builds History's RSS feed</title>".
+                "<link>https://rpcs3.net/compatibility?b</link>".
+                "<description>For more information about RPCS3 visit https://rpcs3.net</description>".
+                "<language>en-uk</language>".
+                "<category>Emulation</category>".
+                "<atom:link href=\"{$self}\" rel=\"self\" type=\"application/rss+xml\" />".
+                $items.
+            "</channel>".
+        "</rss>";
 }
 
 } // End of Class

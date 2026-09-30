@@ -959,3 +959,14 @@ function normalize_search(string $s) : string
     $s = preg_replace('/%+/', '%', $s) ?? $s;
     return trim($s, "% \t\n\r");
 }
+
+function xml_escape(?string $value) : string
+{
+    if ($value === null || $value === "")
+        return "";
+
+    // XML 1.0 allows only TAB, LF, CR in the control range
+    $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', "", $value) ?? "";
+
+    return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+}

@@ -385,66 +385,77 @@ public static function printStatusModule() : void
 
 public static function printHistoryRSS() : void
 {
-    global $a_status, $a_new, $a_existing, $error_new, $error_existing;
+    global $a_status, $a_new, $a_existing, $error_new, $error_existing, $get;
 
-    // Should be unreachable, function is always called when one of the modes is set
-    if (empty($a_new) && empty($a_existing)) return;
+    if (empty($a_new) && empty($a_existing))
+        return;
 
     $error = !empty($error_new) ? $error_new : $error_existing;
     $title = !empty($a_new) ? "New additions" : "Updates";
+    $mode  = (isset($get["m"]) && ($get["m"] === "c" || $get["m"] === "n")) ? $get["m"] : "n";
+    $self  = xml_escape("https://rpcs3.net/compatibility?api=v1&rss&h&m={$mode}");
 
-    // Should be unreachable, these server globals are always strings
-    if (!is_string($_SERVER['HTTP_HOST']) || !is_string($_SERVER['REQUEST_URI'])) return;
-
-    $url = str_replace('&', '&amp;', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
-
-    printf(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-        <rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
-        <channel>
-        <title>RPCS3 Compatibility List History - %s</title>
-        <link>https://rpcs3.net/compatibility?h</link>
-        <description>For more information about RPCS3 visit https://rpcs3.net</description>
-        <language>en-uk</language>
-        <atom:link href=\"%s\" rel=\"self\" type=\"application/rss+xml\" />",
-        $title, $url);
+    print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    print("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">");
+    print("<channel>");
+    print("<title>RPCS3 Compatibility List History - ".xml_escape($title)."</title>");
+    print("<link>https://rpcs3.net/compatibility?h</link>");
+    print("<description>For more information about RPCS3 visit https://rpcs3.net</description>");
+    print("<language>en-uk</language>");
+    print("<atom:link href=\"{$self}\" rel=\"self\" type=\"application/rss+xml\" />");
 
     if (!empty($error))
     {
-        printf(
-            "<item>
-                <title><![CDATA[%s]]></title>
-                <description>%s</description>
-                <pubDate>%s</pubDate>
-            </item>",
-            $error, $error, date('r', time()));
+        $safe = xml_escape((string) $error);
+        print(
+            "<item>".
+                "<title>{$safe}</title>".
+                "<description>{$safe}</description>".
+                "<pubDate>".xml_escape(date("r"))."</pubDate>".
+            "</item>"
+        );
     }
-    elseif (!empty($a_new))
+    else if (!empty($a_new))
     {
-        foreach ($a_new as $key => $entry)
+        foreach ($a_new as $entry)
         {
-            printf(
-                "<item>
-                    <title><![CDATA[%s]]></title>
-                    <guid isPermaLink=\"false\">rpcs3-compatibility-history-%s_%s</guid>
-                    <description>New entry for %s (%s)</description>
-                    <pubDate>%s</pubDate>
-                </item>",
-                $entry->title, $entry->game_item->game_id, $entry->new_date, $a_status[$entry->new_status]["name"], $entry->new_date, date('r', strtotime($entry->new_date)));
+            $game_title = xml_escape($entry->title);
+            $game_id    = xml_escape($entry->game_item->game_id);
+            $status     = xml_escape($a_status[$entry->new_status]["name"]);
+            $new_date   = xml_escape($entry->new_date);
+            $pub        = xml_escape(date("r", strtotime($entry->new_date)));
+            $guid       = xml_escape("rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}");
+
+            print(
+                "<item>".
+                    "<title>{$game_title}</title>".
+                    "<guid isPermaLink=\"false\">{$guid}</guid>".
+                    "<description>New entry for {$status} ({$new_date})</description>".
+                    "<pubDate>{$pub}</pubDate>".
+                "</item>"
+            );
         }
     }
-    else /*if (!empty($a_existing)) */
+    else
     {
-        foreach ($a_existing as $key => $entry)
+        foreach ($a_existing as $entry)
         {
-            printf(
-                "<item>
-                    <title><![CDATA[%s]]></title>
-                    <guid isPermaLink=\"false\">rpcs3-compatibility-history-%s_%s</guid>
-                    <description>Updated from %s (%s) to %s (%s)</description>
-                    <pubDate>%s</pubDate>
-                </item>",
-                $entry->title, $entry->game_item->game_id, $entry->new_date, $a_status[$entry->old_status]["name"], $entry->old_date, $a_status[$entry->new_status]["name"], $entry->new_date, date('r', strtotime($entry->new_date)));
+            $game_title = xml_escape($entry->title);
+            $old_status = xml_escape($a_status[$entry->old_status]["name"]);
+            $new_status = xml_escape($a_status[$entry->new_status]["name"]);
+            $old_date   = xml_escape($entry->old_date);
+            $new_date   = xml_escape($entry->new_date);
+            $pub        = xml_escape(date("r", strtotime($entry->new_date)));
+            $guid       = xml_escape("rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}");
+
+            print(
+                "<item>".
+                    "<title>{$game_title}</title>".
+                    "<guid isPermaLink=\"false\">{$guid}</guid>".
+                    "<description>Updated from {$old_status} ({$old_date}) to {$new_status} ({$new_date})</description>".
+                    "<pubDate>{$pub}</pubDate>".
+                "</item>"
+            );
         }
     }
 
