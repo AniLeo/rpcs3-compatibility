@@ -507,42 +507,15 @@ progress[value]::-webkit-progress-value {
     background: #0074e7!important
 }
 
-.compat-types {
+.compat-sort {
     font-size: 14px;
-    line-height: 14px;
     position: relative;
-    text-align: left;
-    top: 1px;
-    border-radius: 6px;
-    padding: 6px 6px 6px 10px;
+    width: fit-content;
+    padding: 6px 10px 6px 10px;
+    margin-bottom: 12px;
     box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
     border: solid 2px #fff;
-    margin-bottom: 12px;
-}
-
-.compat-sort-types {
-    width: 286px
-}
-
-.compat-sort-move {
-    width: 182px
-}
-
-.compat-sort-network {
-    width: 204px
-}
-
-.compat-hdr-left {
-    font-size: 14px;
-    line-height: 15px;
-    position: relative;
-    width: 230px;
-    text-align: left;
-    top: 1px;
-    border-radius: 6px;
-    padding: 6px 10px;
-    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
-    border: solid 2px #fff
+    border-radius: 6px
 }
 
 .builds-hdr-left {
@@ -561,7 +534,7 @@ progress[value]::-webkit-progress-value {
     font-size: 14px;
     float: right;
     width: auto;
-    margin-top: -28px;
+    margin-top: -38px;
     margin-right: 0;
     text-align: right;
     color: #000
@@ -751,12 +724,9 @@ progress[value]::-webkit-progress-value {
         margin-top: 20px
     }
 
-    .compat-hdr-left {
-        margin-bottom: 40px
-    }
-
     .compat-hdr-right {
         width: 100%;
+        margin-top: 0;
         display: grid;
         grid-template-columns: 32% 33% 32%;
         grid-template-rows: 50% 50%;
