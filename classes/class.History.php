@@ -382,9 +382,6 @@ public static function printHistoryRSS() : void
 {
     global $a_status, $a_new, $a_existing, $error_new, $error_existing, $get;
 
-    if (empty($a_new) && empty($a_existing))
-        return;
-
     $error = !empty($error_new) ? $error_new : $error_existing;
     $title = !empty($a_new) ? "New additions" : "Updates";
     $mode  = (isset($get["m"]) && ($get["m"] === "c" || $get["m"] === "n")) ? $get["m"] : "n";
@@ -399,22 +396,11 @@ public static function printHistoryRSS() : void
     print("<language>en-uk</language>");
     print("<atom:link href=\"{$self}\" rel=\"self\" type=\"application/rss+xml\" />");
 
-    if (!empty($error))
-    {
-        $safe = xml_escape((string) $error);
-        print(
-            "<item>".
-                "<title>{$safe}</title>".
-                "<description>{$safe}</description>".
-                "<pubDate>".xml_escape(date("r"))."</pubDate>".
-            "</item>"
-        );
-    }
-    else if (!empty($a_new))
+    if (!empty($a_new))
     {
         foreach ($a_new as $entry)
         {
-            $game_title = xml_escape($entry->title);
+            $game_title = xml_escape($entry->game_item->title);
             $game_id    = xml_escape($entry->game_item->game_id);
             $status     = xml_escape($a_status[$entry->new_status]["name"]);
             $new_date   = xml_escape($entry->new_date);
@@ -431,11 +417,11 @@ public static function printHistoryRSS() : void
             );
         }
     }
-    else
+    else if (!empty($a_existing))
     {
         foreach ($a_existing as $entry)
         {
-            $game_title = xml_escape($entry->title);
+            $game_title = xml_escape($entry->game_item->title);
             $old_status = xml_escape($a_status[$entry->old_status]["name"]);
             $new_status = xml_escape($a_status[$entry->new_status]["name"]);
             $old_date   = xml_escape($entry->old_date);
