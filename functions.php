@@ -970,3 +970,15 @@ function xml_escape(?string $value) : string
 
     return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
 }
+
+/**
+ * @param array<int, string> $values
+ */
+function sql_string_in(mysqli $db, array $values) : string
+{
+    $quoted = array();
+    foreach ($values as $value)
+        $quoted[] = "'" . mysqli_real_escape_string($db, $value) . "'";
+
+    return implode(",", $quoted);
+}

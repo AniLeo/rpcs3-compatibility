@@ -48,26 +48,28 @@ class GameUpdateTag
     /**
     * @param array<GameUpdateTag> $tags
     */
-    public static function import_update_titles(array &$tags) : void
+    public static function import_update_titles(array &$tags, mysqli $db) : void
     {
-        $db = get_database("compat");
+        if (empty($tags))
+            return;
 
-        $a_titles = array();
+        $a_tag_ids = array();
+        
+        foreach ($tags as $tag)
+            $a_tag_ids[$tag->tag_id] = true;
+
+        $cmd_in = sql_string_in($db, array_keys($a_tag_ids));
         $q_titles = mysqli_query($db, "SELECT `tag`,
                                               `package_version`,
                                               `paramsfo_type`,
                                               `paramsfo_title`
-                                       FROM `game_update_paramsfo`; ");
+                                       FROM `game_update_paramsfo`
+                                       WHERE `tag` IN ({$cmd_in}); ");
 
         if (is_bool($q_titles))
-        {
             return;
-        }
-
-        // List the tags that were provided
-        $a_tags = array();
-        foreach ($tags as $tag)
-            $a_tags[] = $tag->tag_id;
+ 
+        $a_titles = array();
 
         while ($row = mysqli_fetch_object($q_titles))
         {
@@ -79,11 +81,7 @@ class GameUpdateTag
             {
                 return;
             }
-
-            // Skip update titles for tags that were not provided
-            if (!in_array($row->tag, $a_tags))
-                continue;
-
+            
             $a_titles[$row->tag][$row->package_version][] = new GameUpdateTitle($row->paramsfo_type,
                                                                                 $row->paramsfo_title);
         }
@@ -98,33 +96,33 @@ class GameUpdateTag
                 }
             }
         }
-
-        mysqli_close($db);
     }
 
     /**
     * @param array<GameUpdateTag> $tags
     */
-    public static function import_update_changelogs(array &$tags) : void
+    public static function import_update_changelogs(array &$tags, mysqli $db) : void
     {
-        $db = get_database("compat");
+        if (empty($tags))
+            return;
 
-        $a_changelogs = array();
+        $a_tag_ids = array();
+        foreach ($tags as $tag)
+            $a_tag_ids[$tag->tag_id] = true;
+
+        $cmd_in = sql_string_in($db, array_keys($a_tag_ids));
         $q_changelogs = mysqli_query($db, "SELECT `tag`,
                                                   `package_version`,
                                                   `paramhip_type`,
                                                   `paramhip_content`
-                                           FROM `game_update_paramhip`; ");
+                                           FROM `game_update_paramhip`
+                                           WHERE `tag` IN ({$cmd_in})
+                                             AND `paramhip_type` = 'paramhip'; ");
 
         if (is_bool($q_changelogs))
-        {
             return;
-        }
-
-        // List the tags that were provided
-        $a_tags = array();
-        foreach ($tags as $tag)
-            $a_tags[] = $tag->tag_id;
+ 
+        $a_changelogs = array();
 
         while ($row = mysqli_fetch_object($q_changelogs))
         {
@@ -136,10 +134,6 @@ class GameUpdateTag
             {
                 return;
             }
-
-            // Skip update changelogs for tags that were not provided
-            if (!in_array($row->tag, $a_tags))
-                continue;
 
             $a_changelogs[$row->tag][$row->package_version][] = new GameUpdateChangelog($row->paramhip_type,
                                                                                         $row->paramhip_content);
@@ -155,30 +149,29 @@ class GameUpdateTag
                 }
             }
         }
-
-        mysqli_close($db);
     }
 
     /**
     * @param array<GameUpdateTag> $tags
     */
-    public static function import_update_packages(array &$tags) : void
+    public static function import_update_packages(array &$tags, mysqli $db) : void
     {
-        $db = get_database("compat");
+        if (empty($tags))
+            return;
 
-        $a_packages = array();
+        $a_tag_ids = array();
+        foreach ($tags as $tag)
+            $a_tag_ids[$tag->tag_id] = true;
+
+        $cmd_in = sql_string_in($db, array_keys($a_tag_ids));
         $q_packages = mysqli_query($db, "SELECT `tag`, `version`, `size`, `sha1sum`, `ps3_system_ver`, `drm_type`
-        FROM `game_update_package`");
+                                         FROM `game_update_package`
+                                         WHERE `tag` IN ({$cmd_in}); ");
 
         if (is_bool($q_packages))
-        {
             return;
-        }
 
-        // List the tags that were provided
-        $a_tags = array();
-        foreach ($tags as $tag)
-            $a_tags[] = $tag->tag_id;
+        $a_packages = array();
 
         while ($row = mysqli_fetch_object($q_packages))
         {
@@ -193,10 +186,6 @@ class GameUpdateTag
                 return;
             }
 
-            // Skip update packages for tags that were not provided
-            if (!in_array($row->tag, $a_tags))
-                continue;
-
             $a_packages[$row->tag][] = new GameUpdatePackage($row->version,
                                                              $row->size,
                                                              $row->sha1sum,
@@ -208,7 +197,5 @@ class GameUpdateTag
         {
             $tag->packages = $a_packages[$tag->tag_id];
         }
-
-        mysqli_close($db);
     }
 }

@@ -118,73 +118,74 @@ class Game
     }
 
     /**
-    * @param array<Game> $games
-    */
-    public static function import_update_tags(array &$games) : void
+     * @param array<Game> $games
+     */
+    public static function import_update_tags(array &$games, mysqli $db) : void
     {
-        $db = get_database("compat");
-
-        $a_tags = array();
-        $q_tags = mysqli_query($db, "SELECT * FROM `game_update_tag`; ");
-
-        mysqli_close($db);
-
-        if (is_bool($q_tags))
-            return;
-
-        if (mysqli_num_rows($q_tags) === 0)
-            return;
-
-        // List the game IDs that were provided
         $a_game_ids = array();
+
         foreach ($games as $game)
-            foreach ($game->game_item as $game_item)
-                $a_game_ids[] = $game_item->game_id;
-
-        while ($row = mysqli_fetch_object($q_tags))
         {
-            // This should be unreachable unless the database structure is damaged
-            if (!property_exists($row, "name") ||
-                !property_exists($row, "popup") ||
-                !property_exists($row, "signoff") ||
-                !property_exists($row, "popup_delay") ||
-                !property_exists($row, "min_system_ver"))
+            foreach ($game->game_item as $game_item)
             {
-                continue;
+                $a_game_ids[$game_item->game_id] = true;
             }
-
-            // Skip update tags for game IDs that were not provided
-            if (!in_array(substr($row->name, 0, 9), $a_game_ids))
-                continue;
-
-            $a_tags[] = new GameUpdateTag($row->name,
-                                          $row->popup,
-                                          $row->signoff,
-                                          $row->popup_delay,
-                                          $row->min_system_ver);
         }
 
-        GameUpdateTag::import_update_packages($a_tags);
-        GameUpdateTag::import_update_changelogs($a_tags);
-        GameUpdateTag::import_update_titles($a_tags);
+        if (empty($a_game_ids))
+        {
+            return;
+        }
+
+        $clauses = array();
+        foreach (array_keys($a_game_ids) as $gid)
+        {
+            $clauses[] = "`name` LIKE '" . mysqli_real_escape_string($db, $gid) . "%'";
+        }
+
+        $cmd_where = implode(" OR ", $clauses);
+        $q_tags = mysqli_query($db, "SELECT `name`, `popup`, `signoff`, `popup_delay`, `min_system_ver`
+                                    FROM `game_update_tag`
+                                    WHERE {$cmd_where}");
+
+        if (is_bool($q_tags))
+        {
+            trigger_error("[COMPAT] game_update_tag query failed: " . mysqli_error($db), E_USER_WARNING);
+            return;
+        }
+
+        if (mysqli_num_rows($q_tags) === 0)
+        {
+            return;
+        }
+
+        $a_tags = array();
+        while ($row = mysqli_fetch_object($q_tags))
+        {
+            $a_tags[] = new GameUpdateTag($row->name,
+                                        $row->popup,
+                                        $row->signoff,
+                                        $row->popup_delay,
+                                        $row->min_system_ver);
+        }
+
+        GameUpdateTag::import_update_packages($a_tags, $db);
+        GameUpdateTag::import_update_changelogs($a_tags, $db);
+        GameUpdateTag::import_update_titles($a_tags, $db);
 
         $a_tags_sorted = array();
 
-        // Convert to associative array game_id => tags
         foreach ($a_tags as $tag)
         {
             $a_tags_sorted[substr($tag->tag_id, 0, 9)][] = $tag;
         }
 
-        // For each game id, attach the tags array if it exists
         foreach ($games as $game)
         {
             foreach ($game->game_item as $item)
             {
                 if (isset($a_tags_sorted[$item->game_id]))
-                {
                     $item->tags = $a_tags_sorted[$item->game_id];
-                }
             }
         }
     }
@@ -193,17 +194,25 @@ class Game
     /**
     * @param array<Game> $games
     */
-    public static function import_game_items(array &$games) : void
+    public static function import_game_items(array &$games, mysqli $db) : void
     {
-        $db = get_database("compat");
+        if (empty($games))
+            return;
 
-        $a_items = array();
-        $q_items = mysqli_query($db, "SELECT *
+        $keys = array();
+        foreach ($games as $game)
+            $keys[] = (int) $game->key;
+
+        $in = implode(",", $keys);
+        $q_items = mysqli_query($db, "SELECT `key`, `gid`, `game_title`, `tid`, `latest_ver`
                                       FROM `game_id`
+                                      WHERE `key` IN ({$in})
                                       ORDER BY `gid` ASC; ");
 
         if (is_bool($q_items))
             return;
+
+        $a_items = array();
 
         while ($row = mysqli_fetch_object($q_items))
         {
@@ -227,15 +236,13 @@ class Game
         {
             $game->game_item = $a_items[$game->key];
         }
-
-        mysqli_close($db);
     }
 
     // Returns a Game array from a mysqli_result object
     /**
     * @return array<Game> $games
     */
-    public static function query_to_games(mysqli_result $query) : array
+    public static function query_to_games(mysqli_result $query, mysqli $db) : array
     {
         $a_games = array();
 
@@ -274,7 +281,7 @@ class Game
                                   $row->wiki);
         }
 
-        self::import_game_items($a_games);
+        self::import_game_items($a_games, $db);
 
         return $a_games;
     }

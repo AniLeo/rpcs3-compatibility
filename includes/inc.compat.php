@@ -188,10 +188,10 @@ else if (mysqli_num_rows($q_main) === 0 && isset($l_title) && isset($l_orig) && 
 if (!is_bool($q_main) && mysqli_num_rows($q_main) > 0)
 {
     Profiler::add_data("Inc: Query to Games");
-    $games = Game::query_to_games($q_main);
+    $games = Game::query_to_games($q_main, $db);
 
     Profiler::add_data("Inc: Query to Games - Import Updates");
-    Game::import_update_tags($games);
+    Game::import_update_tags($games, $db);
 }
 
 // Close MySQL connection.

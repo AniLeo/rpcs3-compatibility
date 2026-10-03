@@ -44,8 +44,8 @@ function exportDatabase() : array
         return $results;
     }
 
-    $games = Game::query_to_games($q_games);
-    Game::import_update_tags($games);
+    $games = Game::query_to_games($q_games, $db);
+    Game::import_update_tags($games, $db);
     mysqli_close($db);
 
     if (empty($games))

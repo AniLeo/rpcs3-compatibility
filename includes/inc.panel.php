@@ -83,16 +83,17 @@ function checkInvalidThreads() : void
 
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`; ");
 
-    mysqli_close($db);
     mysqli_close($db_forums);
 
     if (is_bool($q_games) || is_bool($q_threads))
     {
+        mysqli_close($db);
         print("<b>Error while fetching the game or thread list</b>");
         return;
     }
 
-    $a_games = Game::query_to_games($q_games);
+    $a_games = Game::query_to_games($q_games, $db);
+    mysqli_close($db);
 
     while ($row = mysqli_fetch_object($q_threads))
     {
@@ -299,7 +300,7 @@ function compatibilityUpdater() : void
         return;
     }
 
-    $a_games = Game::query_to_games($q_games);
+    $a_games = Game::query_to_games($q_games, $db);
 
     // Script data
     $a_inserts = array();
@@ -834,7 +835,7 @@ function mergeGames() : void
         print("<p><b>Error:</b> Game ID 1 could not be found</p>");
         return;
     }
-    $game1 = Game::query_to_games($q_game1)[0];
+    $game1 = Game::query_to_games($q_game1, $db)[0];
 
     $q_game2 = mysqli_query($db, "SELECT * 
                                   FROM `game_list` 
@@ -845,7 +846,7 @@ function mergeGames() : void
         print("<p><b>Error:</b> Game ID 2 could not be found</p>");
         return;
     }
-    $game2 = Game::query_to_games($q_game2)[0];
+    $game2 = Game::query_to_games($q_game2, $db)[0];
 
     if ($game1->key === $game2->key)
     {

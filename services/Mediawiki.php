@@ -84,7 +84,7 @@ function cache_wiki_ids() : void
     if (is_bool($q_games))
         return;
 
-    $a_games = Game::query_to_games($q_games);
+    $a_games = Game::query_to_games($q_games, $db);
 
     // Cached game keys
     $a_cached  = array();
