@@ -144,9 +144,10 @@ $a_flags = array(
 
 // Functions available on debug panel (function_name => (title, success))
 $a_panel_categories = array(
-    0 => 'Recache',
+    0 => 'Compat',
     1 => 'Builds',
-    2 => 'Forum'
+    2 => 'Forum',
+    3 => 'Wiki'
 );
 
 $a_panel = array(
@@ -196,8 +197,8 @@ $a_panel = array(
         'success' => "Ran compatibility updater"
     ),
     'mergeGames' => array(
-        'category' => 2,
-        'title' => "Merge Games",
+        'category' => 0,
+        'title' => "Group Game IDs",
         'success' => "Ran game merger"
     ),
     'check_duplicated_entries' => array(

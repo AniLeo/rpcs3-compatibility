@@ -856,11 +856,13 @@ progress[value]::-webkit-progress-value {
 
 .debug-main-title {
     font-size: 16px;
-    margin-top: 10px
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px
 }
 
 .debug-main-content {
-    margin-top: 20px
+    margin-top: 40px
 }
 
 .debug-main-content input {
@@ -895,9 +897,13 @@ progress[value]::-webkit-progress-value {
     padding: 5px;
     margin-left: 10px;
     border-radius: 6px;
-    width: 160px;
+    width: 180px;
     text-align: center;
-    display: inline-block
+    display: inline-block;
+    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
+    border: solid 2px #fff;
+    border-radius: 6px;
+    font-weight: bold
 }
 
 .debug-menu-button a:hover {
