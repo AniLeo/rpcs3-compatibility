@@ -62,7 +62,7 @@ $c_footer_before = 	"";
 $c_footer_after = 	"";
 
 // Allowed values for results per page
-$a_pageresults = array(25, 50, 100, 200);
+$a_pageresults = array(25, 50, 100, 200, 400);
 
 // Game status data
 $a_status = array(
