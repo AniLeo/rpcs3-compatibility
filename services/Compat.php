@@ -30,8 +30,7 @@ function cache_initials() : void
     $words_blacklisted = array("demo", "pack", "vol.", "goty");
     $words_whitelisted = array("hd");
 
-    $q_initials = mysqli_query($db, "SELECT DISTINCT(`game_title`), `alternative_title`
-                                     FROM `game_list`;");
+    $q_initials = mysqli_query($db, "SELECT DISTINCT `game_title` FROM `game_id`;");
 
     // Query failed or no games present in the database
     if (is_bool($q_initials) || mysqli_num_rows($q_initials) < 1)
@@ -44,16 +43,12 @@ function cache_initials() : void
     while ($row = mysqli_fetch_object($q_initials))
     {
         // This should be unreachable unless the database structure is damaged
-        if (!property_exists($row, "game_title") ||
-            !property_exists($row, "alternative_title"))
+        if (!property_exists($row, "game_title"))
         {
             return;
         }
 
         $a_titles[] = (string) $row->game_title;
-
-        if (!is_null($row->alternative_title))
-            $a_titles[] = (string) $row->alternative_title;
     }
 
     foreach ($a_titles as $title)

@@ -24,14 +24,16 @@ if (!@include_once(__DIR__."/../functions.php")) throw new Exception("Compat: Fa
 class GameItem
 {
     public  string $game_id;
+    public  string $title;
     public  int    $thread_id;
     public ?string $update;
     /** @var array<GameUpdateTag> $tags **/
     public  array  $tags;
 
-    function __construct(string $game_id, int $thread_id, ?string $update)
+    function __construct(string $game_id, string $title, int $thread_id, ?string $update)
     {
         $this->game_id   = $game_id;
+        $this->title     = $title;
         $this->thread_id = $thread_id;
         $this->update    = $update;
         $this->tags      = array();

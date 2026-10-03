@@ -27,8 +27,6 @@ if (!@include_once(__DIR__."/Build.php"))         throw new Exception("Compat: F
 class Game
 {
     public  int     $key;
-    public  string  $title;
-    public ?string  $title2;
     public  string  $type;
     public  int     $status;
     public  string  $date;
@@ -43,8 +41,6 @@ class Game
     public  array   $game_item;
 
     function __construct( int    $key,
-                          string $title,
-                         ?string $title2,
                           string $type,
                           int    $status,
                           string $date,
@@ -57,8 +53,6 @@ class Game
                          ?int    $wiki_id)
     {
         $this->key        = $key;
-        $this->title      = $title;
-        $this->title2     = $title2;
         $this->type       = $type;
         $this->status     = $status;
         $this->date       = $date;
@@ -69,6 +63,25 @@ class Game
         $this->move       = $move;
         $this->stereo_3d  = $stereo_3d;
         $this->wiki_id    = $wiki_id;
+    }
+
+    public function title() : string
+    {
+        return $this->game_item[0]->title;
+    }
+
+     /** @return array<string> **/
+    public function other_titles() : array
+    {
+        $titles = array();
+
+        foreach ($this->game_item as $item)
+        {
+            if ($item->title !== $this->title() && !in_array($item->title, $titles, true))
+                $titles[] = $item->title;
+        }
+        
+        return $titles;
     }
 
     public function get_media_id() : ?string
@@ -197,6 +210,7 @@ class Game
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "key") ||
                 !property_exists($row, "gid") ||
+                !property_exists($row, "game_title") ||
                 !property_exists($row, "tid") ||
                 !property_exists($row, "latest_ver"))
             {
@@ -204,6 +218,7 @@ class Game
             }
 
             $a_items[$row->key][] = new GameItem($row->gid,
+                                                 $row->game_title,
                                                  $row->tid,
                                                  $row->latest_ver);
         }
@@ -231,8 +246,6 @@ class Game
         {
             // This should be unreachable unless the database structure is damaged
             if (!property_exists($row, "key") ||
-                !property_exists($row, "game_title") ||
-                !property_exists($row, "alternative_title") ||
                 !property_exists($row, "type") ||
                 !property_exists($row, "status") ||
                 !property_exists($row, "last_update") ||
@@ -249,8 +262,6 @@ class Game
             }
 
             $a_games[] = new Game($row->key,
-                                  $row->game_title,
-                                  $row->alternative_title,
                                   $row->type,
                                   getStatusID($row->status),
                                   $row->last_update,
@@ -295,7 +306,7 @@ class Game
             if ($type === 2)
             {
                 foreach ($games as $key => $game)
-                    $values[$key] = $game->title;
+                    $values[$key] = $game->title();
             }
             else
             {

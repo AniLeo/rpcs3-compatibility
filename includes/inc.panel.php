@@ -124,7 +124,7 @@ function checkInvalidThreads() : void
     {
         foreach ($game->game_item as $item)
         {
-            $html_title = htmlspecialchars($game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
 
             if (!array_key_exists($item->thread_id, $a_threads))
             {
@@ -481,7 +481,7 @@ function compatibilityUpdater() : void
                 $a_updates[$cur_game->key] = array(
                     'attachments' => null,
                     'thread' => $thread,
-                    'game_title' => $cur_game->title,
+                    'game_title' => $cur_game->title(),
                     'status' => $thread->get_sid(),
                     'commit' => null,
                     'pr' => null,
@@ -650,7 +650,7 @@ function compatibilityUpdater() : void
 
             printf("<b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
                    $thread->get_game_id(),
-                   htmlspecialchars($cur_game->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), 
+                   htmlspecialchars($cur_game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), 
                    $html_a->to_string(),
                    htmlspecialchars($a_updates[$cur_game->key]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                    $thread->get_game_type_name());
@@ -708,8 +708,8 @@ function compatibilityUpdater() : void
             $db_game_title = mysqli_real_escape_string($db, $game['thread']->get_game_title());
 
             // Insert new entry on the game list
-            mysqli_query($db, "INSERT INTO `game_list` (`game_title`, `build_commit`, `pr`, `version`, `last_update`, `status`, `type`) VALUES
-            ('{$db_game_title}',
+            mysqli_query($db, "INSERT INTO `game_list` (`build_commit`, `pr`, `version`, `last_update`, `status`, `type`) VALUES
+            ('".mysqli_real_escape_string($db, $game['commit'])."',
             '".mysqli_real_escape_string($db, $game['commit'])."',
             '".mysqli_real_escape_string($db, $game['pr'])."',
             '".mysqli_real_escape_string($db, $game['version'])."',
@@ -717,39 +717,22 @@ function compatibilityUpdater() : void
             {$game['thread']->get_sid()},
             {$game['thread']->get_game_type()});");
 
-            // Get the key from the entry that was just inserted
-            $q_fetchkey = mysqli_query($db, "SELECT `key` FROM `game_list` WHERE
-            `game_title`   = '{$db_game_title}' AND
-            `build_commit` = '".mysqli_real_escape_string($db, $game['commit'])."' AND
-            `pr`           = '".mysqli_real_escape_string($db, $game['pr'])."' AND
-            `version`      = '".mysqli_real_escape_string($db, $game['version'])."' AND
-            `last_update`  = '{$game['last_update']}' AND
-            `status`       = {$game['thread']->get_sid()} AND
-            `type`         = {$game['thread']->get_game_type()}
-            ORDER BY `key` DESC LIMIT 1");
-
-            if (is_bool($q_fetchkey))
+            $key = mysqli_insert_id($db);
+           
+            if ($key === 0)
             {
                 exit("[COMPAT] Error while trying to fetch key from game list");
             }
 
-            $row = mysqli_fetch_object($q_fetchkey);
-
-            // This should be unreachable unless the database structure is damaged
-            if (!$row || !property_exists($row, "key"))
-            {
-                exit("[COMPAT] Missing key column just right after trying to insert it");
-            }
-
             // Insert Game and Thread IDs on the ID table
-            mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`) VALUES ({$row->key}, '{$db_game_id}', {$tid}); ");
+            mysqli_query($db, "INSERT INTO `game_id` (`key`, `gid`, `tid`, `game_title`) VALUES ({$key}, '{$db_game_id}', {$tid}, '{$db_game_title}'); ");
 
             // Cache the updates for the new ID
             cache_game_updates($cr, $db, $game['thread']->get_game_id());
 
             // Log change to game history
             mysqli_query($db, "INSERT INTO `game_history` (`game_key`, `new_gid`, `new_status`, `new_date`) VALUES
-            ({$row->key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
+            ({$key}, '{$db_game_id}', '{$game['thread']->get_sid()}', '{$game['last_update']}');");
         }
 
         /*
@@ -878,14 +861,16 @@ function mergeGames() : void
 
     print("<p>"); // Start paragraph
 
-    $alternative1 = !is_null($game1->title2) ? "(alternative: {$game1->title2})" : "";
-    $alternative2 = !is_null($game2->title2) ? "(alternative: {$game2->title2})" : "";
+    $others1 = $game1->other_titles();
+    $others2 = $game2->other_titles();
+    $alternative1 = $others1 !== array() ? '(other: '.implode(', ', $others1).')' : '';
+    $alternative2 = $others2 !== array() ? '(other: '.implode(', ', $others2).')' : '';
 
     $pr1 = !is_null($game1->pr) ? $game1->pr : "null";
     $pr2 = !is_null($game2->pr) ? $game2->pr : "null";
 
     printf("<b>Game 1: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
-           htmlspecialchars($game1->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($game1->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            htmlspecialchars($alternative1, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            $a_status[$game1->status]['color'],
            $a_status[$game1->status]['name'],
@@ -903,7 +888,7 @@ function mergeGames() : void
     print("<br>");
 
     printf("<b>Game 2: %s %s (status: <span style='color:#%s'>%s</span>, pr: %s, date: %s, type: %s)</b><br>",
-           htmlspecialchars($game2->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($game2->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            htmlspecialchars($alternative2, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
            $a_status[$game2->status]['color'],
            $a_status[$game2->status]['name'],
@@ -959,18 +944,6 @@ function mergeGames() : void
             print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
             mysqli_close($db);
             return;
-        }
-
-        // Copy the older entry's title to new entry if necessary
-        if ($old->title != $new->title)
-        {
-            mysqli_query($db, "UPDATE `game_list` SET `game_title` = '".mysqli_real_escape_string($db, $old->title)."' WHERE `key`='{$new->key}';");
-        }
-
-        // Copy alternative title to new entry if necessary
-        if (!is_null($old->title2) && is_null($new->title2))
-        {
-            mysqli_query($db, "UPDATE `game_list` SET `alternative_title` = '".mysqli_real_escape_string($db, $old->title2)."' WHERE `key`='{$new->key}';");
         }
 
         // Copy network flag to new entry if necessary
@@ -1160,19 +1133,20 @@ function check_duplicated_entries() : void
 
     // Returns duplicates for Digital (N) and Disc (B) entries
     // Ignores any non alphanumeric characters on title
-    $q_duplicates = mysqli_query($db,  "WITH subquery AS 
-                                        (
-                                            SELECT `game_title`, SUBSTR(`gid`, 1, 1) AS `gid_type`
-                                            FROM `game_list` 
-                                            LEFT JOIN `game_id`
-                                            ON `game_list`.`key` = `game_id`.`key`
-                                            WHERE SUBSTR(`gid`, 1, 1) IN (\"N\", \"B\")
-                                            GROUP BY `game_list`.`key`
+    $q_duplicates = mysqli_query($db,  "WITH subquery AS (
+                                            SELECT i.`key`,
+                                                SUBSTR(i.`gid`, 1, 1) AS `gid_type`,
+                                                (SELECT i2.`game_title` FROM `game_id` i2
+                                                    WHERE i2.`key` = i.`key`
+                                                    ORDER BY i2.`gid` ASC LIMIT 1) AS `game_title`
+                                            FROM `game_id` i
+                                            WHERE SUBSTR(i.`gid`, 1, 1) IN ('N', 'B')
+                                            GROUP BY i.`key`, `gid_type`
                                         )
                                         SELECT `game_title`, `gid_type`
                                         FROM subquery
                                         GROUP BY REGEXP_REPLACE(`game_title`, '[^a-zA-Z0-9]', ''), `gid_type`
-                                        HAVING COUNT(REGEXP_REPLACE(`game_title`, '[^a-zA-Z0-9]', '')) >= 2;");
+                                        HAVING COUNT(*) >= 2");
 
     mysqli_close($db);
 

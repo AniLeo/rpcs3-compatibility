@@ -49,13 +49,34 @@ if ($get['h'] === true)
     $get['h']	= $a_currenthist[0];
 }
 
-// Main part of the query
-$cmd_main = "SELECT * 
-             FROM `game_history`
-             LEFT JOIN `game_list` 
-                 ON `game_history`.`game_key` = `game_list`.`key`
-             LEFT JOIN `game_id` 
-                 ON `game_history`.`game_key` = `game_id`.`key` ";
+// Updates do not store new_gid. Insertions do.
+$cmd_existing = "SELECT `game_history`.`old_status`,
+                        `game_history`.`new_status`,
+                        `game_history`.`old_date`,
+                        `game_history`.`new_date`,
+                        `game_id`.`gid`,
+                        `game_id`.`tid`,
+                        `game_id`.`game_title`,
+                        `game_list`.`move`
+                 FROM `game_history`
+                 INNER JOIN `game_list`
+                     ON `game_history`.`game_key` = `game_list`.`key`
+                 INNER JOIN `game_id`
+                     ON `game_history`.`game_key` = `game_id`.`key` ";
+
+$cmd_new = "SELECT `game_history`.`old_status`,
+                   `game_history`.`new_status`,
+                   `game_history`.`old_date`,
+                   `game_history`.`new_date`,
+                   `game_id`.`gid`,
+                   `game_id`.`tid`,
+                   `game_id`.`game_title`,
+                   `game_list`.`move`
+            FROM `game_history`
+            INNER JOIN `game_list`
+                ON `game_history`.`game_key` = `game_list`.`key`
+            INNER JOIN `game_id`
+                ON `game_history`.`new_gid` = `game_id`.`gid` ";
 
 // Generate date part of the query
 if ($get['h'] === $a_currenthist[0])
@@ -75,9 +96,9 @@ if (!isset($get['m']) || $get['m'] === "c")
 {
     Profiler::add_data("Inc: Check Existing Entries");
 
-    $q_existing = mysqli_query($db, "{$cmd_main}
+    $q_existing = mysqli_query($db, "{$cmd_existing}
     WHERE `old_status` IS NOT NULL {$cmd_date}
-    ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+    ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_id`.`game_title` ASC, `tid` DESC; ");
 
     if (is_bool($q_existing))
     {
@@ -99,10 +120,9 @@ if (!isset($get['m']) || $get['m'] === "n")
 {
     Profiler::add_data("Inc: Check New Entries");
 
-    $q_new = mysqli_query($db, "{$cmd_main}
-    WHERE `old_status` IS NULL
-    AND `game_history`.`new_gid` = `game_id`.`gid` {$cmd_date}
-    ORDER BY `new_status` ASC, `new_date` DESC, `game_title` ASC, `tid` DESC; ");
+    $q_new = mysqli_query($db, "{$cmd_new}
+    WHERE `old_status` IS NULL {$cmd_date}
+    ORDER BY `new_status` ASC, `new_date` DESC, `game_id`.`game_title` ASC, `tid` DESC; ");
 
     if (is_bool($q_new))
     {

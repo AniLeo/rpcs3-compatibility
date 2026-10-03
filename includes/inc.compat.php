@@ -31,13 +31,13 @@ if (!isset($get))
 
 // Order queries
 $a_order = array(
-'' => 'ORDER BY `status` ASC, `game_title` ASC',
-'2a' => 'ORDER BY `game_title` ASC',
-'2d' => 'ORDER BY `game_title` DESC',
-'3a' => 'ORDER BY `status` ASC, `game_title` ASC',
-'3d' => 'ORDER BY `status` DESC, `game_title` ASC',
-'4a' => 'ORDER BY `last_update` ASC, `game_title` ASC',
-'4d' => 'ORDER BY `last_update` DESC, `game_title` ASC'
+    '' => 'ORDER BY `status` ASC, `sort_title` ASC',
+    '2a' => 'ORDER BY `sort_title` ASC',
+    '2d' => 'ORDER BY `sort_title` DESC',
+    '3a' => 'ORDER BY `status` ASC, `sort_title` ASC',
+    '3d' => 'ORDER BY `status` DESC, `sort_title` ASC',
+    '4a' => 'ORDER BY `last_update` ASC, `sort_title` ASC',
+    '4d' => 'ORDER BY `last_update` DESC, `sort_title` ASC'
 );
 
 if (isset($get['o']) && isset($a_order[$get['o']]))
@@ -74,7 +74,7 @@ $currentPage = getCurrentPage($pages);
 // Generate the main query
 $limit = $get['r'] * $currentPage - $get['r'];
 
-$c_main = "SELECT * FROM `game_list` ";
+$c_main = "SELECT `game_list`.*, (SELECT `game_title` FROM `game_id` WHERE `game_id`.`key` = `game_list`.`key` ORDER BY `gid` ASC LIMIT 1) AS `sort_title` FROM `game_list` ";
 
 // General filters from generate_query
 if (!empty($genquery))
@@ -118,22 +118,19 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !
     $titles = array();
 
     // Select all database entries
-    $q_lev = mysqli_query($db, "SELECT `game_title`, `alternative_title` FROM `game_list`; ");
+    $q_lev = mysqli_query($db, "SELECT `game_title` FROM `game_id`; ");
 
     if (!is_bool($q_lev))
     {
         while ($row = mysqli_fetch_object($q_lev))
         {
             // This should be unreachable unless the database structure is damaged
-            if (!property_exists($row, "game_title") ||
-                !property_exists($row, "alternative_title"))
+            if (!property_exists($row, "game_title"))
             {
                 continue;
             }
 
             $titles[] = $row->game_title;
-            if (!is_null($row->alternative_title))
-                $titles[] = $row->alternative_title;
         }
 
         // Calculate proximity for each database entry
@@ -153,7 +150,10 @@ if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !
 
         // Re-run the main query
         $genquery = Compat::generate_query($get, $db);
-        $c_main = "SELECT * FROM `game_list` WHERE ({$genquery}) {$order} LIMIT {$limit}, {$get['r']};";
+        $c_main = "SELECT `game_list`.*, (SELECT `game_title` FROM `game_id` WHERE `game_id`.`key` = `game_list`.`key` ORDER BY `gid` ASC LIMIT 1) AS `sort_title` 
+                   FROM `game_list` 
+                   WHERE ({$genquery}) {$order} 
+                   LIMIT {$limit}, {$get['r']};";
         $q_main = mysqli_query($db, $c_main);
 
         // Recalculate Pages / CurrentPage

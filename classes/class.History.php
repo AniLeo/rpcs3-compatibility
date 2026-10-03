@@ -251,16 +251,11 @@ public static function printTableContent(array $array) : void
 
         $html_div_cell->add_content($html_img_media->to_string());
         
-        $html_div_cell->add_content($entry->title.PHP_EOL);
+        $html_div_cell->add_content($entry->game_item->title.PHP_EOL);
 
         if ($entry->move === 1)
         {
             $html_div_cell->add_content($html_img_move->to_string());
-        }
-
-        if (!is_null($entry->title2))
-        {
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$entry->title2})");
         }
 
         $html_div_cell->print();

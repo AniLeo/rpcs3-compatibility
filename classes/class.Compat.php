@@ -42,17 +42,17 @@ public static function generate_query(array $get, mysqli &$db) : string
         if ($get['c'] === '09')
         {
             // Regular expression: Starts with a number
-            $genquery .= " (`game_title` REGEXP '^[0-9]' OR `alternative_title` REGEXP '^[0-9]') ";
+            $genquery .= " (`key` IN (SELECT `key` FROM `game_id` WHERE `game_title` REGEXP '^[0-9]')) ";
         }
         elseif ($get['c'] === 'sym')
         {
             // Regular expression: Does not start with an alphanumeric character
-            $genquery .= " (`game_title` NOT REGEXP '^[a-zA-Z0-9]' OR `alternative_title` NOT REGEXP '^[a-zA-Z0-9]') ";
+            $genquery .= " (`key` IN (SELECT `key` FROM `game_id` WHERE `game_title` NOT REGEXP '^[a-zA-Z0-9]')) ";
         }
         else
         {
             $s_c = mysqli_real_escape_string($db, (string) $get['c']);
-            $genquery .= " (`game_title` LIKE '{$s_c}%' OR `alternative_title` LIKE '{$s_c}%') ";
+            $genquery .= " (`key` IN (SELECT `key` FROM `game_id` WHERE `game_title` LIKE '{$s_c}%')) ";
         }
     }
 
@@ -69,13 +69,12 @@ public static function generate_query(array $get, mysqli &$db) : string
         else
         {
             $s_g = mysqli_real_escape_string($db, normalize_search((string) $get['g']));
-            $searchbox = " `game_title` LIKE '%{$s_g}%' OR `alternative_title` LIKE '%{$s_g}%' ";
+            $searchbox = " `key` IN (SELECT `key` FROM `game_id` WHERE `game_title` LIKE '%{$s_g}%') ";
 
             // Initials cache search
             if (strlen((string) $get['g']) >= 2)
             {
-                $searchbox .= " OR `game_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')
-                                OR `alternative_title` = ANY (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%') ";
+                $searchbox .= " OR `key` IN (SELECT `key` FROM `game_id` WHERE `game_title` IN (SELECT `game_title` FROM `initials_cache` WHERE `initials` LIKE '%{$s_g}%')) ";
             }
         }
 
@@ -502,14 +501,14 @@ public static function printTable() : void
 
         if (!is_null($game->get_url_wiki()))
         {
-            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title, $game->title);
+            $html_a_title = new HTMLA($game->get_url_wiki(), $game->title(), $game->title());
             $html_a_title->set_target("_blank");
 
             $html_div_cell->add_content($html_a_title->to_string());
         }
         else
         {
-            $html_div_cell->add_content($game->title);
+            $html_div_cell->add_content($game->title());
         }
         if ($game->network === 1)
         {
@@ -523,9 +522,9 @@ public static function printTable() : void
         {
             $html_div_cell->add_content($html_a_3d->to_string());
         }
-        if (!is_null($game->title2))
+        foreach ($game->other_titles() as $title)
         {
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$game->title2})");
+            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$title})");
         }
 
         $html_div_cell->print();
@@ -757,15 +756,14 @@ public static function APIv1() : array
         foreach ($game->game_item as $item)
         {
             $results['results'][$item->game_id] = array(
-            'title' => $game->title,
-            'alternative-title' => $game->title2,
-            'wiki-id' => $game->wiki_id,
-            'status' => $a_status[$game->status]['name'],
-            'date' => $game->date,
-            'thread' => $item->thread_id,
-            'commit' => $game->commit,
-            'pr' => $game->pr,
-            'network' => $game->network
+                'title' => $item->title,
+                'wiki-id' => $game->wiki_id,
+                'status' => $a_status[$game->status]['name'],
+                'date' => $game->date,
+                'thread' => $item->thread_id,
+                'commit' => $game->commit,
+                'pr' => $game->pr,
+                'network' => $game->network
             );
         }
     }

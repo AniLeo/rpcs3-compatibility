@@ -24,8 +24,6 @@ if (!@include_once(__DIR__."/GameItem.php"))     throw new Exception("Compat: Fa
 
 class HistoryEntry
 {
-    public  string   $title;
-    public ?string   $title2;
     public ?int      $old_status;
     public  int      $new_status;
     public ?string   $old_date;
@@ -34,19 +32,15 @@ class HistoryEntry
 
     public GameItem $game_item;
 
-    function __construct( string $title,
-                         ?string $title2,
-                         ?string $old_status,
+    function __construct(?string $old_status,
                           string $new_status,
                          ?string $old_date,
                           string $new_date,
                           string $gid,
+                          string $title,
                           int    $tid,
                           int    $move)
     {
-        $this->title = $title;
-        $this->title2 = $title2;
-
         if (!is_null($old_status))
             $this->old_status = getStatusID($old_status);
         else
@@ -62,7 +56,7 @@ class HistoryEntry
         $this->new_date = $new_date;
         $this->move     = $move;
 
-        $this->game_item = new GameItem($gid, $tid, null);
+        $this->game_item = new GameItem($gid, $title, $tid, null);
     }
 
     /**
@@ -75,26 +69,24 @@ class HistoryEntry
         while ($row = mysqli_fetch_object($query))
         {
             // This should be unreachable unless the database structure is damaged
-            if (!property_exists($row, "game_title") ||
-                !property_exists($row, "alternative_title") ||
-                !property_exists($row, "old_status") ||
+            if (!property_exists($row, "old_status") ||
                 !property_exists($row, "new_status") ||
                 !property_exists($row, "old_date") ||
                 !property_exists($row, "new_date") ||
                 !property_exists($row, "gid") ||
+                !property_exists($row, "game_title") ||
                 !property_exists($row, "tid") ||
                 !property_exists($row, "move"))
             {
                 return array();
             }
 
-            $a_entries[] = new HistoryEntry($row->game_title,
-                                            $row->alternative_title,
-                                            $row->old_status,
+            $a_entries[] = new HistoryEntry($row->old_status,
                                             $row->new_status,
                                             $row->old_date,
                                             $row->new_date,
                                             $row->gid,
+                                            $row->game_title,
                                             $row->tid,
                                             $row->move);
         }

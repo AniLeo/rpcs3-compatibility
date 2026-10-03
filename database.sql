@@ -4,8 +4,6 @@
 DROP TABLE IF EXISTS `game_list`;
 CREATE TABLE `game_list` (
   `key` int(11) NOT NULL AUTO_INCREMENT,
-  `game_title` varchar(128) NOT NULL,
-  `alternative_title` varchar(128) DEFAULT NULL,
   `type` enum('PS3 Game', 'PS3 App') NOT NULL,
   `status` enum('Playable','Ingame','Intro','Loadable','Nothing') NOT NULL DEFAULT 'Nothing',
   `last_update` date NOT NULL,
@@ -112,8 +110,12 @@ DROP TABLE IF EXISTS `game_id`;
 CREATE TABLE `game_id` (
   `key` int(11) NOT NULL,
   `gid` varchar(9) NOT NULL,
+  `game_title` varchar(128) NOT NULL,
   `tid` int(11) NOT NULL,
-  `latest_ver` varchar(16) DEFAULT NULL
+  `latest_ver` varchar(16) DEFAULT NULL,
+   PRIMARY KEY (`gid`),
+   KEY `key` (`key`),
+   KEY `game_title` (`game_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
