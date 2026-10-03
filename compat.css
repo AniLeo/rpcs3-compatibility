@@ -518,6 +518,11 @@ progress[value]::-webkit-progress-value {
     border-radius: 6px
 }
 
+.compat-sort span {
+    padding-right: 4px;
+    font-weight: bold
+}
+
 .builds-hdr-left {
     font-size: 14px;
     line-height: 35px;
@@ -837,14 +842,11 @@ progress[value]::-webkit-progress-value {
 .compat-desc {
     font-size: 14px;
     line-height: 28px;
-    margin-left: 5px;
-    margin-right: 5px;
     margin-top: 25px
 }
 
 .debug-main {
     font-size: 14px;
-    padding: 14px;
     border-radius: 6px;
     line-height: 24px;
     margin-bottom: 20px
