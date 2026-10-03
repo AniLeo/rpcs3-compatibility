@@ -565,37 +565,37 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-hdr-right a:nth-child(1) {
-    border-color: #3198ff;
+    border-color: #2a81d9;
     color: #fff;
-    background: #3198ff;
+    background: #2a81d9;
     box-shadow: 0 5px 16px 0 rgb(49 152 255/40%)
 }
 
 .compat-hdr-right a:nth-child(2) {
-    border-color: #1ebc61;
+    border-color: #19a052;
     color: #fff;
-    background: #1ebc61;
+    background: #19a052;
     box-shadow: 0 5px 16px 0 rgb(31 188 97/40%)
 }
 
 .compat-hdr-right a:nth-child(3) {
-    border-color: #f9b32f;
+    border-color: #d49828;
     color: #fff;
-    background: #f9b32f;
+    background: #d49828;
     box-shadow: 0 5px 16px 0 rgb(249 179 47/40%)
 }
 
 .compat-hdr-right a:nth-child(4) {
-    border-color: #e08a1e;
+    border-color: #be751a;
     color: #fff;
-    background: #e08a1e;
+    background: #be751a;
     box-shadow: 0 5px 16px 0 rgb(224 138 30/40%)
 }
 
 .compat-hdr-right a:nth-child(5) {
-    border-color: #e74c3c;
+    border-color: #c44133;
     color: #fff;
-    background: #e74c3c;
+    background: #c44133;
     box-shadow: 0 5px 16px 0 rgb(231 76 60/40%)
 }
 
@@ -643,52 +643,38 @@ progress[value]::-webkit-progress-value {
     border-radius: 24px
 }
 
-.compat-status-progressbar::-webkit-progress-bar {
-    background-color: transparent
+.compat-status-progressbar {
+    --progress-color: transparent;
 }
 
-#compat-progress1::-webkit-progress-value {
-    background-color: #1ebc61
+#compat-progress1 {
+    --progress-color: #19a052;
 }
 
-#compat-progress2::-webkit-progress-value {
-    background-color: #f9b32f
+#compat-progress2 {
+    --progress-color: #d49828;
 }
 
-#compat-progress3::-webkit-progress-value {
-    background-color: #e08a1e
+#compat-progress3 {
+    --progress-color: #be751a;
 }
 
-#compat-progress4::-webkit-progress-value {
-    background-color: #e74c3c
+#compat-progress4 {
+    --progress-color: #c44133;
 }
 
-#compat-progress5::-webkit-progress-value {
-    background-color: #455556
+#compat-progress5 {
+    --progress-color: #455556;
 }
 
+.compat-status-progressbar::-webkit-progress-bar,
 .compat-status-progressbar::-moz-progress-bar {
-    background-color: transparent
+    background-color: transparent;
 }
 
-#compat-progress1::-moz-progress-bar {
-    background-color: #1ebc61
-}
-
-#compat-progress2::-moz-progress-bar {
-    background-color: #f9b32f
-}
-
-#compat-progress3::-moz-progress-bar {
-    background-color: #e08a1e
-}
-
-#compat-progress4::-moz-progress-bar {
-    background-color: #e74c3c
-}
-
-#compat-progress5::-moz-progress-bar {
-    background-color: #455556
+.compat-status-progressbar::-webkit-progress-value,
+.compat-status-progressbar::-moz-progress-bar {
+    background-color: var(--progress-color);
 }
 
 @media screen and (max-width: 1000px) {
