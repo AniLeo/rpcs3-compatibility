@@ -174,7 +174,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
                 <?php
                     if     (isset($get['h'])) { print("History"); }
                     elseif (isset($get['b'])) { print("Builds"); }
-                    elseif (isset($get['a'])) { print("Debug Panel"); }
+                    elseif (isset($get['a'])) { print("Debug"); }
                     else                      { print("Compatibility"); }
                 ?>
                 </h1>

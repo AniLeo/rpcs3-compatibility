@@ -691,7 +691,7 @@ function getMenu(string $file) : string
     }
     if ($file !== "history")
     {
-        $html_a = new HTMLA("?h", "Compatibility List History", "Compatibility List History");
+        $html_a = new HTMLA("?h", "Compatibility History", "Compatibility History");
         $html_div->add_content($html_a->to_string());
     }
     if ($file !== "builds")

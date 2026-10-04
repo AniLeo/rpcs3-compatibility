@@ -390,7 +390,7 @@ public static function printHistoryRSS() : void
     print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     print("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">");
     print("<channel>");
-    print("<title>RPCS3 Compatibility List History - ".xml_escape($title)."</title>");
+    print("<title>RPCS3 Compatibility History - ".xml_escape($title)."</title>");
     print("<link>https://rpcs3.net/compatibility?h</link>");
     print("<description>For more information about RPCS3 visit https://rpcs3.net</description>");
     print("<language>en-uk</language>");
