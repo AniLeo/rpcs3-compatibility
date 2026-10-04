@@ -105,13 +105,12 @@ Profiler::add_data("Inc: Execute Main Query ({$c_main})");
 $q_main = mysqli_query($db, $c_main);
 
 
-// Levenshtein search
-Profiler::add_data("Inc: Levenshtein");
-
 // Levenshtein Search (Get the closest result to the searched input)
 // If the main query didn't return anything and game search exists and isn't a Game ID
 if (!is_bool($q_main) && mysqli_num_rows($q_main) === 0 && isset($get['g']) && !isGameID($get['g']))
 {
+    Profiler::add_data("Inc: Levenshtein");
+    
     $l_title = "";
     $l_orig = "";
     $l_dist = -1;

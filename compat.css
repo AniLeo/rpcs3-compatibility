@@ -141,7 +141,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .color-red {
-    color: #e74c3c!important
+    color: #c44133!important
 }
 
 .background-red {
@@ -149,7 +149,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .color-green {
-    color: #2ecc71!important
+    color: #19a052!important
 }
 
 .background-green {
@@ -788,12 +788,14 @@ progress[value]::-webkit-progress-value {
     line-height: 24px;
 }
 
-.compat-profiler p {
-    background: rgba(0,0,0,.1);
-    margin-bottom: 20px;
+.compat-profiler span {
+    display: block;
+    background: rgba(0,102,204,.06);
+    margin-bottom: 10px;
     padding-left: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-right: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
     border-radius: 6px;
     font-size: 14px
 }

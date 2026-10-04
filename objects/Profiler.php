@@ -73,32 +73,30 @@ class Profiler
                 empty(self::$time) || empty(self::$mem))
             return "";
 
-        $ret = "<p><b>".self::$title."</b><br>";
+        $ret = "<span><b>".self::$title."</b>";
 
         if (isset(self::$mem_start))
         {
-            $ret .= "<p>".PHP_EOL;
-            $ret .= "Start Memory: ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "End Memory: ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "Peak Memory: ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "</p>";
+            $ret .= "<span>".PHP_EOL;
+            $ret .= "<b>Start Memory:</b> ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "<b>End Memory:</b> ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "<b>Peak Memory:</b> ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
+            $ret .= "</span>";
         }
 
         if (PHP_OS_FAMILY !== "Windows")
         {
-            $ret .= "<p><b>System Information</b><br>";
-
             $load = sys_getloadavg();
 
             // If there is an issue with the sys_getloadavg function
             if (!$load)
                 return "";
 
-            $ret .= "<p>";
-            $ret .= sprintf("Load (1m):  %.2f<br>", $load[0]);
-            $ret .= sprintf("Load (5m):  %.2f<br>", $load[1]);
-            $ret .= sprintf("Load (15m): %.2f<br>", $load[2]);
-            $ret .= "</p>";
+            $ret .= "<span>";
+            $ret .= sprintf("<b>Load (1m):</b>  %.2f<br>", $load[0]);
+            $ret .= sprintf("<b>Load (5m):</b>  %.2f<br>", $load[1]);
+            $ret .= sprintf("<b>Load (15m):</b> %.2f<br>", $load[2]);
+            $ret .= "</span>";
 
             // Include total/available meminfo if readable
             $meminfo = file_get_contents("/proc/meminfo");
@@ -121,10 +119,10 @@ class Profiler
                         break;
                 }
 
-                $ret .= "<p>";
-                $ret .= "Total Memory: ".round($mem_total/1024, 2)." MB<br>".PHP_EOL;
-                $ret .= "Available Memory: ".round($mem_available/1024, 2)." MB<br>".PHP_EOL;
-                $ret .= "</p>";
+                $ret .= "<span>";
+                $ret .= "<b>Available Memory:</b> ".round($mem_available/1024, 2)." MB<br>".PHP_EOL;
+                $ret .= "<b>Total Memory:</b> ".round($mem_total/1024, 2)." MB<br>".PHP_EOL;
+                $ret .= "</span>";
             }
         }
 
@@ -136,15 +134,15 @@ class Profiler
 
         if ($size > 1)
         {
-            $ret .= "<p>".PHP_EOL;
+            $ret .= "<span>".PHP_EOL;
             for ($i = 0; $i < $size - 1; $i++)
             {
-                $ret .= sprintf("%.5f ms &nbsp;|&nbsp; %06.2f KB &nbsp;-&nbsp; %s<br>".PHP_EOL,
+                $ret .= sprintf("%.5f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
                                 self::$time[$i+1] - self::$time[$i],
-                                self::$mem[$i+1] - self::$mem[$i],
+                                /*self::$mem[$i+1] - self::$mem[$i],*/
                                 self::$desc[$i]);
             }
-            $ret .= "</p>";
+            $ret .= "</span>";
         }
 
         return $ret;

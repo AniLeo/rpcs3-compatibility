@@ -75,7 +75,7 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
             <?php Profiler::add_data("Page: Print Status Module"); ?>
             <?php Compat::printStatusModule(); ?>	
 
-            <?php Profiler::add_data("Page: Display Searchbox"); ?>
+            <?php Profiler::add_data("Page: Print Searchbox"); ?>
             <div class="compat-con-searchbox">
                 <form method="get" id="game-search" action="#jump">
                     <input type="hidden" name="type" value="0"> 
