@@ -429,6 +429,21 @@ function compatibilityUpdater() : void
                 continue;
             }
 
+            // Attachment checks
+            $attachment_warning = check_report_attachments(
+                $db_forums,
+                (string) $a_inserts[$thread->tid]['thread']->pid,
+                $html_a->to_string(),
+                $a_status[$thread->get_sid()]['name']
+            );
+
+            if (!is_null($attachment_warning))
+            {
+                printf("<b>Warning:</b> %s<br><br>", $attachment_warning);
+                unset($a_inserts[$thread->tid]);
+                continue;
+            }
+
             // Valid report found
             $version       = $a_inserts[$thread->tid]['version'];
             $commit        = $a_inserts[$thread->tid]['commit'];
@@ -588,51 +603,19 @@ function compatibilityUpdater() : void
             $html_a = new HTMLA($a_updates[$cur_game->key]['thread']->get_thread_url(), "", (string) $a_updates[$cur_game->key]['pid']);
             $html_a->set_target("_blank");
 
-            // No attachments
-            if (is_null($a_updates[$cur_game->key]['attachments']))
+            // Attachment checks
+            $attachment_warning = check_report_attachments(
+                $db_forums,
+                (string) $a_updates[$cur_game->key]['pid'],
+                $html_a->to_string(),
+                $a_status[$thread->get_sid()]['name']
+            );
+
+            if (!is_null($attachment_warning))
             {
-                printf("<b>Warning:</b> No attachments found on post %s, skipping<br><br>", $html_a->to_string());
+                printf("<b>Warning:</b> %s<br><br>", $attachment_warning);
                 unset($a_updates[$cur_game->key]);
                 continue;
-            }
-            else
-            {
-                $log_detected = false;
-
-                foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
-                {
-                    if (str_ends_with($attachment, ".gz") || str_ends_with($attachment, ".7z"))
-                    {
-                        $log_detected = true;
-                        break;
-                    }
-                }
-
-                if (!$log_detected)
-                {
-                    printf("<b>Warning:</b> No log file attachments found on post %s, skipping<br><br>", $html_a->to_string());
-                    unset($a_updates[$cur_game->key]);
-                    continue;
-                }
-
-                $attachment_count = count($a_updates[$cur_game->key]['attachments']);
-                $to_playable = $a_status[$thread->get_sid()]['name'] == "Playable";
-
-                if ($to_playable && $attachment_count < 4)
-                {
-                    printf("<b>Warning:</b> Attempted update to Playable with less than 4 attachments on post %s, only %d uploaded<br><br>",
-                           $html_a->to_string(),
-                           $attachment_count);
-                    continue;
-                }
-                else if (!$to_playable && $attachment_count < 2)
-                {
-                    printf("<b>Warning:</b> Attempted update to %s with less than 2 attachments on post %s, only %d uploaded<br><br>", 
-                           $a_status[$thread->get_sid()]['name'],
-                           $html_a->to_string(),
-                           $attachment_count);
-                    continue;
-                }
             }
 
             // Check if the distance between commit date and post is bigger than 4 weeks
@@ -668,11 +651,6 @@ function compatibilityUpdater() : void
                    $old_status_commit,
                    $old_version,
                    $cur_game->date);
-            foreach ($a_updates[$cur_game->key]['attachments'] as $attachment)
-            {
-                printf("- Attachment: <span class='color-green'>%s</span><br>",
-                       htmlspecialchars($attachment, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
-            }
             print("<br>");
         }
     }
@@ -1185,4 +1163,43 @@ function check_duplicated_entries() : void
     {
         print($output);
     }
+}
+
+function check_report_attachments(mysqli $db_forums, string $pid, string $post_url, string $status_name) : ?string
+{
+    $s_pid = mysqli_real_escape_string($db_forums, $pid);
+    $q_attachments = mysqli_query($db_forums, "SELECT `filename`
+                                               FROM `rpcs3_forums`.`mybb_attachments`
+                                               WHERE `pid` = '{$s_pid}'");
+
+    if (is_bool($q_attachments))
+        return "Error while fetching attachments list";
+
+    $attachment_count = 0;
+    $log_detected = false;
+
+    while ($attachment = mysqli_fetch_object($q_attachments))
+    {
+        if (!property_exists($attachment, "filename"))
+            return "Error while fetching attachments list";
+
+        $attachment_count++;
+
+        if (str_ends_with($attachment->filename, ".gz") || str_ends_with($attachment->filename, ".7z"))
+            $log_detected = true;
+    }
+
+    if ($attachment_count === 0)
+        return "No attachments found on post {$post_url}, skipping";
+
+    if (!$log_detected)
+        return "No log file attachments found on post {$post_url}, skipping";
+
+    if ($status_name == "Playable" && $attachment_count < 4)
+        return "Attempted update to Playable with less than 4 attachments on post {$post_url}, only {$attachment_count} uploaded";
+
+    if ($status_name != "Playable" && $attachment_count < 2)
+        return "Attempted update to {$status_name} with less than 2 attachments on post {$post_url}, only {$attachment_count} uploaded";
+
+    return null;
 }
