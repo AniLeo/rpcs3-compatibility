@@ -291,6 +291,50 @@ function compatibilityUpdater() : void
         $a_threads[] = $thread;
     }
 
+    // Get all posts for the fetched threads
+    $posts_by_tid = array();
+    if ($a_threads !== array())
+    {
+        $tids = array();
+        foreach ($a_threads as $thread)
+        {
+            $tids[] = (int) $thread->tid;
+        }
+        $tids = array_values(array_unique($tids));
+        $tids = implode(",", $tids);
+
+        $q_posts = mysqli_query($db_forums, "SELECT `tid`, `pid`, `dateline`, `message`, `username`
+        FROM `rpcs3_forums`.`mybb_posts`
+        WHERE `tid` IN ({$tids}) 
+            AND `dateline` > {$ts_lastupdate}
+        ORDER BY `tid` ASC, `pid` DESC;");
+
+        if (is_bool($q_posts))
+        {
+            print("<b>Error while fetching posts list</b>");
+            mysqli_close($db);
+            mysqli_close($db_forums);
+            return;
+        }
+
+        while ($post = mysqli_fetch_object($q_posts))
+        {
+            if (!property_exists($post, "tid") ||
+                !property_exists($post, "pid") ||
+                !property_exists($post, "dateline") ||
+                !property_exists($post, "message") ||
+                !property_exists($post, "username"))
+            {
+                print("<b>Error while fetching posts list</b>");
+                mysqli_close($db);
+                mysqli_close($db_forums);
+                return;
+            }
+
+            $posts_by_tid[(int) $post->tid][] = $post;
+        }
+    }
+
     // Get all games in the database
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 
@@ -371,29 +415,8 @@ function compatibilityUpdater() : void
             );
 
             // Verify posts
-            $q_post = mysqli_query($db_forums, "SELECT `pid`, `dateline`, `message`, `username`
-            FROM `rpcs3_forums`.`mybb_posts`
-            WHERE `tid` = {$thread->tid}
-            ORDER BY `pid` DESC;");
-
-            if (is_bool($q_post))
+            foreach ($posts_by_tid[(int) $thread->tid] as $post)
             {
-                print("<b>Error while fetching posts list</b>");
-                return;
-            }
-
-            while ($post = mysqli_fetch_object($q_post))
-            {
-                // This should be unreachable unless the database structure is damaged
-                if (!property_exists($post, "pid") ||
-                    !property_exists($post, "dateline") ||
-                    !property_exists($post, "message") ||
-                    !property_exists($post, "username"))
-                {
-                    print("<b>Error while fetching posts list</b>");
-                    return;
-                }
-
                 MyBBThread::remove_post_quotes($post->message);
 
                 foreach ($a_commits as $commit => $value)
@@ -512,29 +535,8 @@ function compatibilityUpdater() : void
             }
 
             // Verify posts
-            $q_post = mysqli_query($db_forums, "SELECT `pid`, `dateline`, `message`, `username`
-                                         FROM `rpcs3_forums`.`mybb_posts`
-                                         WHERE `tid` = {$thread->tid} && `dateline` > {$a_updates[$cur_game->key]['old_date']}
-                                         ORDER BY `pid` DESC;");
-
-            if (is_bool($q_post))
+            foreach ($posts_by_tid[(int) $thread->tid] as $post)
             {
-                print("<b>Error while fetching posts list</b>");
-                return;
-            }
-
-            while ($post = mysqli_fetch_object($q_post))
-            {
-                // This should be unreachable unless the database structure is damaged
-                if (!property_exists($post, "pid") ||
-                    !property_exists($post, "dateline") ||
-                    !property_exists($post, "message") ||
-                    !property_exists($post, "username"))
-                {
-                    print("<b>Error while fetching posts list</b>");
-                    return;
-                }
-
                 MyBBThread::remove_post_quotes($post->message);
 
                 foreach ($a_commits as $commit => $value)
@@ -689,7 +691,6 @@ function compatibilityUpdater() : void
             // Insert new entry on the game list
             mysqli_query($db, "INSERT INTO `game_list` (`build_commit`, `pr`, `version`, `last_update`, `status`, `type`) VALUES
             ('".mysqli_real_escape_string($db, $game['commit'])."',
-            '".mysqli_real_escape_string($db, $game['commit'])."',
             '".mysqli_real_escape_string($db, $game['pr'])."',
             '".mysqli_real_escape_string($db, $game['version'])."',
             '{$game['last_update']}',
