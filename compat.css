@@ -513,7 +513,6 @@ progress[value]::-webkit-progress-value {
     position: relative;
     width: fit-content;
     padding: 6px 10px 6px 10px;
-    margin-bottom: 12px;
     box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
     border: solid 2px #fff;
     border-radius: 6px
@@ -522,6 +521,13 @@ progress[value]::-webkit-progress-value {
 .compat-sort span {
     padding-right: 4px;
     font-weight: bold
+}
+
+.compat-sort-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .builds-hdr-left {
@@ -540,7 +546,7 @@ progress[value]::-webkit-progress-value {
     font-size: 14px;
     float: right;
     width: auto;
-    margin-top: -38px;
+    margin-top: -28px;
     margin-right: 0;
     text-align: right;
     color: #000
