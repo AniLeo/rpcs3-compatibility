@@ -62,8 +62,6 @@ public static function printMonths() : void
     $spacer = "&nbsp;&#8226;&nbsp;&nbsp;";
     $watchdog = '';
 
-    print("<p class=\"compat-history-months\">");
-
     foreach ($a_histdates as $k => $v)
     {
         $month = monthNumberToName((int) substr($k, -2));
@@ -74,7 +72,7 @@ public static function printMonths() : void
             if (!empty($watchdog))
                 print("<br>");
 
-            printf("<strong>%s:</strong>&nbsp;", $year);
+            printf("<span class=\"text-bold\">%s:</span>", $year);
             $watchdog = $year;
         }
 
@@ -87,7 +85,7 @@ public static function printMonths() : void
             print($spacer);
     }
 
-    print("<br><strong>Current:</strong>&nbsp;");
+    print("<br><span class=\"text-bold\">Current:</span>");
 
     $month = monthNumberToName((int) substr($a_currenthist[0], -2));
     $year = substr($a_currenthist[0], 0, 4);
@@ -96,8 +94,6 @@ public static function printMonths() : void
     if ($get['h'] === $a_currenthist[0])
         $html_a_month->set_class("compat-text text-bold text-underline");
     $html_a_month->print();
-
-    print("</p>");
 }
 
 
@@ -108,18 +104,18 @@ public static function printOptions() : void
 {
     global $get, $a_currenthist;
 
+    print("<span class=\"text-bold\">Show:</span>");
+
     $h = $get['h'] !== $a_currenthist[0] ? "={$get['h']}" : "";
-    $spacer = "&nbsp;&#8226;&nbsp;";
+    $spacer = "&nbsp;&#8226;&nbsp;&nbsp;";
 
-    print("<p>");
-
-    $html_a = new HTMLA("?h{$h}", "Show all entries", "Show all entries");
+    $html_a = new HTMLA("?h{$h}", "Show all entries", "All entries");
     if (!isset($get['m']))
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Show only previously existent entries");
+    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Updated entries");
     if (isset($get['m']) && $get['m'] === 'c')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
@@ -129,7 +125,7 @@ public static function printOptions() : void
     $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "Show only new entries");
+    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "New entries");
     if (isset($get['m']) && $get['m'] === 'n')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
@@ -137,8 +133,6 @@ public static function printOptions() : void
     $html_a = new HTMLA("?h{$h}&m=n&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
     $html_a->print();
-
-    print("</p>");
 }
 
 

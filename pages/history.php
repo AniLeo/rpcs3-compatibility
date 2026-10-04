@@ -38,15 +38,27 @@ if (!@include_once(__DIR__."/../includes/inc.history.php")) throw new Exception(
                         Profiler::add_data("Page: Print Description");
                         History::printDescription();
 
-                        Profiler::add_data("Page: Print Options");
-                        History::printOptions();
-
-                        Profiler::add_data("Page: Print Months");
-                        History::printMonths();
                     ?>
                 </div>
 
             </div> <!-- container-con-wrapper -->
+
+            <div class="compat-sort-row">
+                <div class="compat-sort compat-text">
+                    <?php
+                        Profiler::add_data("Page: Print Options");
+                        History::printOptions();
+                    ?>
+                </div>
+            </div>
+            <div class="compat-sort-row">
+                <div class="compat-sort compat-text history-months">
+                    <?php
+                        Profiler::add_data("Page: Print Months");
+                        History::printMonths();
+                    ?>
+                </div>
+            </div>
 
             <?php Profiler::add_data("Page: Print Status Module"); ?>
             <?php History::printStatusModule(); ?>

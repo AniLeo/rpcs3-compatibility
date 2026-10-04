@@ -112,11 +112,6 @@ progress[value]::-webkit-progress-value {
     transform: scale(1.1)
 }
 
-.compat-history-months {
-    font-size: 13px;
-    margin-top: 12px
-}
-
 .compat-footer {
     position: relative;
     width: 100%;
@@ -510,6 +505,7 @@ progress[value]::-webkit-progress-value {
 
 .compat-sort {
     font-size: 14px;
+    line-height: 20px;
     position: relative;
     width: fit-content;
     padding: 6px 10px 6px 10px;
@@ -519,8 +515,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-sort span {
-    padding-right: 4px;
-    font-weight: bold
+    padding-right: 4px
 }
 
 .compat-sort-row {
@@ -528,6 +523,11 @@ progress[value]::-webkit-progress-value {
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 24px;
+}
+
+.history-months {
+    line-height: 28px;
+    font-size: 13px
 }
 
 .builds-hdr-left {
@@ -546,7 +546,7 @@ progress[value]::-webkit-progress-value {
     font-size: 14px;
     float: right;
     width: auto;
-    margin-top: -28px;
+    margin-top: -30px;
     margin-right: 0;
     text-align: right;
     color: #000
@@ -826,7 +826,7 @@ progress[value]::-webkit-progress-value {
 .background-status-5 {
     box-shadow: 0 5px 16px 0 rgb(69 85 86/.4);
     border: solid #455556;
-    color: #455556
+    background: #455556
 }
 
 .color-status-1 {

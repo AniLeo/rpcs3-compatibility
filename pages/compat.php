@@ -50,25 +50,25 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
             <?php Profiler::add_data("Page: Print Type Sort"); ?>
             <div class="compat-sort-row">
                 <div class="compat-sort compat-text">
-                    <span>Application type:</span>
+                    <span class="text-bold">Application type:</span>
                     <?php Compat::printTypeSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
-                    <span>Requires network:</span>
+                    <span class="text-bold">Requires network:</span>
                     <?php Compat::printNetworkSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
-                    <span>Move support:</span>
+                    <span class="text-bold">Move support:</span>
                     <?php Compat::printMoveSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
-                    <span>3D support:</span>
+                    <span class="text-bold">3D support:</span>
                     <?php Compat::print3DSort(); ?>
                 </div>
             </div>
             <div class="compat-sort compat-text">
                 <?php Profiler::add_data("Page: Print Results Per Page"); ?>
-                <span>Results per page:</span>
+                <span class="text-bold">Results per page:</span>
                 <?php Compat::printResultsPerPage(); ?>
             </div>
             <div class="compat-hdr-right">
