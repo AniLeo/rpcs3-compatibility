@@ -211,8 +211,8 @@ public static function printTable() : void
         $additions = !is_null($build->additions) ? $build->additions : "?";
         $deletions = !is_null($build->deletions) ? $build->deletions : "?";
 
-        $html_div_cell->add_content("<span style='color:#4cd137;'>+{$additions}</span>");
-        $html_div_cell->add_content("<span style='color:#e84118; padding-left: {$padding}px;'>-{$deletions}</span>");
+        $html_div_cell->add_content("<span class=\"color-green\">+{$additions}</span>");
+        $html_div_cell->add_content("<span class=\"color-red\" style='padding-left: {$padding}px;'>-{$deletions}</span>");
         $html_div_cell->print();
 
 
