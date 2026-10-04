@@ -20,10 +20,7 @@ progress {
     height: 18px
 }
 
-progress[value]::-webkit-progress-bar {
-    border-radius: 24px
-}
-
+progress[value]::-webkit-progress-bar,
 progress[value]::-webkit-progress-value {
     border-radius: 24px
 }
@@ -66,7 +63,6 @@ progress[value]::-webkit-progress-value {
     top: 9px;
     width: 14px;
     height: 14px;
-    left: 0;
     margin-left: 4px;
     background: #fff;
     padding: 7px;
@@ -91,7 +87,6 @@ progress[value]::-webkit-progress-value {
     position: absolute;
     top: 9px;
     right: 0;
-    float: right;
     width: 400px;
     height: 18px;
     padding-right: 10px;
@@ -127,7 +122,6 @@ progress[value]::-webkit-progress-value {
 .compat-footer p {
     font-size: 14px;
     line-height: 46px;
-    padding-bottom: 10px
 }
 
 .compat-footer a {
@@ -178,17 +172,16 @@ progress[value]::-webkit-progress-value {
     color: #000;
     margin-bottom: 2px;
     display: flex;
-    background: rgba(0,102,204,.02)
+    background: rgba(0,102,204,.02);
+    border-radius: 6px
 }
 
 .compat-table-row:nth-child(2n) {
     background: rgba(0,102,204,.06);
-    border-radius: 6px
 }
 
 .compat-table-row:hover {
     background-color: rgba(0,102,204,.1);
-    border-radius: 6px
 }
 
 .compat-table-cell {
@@ -304,7 +297,6 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-search-outer {
-    left: 0;
     width: 100%;
     height: 48px;
     padding: 0;
@@ -395,7 +387,6 @@ progress[value]::-webkit-progress-value {
 
 .searchbox {
     position: absolute;
-    float: left;
     width: 100%;
     height: 100%;
     overflow: hidden
@@ -413,10 +404,6 @@ progress[value]::-webkit-progress-value {
     background: rgba(122,179,255,.01);
     transition: .1s ease-in-out;
     outline-color: transparent;
-    cursor: pointer
-}
-
-.searchbox:hover input {
     cursor: pointer
 }
 
@@ -454,7 +441,6 @@ progress[value]::-webkit-progress-value {
     position: absolute;
     left: 0;
     top: -4px;
-    float: left;
     width: 52px;
     height: 52px;
     color: #fff;
@@ -496,8 +482,6 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-con-pages a:hover {
-    width: 22px;
-    border: solid 2px transparent!important;
     text-decoration: none!important;
     color: #fff!important;
     background: #0074e7!important
@@ -528,18 +512,6 @@ progress[value]::-webkit-progress-value {
 .history-months {
     line-height: 28px;
     font-size: 13px
-}
-
-.builds-hdr-left {
-    font-size: 14px;
-    line-height: 35px;
-    position: relative;
-    width: 310px;
-    margin-top: -15px;
-    text-align: left;
-    color: #000;
-    font-weight: 700;
-    margin-bottom: 10px
 }
 
 .compat-hdr-right {
@@ -634,7 +606,6 @@ progress[value]::-webkit-progress-value {
     height: 15px;
     padding: 5px 4px;
     text-align: center;
-    text-transform: none;
     color: #fff!important;
     border-radius: 6px
 }
@@ -646,11 +617,8 @@ progress[value]::-webkit-progress-value {
     direction: rtl;
     vertical-align: 4px;
     overflow: hidden;
-    border-radius: 24px
-}
-
-.compat-status-progressbar {
-    --progress-color: transparent;
+    border-radius: 24px;
+    --progress-color: transparent
 }
 
 #compat-progress1 {
@@ -697,7 +665,6 @@ progress[value]::-webkit-progress-value {
         grid-template-columns: repeat(15,1fr);
         grid-template-rows: 50% 50%;
         height: 60px;
-        gap: 0;
         border-radius: 10px;
     }
 
@@ -717,8 +684,7 @@ progress[value]::-webkit-progress-value {
         display: flex;
         gap: 2%;
         float: none;
-        margin: 0;
-        margin-top: 20px
+        margin: 20px 0 0
     }
 
     .compat-hdr-right {
@@ -906,7 +872,6 @@ progress[value]::-webkit-progress-value {
 }
 
 .debug-main-content button:hover {
-    background: #2f3a65;
     border: solid 2px #0080ff
 }
 
@@ -919,7 +884,6 @@ progress[value]::-webkit-progress-value {
     display: inline-block;
     box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
     border: solid 2px #fff;
-    border-radius: 6px;
     font-weight: bold
 }
 
