@@ -209,12 +209,39 @@ public static function printMoveSort() : void
 }
 
 
+public static function print3DSort() : void
+{
+    global $get;
+
+    $http_query = new HTTPQuery($get);
+    $s_query = $http_query->get_except(array("3D"));
+
+    $defined = array_key_exists("3D", $get);
+
+    // All statuses
+    $html_a = new HTMLA("?{$s_query}", "Show all applications", "All");
+    if (!$defined || $get['3D'] === 0)
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+
+    print("•&nbsp;");
+
+    if (!empty($s_query))
+        $s_query .= "&";
+
+    $html_a = new HTMLA("?{$s_query}3D=1", "Only show games with 3D support", "Yes");
+    if ($defined && $get['3D'] === 1)
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+}
+
+
 public static function printTypeSort() : void
 {
     global $get;
 
     $http_query = new HTTPQuery($get);
-    $s_query = $http_query->get_except(array("status", "type", "3d"));
+    $s_query = $http_query->get_except(array("status", "type", "3D"));
 
     $html_a_games = new HTMLA("?{$s_query}", "Only show PS3 Games", "PS3 Games");
     if ($get['type'] === 1)

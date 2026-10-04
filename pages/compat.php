@@ -54,13 +54,17 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
                     <?php Compat::printTypeSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
+                    <span>Requires network:</span>
+                    <?php Compat::printNetworkSort(); ?>
+                </div>
+                <div class="compat-sort compat-text">
                     <span>Move support:</span>
                     <?php Compat::printMoveSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
-                    <span>Requires network:</span>
-                    <?php Compat::printNetworkSort(); ?>
-                </div>    
+                    <span>3D support:</span>
+                    <?php Compat::print3DSort(); ?>
+                </div>
             </div>
             <div class="compat-sort compat-text">
                 <?php Profiler::add_data("Page: Print Results Per Page"); ?>
