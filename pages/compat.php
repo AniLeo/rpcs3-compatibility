@@ -47,7 +47,7 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
 
             </div> <!-- container-con-wrapper -->
 
-            <?php Profiler::add_data("Page: Print Type Sort"); ?>
+            <?php Profiler::add_data("Page: Print Search Filters"); ?>
             <div class="compat-sort-row">
                 <div class="compat-sort compat-text">
                     <span class="text-bold">Application type:</span>
@@ -67,12 +67,10 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
                 </div>
             </div>
             <div class="compat-sort compat-text">
-                <?php Profiler::add_data("Page: Print Results Per Page"); ?>
                 <span class="text-bold">Results per page:</span>
                 <?php Compat::printResultsPerPage(); ?>
             </div>
             <div class="compat-hdr-right">
-                <?php Profiler::add_data("Page: Print Status Sort"); ?>
                 <?php Compat::printStatusSort(); ?>
             </div>
 

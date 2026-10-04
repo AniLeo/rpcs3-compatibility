@@ -85,18 +85,21 @@ class Profiler
         }
 
         if (PHP_OS_FAMILY !== "Windows")
-        {
+        {        
             $load = sys_getloadavg();
 
-            // If there is an issue with the sys_getloadavg function
-            if (!$load)
-                return "";
+            $cpuinfo = file_get_contents("/proc/cpuinfo");
+            if ($cpuinfo !== false && $load !== false)
+            {
+                preg_match_all('/^processor/m', $cpuinfo, $matches);
+                $cpu_count = count($matches[0]);
 
-            $ret .= "<span>";
-            $ret .= sprintf("<b>Load (1m):</b>  %.2f<br>", $load[0]);
-            $ret .= sprintf("<b>Load (5m):</b>  %.2f<br>", $load[1]);
-            $ret .= sprintf("<b>Load (15m):</b> %.2f<br>", $load[2]);
-            $ret .= "</span>";
+                $ret .= "<span>";
+                $ret .= sprintf("<b>CPU Load (1m):</b>  %.2f%%<br>", $load[0] / $cpu_count * 100);
+                $ret .= sprintf("<b>CPU Load (5m):</b>  %.2f%%<br>", $load[1] / $cpu_count * 100);
+                $ret .= sprintf("<b>CPU Load (15m):</b> %.2f%%<br>", $load[2] / $cpu_count * 100);
+                $ret .= "</span>";
+            }
 
             // Include total/available meminfo if readable
             $meminfo = file_get_contents("/proc/meminfo");
@@ -137,7 +140,7 @@ class Profiler
             $ret .= "<span>".PHP_EOL;
             for ($i = 0; $i < $size - 1; $i++)
             {
-                $ret .= sprintf("%.5f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
+                $ret .= sprintf("%.3f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
                                 self::$time[$i+1] - self::$time[$i],
                                 /*self::$mem[$i+1] - self::$mem[$i],*/
                                 self::$desc[$i]);
