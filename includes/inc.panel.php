@@ -22,6 +22,7 @@ if (!@include_once(__DIR__."/../functions.php"))            throw new Exception(
 if (!@include_once(__DIR__."/../objects/Game.php"))         throw new Exception("Compat: Failed to include objects/Game.php");
 if (!@include_once(__DIR__."/../objects/Build.php"))        throw new Exception("Compat: Failed to include objects/Build.php");
 if (!@include_once(__DIR__."/../objects/MyBBThread.php"))   throw new Exception("Compat: Failed to include objects/MyBBThread.php");
+if (!@include_once(__DIR__."/../objects/MyBBPost.php"))     throw new Exception("Compat: Failed to include objects/MyBBPost.php");
 if (!@include_once(__DIR__."/../services/Compat.php"))      throw new Exception("Compat: Failed to include services/Compat.php");
 if (!@include_once(__DIR__."/../services/GitHub.php"))      throw new Exception("Compat: Failed to include services/GitHub.php");
 if (!@include_once(__DIR__."/../services/PlayStation.php")) throw new Exception("Compat: Failed to include services/PlayStation.php");
@@ -191,6 +192,11 @@ function compatibilityUpdater() : void
     reset($a_histdates);
     $ts_lastupdate = strtotime("{$a_histdates[$lastkey][0]['y']}-{$a_histdates[$lastkey][0]['m']}-{$a_histdates[$lastkey][0]['d']}");
 
+    if (is_bool($ts_lastupdate))
+    {
+        return;
+    }
+
     // Generate WHERE condition for our query
     // Includes all forum IDs for the game status sections
     $where = '';
@@ -235,104 +241,20 @@ function compatibilityUpdater() : void
                                          "merge" => $row->merge_datetime);
     }
 
-    // Get all threads since the end of the last compatibility period
-    $a_threads = array();
-    $q_threads = mysqli_query($db_forums, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
-    FROM `rpcs3_forums`.`mybb_threads`
-    WHERE ({$where}) AND
-    `lastpost` > {$ts_lastupdate} AND
-    `visible` > 0 AND
-    `closed` NOT LIKE 'moved%';");
-
-    if (is_bool($q_threads))
+    $a_threads = fetch_compatibility_threads($db_forums, $where, $ts_lastupdate);
+    if (is_null($a_threads))
     {
-        print("<b>Error while fetching the threads list</b>");
+        mysqli_close($db);
+        mysqli_close($db_forums);
         return;
     }
 
-    while ($row = mysqli_fetch_object($q_threads))
+    $a_posts = fetch_compatibility_posts($db_forums, $a_threads, $ts_lastupdate);
+    if (is_null($a_posts))
     {
-        // This should be unreachable unless the database structure is damaged
-        if (!property_exists($row, "tid") ||
-            !property_exists($row, "fid") ||
-            !property_exists($row, "subject") ||
-            !property_exists($row, "lastpost") ||
-            !property_exists($row, "visible"))
-        {
-            continue;
-        }
-
-        $thread = new MyBBThread($row->tid, $row->fid, $row->subject);
-        $html_subject = htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
-        // Invalid Game ID
-        if (is_null($thread->get_game_id()) || is_null($thread->get_game_title()))
-        {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
-            $html_a->set_target("_blank");
-
-            printf("<span style='color:red'>Error! Invalid new thread found. See: %s.<br><br></span>",
-                   $html_a->to_string());
-            continue;
-        }
-        // Thread with negative visibility (unapproved, deleted)
-        else if ($row->visible <= 0)
-        {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
-            $html_a->set_target("_blank");
-
-            printf("<span style='color:red'>Error! The new thread for %s is not visible (%s). See: %s.<br><br></span>",
-                   $thread->get_game_id(),
-                   $row->visible,
-                   $html_a->to_string());
-            continue;
-        }
-
-        $a_threads[] = $thread;
-    }
-
-    // Get all posts for the fetched threads
-    $posts_by_tid = array();
-    if ($a_threads !== array())
-    {
-        $tids = array();
-        foreach ($a_threads as $thread)
-        {
-            $tids[] = (int) $thread->tid;
-        }
-        $tids = array_values(array_unique($tids));
-        $tids = implode(",", $tids);
-
-        $q_posts = mysqli_query($db_forums, "SELECT `tid`, `pid`, `dateline`, `message`, `username`
-        FROM `rpcs3_forums`.`mybb_posts`
-        WHERE `tid` IN ({$tids}) 
-            AND `dateline` > {$ts_lastupdate}
-        ORDER BY `tid` ASC, `pid` DESC;");
-
-        if (is_bool($q_posts))
-        {
-            print("<b>Error while fetching posts list</b>");
-            mysqli_close($db);
-            mysqli_close($db_forums);
-            return;
-        }
-
-        while ($post = mysqli_fetch_object($q_posts))
-        {
-            if (!property_exists($post, "tid") ||
-                !property_exists($post, "pid") ||
-                !property_exists($post, "dateline") ||
-                !property_exists($post, "message") ||
-                !property_exists($post, "username"))
-            {
-                print("<b>Error while fetching posts list</b>");
-                mysqli_close($db);
-                mysqli_close($db_forums);
-                return;
-            }
-
-            $posts_by_tid[(int) $post->tid][] = $post;
-        }
+        mysqli_close($db);
+        mysqli_close($db_forums);
+        return;
     }
 
     // Get all games in the database
@@ -415,7 +337,7 @@ function compatibilityUpdater() : void
             );
 
             // Verify posts
-            foreach ($posts_by_tid[(int) $thread->tid] as $post)
+            foreach ($a_posts[(int) $thread->tid] as $post)
             {
                 MyBBThread::remove_post_quotes($post->message);
 
@@ -535,7 +457,7 @@ function compatibilityUpdater() : void
             }
 
             // Verify posts
-            foreach ($posts_by_tid[(int) $thread->tid] as $post)
+            foreach ($a_posts[(int) $thread->tid] as $post)
             {
                 MyBBThread::remove_post_quotes($post->message);
 
@@ -553,7 +475,7 @@ function compatibilityUpdater() : void
                     if (is_null($a_updates[$cur_game->key]['commit']) ||
                         strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
                     {
-                        $s_pid = mysqli_real_escape_string($db_forums, $post->pid);
+                        $s_pid = mysqli_real_escape_string($db_forums, (string) $post->pid);
                         $q_attachments = mysqli_query($db_forums, "SELECT `filename`
                                                             FROM `rpcs3_forums`.`mybb_attachments`
                                                             WHERE `pid` = '{$s_pid}'");
@@ -1203,4 +1125,118 @@ function check_report_attachments(mysqli $db_forums, string $pid, string $post_u
         return "Attempted update to {$status_name} with less than 2 attachments on post {$post_url}, only {$attachment_count} uploaded";
 
     return null;
+}
+
+/**
+ * @return array<MyBBThread>|null
+ */
+function fetch_compatibility_threads(mysqli $db_forums, string $where, int $ts_lastupdate) : ?array
+{
+    $a_threads = array();
+    $q_threads = mysqli_query($db_forums, "SELECT `tid`, `fid`, `subject`, `lastpost`, `visible`
+    FROM `rpcs3_forums`.`mybb_threads`
+    WHERE ({$where}) AND
+    `lastpost` > {$ts_lastupdate} AND
+    `visible` > 0 AND
+    `closed` NOT LIKE 'moved%';");
+
+    if (is_bool($q_threads))
+    {
+        print("<b>Error while fetching the threads list</b>");
+        return null;
+    }
+
+    while ($row = mysqli_fetch_object($q_threads))
+    {
+        if (!property_exists($row, "tid") ||
+            !property_exists($row, "fid") ||
+            !property_exists($row, "subject") ||
+            !property_exists($row, "lastpost") ||
+            !property_exists($row, "visible"))
+        {
+            continue;
+        }
+
+        $thread = new MyBBThread($row->tid, $row->fid, $row->subject);
+        $html_subject = htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+        if (is_null($thread->get_game_id()) || is_null($thread->get_game_title()))
+        {
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
+            $html_a->set_target("_blank");
+
+            printf("<span style='color:red'>Error! Invalid new thread found. See: %s.<br><br></span>",
+                   $html_a->to_string());
+            continue;
+        }
+        else if ($row->visible <= 0)
+        {
+            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
+            $html_a->set_target("_blank");
+
+            printf("<span style='color:red'>Error! The new thread for %s is not visible (%s). See: %s.<br><br></span>",
+                   $thread->get_game_id(),
+                   $row->visible,
+                   $html_a->to_string());
+            continue;
+        }
+
+        $a_threads[] = $thread;
+    }
+
+    return $a_threads;
+}
+
+/**
+ * @param array<int, MyBBThread> $a_threads
+ * @return array<int, array<MyBBPost>>|null
+ */
+function fetch_compatibility_posts(mysqli $db_forums, array $a_threads, int $ts_lastupdate) : ?array
+{
+    $posts_by_tid = array();
+
+    if ($a_threads === array())
+        return $posts_by_tid;
+
+    $tids = array();
+    foreach ($a_threads as $thread)
+    {
+        $tids[] = (int) $thread->tid;
+    }
+    $tids = implode(",", array_values(array_unique($tids)));
+
+    $q_posts = mysqli_query($db_forums, "SELECT `tid`, `pid`, `dateline`, `message`, `username`
+    FROM `rpcs3_forums`.`mybb_posts`
+    WHERE `tid` IN ({$tids})
+        AND `dateline` > {$ts_lastupdate}
+    ORDER BY `tid` ASC, `pid` DESC;");
+
+    if (is_bool($q_posts))
+    {
+        print("<b>Error while fetching posts list</b>");
+        return null;
+    }
+
+    while ($post = mysqli_fetch_object($q_posts))
+    {
+        if (!property_exists($post, "tid") ||
+            !property_exists($post, "pid") ||
+            !property_exists($post, "dateline") ||
+            !property_exists($post, "message") ||
+            !property_exists($post, "username"))
+        {
+            print("<b>Error while fetching posts list</b>");
+            return null;
+        }
+
+        $posts_by_tid[(int) $post->tid][] = new MyBBPost(
+            (int) $post->tid,
+            (int) $post->pid,
+            (int) $post->dateline,
+            (string) $post->message,
+            (string) $post->username
+        );
+    }
+
+    return $posts_by_tid;
 }
