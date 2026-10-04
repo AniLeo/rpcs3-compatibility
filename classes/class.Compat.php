@@ -356,7 +356,7 @@ public static function printTable() : void
     }
     else if (isset($l_orig) && isset($l_title))
     {
-        $html_a = new HTMLA("?g=".urlencode($l_title), $l_title, htmlspecialchars($l_title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        $html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
 
         printf("<p class=\"compat-tx1-criteria\">No results found for <i>%s</i>.<br>Displaying results for <b>%s</b></p>", 
                htmlspecialchars($l_orig, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
@@ -444,6 +444,7 @@ public static function printTable() : void
         $html_a_3d->set_img($html_img_3d);
     }
 
+    
     // Print table body
     foreach ($games as $game)
     {
@@ -508,7 +509,8 @@ public static function printTable() : void
         }
         else
         {
-            $html_div_cell->add_content($game->title());
+            $title = htmlspecialchars($game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_div_cell->add_content($title);
         }
         if ($game->network === 1)
         {
@@ -524,7 +526,8 @@ public static function printTable() : void
         }
         foreach ($game->other_titles() as $title)
         {
-            $html_div_cell->add_content("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;({$title})");
+            $title = htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $html_div_cell->add_content("<br><span class=\"compat-other-titles\">({$title})</span>");
         }
 
         $html_div_cell->print();
@@ -607,15 +610,9 @@ public static function printTable() : void
             $changelog = htmlspecialchars($changelog, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
 
             // Replace DOS/Unix line-breaks with HTML line-breaks
-            $changelog = mb_ereg_replace("\r?\n|\r", '<br>', $changelog);
-            while (!empty($changelog) && str_contains($changelog, "<br><br>"))
-            {
-                $changelog = mb_ereg_replace("<br><br>", "<br>", $changelog);
-            }
-            while (!empty($changelog) && str_ends_with($changelog, "<br>"))
-            {
-                $changelog = substr($changelog, 0, -4);
-            }
+            $changelog = preg_replace("/\r\n|\r|\n/", '<br>', $changelog) ?? '';
+            $changelog = preg_replace('/(?:<br>)+/', '<br>', $changelog) ?? '';
+            $changelog = preg_replace('/^(?:<br>)+|(?:<br>)+$/', '', $changelog) ?? '';
 
             printf("<i>%s</i>", $changelog);
         } 
@@ -674,9 +671,7 @@ public static function printStatusModule() : void
 
         // Status, percentage, description
         $html_div_text = new HTMLDiv("compat-status-text");
-        $html_div_text->add_content("<span style='color:#{$status['color']}'>");
-        $html_div_text->add_content("<strong>{$status['name']} ({$percentage}%): </strong>");
-        $html_div_text->add_content("</span>");
+        $html_div_text->add_content("<span class=\"color-status-{$id} text-bold\">{$status['name']} ({$percentage}%): </span>");
         $html_div_text->add_content($status['desc']);
         $html_div_main->add_content($html_div_text->to_string());
 

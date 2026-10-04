@@ -646,7 +646,7 @@ function getFooter() : string
     // Debug output
     if (!is_null($get['w']))
     {
-        $html_div = new HTMLDiv("compat-profiler");
+        $html_div = new HTMLDiv("compat-profiler compat-text");
 
         // Maintenance mode information
         if ($c_maintenance)
