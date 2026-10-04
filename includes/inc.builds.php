@@ -67,7 +67,7 @@ if (isset($get['g']))
 // Calculate pages and current page
 Profiler::add_data("Inc: Count Pages");
 $pages = 1;
-$q_pages = mysqli_query($db, "SELECT count(*) AS `c` FROM `builds` {$where}");
+$q_pages = mysqli_query($db, "SELECT count(pr) AS `c` FROM `builds` {$where}");
 if (!is_bool($q_pages))
 {
     $row = mysqli_fetch_object($q_pages);
@@ -83,7 +83,17 @@ $currentPage = getCurrentPage($pages);
 
 // Main query
 Profiler::add_data("Inc: Execute Main Query");
-$c_builds = "SELECT * FROM `builds` {$where} {$order} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$c_builds = "SELECT `pr`, `commit`, `version`, `author`, `merge_datetime`,
+                    `additions`, `deletions`, `changed_files`,
+                    `filename_win`, `checksum_win`, `size_win`,
+                    `filename_linux`, `checksum_linux`, `size_linux`,
+                    `filename_mac`, `checksum_mac`, `size_mac`,
+                    `filename_win_arm64`, `checksum_win_arm64`, `size_win_arm64`,
+                    `filename_linux_arm64`, `checksum_linux_arm64`, `size_linux_arm64`,
+                    `filename_mac_arm64`, `checksum_mac_arm64`, `size_mac_arm64`,
+                    `broken`, `title` 
+            FROM `builds` {$where} {$order} 
+            LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $q_builds = mysqli_query($db, $c_builds);
 
 // Disconnect from database
