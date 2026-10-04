@@ -598,36 +598,72 @@ public static function printTable() : void
 
         // Update information
         $changelog = "";
-        $has_updates = false;
+        $groups = array();
 
         foreach ($game->game_item as $item)
         {
             foreach ($item->tags as $tag)
             {
-                if ($has_updates)
-                    print("<hr>");
-                else
-                    $has_updates = true;
-                
-                printf("<p>Available updates for <b>%s</b>, latest patchset %s:<br>", 
-                       $item->game_id, 
-                       substr($tag->tag_id, 10));
+                $lines = array();
+                $signature = array();
 
                 foreach ($tag->packages as $package)
                 {
-                    printf("- <b>Update v%s</b> (%.2f MB)<br>", 
-                           $package->version, 
-                           $package->get_size_mb());
+                    $lines[] = sprintf("- <b>Update v%s</b> (%.2f MB)", $package->version, $package->get_size_mb());
+                    $signature[] = $package->version.'|'.sprintf("%.2f", $package->get_size_mb());
 
-                    if (!is_null($package->get_main_changelog()) && 
-                        !str_contains($changelog, $package->get_main_changelog()))
-                    {
-                        $changelog .= $package->get_main_changelog();
-                    }
+                    $main_changelog = $package->get_main_changelog();
+                    if (!is_null($main_changelog) && !str_contains($changelog, $main_changelog))
+                        $changelog .= $main_changelog;
                 }
 
-                print("</p>");
+                if (empty($lines))
+                    continue;
+
+                $key = implode("\n", $signature);
+                if (!isset($groups[$key]))
+                    $groups[$key] = array('lines' => $lines, 'entries' => array());
+
+                $groups[$key]['entries'][] = array(
+                    'game_id' => $item->game_id,
+                    'patchset' => substr($tag->tag_id, 10)
+                );
             }
+        }
+
+        $has_updates = !empty($groups);
+        $first = true;
+
+        foreach ($groups as $group)
+        {
+            if (!$first)
+                print("<hr>");
+            $first = false;
+
+            $patchsets = array();
+            foreach ($group['entries'] as $entry)
+                $patchsets[$entry['patchset']] = true;
+
+            print("<div>");
+            if (count($patchsets) === 1)
+            {
+                $ids = array();
+                foreach ($group['entries'] as $entry)
+                    $ids[] = "<b>".htmlspecialchars($entry['game_id'])."</b>";
+
+                printf("Available updates for %s, latest patchset %s:<br>", implode(", ", $ids), htmlspecialchars((string) array_key_first($patchsets)));
+            }
+            else
+            {
+                $parts = array();
+                foreach ($group['entries'] as $entry)
+                    $parts[] = sprintf("<b>%s</b> (%s)", htmlspecialchars($entry['game_id']), htmlspecialchars($entry['patchset']));
+
+                printf("Available updates for %s:<br>", implode(", ", $parts));
+            }
+
+            print(implode("<br>", $group['lines']));
+            print("</div>");
         }
 
         if (!empty($changelog))
@@ -635,17 +671,15 @@ public static function printTable() : void
             print("<br>");
 
             $changelog = htmlspecialchars($changelog, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
-            // Replace DOS/Unix line-breaks with HTML line-breaks
             $changelog = preg_replace("/\r\n|\r|\n/", '<br>', $changelog) ?? '';
             $changelog = preg_replace('/(?:<br>)+/', '<br>', $changelog) ?? '';
             $changelog = preg_replace('/^(?:<br>)+|(?:<br>)+$/', '', $changelog) ?? '';
 
-            printf("<i>%s</i>", $changelog);
-        } 
+            printf("<div><i>%s</i></div>", $changelog);
+        }
         else if (!$has_updates)
         {
-            print("<p>This game entry contains no available game updates</p>");
+            print("<div>This game entry contains no available game updates</div>");
         }
 
         print("</div>");
