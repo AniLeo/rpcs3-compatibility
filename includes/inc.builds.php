@@ -47,10 +47,27 @@ else
 Profiler::add_data("Inc: Database Connection");
 $db = get_database("compat");
 
+// Searchbox: PR number or version string
+$where = "";
+if (isset($get['g']))
+{
+    $search = mysqli_real_escape_string($db, (string) $get['g']);
+
+    if (ctype_digit((string) $get['g']))
+    {
+        $pr = (int) $get['g'];
+        $where = "WHERE (`pr` = {$pr} OR `version` LIKE '%{$search}%')";
+    }
+    else
+    {
+        $where = "WHERE `version` LIKE '%{$search}%'";
+    }
+}
+
 // Calculate pages and current page
 Profiler::add_data("Inc: Count Pages");
 $pages = 1;
-$q_pages = mysqli_query($db, "SELECT count(*) AS `c` FROM `builds`");
+$q_pages = mysqli_query($db, "SELECT count(*) AS `c` FROM `builds` {$where}");
 if (!is_bool($q_pages))
 {
     $row = mysqli_fetch_object($q_pages);
@@ -66,7 +83,7 @@ $currentPage = getCurrentPage($pages);
 
 // Main query
 Profiler::add_data("Inc: Execute Main Query");
-$c_builds = "SELECT * FROM `builds` {$order} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
+$c_builds = "SELECT * FROM `builds` {$where} {$order} LIMIT ".($get['r']*$currentPage-$get['r']).", {$get['r']}; ";
 $q_builds = mysqli_query($db, $c_builds);
 
 // Disconnect from database
@@ -84,7 +101,7 @@ if (is_bool($q_builds))
 }
 elseif (mysqli_num_rows($q_builds) === 0)
 {
-    $error = "No builds are listed yet.";
+    $error = isset($get['g']) ? "No builds found for the selected search criteria." : "No builds are listed yet.";
 }
 else
 {

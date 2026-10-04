@@ -51,6 +51,19 @@ if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("
                 </div>
             </div>
 
+            <?php Profiler::add_data("Page: Print Searchbox"); ?>
+            <div class="compat-con-searchbox">
+                <form method="get" id="builds-search" action="#jump">
+                    <input type="hidden" name="b" value="">
+                    <div class="searchbox">
+                        <input name="g" type="text" value="<?php if (isset($get['g'])) print(htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8')); ?>" placeholder="PR / Version" />
+                    </div>
+                    <div class="compat-searchbox-div">
+                        <button type="submit" form="builds-search"></button>
+                    </div>
+                </form>
+            </div>
+
         </div> <!-- container-con-block -->
 
         <?php
