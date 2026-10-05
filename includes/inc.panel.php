@@ -238,7 +238,7 @@ function compatibilityUpdater() : void
 
         $a_commits[$row->commit] = array("pr" => $row->pr, 
                                          "version" => $row->version, 
-                                         "merge" => $row->merge_datetime);
+                                         "merge" => date('Y-m-d', strtotime($row->merge_datetime)));
     }
 
     $a_threads = fetch_compatibility_threads($db_forums, $where, $ts_lastupdate);
@@ -273,8 +273,12 @@ function compatibilityUpdater() : void
     $a_updates = array();
     // Visited Game IDs
     $a_gameIDs = array();
+    // Printed after the scan
+    $log_warn = "";
+    $log_new = "";
+    $log_mov = "";
 
-    print("<p>"); // Start paragraph
+    print("<div class=\"compat-text\">"); // Start log
 
     foreach ($a_threads as $thread)
     {
@@ -384,7 +388,7 @@ function compatibilityUpdater() : void
 
             if (!is_null($attachment_warning))
             {
-                printf("<b>Warning:</b> %s<br><br>", $attachment_warning);
+                $log_warn .= sprintf("<div><b>Warning:</b> %s</div>", $attachment_warning);
                 unset($a_inserts[$thread->tid]);
                 continue;
             }
@@ -392,21 +396,21 @@ function compatibilityUpdater() : void
             // Valid report found
             $version       = $a_inserts[$thread->tid]['version'];
             $commit        = $a_inserts[$thread->tid]['commit'];
-            $date_commit   = "({$a_commits[$commit]["merge"]})";
+            $date_commit   = $a_commits[$commit]["merge"];
 
-            printf("<b>New:</b> %s (tid: %s, author: %s, type: %s)<br>",
-                   htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                   $html_a->to_string(),
-                   htmlspecialchars($a_inserts[$thread->tid]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                   $thread->get_game_type_name());
-            printf("- Status: <span style='color:#%s'>%s (%s)</span><br>",
-                   $a_status[$thread->get_sid()]['color'],
-                   $a_status[$thread->get_sid()]['name'],
-                   $a_inserts[$thread->tid]['last_update']);
-            printf("- Version: <span style='color:green'>%s</span> %s<br>",
-                   $version,
-                   $date_commit);
-            print("<br>");
+            $log_new .= sprintf("<div><b>New:</b> %s (tid: %s, author: %s, type: %s)<br>",
+                                htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                                $html_a->to_string(),
+                                htmlspecialchars($a_inserts[$thread->tid]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                                $thread->get_game_type_name());
+            $log_new .= sprintf("- Status: <span style='color:#%s'>%s (%s)</span><br>",
+                                $a_status[$thread->get_sid()]['color'],
+                                $a_status[$thread->get_sid()]['name'],
+                                $a_inserts[$thread->tid]['last_update']);
+            $log_new .= sprintf("- Version: <span class='color-green'>%s</span> (%s)<br>",
+                                $version,
+                                $date_commit);
+            $log_new .= "</div>";
 
         }
         // TODO: Distinguish different game ID / thread IDs within the update object
@@ -476,27 +480,6 @@ function compatibilityUpdater() : void
                         strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) < strtotime($value["merge"]))
                     {
                         $s_pid = mysqli_real_escape_string($db_forums, (string) $post->pid);
-                        $q_attachments = mysqli_query($db_forums, "SELECT `filename`
-                                                            FROM `rpcs3_forums`.`mybb_attachments`
-                                                            WHERE `pid` = '{$s_pid}'");
-
-                        if (is_bool($q_attachments))
-                        {
-                            print("<b>Error while fetching attachments list</b>");
-                            return;
-                        }
-
-                        while ($attachment = mysqli_fetch_object($q_attachments))
-                        {
-                            if (!property_exists($attachment, "filename"))
-                            {
-                                print("<b>Error while fetching attachments list</b>");
-                                return;
-                            }
-
-                            $a_updates[$cur_game->key]['attachments'][] = $attachment->filename;
-                        }
-
                         $a_updates[$cur_game->key]['thread']->set_post_id($post->pid);
                         $a_updates[$cur_game->key]['commit'] = (string) $commit;
                         $a_updates[$cur_game->key]['pr'] = $value["pr"];
@@ -515,7 +498,6 @@ function compatibilityUpdater() : void
             if (is_null($a_updates[$cur_game->key]['commit']) ||
                 is_null($a_updates[$cur_game->key]['pr']) ||
                 is_null($a_updates[$cur_game->key]['version']) ||
-                is_null($a_updates[$cur_game->key]['last_update']) ||
                 /*!str_starts_with(($a_updates[$cur_game->key]['last_update']), "2025-10") ||*/
                 strtotime($cur_game->date) >= strtotime($a_updates[$cur_game->key]['last_update']))
             {
@@ -537,7 +519,7 @@ function compatibilityUpdater() : void
 
             if (!is_null($attachment_warning))
             {
-                printf("<b>Warning:</b> %s<br><br>", $attachment_warning);
+                $log_warn .= sprintf("<div><b>Warning:</b> %s</div>", $attachment_warning);
                 unset($a_updates[$cur_game->key]);
                 continue;
             }
@@ -545,8 +527,8 @@ function compatibilityUpdater() : void
             // Check if the distance between commit date and post is bigger than 4 weeks
             if (strtotime($a_updates[$cur_game->key]['last_update']) - strtotime($a_commits[$a_updates[$cur_game->key]['commit']]["merge"]) > 4 * 604804)
             {
-                printf("<b>Warning:</b> Distance between commit and post dates bigger than 4 weeks on post %s<br><br>",
-                       $html_a->to_string());
+                $log_warn .= sprintf("<div><b>Warning:</b> Distance between commit and post dates bigger than 4 weeks on post %s</div>",
+                                      $html_a->to_string());
             }
 
             // Green for existing commit, Red for non-existing commit
@@ -556,30 +538,48 @@ function compatibilityUpdater() : void
             $date_commit       = "({$a_commits[$commit]["merge"]})";
             $old_version        = !is_null($cur_game->version) ? $cur_game->version : "null";
 
-            printf("<b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
-                   $thread->get_game_id(),
-                   htmlspecialchars($cur_game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), 
-                   $html_a->to_string(),
-                   htmlspecialchars($a_updates[$cur_game->key]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                   $thread->get_game_type_name());
-            printf("- Status: <span style='color:#%s'>%s (%s)</span> <-- <span style='color:#%s'>%s (%s)</span><br>",
-                   $a_status[$thread->get_sid()]['color'],
-                   $a_status[$thread->get_sid()]['name'],
-                   $a_updates[$cur_game->key]['last_update'],
-                   $a_status[$cur_game->status]['color'],
-                   $a_status[$cur_game->status]['name'],
-                   $cur_game->date);
-            printf("- Version: <span class='color-green'>%s</span> %s <-- <span class='%s'>%s</span> (%s)<br>",
-                   $version,
-                   $date_commit,
-                   $old_status_commit,
-                   $old_version,
-                   $cur_game->date);
-            print("<br>");
+            $log_mov .= sprintf("<div><b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
+                                $thread->get_game_id(),
+                                htmlspecialchars($cur_game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                                $html_a->to_string(),
+                                htmlspecialchars($a_updates[$cur_game->key]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                                $thread->get_game_type_name());
+            $log_mov .= sprintf("- Status: <span style='color:#%s'>%s (%s)</span> <-- <span style='color:#%s'>%s (%s)</span><br>",
+                                $a_status[$thread->get_sid()]['color'],
+                                $a_status[$thread->get_sid()]['name'],
+                                $a_updates[$cur_game->key]['last_update'],
+                                $a_status[$cur_game->status]['color'],
+                                $a_status[$cur_game->status]['name'],
+                                $cur_game->date);
+            $log_mov .= sprintf("- Version: <span class='color-green'>%s</span> %s <-- <span class='%s'>%s</span> (%s)<br>",
+                                $version,
+                                $date_commit,
+                                $old_status_commit,
+                                $old_version,
+                                $cur_game->date);
+            $log_mov .= "</div>";
         }
     }
 
-    print("</p>"); // End paragraph
+    if (!empty($log_warn))
+    {
+        print("<div class=\"compat-profiler\"><div class=\"text-bold\">Warnings</div>");
+        print($log_warn);
+        print("</div>");
+    }
+    if (!empty($log_new))
+    {
+        print("<div class=\"compat-profiler\"><div class=\"text-bold\">New reports</div>");
+        print($log_new);
+        print("</div>");
+    }
+    if (!empty($log_mov))
+    {
+        print("<div class=\"compat-profiler\"><div class=\"text-bold\">Updated reports</div>");
+        print($log_mov);
+        print("</div>");
+    }
+    print("</div>"); // End log
 
     if (isset($_POST['updateCompatibility']))
     {

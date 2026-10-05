@@ -651,18 +651,18 @@ function getFooter() : string
         // Maintenance mode information
         if ($c_maintenance)
         {
-            $html_div->add_content("<span class=\"color-red\">Maintenance mode: <b>ON</b></span>");
+            $html_div->add_content("<div class=\"color-red\">Maintenance mode: <b>ON</b></div>");
         }
         else
         {
-            $html_div->add_content("<span class=\"color-green\">Maintenance mode: <b>OFF</b></span>");
+            $html_div->add_content("<div class=\"color-green\">Maintenance mode: <b>OFF</b></div>");
         }
 
         $phpversion = phpversion();
         $extensions = get_loaded_extensions();
-        $yamlversion = in_array("yaml", $extensions) ? phpversion("yaml") : "<span class=\"color-red\">Missing</span>";
+        $yamlversion = in_array("yaml", $extensions) ? phpversion("yaml") : "<div class=\"color-red\">Missing</div>";
 
-        $html_div->add_content("<span><b>PHP:</b> {$phpversion}<br><b>YAML:</b> {$yamlversion}</span>");
+        $html_div->add_content("<div><b>PHP:</b> {$phpversion}<br><b>YAML:</b> {$yamlversion}</div>");
 
         $html_div->add_content(Profiler::get_data_html());
 

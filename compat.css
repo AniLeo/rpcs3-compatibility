@@ -754,7 +754,7 @@ progress[value]::-webkit-progress-value {
     line-height: 24px;
 }
 
-.compat-profiler span {
+.compat-profiler div {
     display: block;
     background: rgba(0,102,204,.06);
     margin-bottom: 10px;

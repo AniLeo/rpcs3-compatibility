@@ -73,15 +73,15 @@ class Profiler
                 empty(self::$time) || empty(self::$mem))
             return "";
 
-        $ret = "<span><b>".self::$title."</b>";
+        $ret = "<div><b>".self::$title."</b>";
 
         if (isset(self::$mem_start))
         {
-            $ret .= "<span>".PHP_EOL;
+            $ret .= "<div>".PHP_EOL;
             $ret .= "<b>Start Memory:</b> ".round(self::$mem_start/1024, 2)." KB<br>".PHP_EOL;
             $ret .= "<b>End Memory:</b> ".round(memory_get_usage(false)/1024, 2)." KB<br>".PHP_EOL;
             $ret .= "<b>Peak Memory:</b> ".round(memory_get_peak_usage(false)/1024, 2)." KB<br>".PHP_EOL;
-            $ret .= "</span>";
+            $ret .= "</div>";
         }
 
         if (PHP_OS_FAMILY !== "Windows")
@@ -94,11 +94,11 @@ class Profiler
                 preg_match_all('/^processor/m', $cpuinfo, $matches);
                 $cpu_count = count($matches[0]);
 
-                $ret .= "<span>";
+                $ret .= "<div>";
                 $ret .= sprintf("<b>CPU Load (1m):</b>  %.2f%%<br>", $load[0] / $cpu_count * 100);
                 $ret .= sprintf("<b>CPU Load (5m):</b>  %.2f%%<br>", $load[1] / $cpu_count * 100);
                 $ret .= sprintf("<b>CPU Load (15m):</b> %.2f%%<br>", $load[2] / $cpu_count * 100);
-                $ret .= "</span>";
+                $ret .= "</div>";
             }
 
             // Include total/available meminfo if readable
@@ -122,10 +122,10 @@ class Profiler
                         break;
                 }
 
-                $ret .= "<span>";
+                $ret .= "<div>";
                 $ret .= "<b>Available Memory:</b> ".round($mem_available/1024, 2)." MB<br>".PHP_EOL;
                 $ret .= "<b>Total Memory:</b> ".round($mem_total/1024, 2)." MB<br>".PHP_EOL;
-                $ret .= "</span>";
+                $ret .= "</div>";
             }
         }
 
@@ -137,7 +137,7 @@ class Profiler
 
         if ($size > 1)
         {
-            $ret .= "<span>".PHP_EOL;
+            $ret .= "<div>".PHP_EOL;
             for ($i = 0; $i < $size - 1; $i++)
             {
                 $ret .= sprintf("%.3f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
@@ -145,7 +145,7 @@ class Profiler
                                 /*self::$mem[$i+1] - self::$mem[$i],*/
                                 self::$desc[$i]);
             }
-            $ret .= "</span>";
+            $ret .= "</div>";
         }
 
         return $ret;
