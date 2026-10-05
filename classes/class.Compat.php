@@ -368,16 +368,16 @@ public static function printTable() : void
         switch ($error)
         {
             case "ERROR_QUERY_FAIL":
-                print("<p class=\"compat-tx1-criteria\">Could not fetch contents (e=1), please report to a developer.</p>");
+                print("<div class=\"compat-tx1-criteria\">Could not fetch contents (e=1), please report to a developer.</div>");
                 return;
             case "ERROR_QUERY_EMPTY":
-                print("<p class=\"compat-tx1-criteria\">The Game ID you searched for doesn't exist in our database.</p>");
+                print("<div class=\"compat-tx1-criteria\">The Game ID you searched for doesn't exist in our database.</div>");
                 return;
             case "ERROR_STATUS_EMPTY":
-                print("<p class=\"compat-tx1-criteria\">No results found for the specified search on the indicated status.</p>");
+                print("<div class=\"compat-tx1-criteria\">No results found for the specified search on the indicated status.</div>");
                 return;
             case "ERROR_QUERY_FAIL_2":
-                print("<p class=\"compat-tx1-criteria\">Could not fetch contents (e=2), please report to a developer.</p>");
+                print("<div class=\"compat-tx1-criteria\">Could not fetch contents (e=2), please report to a developer.</div>");
                 return;
         }
     }
@@ -385,7 +385,7 @@ public static function printTable() : void
     {
         $html_a = new HTMLA("?g=".urlencode($l_title), $l_title, $l_title);
 
-        printf("<p class=\"compat-tx1-criteria\">No results found for <i>%s</i>.<br>Displaying results for <b>%s</b></p>", 
+        printf("<div class=\"compat-tx1-criteria\">No results found for <i>%s</i>.<br>Displaying results for <b>%s</b></div>", 
                htmlspecialchars($l_orig, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                $html_a->to_string());
     }

@@ -48,7 +48,7 @@ if (isset($get['api']))
                 $Builds = new Builds();
                 print($Builds->getBuildsRSS());
             }
-            elseif (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n'))
+            else if (isset($get['h']) && isset($get['m']) && ($get['m'] === 'c' || $get['m'] === 'n' || $get['m'] === 's'))
             {
                 if (!@include_once("includes/inc.history.php")) throw new Exception("Compat: inc.history.php is missing. Failed to include inc.history.php");
                 header('Content-Type: text/xml');

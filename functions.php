@@ -314,7 +314,7 @@ function validateGet() : array
     }
 
     // History mode
-    if (isset($_GET['m']) && ($_GET['m'] === 'c' || $_GET['m'] === 'n'))
+    if (isset($_GET['m']) && ($_GET['m'] === 'c' || $_GET['m'] === 'n' || $_GET['m'] === 's'))
     {
         $get['m'] = strtolower($_GET['m']);
     }

@@ -592,11 +592,12 @@ progress[value]::-webkit-progress-value {
     width: 100%;
     height: auto;
     margin-bottom: 20px;
+    margin-top: 40px;
     padding-top: 15px;
     padding-bottom: 15px;
     text-align: center;
     color: #000;
-    background: #fff
+    background: rgba(0,102,204,.04)
 }
 
 .txt-compat-status {

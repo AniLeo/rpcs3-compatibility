@@ -38,9 +38,11 @@ if (!isset($a_currenthist) || !isset($a_histdates))
     die();
 
 $a_existing = array();
+$a_same = array();
 $a_new = array();
 
 $error_existing = "";
+$error_same = "";
 $error_new = "";
 
 // Default date value
@@ -97,7 +99,7 @@ if (!isset($get['m']) || $get['m'] === "c")
     Profiler::add_data("Inc: Check Existing Entries");
 
     $q_existing = mysqli_query($db, "{$cmd_existing}
-    WHERE `old_status` IS NOT NULL {$cmd_date}
+    WHERE `old_status` IS NOT NULL AND `old_status` <> `new_status` {$cmd_date}
     ORDER BY `new_status` ASC, -`old_status` DESC, `new_date` DESC, `game_id`.`game_title` ASC, `tid` DESC; ");
 
     if (is_bool($q_existing))
@@ -106,7 +108,7 @@ if (!isset($get['m']) || $get['m'] === "c")
     }
     elseif (mysqli_num_rows($q_existing) === 0)
     {
-        $error_existing = "No updates to previously existing entries were reported and/or reviewed yet.";
+        $error_existing = "No status changes to previously existing entries were reported and/or reviewed yet.";
     }
     else
     {
@@ -114,6 +116,28 @@ if (!isset($get['m']) || $get['m'] === "c")
     }
 }
 
+// Same-status updates
+if (!isset($get['m']) || $get['m'] === "s")
+{
+    Profiler::add_data("Inc: Check Same Status Entries");
+
+    $q_same = mysqli_query($db, "{$cmd_existing}
+    WHERE `old_status` IS NOT NULL AND `old_status` = `new_status` {$cmd_date}
+    ORDER BY `new_status` ASC, `new_date` DESC, `game_id`.`game_title` ASC, `tid` DESC; ");
+
+    if (is_bool($q_same))
+    {
+        $error_same = "Please try again. If this error persists, please contact the RPCS3 team.";
+    }
+    elseif (mysqli_num_rows($q_same) === 0)
+    {
+        $error_same = "No same-status updates to previously existing entries were reported and/or reviewed yet.";
+    }
+    else
+    {
+        $a_same = HistoryEntry::query_to_history_entry($q_same);
+    }
+}
 
 // New entries
 if (!isset($get['m']) || $get['m'] === "n")

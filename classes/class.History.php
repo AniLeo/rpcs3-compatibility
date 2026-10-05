@@ -115,7 +115,17 @@ public static function printOptions() : void
     $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "Updated entries");
+    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "New entries");
+    if (isset($get['m']) && $get['m'] === 'n')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+
+    $html_a = new HTMLA("?h{$h}&m=n&rss&api=v1", "RSS Feed", "(RSS)");
+    $html_a->set_target("_blank");
+    $html_a->print();
+    print($spacer);
+
+    $html_a = new HTMLA("?h{$h}&m=c", "Show only previously existent entries", "New status updates");
     if (isset($get['m']) && $get['m'] === 'c')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
@@ -125,12 +135,12 @@ public static function printOptions() : void
     $html_a->print();
     print($spacer);
 
-    $html_a = new HTMLA("?h{$h}&m=n", "Show only new entries", "New entries");
-    if (isset($get['m']) && $get['m'] === 'n')
+    $html_a = new HTMLA("?h{$h}&m=s", "Show only updated entries that kept the same status", "Same status updates");
+    if (isset($get['m']) && $get['m'] === 's')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
-    $html_a = new HTMLA("?h{$h}&m=n&rss&api=v1", "RSS Feed", "(RSS)");
+    $html_a = new HTMLA("?h{$h}&m=s&rss&api=v1", "RSS Feed", "(RSS)");
     $html_a->set_target("_blank");
     $html_a->print();
 }
@@ -302,15 +312,32 @@ public static function printTableContent(array $array) : void
  ******************/
 public static function printContent() : void
 {
-    global $a_existing, $a_new, $error_existing, $error_new;
+    global $a_existing, $a_same, $a_new, $error_existing, $error_same, $error_new;
+
+    // New entries table
+    if (!empty($error_new))
+    {
+        printf("<div class=\"compat-tx1-criteria\">%s</div>", $error_new);
+    }
+    elseif (!empty($a_new))
+    {
+        print("<div class=\"compat-tx1-criteria\"><strong>Newly reported entries</strong></div>");
+        print("<div class=\"compat-table-outside\">");
+        print("<div class=\"compat-table-inside\">");
+        self::printTableHeader(false);
+        self::printTableContent($a_new);
+        print("</div>");
+        print("</div>");
+    }
 
     // Existing entries table
     if (!empty($error_existing))
     {
-        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error_existing);
+        printf("<div class=\"compat-tx1-criteria\">%s</div>", $error_existing);
     }
     elseif (!empty($a_existing))
     {
+        print("<div class=\"compat-tx1-criteria\"><strong>Updated entries with a new status</strong></div>");
         print("<div class=\"compat-table-outside\">");
         print("<div class=\"compat-table-inside\">");
         self::printTableHeader();
@@ -319,18 +346,18 @@ public static function printContent() : void
         print("</div>");
     }
 
-    // New entries table
-    if (!empty($error_new))
+    // Same-status updates table
+    if (!empty($error_same))
     {
-        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error_new);
+        printf("<div class=\"compat-tx1-criteria\">%s</div>", $error_same);
     }
-    elseif (!empty($a_new))
+    elseif (!empty($a_same))
     {
-        print("<p class=\"compat-tx1-criteria\"><strong>Newly reported games (includes new regions for existing games)</strong></p>");
+        print("<div class=\"compat-tx1-criteria\"><strong>Updated entries with tests for the same status</strong></div>");
         print("<div class=\"compat-table-outside\">");
         print("<div class=\"compat-table-inside\">");
-        self::printTableHeader(false);
-        self::printTableContent($a_new);
+        self::printTableHeader();
+        self::printTableContent($a_same);
         print("</div>");
         print("</div>");
     }
@@ -374,11 +401,11 @@ public static function printStatusModule() : void
 
 public static function printHistoryRSS() : void
 {
-    global $a_status, $a_new, $a_existing, $error_new, $error_existing, $get;
+    global $a_status, $a_new, $a_existing, $a_same, $error_new, $error_existing, $error_same, $get;
 
-    $error = !empty($error_new) ? $error_new : $error_existing;
-    $title = !empty($a_new) ? "New additions" : "Updates";
-    $mode  = (isset($get["m"]) && ($get["m"] === "c" || $get["m"] === "n")) ? $get["m"] : "n";
+    $error = !empty($error_new) ? $error_new : (!empty($error_same) ? $error_same : $error_existing);
+    $title = !empty($a_new) ? "New additions" : (!empty($a_same) && empty($a_existing) ? "Same status updates" : "Updates");
+    $mode  = (isset($get["m"]) && ($get["m"] === "c" || $get["m"] === "n" || $get["m"] === "s")) ? $get["m"] : "n";
     $self  = xml_escape("https://rpcs3.net/compatibility?api=v1&rss&h&m={$mode}");
 
     print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -428,6 +455,27 @@ public static function printHistoryRSS() : void
                     "<title>{$game_title}</title>".
                     "<guid isPermaLink=\"false\">{$guid}</guid>".
                     "<description>Updated from {$old_status} ({$old_date}) to {$new_status} ({$new_date})</description>".
+                    "<pubDate>{$pub}</pubDate>".
+                "</item>"
+            );
+        }
+    }
+    else if (!empty($a_same))
+    {
+        foreach ($a_same as $entry)
+        {
+            $game_title = xml_escape($entry->game_item->title);
+            $status     = xml_escape($a_status[$entry->new_status]["name"]);
+            $old_date   = xml_escape($entry->old_date);
+            $new_date   = xml_escape($entry->new_date);
+            $pub        = xml_escape(date("r", strtotime($entry->new_date)));
+            $guid       = xml_escape("rpcs3-compatibility-history-{$entry->game_item->game_id}_{$entry->new_date}");
+
+            print(
+                "<item>".
+                    "<title>{$game_title}</title>".
+                    "<guid isPermaLink=\"false\">{$guid}</guid>".
+                    "<description>Retested as {$status} ({$old_date} to {$new_date})</description>".
                     "<pubDate>{$pub}</pubDate>".
                 "</item>"
             );

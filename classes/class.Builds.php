@@ -50,7 +50,7 @@ public static function printTable() : void
 
     if (!is_null($error))
     {
-        printf("<p class=\"compat-tx1-criteria\">%s</p>", $error);
+        printf("<div class=\"compat-tx1-criteria\">%s</div>", $error);
         return;
     }
 
