@@ -138,10 +138,14 @@ class Profiler
         if ($size > 1)
         {
             $ret .= "<div>".PHP_EOL;
-            for ($i = 0; $i < $size - 1; $i++)
+            $now = microtime(true) * 1000;
+
+            for ($i = 0; $i < $size; $i++)
             {
+                $next = ($i + 1 < $size) ? self::$time[$i + 1] : $now;
+
                 $ret .= sprintf("%.3f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
-                                self::$time[$i+1] - self::$time[$i],
+                                $next - self::$time[$i],
                                 /*self::$mem[$i+1] - self::$mem[$i],*/
                                 self::$desc[$i]);
             }

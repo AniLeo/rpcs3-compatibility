@@ -35,6 +35,7 @@ TODO: Login system
 TODO: Log commands with run time and datetime
 */
 
+Profiler::start_profiler("Profiler: Panel");
 
 function runFunctions() : void
 {
@@ -55,6 +56,8 @@ function runFunctions() : void
 function checkInvalidThreads() : void
 {
     global $a_status, $get;
+
+    Profiler::add_data("Panel: Check Threads");
 
     $invalid = 0;
     $output = "";
@@ -181,6 +184,8 @@ function checkInvalidThreads() : void
 function compatibilityUpdater() : void
 {
     global $a_histdates, $a_status, $get;
+    
+    Profiler::add_data("Panel: Compatibility Updater");
 
     set_time_limit(300);
     $db = get_database("compat");
@@ -212,6 +217,7 @@ function compatibilityUpdater() : void
     }
 
     // Cache commits
+    Profiler::add_data("Panel: Fetch Commits");
     $a_commits = array();
     $q_commits = mysqli_query($db, "SELECT `pr`, `commit`, `version`, `merge_datetime`
                                     FROM `builds`
@@ -241,6 +247,7 @@ function compatibilityUpdater() : void
                                          "merge" => date('Y-m-d', strtotime($row->merge_datetime)));
     }
 
+    Profiler::add_data("Panel: Fetch Threads");
     $a_threads = fetch_compatibility_threads($db_forums, $where, $ts_lastupdate);
     if (is_null($a_threads))
     {
@@ -249,6 +256,7 @@ function compatibilityUpdater() : void
         return;
     }
 
+    Profiler::add_data("Panel: Fetch Posts");
     $a_posts = fetch_compatibility_posts($db_forums, $a_threads, $ts_lastupdate);
     if (is_null($a_posts))
     {
@@ -257,6 +265,7 @@ function compatibilityUpdater() : void
         return;
     }
 
+    Profiler::add_data("Panel: Fetch Games");
     // Get all games in the database
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 
@@ -280,6 +289,7 @@ function compatibilityUpdater() : void
 
     print("<div class=\"compat-text\">"); // Start log
 
+    Profiler::add_data("Panel: Check Threads");
     foreach ($a_threads as $thread)
     {
         // If a thread for this Game ID was already visited, continue to next thread entry
@@ -341,6 +351,7 @@ function compatibilityUpdater() : void
             );
 
             // Verify posts
+            Profiler::add_data("Panel: Check Commits");
             foreach ($a_posts[(int) $thread->tid] as $post)
             {
                 MyBBThread::remove_post_quotes($post->message);
@@ -561,6 +572,7 @@ function compatibilityUpdater() : void
         }
     }
 
+    Profiler::add_data("Panel: Print Log");
     if (!empty($log_warn))
     {
         print("<div class=\"compat-profiler\"><div class=\"text-bold\">Warnings</div>");
@@ -1031,6 +1043,8 @@ function check_duplicated_entries() : void
 {
     global $get;
 
+    Profiler::add_data("Panel: Check Duplicates");
+
     $db = get_database("compat");
 
     // Digital (N) and Disc (B) are compared separately
@@ -1103,17 +1117,19 @@ function check_duplicated_entries() : void
         }
     }
 
+
     if ($count === 0)
     {
         print("<p class='debug-tvalidity-title color-green background-green'>No duplicated threads detected</p>");
-        return;
     }
-
-    printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
-
-    if ($get['a'] === "check_duplicated_entries")
+    else
     {
-        print($output);
+        printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
+
+        if ($get['a'] === "check_duplicated_entries")
+        {
+            print($output);
+        }
     }
 }
 
