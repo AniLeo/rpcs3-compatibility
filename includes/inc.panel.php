@@ -1033,55 +1033,84 @@ function check_duplicated_entries() : void
 
     $db = get_database("compat");
 
-    // Returns duplicates for Digital (N) and Disc (B) entries
-    // Ignores any non alphanumeric characters on title
-    $q_duplicates = mysqli_query($db,  "WITH subquery AS (
-                                            SELECT i.`key`,
-                                                SUBSTR(i.`gid`, 1, 1) AS `gid_type`,
-                                                (SELECT i2.`game_title` FROM `game_id` i2
-                                                    WHERE i2.`key` = i.`key`
-                                                    ORDER BY i2.`gid` ASC LIMIT 1) AS `game_title`
-                                            FROM `game_id` i
-                                            WHERE SUBSTR(i.`gid`, 1, 1) IN ('N', 'B')
-                                            GROUP BY i.`key`, `gid_type`
-                                        )
-                                        SELECT `game_title`, `gid_type`
-                                        FROM subquery
-                                        GROUP BY REGEXP_REPLACE(`game_title`, '[^a-zA-Z0-9]', ''), `gid_type`
-                                        HAVING COUNT(*) >= 2");
+    // Digital (N) and Disc (B) are compared separately
+    $q_entries = mysqli_query($db, "SELECT i.`key`,
+                                           SUBSTR(i.`gid`, 1, 1) AS `gid_type`,
+                                           (SELECT i2.`game_title` FROM `game_id` i2
+                                                WHERE i2.`key` = i.`key`
+                                                ORDER BY i2.`gid` ASC LIMIT 1) AS `game_title`
+                                    FROM `game_id` i
+                                    WHERE SUBSTR(i.`gid`, 1, 1) IN ('N', 'B')
+                                    GROUP BY i.`key`, `gid_type`");
 
     mysqli_close($db);
 
-    if (is_bool($q_duplicates))
+    if (is_bool($q_entries))
     {
         return;
     }
 
-    $count = mysqli_num_rows($q_duplicates);
+    // gid_type => normalized title => titles
+    $groups = array();
+
+    while ($row = mysqli_fetch_object($q_entries))
+    {
+        if (!property_exists($row, "gid_type") || !property_exists($row, "game_title") || !is_string($row->game_title))
+            continue;
+
+        $normalized = mb_strtolower(normalize_search($row->game_title));
+
+        if ($normalized === "")
+            continue;
+
+        $groups[$row->gid_type][$normalized][] = $row->game_title;
+    }
+
+    $output = "";
+    $count = 0;
+
+    foreach ($groups as $gid_type => $titles)
+    {
+        foreach ($titles as $entries)
+        {
+            if (count($entries) < 2)
+                continue;
+
+            $count++;
+
+            $other = "";
+            $unique = array_values(array_unique($entries));
+            $title = $unique[0];
+            $search = urlencode($title);
+            $html_title = htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+            $html_a = new HTMLA("compatibility?g={$search}&type=0#jump", $title, $html_title);
+            $html_a->set_target("_blank");
+
+            if (count($unique) > 1)
+            {
+                $others = array();
+                foreach (array_slice($unique, 1) as $other)
+                    $others[] = htmlspecialchars($other, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+                $other = " (".implode(", ", $others).")";
+            }
+
+            $output .= sprintf("<p>- [%s] %s%s</p>",
+                               $gid_type,
+                               $html_a->to_string(),
+                               $other);
+        }
+    }
 
     if ($count === 0)
     {
         print("<p class='debug-tvalidity-title color-green background-green'>No duplicated threads detected</p>");
         return;
     }
-    
-    $output = "";
-
-    while ($row = mysqli_fetch_object($q_duplicates))
-    {
-        $search = urlencode($row->game_title);
-        $html_title = htmlspecialchars($row->game_title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
-        $html_a = new HTMLA("compatibility?g={$search}&type=0#jump", $row->game_title, $html_title);
-        $html_a->set_target("_blank");
-    
-        $output .= sprintf("<p>- [%s] %s</p>", 
-                           $row->gid_type, 
-                           $html_a->to_string());
-    }
 
     printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
-        
+
     if ($get['a'] === "check_duplicated_entries")
     {
         print($output);

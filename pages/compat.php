@@ -82,7 +82,7 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
                 <form method="get" id="game-search" action="#jump">
                     <input type="hidden" name="type" value="0"> 
                     <div class="searchbox">
-                        <input name="g" type="text" value="<?php if (isset($get['g'])) print(htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8')); ?>" placeholder="Game Title / Game ID" />
+                        <input name="g" type="text" value="<?php if (isset($get['g'])) print(htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8')); ?>" placeholder="Game Title or Game ID" />
                     </div>
                     <div class="compat-searchbox-div">
                         <button type="submit" form="game-search"></button>

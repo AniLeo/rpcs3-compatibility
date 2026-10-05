@@ -56,7 +56,7 @@ if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("
                 <form method="get" id="builds-search" action="#jump">
                     <input type="hidden" name="b" value="">
                     <div class="searchbox">
-                        <input name="g" type="text" value="<?php if (isset($get['g'])) print(htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8')); ?>" placeholder="PR / Version" />
+                        <input name="g" type="text" value="<?php if (isset($get['g'])) print(htmlspecialchars($get['g'], ENT_QUOTES, 'UTF-8')); ?>" placeholder="Version or Pull Request" />
                     </div>
                     <div class="compat-searchbox-div">
                         <button type="submit" form="builds-search"></button>
