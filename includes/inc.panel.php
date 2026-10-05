@@ -282,6 +282,18 @@ function compatibilityUpdater() : void
     $a_updates = array();
     // Visited Game IDs
     $a_gameIDs = array();
+    
+    // game_id => array(Game, thread_id)
+    $a_games_by_id = array();
+
+    foreach ($a_games as $game)
+    {
+        foreach ($game->game_item as $item)
+        {
+            $a_games_by_id[$item->game_id] = array($game, $item->thread_id);
+        }
+    }
+
     // Printed after the scan
     $log_warn = "";
     $log_new = "";
@@ -292,8 +304,10 @@ function compatibilityUpdater() : void
     Profiler::add_data("Panel: Check Threads");
     foreach ($a_threads as $thread)
     {
+        $game_id = $thread->get_game_id();
+
         // If a thread for this Game ID was already visited, continue to next thread entry
-        if (in_array($thread->get_game_id(), $a_gameIDs))
+        if ($game_id !== null && isset($a_gameIDs[$game_id]))
         {
             $html_subject = htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
             $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
@@ -305,22 +319,17 @@ function compatibilityUpdater() : void
             continue;
         }
 
-        $a_gameIDs[] = $thread->get_game_id();
+        if ($game_id !== null)
+            $a_gameIDs[$game_id] = true;
 
         // Thread ID validation
         // If game entry exists, get game data
         $tid = null;
         $cur_game = null;
-        foreach ($a_games as $game)
+        if ($game_id !== null && isset($a_games_by_id[$game_id]))
         {
-            foreach ($game->game_item as $item)
-            {
-                if ($item->game_id === $thread->get_game_id())
-                {
-                    $tid = $item->thread_id;
-                    $cur_game = $game;
-                }
-            }
+            $cur_game = $a_games_by_id[$game_id][0];
+            $tid = $a_games_by_id[$game_id][1];
         }
 
         // New thread is a duplicate of an existing one
@@ -341,7 +350,7 @@ function compatibilityUpdater() : void
         }
 
         // New thread for the Game ID
-        if (is_null($tid) || is_null($cur_game))
+        if (is_null($tid))
         {
             $a_inserts[$thread->tid] = array(
                 'thread' => $thread,
