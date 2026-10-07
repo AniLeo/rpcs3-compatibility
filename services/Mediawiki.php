@@ -27,58 +27,50 @@ function cache_wiki_ids() : void
     $db = get_database("compat");
     $db_wiki = get_database("wiki");
     $a_wiki = array();
-    $break = false;
 
-    // Run this in batches of 250 pages
-    for ($count = 0; !$break; $count += 250)
+    Profiler::add_data("Panel: Fetch Pages");
+
+    // Fetch all wiki pages that contain a Game ID
+    $q_wiki = mysqli_query($db_wiki, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
+                                      FROM `rpcs3_wiki`.`page`
+                                      INNER JOIN `rpcs3_wiki`.`slots`
+                                              ON `page`.`page_latest` = `slots`.`slot_revision_id`
+                                      INNER JOIN `rpcs3_wiki`.`content`
+                                              ON `slots`.`slot_content_id` = `content`.`content_id`
+                                      INNER JOIN `rpcs3_wiki`.`text`
+                                              ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
+                                      WHERE `page`.`page_namespace` = 0
+                                      HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'; ");
+
+    if (is_bool($q_wiki))
+        return;
+
+    if (mysqli_num_rows($q_wiki) === 0)
+        return;
+    
+    while ($row = mysqli_fetch_object($q_wiki))
     {
-        // Fetch all wiki pages that contain a Game ID
-        $q_wiki = mysqli_query($db_wiki, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
-                                     FROM `rpcs3_wiki`.`page`
-                                     INNER JOIN `rpcs3_wiki`.`slots`
-                                             ON `page`.`page_latest` = `slots`.`slot_revision_id`
-                                     INNER JOIN `rpcs3_wiki`.`content`
-                                             ON `slots`.`slot_content_id` = `content`.`content_id`
-                                     INNER JOIN `rpcs3_wiki`.`text`
-                                             ON SUBSTR(`content`.`content_address`, 4) = `text`.`old_id`
-                                     WHERE `page`.`page_namespace` = 0
-                                     HAVING `text` RLIKE '[A-Z]{4}[0-9]{5}'
-                                     LIMIT {$count}, 250; ");
-
-        if (is_bool($q_wiki))
+        // This should be unreachable unless the database structure is damaged
+        if (!property_exists($row, "page_id") ||
+            !property_exists($row, "text"))
+        {
             return;
-
-        // As long as we have results
-        if (mysqli_num_rows($q_wiki) > 0)
-        {
-            while ($row = mysqli_fetch_object($q_wiki))
-            {
-                // This should be unreachable unless the database structure is damaged
-                if (!property_exists($row, "page_id") ||
-                    !property_exists($row, "text"))
-                {
-                    return;
-                }
-
-                $matches = array();
-                preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
-
-                foreach ($matches[0] as $match)
-                {
-                    $a_wiki[$match] = $row->page_id;
-                }
-            }
-        }
-        // End the cycle after the unset
-        else
-        {
-            $break = true;
         }
 
-        // Unload memory heavy object from memory after we've used it
-        unset($q_wiki);
+        $matches = array();
+        preg_match_all("/[A-Z]{4}[0-9]{5}/", $row->text, $matches);
+
+        foreach ($matches[0] as $match)
+        {
+            $a_wiki[$match] = $row->page_id;
+        }
     }
 
+    // Unload memory heavy object from memory after we've used it
+    unset($q_wiki);
+
+
+    Profiler::add_data("Panel: Fetch Games");
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 
     if (is_bool($q_games))
@@ -90,8 +82,8 @@ function cache_wiki_ids() : void
     $a_cached  = array();
     $q_updates = "";
 
-    // For every Game
-    // For every GameItem
+    // For every Game -> GameItem
+    Profiler::add_data("Panel: Update Wiki IDs");
     foreach ($a_games as $game)
     {
         foreach ($game->game_item as $item)
