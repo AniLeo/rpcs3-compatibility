@@ -131,38 +131,10 @@ function checkInvalidThreads() : void
     {
         foreach ($game->game_item as $item)
         {
-            $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
-            if (!array_key_exists($item->thread_id, $a_threads))
+            $message = validate_thread($a_threads[$item->thread_id] ?? null, $game, $item);
+            if (!is_null($message))
             {
-                $output .= "<p class='debug-tvalidity-list'>";
-                $output .= "Thread {$item->thread_id}: [{$item->game_id}] {$html_title} doesn't exist.<br>";
-                $output .= "</p>";
-                $invalid++;
-            }
-            elseif ($item->game_id !== $a_threads[$item->thread_id]->get_game_id())
-            {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
-                $html_a->set_target("_blank");
-
-
-                $output .= "<p class='debug-tvalidity-list'>";
-                $output .= "Thread {$html_a->to_string()} is incorrect.<br>";
-                $output .= "- Compat: {$html_title} [{$item->game_id}]<br>";
-                $output .= "- Forums: {$a_threads[$item->thread_id]->get_game_id()}<br>";
-                $output .= "</p>";
-                $invalid++;
-            }
-            elseif ($game->status !== $a_threads[$item->thread_id]->get_sid())
-            {
-                $html_a = new HTMLA($a_threads[$item->thread_id]->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
-                $html_a->set_target("_blank");
-
-                $output .= "<p class='debug-tvalidity-list'>";
-                $output .= "Thread {$html_a->to_string()} is in the wrong section.<br>";
-                $output .= "- Compat: {$a_status[$game->status]['name']} <br>";
-                $output .= "- Forums: {$a_status[$a_threads[$item->thread_id]->get_sid()]['name']}<br>";
-                $output .= "</p>";
+                $output .= $message;
                 $invalid++;
             }
         }
@@ -285,14 +257,14 @@ function compatibilityUpdater() : void
     // Visited Game IDs
     $a_gameIDs = array();
     
-    // game_id => array(Game, thread_id)
+    // game_id => array(Game, GameItem)
     $a_games_by_id = array();
 
     foreach ($a_games as $game)
     {
         foreach ($game->game_item as $item)
         {
-            $a_games_by_id[$item->game_id] = array($game, $item->thread_id);
+            $a_games_by_id[$item->game_id] = array($game, $item);
         }
     }
 
@@ -324,30 +296,21 @@ function compatibilityUpdater() : void
         if ($game_id !== null)
             $a_gameIDs[$game_id] = true;
 
-        // Thread ID validation
-        // If game entry exists, get game data
+        // Thread validation
         $tid = null;
         $cur_game = null;
+        $cur_item = null;
+
         if ($game_id !== null && isset($a_games_by_id[$game_id]))
         {
-            $cur_game = $a_games_by_id[$game_id][0];
-            $tid = $a_games_by_id[$game_id][1];
+            $cur_item = $a_games_by_id[$game_id][1];
+            $tid = $cur_item->thread_id;
         }
 
-        // New thread is a duplicate of an existing one
-        if (!is_null($tid) && $tid != $thread->tid)
+        $message = validate_thread($thread, $cur_game, $cur_item);
+        if (!is_null($message))
         {
-            $html_a_thread1 = new HTMLA($thread->get_thread_url(), "", (string) $thread->tid);
-            $html_a_thread2 = new HTMLA("https://forums.rpcs3.net/thread-{$tid}.html", "", (string) $tid);
-            $html_a_thread1->set_target("_blank");
-            $html_a_thread2->set_target("_blank");
-
-            $html_subject = htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-
-            printf("<span style='color:red'><b>Error!</b> %s (%s) duplicated thread of (%s).</span><br><br>",
-                   $html_subject,
-                   $html_a_thread1->to_string(),
-                   $html_a_thread2->to_string());
+            print($message);
             continue;
         }
 
@@ -432,11 +395,12 @@ function compatibilityUpdater() : void
                                 $version,
                                 $date_commit);
             $log_new .= "</div>";
-
         }
-        // TODO: Distinguish different game ID / thread IDs within the update object
-        else if ($tid == $thread->tid)
+        else
         {
+            $cur_game = $a_games_by_id[$game_id][0];
+            $cur_item = $a_games_by_id[$game_id][1];
+
             // This game entry was already checked before in this script
             // Update with the new information
             if (array_key_exists($cur_game->key, $a_updates))
@@ -1294,4 +1258,77 @@ function fetch_compatibility_posts(mysqli $db_forums, array $a_threads, int $ts_
     }
 
     return $posts_by_tid;
+}
+
+function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $item = null) : ?string
+{
+    global $a_status;
+
+    if (is_null($thread))
+    {
+        if (is_null($item))
+            return null;
+
+        $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$item->thread_id}: [{$item->game_id}] {$html_title} doesn't exist.<br>".
+               "</span>";
+    }
+
+    $html_a = new HTMLA($thread->get_thread_url(), "", htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+    $html_a->set_target("_blank");
+
+    $game_id = $thread->get_game_id();
+    $title = $thread->get_game_title();
+    $sid = $thread->get_sid();
+
+    if (is_null($game_id) || is_null($title))
+    {
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$html_a->to_string()} is incorrectly formatted.<br>".
+               "</span>";
+    }
+
+    if (is_null($sid))
+    {
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$html_a->to_string()} is in an unknown section.<br>".
+               "</span>";
+    }
+
+    if (is_null($game) || is_null($item))
+        return null;
+
+    $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+    $html_a = new HTMLA($thread->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
+    $html_a->set_target("_blank");
+
+    if ($item->thread_id != $thread->tid)
+    {
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$html_a->to_string()} is a duplicate.<br>".
+               "- Compat: {$item->thread_id}<br>".
+               "- Forums: {$thread->tid}<br>".
+               "</span>";
+    }
+
+   if ($item->game_id !== $game_id)
+    {
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$html_a->to_string()} is incorrect.<br>".
+               "- Compat: {$html_title} [{$item->game_id}]<br>".
+               "- Forums: {$game_id}<br>".
+               "</span>";
+    }
+
+    if ($game->status !== $sid)
+    {
+        return "<span class='debug-tvalidity-list'>".
+               "Thread {$html_a->to_string()} is in the wrong section.<br>".
+               "- Compat: {$a_status[$game->status]['name']} <br>".
+               "- Forums: {$a_status[$sid]['name']}<br>".
+               "</span>";
+    }
+
+    return null;
 }
