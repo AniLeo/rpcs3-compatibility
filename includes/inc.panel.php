@@ -43,6 +43,8 @@ function runFunctions() : void
 
     if (array_key_exists($get['a'], $a_panel))
     {
+        Profiler::add_data("Panel: Run Function ({$get['a']})");
+
         $ret = runFunctionWithCronometer($get['a']);
 
         if (!empty($a_panel[$get['a']]['success']))
@@ -360,7 +362,6 @@ function compatibilityUpdater() : void
             );
 
             // Verify posts
-            Profiler::add_data("Panel: Check Commits");
             foreach ($a_posts[(int) $thread->tid] as $post)
             {
                 MyBBThread::remove_post_quotes($post->message);
