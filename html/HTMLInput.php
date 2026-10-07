@@ -26,29 +26,45 @@ class HTMLInput
     public string $type;
     public string $value;
     public string $placeholder;
+    public string $label;
+    public bool   $checked;
 
-    function __construct(string $name,
-                         string $type,
-                         string $value,
-                         string $placeholder)
+    function __construct(string $name, string $type, string $value, string $placeholder)
     {
         $this->name        = $name;
         $this->type        = $type;
         $this->value       = $value;
         $this->placeholder = $placeholder;
+        $this->label       = "";
+        $this->checked     = false;
+    }
+
+    public function set_label(string $label) : void
+    {
+        $this->label = $label;
+    }
+
+    public function set_checked(bool $checked) : void
+    {
+        $this->checked = $checked;
     }
 
     public function to_string() : string
     {
-        return sprintf("<input name=\"%s\" type=\"%s\" value=\"%s\" placeholder=\"%s\">".PHP_EOL,
-                       htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                       htmlspecialchars($this->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                       htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                       htmlspecialchars($this->placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
-    }
+        $placeholder = $this->placeholder === "" ? "" : sprintf(" placeholder=\"%s\"", htmlspecialchars($this->placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        $checked = $this->checked ? " checked" : "";
+        $input = sprintf("<input name=\"%s\" type=\"%s\" value=\"%s\"%s%s>".PHP_EOL,
+                        htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                        htmlspecialchars($this->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                        htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                        $placeholder,
+                        $checked);
 
-    public function print() : void
-    {
-        print($this->to_string());
+        if ($this->label === "")
+            return $input;
+
+        return sprintf("<label class=\"debug-entry-flag\">%s%s</label>".PHP_EOL,
+                    htmlspecialchars($this->label, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                    $input);
     }
 }

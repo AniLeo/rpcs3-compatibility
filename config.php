@@ -220,6 +220,11 @@ $a_panel = array(
         'category' => 3,
         'title' => "Cache Game Settings",
         'success' => "Updated the game settings cache"
+    ),
+    'edit_game' => array(
+        'category' => 0,
+        'title' => "Edit Game",
+        'success' => ""
     )
 );
 

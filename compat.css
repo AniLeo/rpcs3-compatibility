@@ -865,6 +865,10 @@ progress[value]::-webkit-progress-value {
     cursor: pointer
 }
 
+.debug-main-content input::placeholder {
+    color: #fff
+}
+
 .debug-main-content select:hover,
 .debug-main-content select:focus {
     border: solid 2px #0080ff;
@@ -901,7 +905,7 @@ progress[value]::-webkit-progress-value {
     border-radius: 6px;
     border: solid 2px;
     line-height: 32px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     display: block
 }
 
@@ -929,4 +933,21 @@ progress[value]::-webkit-progress-value {
     padding-bottom: 6px;
     border-radius: 6px;
     font-size: 14px
+}
+
+.debug-entry-flag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 180px;
+    margin-bottom: 12px;
+    color: #fff;
+    font-weight: bold
+}
+
+.debug-main-content input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0
 }

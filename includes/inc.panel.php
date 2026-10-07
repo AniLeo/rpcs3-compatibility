@@ -1370,6 +1370,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
     if (is_null($game) || is_null($item))
         return null;
 
+    $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
     $html_a = new HTMLA($thread->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$item->title}");
     $html_a->set_target("_blank");
 
@@ -1401,4 +1402,115 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
     }
 
     return null;
+}
+
+function edit_game() : void
+{
+    global $get;
+
+    $gid = isset($_POST["gid"]) && is_string($_POST["gid"]) ? strtoupper(trim($_POST["gid"])) : "";
+
+    // Column => label. Add future game_list fields here.
+    $fields = array(
+        "network" => "Requires Network:",
+        "move"    => "Move Support:",
+        "3d"      => "3D Support:"
+    );
+
+    $db = get_database("compat");
+    $row = null;
+
+    if ($gid !== "" && isGameID($gid))
+    {
+        $s_gid = mysqli_real_escape_string($db, $gid);
+        $q_game = mysqli_query($db, "SELECT `game_list`.`key`, `game_list`.`type`, `game_list`.`status`, 
+                                            `game_list`.`last_update`, `game_list`.`version`, `game_list`.`move`, 
+                                            `game_list`.`network`, `game_list`.`3d`, `game_id`.`game_title`
+                                     FROM `game_list`
+                                     INNER JOIN `game_id` 
+                                       ON `game_id`.`key` = `game_list`.`key`
+                                     WHERE `game_id`.`gid` = '{$s_gid}'
+                                     LIMIT 1;");
+
+        if (!is_bool($q_game) && mysqli_num_rows($q_game) !== 0)
+            $row = mysqli_fetch_object($q_game);
+    }
+
+    if ($row && isset($_POST["save_game"]))
+    {
+        if (array_search("debug.update", $get["w"]) === false)
+        {
+            print("<div class=\"debug-message compat-text\"><b>Error:</b> You do not have permission to issue database update commands</div>");
+        }
+        else
+        {
+            $sets = array();
+            foreach ($fields as $column => $label)
+            {
+                $value = (isset($_POST[$column]) && is_string($_POST[$column]) && (string) $_POST[$column] === "1") ? 1 : 0;
+                $sets[] = "`{$column}` = {$value}";
+                $row->{$column} = $value;
+            }
+
+            mysqli_query($db, "UPDATE `game_list`
+                               SET ".implode(", ", $sets)."
+                               WHERE `key` = ".(int) $row->key."
+                               LIMIT 1;");
+            printf("<div class=\"debug-message compat-text\">Updated <b>%s</b></div>",
+                   htmlspecialchars($gid, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
+    }
+
+    $search = new HTMLForm("", "POST");
+    $search->add_input(new HTMLInput("gid", "text", $gid, "Game ID"));
+    $load = new HTMLButton("load_game", "submit", "Load");
+    $load->set_class("debug-menu-button");
+    $search->add_button($load);
+    $search->print();
+
+    if (!$row)
+    {
+        if ($gid !== "")
+            print("<div class=\"debug-message compat-text\"><b>Error:</b> No game entry found for that ID.</div>");
+
+        mysqli_close($db);
+        return;
+    }
+
+    printf("<div class=\"debug-main-title compat-text\">%s [%s]</div>",
+           htmlspecialchars($row->game_title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($gid, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+
+    print("<div class=\"debug-message\">");
+
+    printf("<div class=\"compat-text\"><b>Type:</b> %s</div>",
+           htmlspecialchars($row->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+
+    printf("<div class=\"compat-text\"><b>Status:</b> %s</div>",
+           htmlspecialchars($row->status, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+
+    printf("<div class=\"compat-text\"><b>Last Update:</b> %s (v%s)</div>",
+           htmlspecialchars($row->last_update, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+           htmlspecialchars($row->version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+    
+    print("<br>");
+    print("</div>");
+
+    $form = new HTMLForm("", "POST");
+    $form->add_input(new HTMLInput("gid", "hidden", $gid, ""));
+
+    foreach ($fields as $column => $label)
+    {
+        $input = new HTMLInput($column, "checkbox", "1", "");
+        $input->set_label($label);
+        $input->set_checked((int) $row->{$column} === 1);
+        $form->add_input($input);
+    }
+
+    $save = new HTMLButton("save_game", "submit", "Save");
+    $save->set_class("debug-menu-button");
+    $form->add_button($save);
+    $form->print();
+
+    mysqli_close($db);
 }
