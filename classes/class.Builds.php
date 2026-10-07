@@ -37,7 +37,7 @@ public static function printResultsPerPage() : void
 
     $http_query = new HTTPQuery($get);
 
-    print(resultsPerPage($http_query->get_except($http_query::to_exclusions(array("order")))));
+    print(resultsPerPage($http_query->get_except($http_query::to_exclusions(array("order", "search")))));
 }
 
 
