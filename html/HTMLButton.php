@@ -22,22 +22,38 @@
 
 class HTMLButton
 {
-    public string $name;
-    public string $type;
-    public string $value;
+    public string  $name;
+    public string  $type;
+    public string  $value;
+    public ?string $class;
 
     function __construct(string $name, string $type, string $value)
     {
         $this->name  = $name;
         $this->type  = $type;
         $this->value = $value;
+        $this->class = null;
+    }
+
+    public function set_class(string $class) : void
+    {
+        $this->class = $class;
     }
 
     public function to_string() : string
     {
-        return sprintf("<button name=\"%s\" type=\"%s\">%s</button>".PHP_EOL,
+        $class = "";
+
+        if (!is_null($this->class) && $this->class !== "")
+        {
+            $class = sprintf(" class=\"%s\"",
+                             htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        }
+
+        return sprintf("<button name=\"%s\" type=\"%s\"%s>%s</button>".PHP_EOL,
                        htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                        htmlspecialchars($this->type, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       $class,
                        htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
     }
 

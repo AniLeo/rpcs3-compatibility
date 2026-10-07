@@ -657,7 +657,9 @@ function compatibilityUpdater() : void
     {
         // Display update button
         $form = new HTMLForm("", "POST");
-        $form->add_button(new HTMLButton("updateCompatibility", "submit", "Update Compatibility"));
+        $button = new HTMLButton("updateCompatibility", "submit", "Update Compatibility");
+        $button->set_class("debug-menu-button");
+        $form->add_button($button);
         $form->print();
     }
 
@@ -671,7 +673,9 @@ function refreshBuild() : void
 
     $form = new HTMLForm("", "POST");
     $form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
-    $form->add_button(new HTMLButton("refreshBuild", "submit", "Refresh"));
+    $button = new HTMLButton("refreshBuild", "submit", "Refresh");
+    $button->set_class("debug-menu-button");
+    $form->add_button($button);
     $form->print();
 
     if (!isset($_POST["refreshBuild"]))
@@ -688,10 +692,18 @@ function mergeGames() : void
     $gid2 = isset($_POST['gid2']) && is_string($_POST['gid2']) ? trim($_POST['gid2']) : "";
 
     $form = new HTMLForm("", "POST");
+
     $form->add_input(new HTMLInput("gid1", "text", $gid1, "Game ID 1"));
     $form->add_input(new HTMLInput("gid2", "text", $gid2, "Game ID 2"));
-    $form->add_button(new HTMLButton("mergeRequest", "submit", "Merge Request"));
-    $form->add_button(new HTMLButton("mergeConfirm", "submit", "Merge Confirm"));
+
+    $button1 = new HTMLButton("mergeRequest", "submit", "Merge Request");
+    $button1->set_class("debug-menu-button");
+    $form->add_button($button1);
+
+    $button2 = new HTMLButton("mergeConfirm", "submit", "Merge Confirm");
+    $button2->set_class("debug-menu-button");
+    $form->add_button($button2);
+
     $form->print();
 
     if (!isset($_POST['mergeRequest']) && !isset($_POST['mergeConfirm']))
@@ -877,58 +889,105 @@ function flag_build_as_broken() : void
 
     $pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
 
+    $db = get_database("compat");
+    $q_recent = mysqli_query($db, "SELECT `pr`, `version`, `merge_datetime`, `title`, `broken`, `username`
+                                   FROM `builds`
+                                   LEFT JOIN `contributors`
+                                     ON `builds`.`author` = `contributors`.`id`
+                                   WHERE `merge_datetime` > NOW() - INTERVAL 3 DAY
+                                   ORDER BY `merge_datetime` DESC;");
+
     $form = new HTMLForm("", "POST");
-    $form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
-    $form->add_button(new HTMLButton("flag_build_as_broken", "submit", "Flag as broken"));
-    $form->add_button(new HTMLButton("unflag_build_as_broken", "submit", "Unflag as broken"));
+    $select = new HTMLSelect("pr");
+
+    if (is_bool($q_recent) || mysqli_num_rows($q_recent) === 0)
+    {
+        $select->add_option(new HTMLOption("0", "No builds from the last 3 days"));
+    }
+    else
+    {
+        while ($row = mysqli_fetch_object($q_recent))
+        {
+            $title = (is_string($row->title) && $row->title !== "") ? " - {$row->title}" : "";
+            $broken = ((int) $row->broken === 1) ? " [broken]" : "";
+            $label = sprintf("#%d - %s - v%s - %s%s%s",
+                             (int) $row->pr,
+                             getDateDiff($row->merge_datetime),
+                             $row->version,
+                             $row->username,
+                             $title,
+                             $broken);
+            $select->add_option(new HTMLOption((string) $row->pr, $label));
+        }
+    }
+
+    $flag = new HTMLButton("flag_build_as_broken", "submit", "Flag as Broken");
+    $flag->set_class("debug-menu-button");
+    $unflag = new HTMLButton("unflag_build_as_broken", "submit", "Unflag as Broken");
+    $unflag->set_class("debug-menu-button");
+
+    $form->add_select($select);
+    $form->add_button($flag);
+    $form->add_button($unflag);
+
+    $title = new HTMLDiv("debug-main-title compat-text");
+    $title->add_content("Flag Build as Broken");
+    $title->print();
     $form->print();
 
     if ($pr === 0)
+    {
+        mysqli_close($db);
         return;
+    }
 
     if (!isset($_POST["flag_build_as_broken"]) && !isset($_POST["unflag_build_as_broken"]))
+    {
+        mysqli_close($db);
         return;
+    }
 
-    $db = get_database("compat");
-    $q_build = mysqli_query($db, "SELECT * 
-                                  FROM `builds` 
-                                  WHERE `pr` = '{$pr}' 
+    $q_build = mysqli_query($db, "SELECT *
+                                  FROM `builds`
+                                  WHERE `pr` = '{$pr}'
                                   LIMIT 1; ");
 
     if (is_bool($q_build) || mysqli_num_rows($q_build) === 0)
+    {
+        mysqli_close($db);
         return;
+    }
 
     $build = Build::query_to_builds($q_build)[0];
-
     $build_time = strtotime($build->merge);
 
-    // Cannot flag builds older than a week as broken
-    if (time() - $build_time > 7 * 24 * 60 * 60)
+    // Cannot flag or unflag builds older than 3 days
+    if ($build_time === false || time() - $build_time > 3 * 24 * 60 * 60)
     {
-        print("<b>The build is older than a week. Cannot flag as broken.</b><br>");
-        mysqli_close($db);
-        return;
+        print("<b>The build is older than 3 days. Cannot flag or unflag as broken.</b><br>");
     }
-
     // Permissions: Update
-    if (array_search("debug.update", $get['w']) === false)
+    else if (array_search("debug.update", $get['w']) === false)
     {
         print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
-        mysqli_close($db);
-        return;
     }
-
-    if (isset($_POST["flag_build_as_broken"]))
+    else if (isset($_POST["flag_build_as_broken"]))
     {
         mysqli_query($db, "UPDATE `builds` SET `broken` = 1 WHERE `pr` = {$pr}; ");
-        printf("<p>Flagged <b>%d</b> as broken.</p>",
-               $pr);
+        printf("<p>Flagged <b>%d</b> as broken.</p>", $pr);
     }
     else if (isset($_POST["unflag_build_as_broken"]))
     {
-        mysqli_query($db, "UPDATE `builds` SET `broken` = 0 WHERE `pr` = {$pr}; ");
-        printf("<p>Unflagged <b>%d</b> as broken.</p>",
-               $pr);
+        $missing = is_null($build->filename_win) || $build->filename_win === ""
+                || is_null($build->filename_linux) || $build->filename_linux === ""
+                || is_null($build->filename_mac) || $build->filename_mac === ""
+                || is_null($build->filename_win_arm64) || $build->filename_win_arm64 === ""
+                || is_null($build->filename_linux_arm64) || $build->filename_linux_arm64 === ""
+                || is_null($build->filename_mac_arm64) || $build->filename_mac_arm64 === "";
+
+        $broken = $missing ? "2" : "NULL";
+        mysqli_query($db, "UPDATE `builds` SET `broken` = {$broken} WHERE `pr` = {$pr}; ");
+        printf("<p>Unflagged <b>%d</b> as broken.</p>", $pr);
     }
 
     mysqli_close($db);
@@ -967,7 +1026,9 @@ function export_build_backup() : void
     }
 
     $form->add_select($select_tag);
-    $form->add_button(new HTMLButton("backupRequest", "submit", "Backup Request"));
+    $button = new HTMLButton("backupRequest", "submit", "Backup Request");
+    $button->set_class("debug-menu-button");
+    $form->add_button($button);
     $form->print();
 
     if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac", "win-arm64", "linux-arm64", "mac-arm64")))

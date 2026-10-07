@@ -68,24 +68,16 @@ class HTMLForm
         foreach ($this->inputs as $input)
         {
             $ret .= $input->to_string();
-            $ret .= "<br>".PHP_EOL;
         }
 
         foreach ($this->selects as $select)
         {
             $ret .= $select->to_string();
-            $ret .= "<br>".PHP_EOL;
-        }
-
-        if ((!empty($this->inputs) || !empty($this->selects)) && !empty($this->buttons))
-        {
-            $ret .= "<br>";
         }
 
         foreach ($this->buttons as $button)
         {
             $ret .= $button->to_string();
-            $ret .= "<br>".PHP_EOL;
         }
 
         $ret .= "</form>".PHP_EOL;

@@ -827,6 +827,19 @@ progress[value]::-webkit-progress-value {
     margin-top: 25px
 }
 
+.compat-other-titles {
+    padding-left: 38px;
+}
+
+.text-underline {
+    text-decoration: underline!important
+}
+
+.text-bold {
+    font-weight: 700
+}
+
+/***** Debug Panel *****/
 .debug-main {
     font-size: 14px;
     border-radius: 6px;
@@ -846,76 +859,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .debug-main-content {
-    margin-top: 40px
-}
-
-.debug-main-content input {
-    background: #161c30;
-    color: #fff;
-    height: 35px;
-    width: 200px;
-    margin-bottom: 20px;
-    border: solid 2px #2f3a65;
-    padding-left: 12px
-}
-
-.debug-main-content button {
-    background: #2f3a65;
-    height: 35px;
-    width: 200px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    padding-left: 12px;
-    color: #fff;
-    margin-right: 10px;
-    cursor: pointer;
-    border: solid 2px transparent
-}
-
-.debug-main-content button:hover {
-    border: solid 2px #0080ff
-}
-
-.debug-menu-button {
-    padding: 5px;
-    margin-left: 10px;
-    border-radius: 6px;
-    width: 180px;
-    text-align: center;
-    display: inline-block;
-    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
-    border: solid 2px #fff;
-    font-weight: bold
-}
-
-.debug-menu-button a:hover {
-    color: #03a9f4;
-    text-decoration: underline
-}
-
-.debug-tvalidity-title {
-    padding-left: 10px;
-    border-radius: 6px;
-    border: solid 2px;
-    line-height: 32px;
-    margin-bottom: 20px
-}
-
-.debug-tvalidity-list {
-    padding-top: 8px;
-    padding-bottom: 8px
-}
-
-.compat-other-titles {
-    padding-left: 38px;
-}
-
-.text-underline {
-    text-decoration: underline!important
-}
-
-.text-bold {
-    font-weight: 700
+    margin-top: 30px
 }
 
 .debug-profiler-line {
@@ -923,4 +867,63 @@ progress[value]::-webkit-progress-value {
     width: 8ch;
     text-align: right;
     font-variant-numeric: tabular-nums
+}
+
+.debug-main-content select {
+    background: #161c30;
+    color: #fff;
+    display: block;
+    height: 42px;
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 20px;
+    border: solid 2px #2f3a65;
+    border-radius: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    cursor: pointer
+}
+
+.debug-main-content select:hover,
+.debug-main-content select:focus {
+    border: solid 2px #0080ff;
+    outline: 0
+}
+
+.debug-main-content select option {
+    background: #161c30;
+    color: #fff
+}
+
+.debug-menu-button {
+    padding: 5px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    width: 180px;
+    text-align: center;
+    display: inline-block;
+    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
+    border: solid 2px #fff;
+    color: #0074e7;
+    font-weight: bold;
+    line-height: inherit
+}
+
+.debug-menu-button:hover {
+    text-decoration: none;
+    color: #03a9f4;
+}
+
+.debug-tvalidity-title {
+    padding-left: 10px;
+    border-radius: 6px;
+    border: solid 2px;
+    line-height: 32px;
+    margin-bottom: 30px
+}
+
+.debug-tvalidity-list {
+    padding-top: 8px;
+    padding-bottom: 8px
 }
