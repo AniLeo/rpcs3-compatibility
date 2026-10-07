@@ -917,3 +917,10 @@ progress[value]::-webkit-progress-value {
 .text-bold {
     font-weight: 700
 }
+
+.debug-profiler-line {
+    display: inline-block;
+    width: 8ch;
+    text-align: right;
+    font-variant-numeric: tabular-nums
+}

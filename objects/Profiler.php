@@ -144,11 +144,12 @@ class Profiler
             {
                 $next = ($i + 1 < $size) ? self::$time[$i + 1] : $now;
 
-                $ret .= sprintf("%.3f ms &nbsp;| &nbsp; %s<br>".PHP_EOL,
-                                $next - self::$time[$i],
-                                /*self::$mem[$i+1] - self::$mem[$i],*/
-                                self::$desc[$i]);
+                $ret .= sprintf(
+                    "<span class=\"debug-profiler-line\">%.3f</span> ms &nbsp; | &nbsp; %s<br>".PHP_EOL,
+                    $next - self::$time[$i],
+                    self::$desc[$i]);
             }
+
             $ret .= "</div>";
         }
 
