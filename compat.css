@@ -921,6 +921,7 @@ progress[value]::-webkit-progress-value {
 .compat-profiler div {
     display: block;
     background: rgba(0,102,204,.06);
+    margin-top: 10px;
     margin-bottom: 10px;
     padding-left: 12px;
     padding-right: 12px;

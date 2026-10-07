@@ -360,7 +360,7 @@ function compatibilityUpdater() : void
                 }
             }
 
-            $html_a = new HTMLA($a_inserts[$thread->tid]['thread']->get_thread_url(), "", (string) $a_inserts[$thread->tid]['thread']->tid);
+            $html_a = new HTMLA($a_inserts[$thread->tid]['thread']->get_thread_url(), "", htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
             $html_a->set_target("_blank");
 
             // Invalid report found
@@ -395,8 +395,7 @@ function compatibilityUpdater() : void
             $commit        = $a_inserts[$thread->tid]['commit'];
             $date_commit   = $a_commits[$commit]["merge"];
 
-            $log_new .= sprintf("<div><b>New:</b> %s (tid: %s, author: %s, type: %s)<br>",
-                                htmlspecialchars($thread->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+            $log_new .= sprintf("<div><b>New:</b> %s (author: %s, type: %s)<br>",
                                 $html_a->to_string(),
                                 htmlspecialchars($a_inserts[$thread->tid]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                                 $thread->get_game_type_name());
@@ -504,7 +503,7 @@ function compatibilityUpdater() : void
             }
 
             // Link to the forum post
-            $html_a = new HTMLA($a_updates[$cur_game->key]['thread']->get_thread_url(), "", (string) $a_updates[$cur_game->key]['pid']);
+            $html_a = new HTMLA($a_updates[$cur_game->key]['thread']->get_thread_url(), "", "{$cur_game->title()} [{$thread->get_game_id()}]");
             $html_a->set_target("_blank");
 
             // Attachment checks
@@ -536,9 +535,7 @@ function compatibilityUpdater() : void
             $date_commit       = "({$a_commits[$commit]["merge"]})";
             $old_version        = !is_null($cur_game->version) ? $cur_game->version : "null";
 
-            $log_mov .= sprintf("<div><b>Mov:</b> %s - %s (pid: %s, author: %s, type: %s)<br>",
-                                $thread->get_game_id(),
-                                htmlspecialchars($cur_game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+            $log_mov .= sprintf("<div><b>Mov:</b> %s (author: %s, type: %s)<br>",
                                 $html_a->to_string(),
                                 htmlspecialchars($a_updates[$cur_game->key]['author'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                                 $thread->get_game_type_name());
@@ -562,21 +559,21 @@ function compatibilityUpdater() : void
     Profiler::add_data("Panel: Print Log");
     if (!empty($log_warn))
     {
-        print("<div class=\"compat-profiler\"><div class=\"text-bold\">Warnings</div>");
+        print("<div class=\"compat-profiler\"><div><span class=\"text-bold\">Warnings</span>");
         print($log_warn);
-        print("</div>");
+        print("</div></div>");
     }
     if (!empty($log_new))
     {
-        print("<div class=\"compat-profiler\"><div class=\"text-bold\">New reports</div>");
+        print("<div class=\"compat-profiler\"><div><span class=\"text-bold\">New reports</span>");
         print($log_new);
-        print("</div>");
+        print("</div></div>");
     }
     if (!empty($log_mov))
     {
-        print("<div class=\"compat-profiler\"><div class=\"text-bold\">Updated reports</div>");
+        print("<div class=\"compat-profiler\"><div><span class=\"text-bold\">Updated reports</span>");
         print($log_mov);
-        print("</div>");
+        print("</div></div>");
     }
     print("</div>"); // End log
 
@@ -1030,7 +1027,7 @@ function export_build_backup() : void
 
     $select_tag = new HTMLSelect("tag");
     $select_tag->add_option(new HTMLOption("all", "All"));
-    
+
     while ($row = mysqli_fetch_object($q_version_tags))
     {
         $select_tag->add_option(new HTMLOption($row->version_tag, $row->version_tag));
@@ -1373,8 +1370,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
     if (is_null($game) || is_null($item))
         return null;
 
-    $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-    $html_a = new HTMLA($thread->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$html_title}");
+    $html_a = new HTMLA($thread->get_thread_url(), "", "{$item->thread_id}: [{$item->game_id}] {$item->title}");
     $html_a->set_target("_blank");
 
     if ($item->thread_id != $thread->tid)
@@ -1399,8 +1395,8 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
     {
         return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is in the wrong section.<br>".
-               "- Compat: {$a_status[$game->status]['name']} <br>".
-               "- Forums: {$a_status[$sid]['name']}<br>".
+               "- Compat: <span style=\"color:#{$a_status[$game->status]['color']}\">{$a_status[$game->status]['name']}</span><br>".
+               "- Forums: <span style=\"color:#{$a_status[$sid]['color']}\">{$a_status[$sid]['name']}</span><br>".
                "</span>";
     }
 
