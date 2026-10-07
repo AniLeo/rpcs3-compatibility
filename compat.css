@@ -850,7 +850,7 @@ progress[value]::-webkit-progress-value {
     font-variant-numeric: tabular-nums
 }
 
-.debug-main-content select {
+.debug-main-content select, input {
     background: #161c30;
     color: #fff;
     display: block;
@@ -896,15 +896,17 @@ progress[value]::-webkit-progress-value {
     color: #03a9f4;
 }
 
-.debug-tvalidity-title {
+.debug-status-message {
     padding-left: 10px;
     border-radius: 6px;
     border: solid 2px;
     line-height: 32px;
-    margin-bottom: 30px
+    margin-bottom: 30px;
+    display: block
 }
 
-.debug-tvalidity-list {
+.debug-message {
+    display: block;
     padding-top: 8px;
     padding-bottom: 8px
 }

@@ -45,6 +45,10 @@ function runFunctions() : void
     {
         Profiler::add_data("Panel: Run Function ({$get['a']})");
 
+        $title = new HTMLDiv("debug-main-title compat-text");
+        $title->add_content($a_panel[$get['a']]['title']);
+        $title->print();
+
         $ret = runFunctionWithCronometer($get['a']);
 
         if (!empty($a_panel[$get['a']]['success']))
@@ -151,7 +155,7 @@ function checkInvalidThreads() : void
 
     if ($invalid > 0)
     {
-        printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Invalid threads detected</p>",
+        printf("<span class='debug-status-message color-red background-red'>Attention required! %d Invalid threads detected</span>",
                $invalid);
 
         if ($get['a'] === "checkInvalidThreads")
@@ -159,7 +163,7 @@ function checkInvalidThreads() : void
     }
     else
     {
-        print("<p class='debug-tvalidity-title color-green background-green'>No invalid threads detected</p>");
+        print("<span class='debug-status-message color-green background-green'>No invalid threads detected</span>");
     }
 }
 
@@ -939,9 +943,6 @@ function flag_build_as_broken() : void
     $form->add_button($flag);
     $form->add_button($unflag);
 
-    $title = new HTMLDiv("debug-main-title compat-text");
-    $title->add_content("Flag Build as Broken");
-    $title->print();
     $form->print();
 
     if ($pr === 0)
@@ -1029,15 +1030,18 @@ function export_build_backup() : void
 
     $select_tag = new HTMLSelect("tag");
     $select_tag->add_option(new HTMLOption("all", "All"));
+    
     while ($row = mysqli_fetch_object($q_version_tags))
     {
         $select_tag->add_option(new HTMLOption($row->version_tag, $row->version_tag));
     }
 
     $form->add_select($select_tag);
+
     $button = new HTMLButton("backupRequest", "submit", "Backup Request");
     $button->set_class("debug-menu-button");
     $form->add_button($button);
+
     $form->print();
 
     if (!isset($_POST['os']) || !is_string($_POST['os']) || !in_array($_POST['os'], array("win", "linux", "mac", "win-arm64", "linux-arm64", "mac-arm64")))
@@ -1164,11 +1168,11 @@ function check_duplicated_entries() : void
 
     if ($count === 0)
     {
-        print("<p class='debug-tvalidity-title color-green background-green'>No duplicated threads detected</p>");
+        print("<span class='debug-status-message color-green background-green'>No duplicated threads detected</span>");
     }
     else
     {
-        printf("<p class='debug-tvalidity-title color-red background-red'>Attention required! %d Duplicated entries detected</p>", $count);
+        printf("<span class='debug-status-message color-red background-red'>Attention required! %d Duplicated entries detected</span>", $count);
 
         if ($get['a'] === "check_duplicated_entries")
         {
@@ -1340,7 +1344,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
             return null;
 
         $html_title = htmlspecialchars($item->title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$item->thread_id}: [{$item->game_id}] {$html_title} doesn't exist.<br>".
                "</span>";
     }
@@ -1354,14 +1358,14 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
 
     if (is_null($game_id) || is_null($title))
     {
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is incorrectly formatted.<br>".
                "</span>";
     }
 
     if (is_null($sid))
     {
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is in an unknown section.<br>".
                "</span>";
     }
@@ -1375,7 +1379,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
 
     if ($item->thread_id != $thread->tid)
     {
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is a duplicate.<br>".
                "- Compat: {$item->thread_id}<br>".
                "- Forums: {$thread->tid}<br>".
@@ -1384,7 +1388,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
 
    if ($item->game_id !== $game_id)
     {
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is incorrect.<br>".
                "- Compat: {$html_title} [{$item->game_id}]<br>".
                "- Forums: {$game_id}<br>".
@@ -1393,7 +1397,7 @@ function validate_thread(?MyBBThread $thread, ?Game $game = null, ?GameItem $ite
 
     if ($game->status !== $sid)
     {
-        return "<span class='debug-tvalidity-list'>".
+        return "<span class='debug-message compat-text'>".
                "Thread {$html_a->to_string()} is in the wrong section.<br>".
                "- Compat: {$a_status[$game->status]['name']} <br>".
                "- Forums: {$a_status[$sid]['name']}<br>".
