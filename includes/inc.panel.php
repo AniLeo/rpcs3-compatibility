@@ -63,42 +63,40 @@ function checkInvalidThreads() : void
 
     $invalid = 0;
     $output = "";
-    $where = "";
-    $a_threads = array();
+    $fids = array();
 
-    // Generate WHERE condition for our query
-    // Includes all forum IDs for the game status sections
-    $where = '';
     foreach ($a_status as $id => $status)
     {
         foreach ($status["fid"] as $fid)
         {
-            if (!empty($where))
-                $where .= "||";
-
-            $where .= " `fid` = {$fid} ";
+            $fids[] = (int) $fid;
         }
     }
+    $fid_in = implode(",", $fids);
 
     $db = get_database("compat");
     $db_forums = get_database("forums");
 
     $q_threads = mysqli_query($db_forums, "SELECT `tid`, `subject`, `fid`
-    FROM `rpcs3_forums`.`mybb_threads`
-    WHERE ({$where}) AND `visible` > 0 AND `closed` NOT LIKE 'moved%'; ");
+                                           FROM `rpcs3_forums`.`mybb_threads`
+                                           WHERE `fid` IN ({$fid_in})
+                                             AND `visible` > 0
+                                             AND `closed` NOT LIKE 'moved%';");
 
-    $q_games = mysqli_query($db, "SELECT * FROM `game_list`; ");
+    $q_items = mysqli_query($db, "SELECT `gid`, `game_title`, `tid`, `status`
+                                  FROM `game_id`
+                                  INNER JOIN `game_list` 
+                                    ON `game_list`.`key` = `game_id`.`key`;");
 
     mysqli_close($db_forums);
 
-    if (is_bool($q_games) || is_bool($q_threads))
+    if (is_bool($q_items) || is_bool($q_threads))
     {
         mysqli_close($db);
         print("<b>Error while fetching the game or thread list</b>");
         return;
     }
 
-    $a_games = Game::query_to_games($q_games, $db);
     mysqli_close($db);
 
     while ($row = mysqli_fetch_object($q_threads))
@@ -112,31 +110,42 @@ function checkInvalidThreads() : void
             return;
         }
 
-        $html_subject = htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
         $thread = new MyBBThread($row->tid, $row->fid, $row->subject);
 
         if (is_null($thread->get_game_id()))
         {
-            $html_a = new HTMLA($thread->get_thread_url(), "", $html_subject);
+            $html_a = new HTMLA($thread->get_thread_url(), "", htmlspecialchars($row->subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
             $html_a->set_target("_blank");
 
             $output .= "<p>Thread {$html_a->to_string()} is incorrectly formatted.</p>";
+            $invalid++;
             continue;
         }
 
-        $a_threads[$row->tid] = $thread;
+        $a_threads[(int) $row->tid] = $thread;
     }
 
-    foreach ($a_games as $game)
+    while ($row = mysqli_fetch_object($q_items))
     {
-        foreach ($game->game_item as $item)
+        if (!property_exists($row, "gid") ||
+            !property_exists($row, "game_title") ||
+            !property_exists($row, "tid") ||
+            !property_exists($row, "status"))
         {
-            $message = validate_thread($a_threads[$item->thread_id] ?? null, $game, $item);
-            if (!is_null($message))
-            {
-                $output .= $message;
-                $invalid++;
-            }
+            continue;
+        }
+
+        $sid = getStatusID($row->status);
+        if (is_null($sid))
+            continue;
+
+        $game = new Game(0, "", $sid, "", 0, 0, 0, null, null, null, null);
+        $item = new GameItem($row->gid, $row->game_title, (int) $row->tid, null);
+        $message = validate_thread($a_threads[(int) $row->tid] ?? null, $game, $item);
+        if (!is_null($message))
+        {
+            $output .= $message;
+            $invalid++;
         }
     }
 
