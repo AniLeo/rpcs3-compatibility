@@ -390,14 +390,14 @@ public static function getBuildsRSS() : string
             "</item>";
     }
 
-    $self = xml_escape("https://rpcs3.net/compatibility?api=v1&rss&b");
+    $self = xml_escape("https://rpcs3.net/builds?rss&api=v1");
 
     return
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>".
         "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">".
             "<channel>".
                 "<title>RPCS3 Builds History's RSS feed</title>".
-                "<link>https://rpcs3.net/compatibility?b</link>".
+                "<link>https://rpcs3.net/builds</link>".
                 "<description>For more information about RPCS3 visit https://rpcs3.net</description>".
                 "<language>en-uk</language>".
                 "<category>Emulation</category>".

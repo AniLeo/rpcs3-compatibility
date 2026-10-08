@@ -686,22 +686,22 @@ function getMenu(string $file) : string
 
     if ($file !== "compat")
     {
-        $html_a = new HTMLA("?", "Compatibility List", "Compatibility List");
+        $html_a = new HTMLA("/compatibility", "Compatibility List", "Compatibility List");
         $html_div->add_content($html_a->to_string());
     }
     if ($file !== "history")
     {
-        $html_a = new HTMLA("?h", "Compatibility History", "Compatibility History");
+        $html_a = new HTMLA("/compatibility?h", "Compatibility History", "Compatibility History");
         $html_div->add_content($html_a->to_string());
     }
     if ($file !== "builds")
     {
-        $html_a = new HTMLA("?b", "Builds History", "Builds History");
+        $html_a = new HTMLA("/builds", "Builds History", "Builds History");
         $html_div->add_content($html_a->to_string());
     }
     if (!is_null($get['w']) && $file !== "panel")
     {
-        $html_a = new HTMLA("?a", "Debug Panel", "Debug Panel");
+        $html_a = new HTMLA("/compatibility?a", "Debug Panel", "Debug Panel");
         $html_div->add_content($html_a->to_string());
     }
 
