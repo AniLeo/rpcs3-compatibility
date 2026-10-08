@@ -738,7 +738,7 @@ public static function printStatusModule() : void
 
         // Progress bar
         $html_div_progress = new HTMLDiv("compat-status-progress");
-        $html_div_progress->add_content("<progress class='compat-status-progressbar' id='compat-progress{$id}' style=\"color:#{$status['color']}\" max=\"100\" value=\"{$percentage}\"></progress>");
+        $html_div_progress->add_content("<progress class='compat-status-progressbar compat-progress{$id}' max=\"100\" value=\"{$percentage}\"></progress>");
         $html_div_main->add_content($html_div_progress->to_string());
 
         // Add current status parent div to the root div

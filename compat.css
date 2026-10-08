@@ -622,32 +622,35 @@ progress[value]::-webkit-progress-value {
     --progress-color: transparent
 }
 
-#compat-progress1 {
+.compat-progress1 {
     --progress-color: #19a052;
 }
 
-#compat-progress2 {
+.compat-progress2 {
     --progress-color: #d49828;
 }
 
-#compat-progress3 {
+.compat-progress3 {
     --progress-color: #be751a;
 }
 
-#compat-progress4 {
+.compat-progress4 {
     --progress-color: #c44133;
 }
 
-#compat-progress5 {
+.compat-progress5 {
     --progress-color: #455556;
 }
 
-.compat-status-progressbar::-webkit-progress-bar,
-.compat-status-progressbar::-moz-progress-bar {
+.compat-status-progressbar::-webkit-progress-bar {
     background-color: transparent;
 }
 
-.compat-status-progressbar::-webkit-progress-value,
+.compat-status-progressbar::-webkit-progress-value {
+    background-color: var(--progress-color);
+    border-radius: 24px;
+}
+
 .compat-status-progressbar::-moz-progress-bar {
     background-color: var(--progress-color);
 }
