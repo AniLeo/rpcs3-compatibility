@@ -35,7 +35,19 @@ $a_order = array(
 '1a' => 'ORDER BY pr ASC',
 '1d' => 'ORDER BY pr DESC',
 '4a' => 'ORDER BY merge_datetime ASC',
-'4d' => 'ORDER BY merge_datetime DESC'
+'4d' => 'ORDER BY merge_datetime DESC',
+'6a' => 'ORDER BY
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 1), \'.\', -1) AS UNSIGNED) ASC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 2), \'.\', -1) AS UNSIGNED) ASC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 3), \'.\', -1) AS UNSIGNED) ASC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 4), \'.\', -1) AS UNSIGNED) ASC,
+    CAST(SUBSTRING_INDEX(`version`, \'-\', -1) AS UNSIGNED) ASC',
+'6d' => 'ORDER BY
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 1), \'.\', -1) AS UNSIGNED) DESC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 2), \'.\', -1) AS UNSIGNED) DESC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 3), \'.\', -1) AS UNSIGNED) DESC,
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(SUBSTRING_INDEX(`version`, \'-\', 1), \'.0.0.0\'), \'.\', 4), \'.\', -1) AS UNSIGNED) DESC,
+    CAST(SUBSTRING_INDEX(`version`, \'-\', -1) AS UNSIGNED) DESC',
 );
 
 if (isset($get['o']) && isset($a_order[$get['o']]))

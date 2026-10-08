@@ -88,7 +88,7 @@ public static function printTable() : void
         array(
             'name' => 'Version',
             'class' => 'compat-table-cell compat-table-cell-version',
-            'sort' => '0'
+            'sort' => '6'
         )
     );
     print(getTableHeaders($headers, 'b'));
