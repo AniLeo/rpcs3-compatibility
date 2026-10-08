@@ -1514,3 +1514,113 @@ function edit_game() : void
 
     mysqli_close($db);
 }
+
+function refresh_incomplete_builds() : void
+{
+    Profiler::add_data("Panel: Refresh Incomplete Builds");
+
+    set_time_limit(300);
+
+    $db = get_database("compat");
+    $missing = "`title` IS NULL
+                OR `title` = ''
+                OR `body` IS NULL
+                OR `additions` IS NULL
+                OR `deletions` IS NULL
+                OR `changed_files` IS NULL";
+
+    $q_count = mysqli_query($db, "SELECT COUNT(*) AS `total`
+                                  FROM `builds`
+                                  WHERE {$missing}; ");
+
+    $total = 0;
+    if (!is_bool($q_count) && ($row = mysqli_fetch_object($q_count)))
+        $total = (int) $row->total;
+
+    if ($total === 0)
+    {
+        mysqli_close($db);
+        print("<span class='debug-status-message color-green background-green'>No builds missing title, body or diff stats.</span>");
+        return;
+    }
+
+    $q_missing = mysqli_query($db, "SELECT `pr`
+                                    FROM `builds`
+                                    WHERE {$missing}
+                                    ORDER BY `merge_datetime` DESC
+                                    LIMIT 50; ");
+
+    if (is_bool($q_missing))
+    {
+        mysqli_close($db);
+        print("<p><b>Error:</b> Could not fetch incomplete builds.</p>");
+        return;
+    }
+
+    $prs = array();
+    while ($row = mysqli_fetch_object($q_missing))
+    {
+        $prs[] = (int) $row->pr;
+    }
+
+    print("<div class=\"compat-text\">");
+    cache_builds_metadata($prs, $db);
+    print("</div>");
+    
+    $in = implode(",", $prs);
+    $q_updated = mysqli_query($db, "SELECT `builds`.`pr`,
+                                           `builds`.`title`,
+                                           `builds`.`additions`,
+                                           `builds`.`deletions`,
+                                           `builds`.`changed_files`,
+                                           `contributors`.`username`
+                                    FROM `builds`
+                                    LEFT JOIN `contributors`
+                                      ON `builds`.`author` = `contributors`.`id`
+                                    WHERE `builds`.`pr` IN ({$in})
+                                    ORDER BY `builds`.`merge_datetime` DESC; ");
+
+    if (is_bool($q_updated))
+    {
+        mysqli_close($db);
+        print("<p><b>Error:</b> Builds were refreshed, but the result list could not be loaded.</p>");
+        return;
+    }
+
+    print("<div class=\"compat-text\">");
+    $refreshed = 0;
+    $q_done = mysqli_query($db, "SELECT COUNT(*) AS `done`
+                                 FROM `builds`
+                                 WHERE `pr` IN ({$in})
+                                   AND `title` IS NOT NULL AND `title` <> ''
+                                   AND `body` IS NOT NULL
+                                   AND `additions` IS NOT NULL
+                                   AND `deletions` IS NOT NULL
+                                   AND `changed_files` IS NOT NULL; ");
+
+    if (!is_bool($q_done) && ($row = mysqli_fetch_object($q_done)))
+        $refreshed = (int) $row->done;
+
+    printf("<div><b>Refreshed:</b> %d out of %d</div><br>", $refreshed, $total);
+
+    while ($row = mysqli_fetch_object($q_updated))
+    {
+        if (empty($row->title))
+            continue;
+        
+        $author = htmlspecialchars((string) $row->username, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $additions = is_null($row->additions) ? "?" : (int) $row->additions;
+        $deletions = is_null($row->deletions) ? "?" : (int) $row->deletions;
+        $files = is_null($row->changed_files) ? "?" : (int) $row->changed_files;
+
+        $html_a = new HTMLA("https://github.com/RPCS3/rpcs3/pull/{$row->pr}", "", "#{$row->pr} - {$row->title}");
+        $html_a->set_target("_blank");
+
+        printf("<div class=\"debug-message\"><b>Updated:</b> %s (author: %s)<br>", $html_a->to_string(), $author);
+        printf("- Changes: <span class='color-green'>+%s</span>, <span class='color-red'>-%s</span> (±%s)<br>", $additions, $deletions, $files);
+        print("</div>");
+    }
+
+    print("</div>");
+    mysqli_close($db);
+}

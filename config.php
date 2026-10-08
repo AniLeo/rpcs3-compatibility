@@ -225,6 +225,11 @@ $a_panel = array(
         'category' => 0,
         'title' => "Edit Game",
         'success' => ""
+    ),
+    'refresh_incomplete_builds' => array(
+        'category' => 1,
+        'title' => "Refresh Incomplete Builds",
+        'success' => "Refreshed incomplete builds"
     )
 );
 

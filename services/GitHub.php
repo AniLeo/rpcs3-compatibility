@@ -402,7 +402,6 @@ function cache_build(int $pr) : void
         `size_mac_arm64`       = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["size"])."'" : "NULL").",
         `checksum_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["checksum"])."'" : "NULL").",
         `filename_mac_arm64`   = ".(isset($info_mac_arm64) ? "'".mysqli_real_escape_string($db, (string) $info_mac_arm64["filename"])."'" : "NULL").",
-        `broken`               = ".(isset($is_broken) ? "'".mysqli_real_escape_string($db, $is_broken)."'" : "NULL").",
         `title`                = '".mysqli_real_escape_string($db, $title)."',
         `body`                 = '".mysqli_real_escape_string($db, $body)."'
         WHERE `pr` = '{$pr}'
@@ -618,4 +617,78 @@ function cache_contributor(string $username) : int
     mysqli_close($db);
 
     return $info_contributor->id;
+}
+
+/**
+ * @param array<int, int> $prs
+ */
+function cache_builds_metadata(array $prs, mysqli $db) : void
+{
+    if ($prs === array() || !defined("gh_token"))
+        return;
+
+    $mh = curl_multi_init();
+    $handles = array();
+
+    foreach ($prs as $pr)
+    {
+        $pr = (int) $pr;
+        if ($pr <= 0)
+            continue;
+
+        $ch = curl_init("https://api.github.com/repos/rpcs3/rpcs3/pulls/{$pr}");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_USERAGENT, "RPCS3 - Compatibility");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: token ".gh_token));
+
+        curl_multi_add_handle($mh, $ch);
+        $handles[$pr] = $ch;
+    }
+
+    $running = 0;
+    $status = curl_multi_exec($mh, $running);
+
+    while ($running > 0 && $status === CURLM_OK)
+    {
+        if (curl_multi_select($mh, 1.0) === -1)
+            usleep(10000);
+
+        $status = curl_multi_exec($mh, $running);
+    }
+
+    foreach ($handles as $pr => $ch)
+    {
+        $raw = curl_multi_getcontent($ch);
+        $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $info = is_string($raw) && $raw !== "" ? json_decode($raw) : null;
+
+        if (!is_object($info) || !isset($info->title, $info->additions, $info->deletions, $info->changed_files))
+        {
+            $message = is_object($info) && isset($info->message) ? $info->message : "empty response";
+            printf("cache_builds_metadata(%d): HTTP %d, %s<br>".PHP_EOL, $pr, $code, $message);
+            continue;
+        }
+        else
+        {
+            $title = mysqli_real_escape_string($db, $info->title);
+            $body = mysqli_real_escape_string($db, $info->body ?? "");
+            $additions = (int) $info->additions;
+            $deletions = (int) $info->deletions;
+            $files = (int) $info->changed_files;
+
+            mysqli_query($db, "UPDATE `builds` SET
+                `title` = '{$title}',
+                `body` = '{$body}',
+                `additions` = {$additions},
+                `deletions` = {$deletions},
+                `changed_files` = {$files}
+                WHERE `pr` = {$pr}
+                LIMIT 1;");
+        }
+
+        curl_multi_remove_handle($mh, $ch);
+    }
+
+    curl_multi_close($mh);
 }
