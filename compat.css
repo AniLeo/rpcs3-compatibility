@@ -465,6 +465,8 @@ progress[value]::-webkit-progress-value {
     text-align: center;
     color: #000;
     border-radius: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
     background: rgba(0,102,204,.04)
 }
 
@@ -658,24 +660,22 @@ progress[value]::-webkit-progress-value {
 @media screen and (max-width: 1000px) {
 
     .banner-tx2-title > p{
-        width:30%;
+        width: 30%;
         overflow-wrap: break-word;
         margin-left: 35%;
-        line-height: 25px;
+        line-height: 25px
     }
 
     .compat-search-outer {
-        display:grid;
+        display: grid;
         grid-template-columns: repeat(15,1fr);
         grid-template-rows: 50% 50%;
         height: 60px;
-        border-radius: 10px;
+        border-radius: 10px
     }
 
     .compat-search-inner {
-        font-size: 14px;
-        width: auto;
-        height: 25px
+        width: auto
     }
 
     .compat-search-character {
@@ -693,7 +693,7 @@ progress[value]::-webkit-progress-value {
 
     .compat-hdr-right {
         width: 100%;
-        margin-top: 0;
+        margin-top: 20px;
         display: grid;
         grid-template-columns: 32% 33% 32%;
         grid-template-rows: 50% 50%;
@@ -702,10 +702,9 @@ progress[value]::-webkit-progress-value {
     }
 
     .compat-hdr-right a {
-        font-size: 12px;
-        margin-bottom: 10px;
+        margin-top: 10px;
         height: auto;
-        line-height: 15px;
+        line-height: 15px
     }
 
     .compat-status-container {
@@ -719,13 +718,18 @@ progress[value]::-webkit-progress-value {
     }
 
     .compat-status-main {
-        overflow-x: scroll;
-        overflow-y: hidden;
-        width: auto
+        height: auto;
+        overflow-x: visible;
+        overflow-y: visible;
     }
 
     .compat-status-text {
-        font-size: 12px
+        width: auto;
+        height: auto;
+        line-height: 20px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        padding: 8px 10px 8px 0;
     }
 
     .page-con-container {
@@ -733,20 +737,15 @@ progress[value]::-webkit-progress-value {
     }
 
     .compat-table-row{
-        overflow-x: scroll;
+        overflow-x: scroll
     }
 
     .compat-table-cell {
-        min-width: 100px;
+        min-width: 100px
     }
 
-    .compat-footer {
-        height: auto;
-    }
-
-    .compat-footer p {
-        overflow-wrap: break-word;
-        line-height: 25px;
+    .compat-table-cell-updated {
+        display: none
     }
 }
 
