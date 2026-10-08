@@ -335,15 +335,12 @@ public static function printCharSearch() : void
 
     foreach ($a_chars as $key => $value)
     {
-        if (!empty($key))
-        {
-            if (!empty($s_query))
-                $s_query .= '&';
+        $key_query = !empty($key) ? "c={$key}" : "";
 
-            $s_query = "c={$key}";
-        }
+        if (!empty($s_query) && !empty($key_query))
+            $key_query = '&'.$key_query;
 
-        $html_a = new HTMLA("?{$s_query}", $value, $value);
+        $html_a = new HTMLA("?{$s_query}{$key_query}", $value, $value);
         $html_a->set_class("compat-search-character");
 
         $html_div_inner = new HTMLDiv("compat-search-inner");
