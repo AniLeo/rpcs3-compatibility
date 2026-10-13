@@ -735,8 +735,9 @@ progress[value]::-webkit-progress-value {
         margin: auto 15px
     }
 
-    .compat-table-row{
-        overflow-x: scroll
+    .compat-table-row {
+        overflow-x: scroll;
+        scrollbar-width: none
     }
 
     .compat-table-cell {
@@ -851,7 +852,8 @@ progress[value]::-webkit-progress-value {
     font-variant-numeric: tabular-nums
 }
 
-.debug-main-content select, input {
+.debug-main-content select, 
+.debug-main-content input {
     background: #161c30;
     color: #fff;
     display: block;
