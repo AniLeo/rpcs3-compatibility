@@ -1418,6 +1418,18 @@ function edit_game() : void
     );
 
     $db = get_database("compat");
+
+    $game_ids = array();
+    $q_game_ids = mysqli_query($db, "SELECT DISTINCT `gid` FROM `game_id` ORDER BY `gid`;");
+    if (!is_bool($q_game_ids))
+    {
+        while ($game_id = mysqli_fetch_object($q_game_ids))
+        {
+            if (isset($game_id->gid) && is_string($game_id->gid))
+                $game_ids[] = $game_id->gid;
+        }
+    }
+
     $row = null;
 
     if ($gid !== "" && isGameID($gid))
@@ -1461,12 +1473,18 @@ function edit_game() : void
         }
     }
 
-    $search = new HTMLForm("", "POST");
-    $search->add_input(new HTMLInput("gid", "text", $gid, "Game ID"));
-    $load = new HTMLButton("load_game", "submit", "Load");
-    $load->set_class("debug-menu-button");
-    $search->add_button($load);
-    $search->print();
+    print("<form method=\"POST\">".PHP_EOL);
+    printf("<input type=\"text\" name=\"gid\" value=\"%s\" placeholder=\"Game ID\" list=\"edit-game-gids\">".PHP_EOL,
+           htmlspecialchars($gid, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+    print("<datalist id=\"edit-game-gids\">".PHP_EOL);
+    foreach ($game_ids as $game_id)
+    {
+        printf("<option value=\"%s\"></option>".PHP_EOL,
+               htmlspecialchars($game_id, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+    }
+    print("</datalist>".PHP_EOL);
+    print("<button class=\"debug-menu-button\" type=\"submit\" name=\"load_game\">Load</button>".PHP_EOL);
+    print("</form>".PHP_EOL);
 
     if (!$row)
     {
