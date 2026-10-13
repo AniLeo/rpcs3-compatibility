@@ -26,5 +26,8 @@ if (PHP_SAPI !== 'cli')
 
 if (!@include_once(__DIR__."/../services/GitHub.php")) throw new Exception("Compat: Failed to include services/GitHub.php");
 
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
 // Running every 5 minutes
 cache_builds();

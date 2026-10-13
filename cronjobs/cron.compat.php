@@ -24,6 +24,9 @@ if (PHP_SAPI !== 'cli')
     exit;
 }
 
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
 if (!@include_once(__DIR__."/../services/Mediawiki.php")) throw new Exception("Compat: Failed to include services/Compat.php");
 
 // Secondary tasks: Running every 5 minutes.
