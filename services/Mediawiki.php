@@ -20,6 +20,7 @@
 */
 if (!@include_once(__DIR__."/../functions.php"))    throw new Exception("Compat: Failed to include functions.php");
 if (!@include_once(__DIR__."/../objects/Game.php")) throw new Exception("Compat: Failed to include objects/Game.php");
+if (!@include_once(__DIR__."/../objects/Profiler.php")) throw new Exception("Compat: Failed to include objects/Profiler.php");
 
 
 function cache_wiki_ids() : void
@@ -28,7 +29,8 @@ function cache_wiki_ids() : void
     $db_wiki = get_database("wiki");
     $a_wiki = array();
 
-    Profiler::add_data("Panel: Fetch Pages");
+    if (PHP_SAPI !== 'cli')
+        Profiler::add_data("Panel: Fetch Pages");
 
     // Fetch all wiki pages that contain a Game ID
     $q_wiki = mysqli_query($db_wiki, "SELECT `page_id`, CONVERT(`old_text` USING utf8mb4) AS `text`
@@ -69,8 +71,8 @@ function cache_wiki_ids() : void
     // Unload memory heavy object from memory after we've used it
     unset($q_wiki);
 
-
-    Profiler::add_data("Panel: Fetch Games");
+    if (PHP_SAPI !== 'cli')
+        Profiler::add_data("Panel: Fetch Games");
     $q_games = mysqli_query($db, "SELECT * FROM `game_list`;");
 
     if (is_bool($q_games))
@@ -83,7 +85,8 @@ function cache_wiki_ids() : void
     $q_updates = "";
 
     // For every Game -> GameItem
-    Profiler::add_data("Panel: Update Wiki IDs");
+    if (PHP_SAPI !== 'cli')
+        Profiler::add_data("Panel: Update Wiki IDs");
     foreach ($a_games as $game)
     {
         foreach ($game->game_item as $item)
