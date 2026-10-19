@@ -1465,7 +1465,6 @@ function edit_game() : void
 
     $gid = isset($_POST["gid"]) && is_string($_POST["gid"]) ? strtoupper(trim($_POST["gid"])) : "";
 
-    // Column => label. Add future game_list fields here.
     $fields = array(
         "network" => "Requires Network:",
         "move"    => "Move Support:",
@@ -1487,7 +1486,7 @@ function edit_game() : void
 
     $row = null;
 
-    if ($gid !== "" && isGameID($gid))
+    if (!empty($gid) && isGameID($gid))
     {
         $s_gid = mysqli_real_escape_string($db, $gid);
         $q_game = mysqli_query($db, "SELECT `game_list`.`key`, `game_list`.`type`, `game_list`.`status`, 
@@ -1505,6 +1504,19 @@ function edit_game() : void
 
     if ($row && isset($_POST["save_game"]))
     {
+        if (isset($_POST["game_title"]) && is_string($_POST["game_title"]))
+        {
+            $new_title = trim($_POST["game_title"]);
+
+            if (!empty($new_title) && $new_title !== $row->game_title)
+            {
+                $s_gid = mysqli_real_escape_string($db, $gid);
+                $s_title = mysqli_real_escape_string($db, $new_title);
+                mysqli_query($db, "UPDATE `game_id` SET `game_title` = '{$s_title}' WHERE `gid` = '{$s_gid}' LIMIT 1;");
+                $row->game_title = $new_title;
+            }
+        }
+
         $sets = array();
         foreach ($fields as $column => $label)
         {
@@ -1564,6 +1576,10 @@ function edit_game() : void
 
     $form = new HTMLForm("", "POST");
     $form->add_input(new HTMLInput("gid", "hidden", $gid, ""));
+
+    // Editable title
+    $title_input = new HTMLInput("game_title", "text", $row->game_title, "Game Title");
+    $form->add_input($title_input);
 
     foreach ($fields as $column => $label)
     {
