@@ -429,44 +429,8 @@ public static function printTable() : void
     $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png", "PS Move supported");
     $html_img_move->set_title("PS Move");
 
-    $extra = $http_query->get_except(array("move"));
-
-    // Allow for filter resetting by clicking the icon again
-    if (isset($get['move']) && $get['move'] !== 0)
-    {
-        $html_a_move = new HTMLA("?{$extra}", "", "");
-        $html_a_move->set_img($html_img_move);
-    }
-    // Returns clickable icon for move search
-    else
-    {
-        if (!empty($extra))
-            $extra .= '&';
-
-        $html_a_move = new HTMLA("?{$extra}move=1", "", "");
-        $html_a_move->set_img($html_img_move);
-    }
-
     $html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png", "Stereoscopic 3D supported");
     $html_img_3d->set_title("Stereoscopic 3D");
-
-    $extra = $http_query->get_except(array("3D"));
-
-    // Allow for filter resetting by clicking the icon again
-    if ($get['3D'] !== 0)
-    {
-        $html_a_3d = new HTMLA("?{$extra}", "", "");
-        $html_a_3d->set_img($html_img_3d);
-    }
-    // Returns clickable icon for 3D search
-    else
-    {
-        if (!empty($extra))
-            $extra .= '&';
-
-        $html_a_3d = new HTMLA("?{$extra}3D=1", "", "");
-        $html_a_3d->set_img($html_img_3d);
-    }
 
     
     // Print table body
@@ -476,25 +440,6 @@ public static function printTable() : void
         $html_img_media = new HTMLImg("compat-icon-media", $a_media[$game->get_media_id()]["icon"], "Game Media");
         $html_img_media->set_title($a_media[$game->get_media_id()]["name"]);
 
-        $extra = $http_query->get_except(array("media"));
-
-        // Allow for filter resetting by clicking the icon again
-        if (isset($get['t']) && $get['t'] === strtolower($game->get_media_id()))
-        {
-            $html_a_media = new HTMLA("?{$extra}", $a_media[$game->get_media_id()]["name"], "");
-            $html_a_media->set_img($html_img_media);
-        }
-        // Returns clickable icon for type (media) search
-        else
-        {
-            if (!empty($extra))
-                $extra .= '&';
-
-            $html_a_media = new HTMLA("?{$extra}t=".strtolower($game->get_media_id()), $a_media[$game->get_media_id()]["name"], "");
-            $html_a_media->set_img($html_img_media);
-        }
-
-
         print("<details class=\"compat-entry\">");
         print("<summary class=\"compat-table-row\">");
 
@@ -503,18 +448,19 @@ public static function printTable() : void
         $html_div_cell = new HTMLSpan("compat-table-cell compat-table-cell-gameid");
         foreach ($game->game_item as $id => $item)
         {
-            if ($id !== 0)
-                $html_div_cell->add_content("<br>".PHP_EOL);
+            $html_div_entry = new HTMLDiv("compat-gameid-entry");
 
             // Game region flag image
             $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()], "Game Region");
             $html_img_region->set_title($item->game_id);
-            $html_div_cell->add_content($html_img_region->to_string());
+            $html_div_entry->add_content($html_img_region->to_string());
 
             // Game ID string
             $html_a_gameid = new HTMLA($item->get_thread_url(), "", $item->game_id);
             $html_a_gameid->set_target("_blank");
-            $html_div_cell->add_content($html_a_gameid->to_string());
+            $html_div_entry->add_content($html_a_gameid->to_string());
+
+            $html_div_cell->add_content($html_div_entry->to_string());
         }
         $html_div_cell->print();
 
@@ -523,7 +469,7 @@ public static function printTable() : void
         $html_div_cell = new HTMLSpan("compat-table-cell");
 
         // Game media image
-        $html_div_cell->add_content($html_a_media->to_string());
+        $html_div_cell->add_content($html_img_media->to_string());
 
         if (!is_null($game->get_url_wiki()))
         {
@@ -537,22 +483,22 @@ public static function printTable() : void
             $title = htmlspecialchars($game->title(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
             $html_div_cell->add_content($title);
         }
-        if ($game->network === 1)
+        if ($game->network !== 0)
         {
             $html_div_cell->add_content($html_img_network->to_string());
         }
-        if ($game->move === 1)
+        if ($game->move !== 0)
         {
-            $html_div_cell->add_content($html_a_move->to_string());
+            $html_div_cell->add_content($html_img_move->to_string());
         }
         if ($game->stereo_3d !== 0)
         {
-            $html_div_cell->add_content($html_a_3d->to_string());
+            $html_div_cell->add_content($html_img_3d->to_string());
         }
         foreach ($game->other_titles() as $title)
         {
             $title = htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-            $html_div_cell->add_content("<br><span class=\"compat-other-titles\">({$title})</span>");
+            $html_div_cell->add_content("<span class=\"compat-other-titles\">({$title})</span>");
         }
 
         $html_div_cell->print();
