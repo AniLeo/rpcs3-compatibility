@@ -423,10 +423,10 @@ public static function printTable() : void
     print(getTableHeaders($headers, $extra));
 
     // Prepare images that will be used
-    $html_img_network = new HTMLImg("compat-icon", "/img/icons/compat/onlineonly.png");
+    $html_img_network = new HTMLImg("compat-icon", "/img/icons/compat/onlineonly.png", "Network required");
     $html_img_network->set_title("Online-only");
 
-    $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
+    $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png", "PS Move supported");
     $html_img_move->set_title("PS Move");
 
     $extra = $http_query->get_except(array("move"));
@@ -447,7 +447,7 @@ public static function printTable() : void
         $html_a_move->set_img($html_img_move);
     }
 
-    $html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png");
+    $html_img_3d = new HTMLImg("compat-icon", "/img/icons/compat/3d.png", "Stereoscopic 3D supported");
     $html_img_3d->set_title("Stereoscopic 3D");
 
     $extra = $http_query->get_except(array("3D"));
@@ -473,7 +473,7 @@ public static function printTable() : void
     foreach ($games as $game)
     {
         // Game media image
-        $html_img_media = new HTMLImg("compat-icon-media", $a_media[$game->get_media_id()]["icon"]);
+        $html_img_media = new HTMLImg("compat-icon-media", $a_media[$game->get_media_id()]["icon"], "Game Media");
         $html_img_media->set_title($a_media[$game->get_media_id()]["name"]);
 
         $extra = $http_query->get_except(array("media"));
@@ -495,18 +495,19 @@ public static function printTable() : void
         }
 
 
-        print("<label for=\"compat-table-checkbox-{$game->key}\" class=\"compat-table-row\">");
+        print("<details class=\"compat-entry\">");
+        print("<summary class=\"compat-table-row\">");
 
 
         // Cell 1: Regions and GameIDs
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-gameid");
+        $html_div_cell = new HTMLSpan("compat-table-cell compat-table-cell-gameid");
         foreach ($game->game_item as $id => $item)
         {
             if ($id !== 0)
                 $html_div_cell->add_content("<br>".PHP_EOL);
 
             // Game region flag image
-            $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()]);
+            $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$item->get_region_id()], "Game Region");
             $html_img_region->set_title($item->game_id);
             $html_div_cell->add_content($html_img_region->to_string());
 
@@ -519,7 +520,7 @@ public static function printTable() : void
 
 
         // Cell 2: Game Media, Titles and Network
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLSpan("compat-table-cell");
 
         // Game media image
         $html_div_cell->add_content($html_a_media->to_string());
@@ -558,9 +559,9 @@ public static function printTable() : void
 
 
         // Cell 3: Status
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-status");
+        $html_div_cell = new HTMLSpan("compat-table-cell compat-table-cell-status");
 
-        $html_div_status = new HTMLDiv("txt-compat-status background-status-{$game->status}");
+        $html_div_status = new HTMLSpan("txt-compat-status background-status-{$game->status}");
         $html_div_status->add_content($a_status[$game->status]["name"]);
 
         $html_div_cell->add_content($html_div_status->to_string());
@@ -569,7 +570,7 @@ public static function printTable() : void
 
 
         // Cell 4: Last Test
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-updated");
+        $html_div_cell = new HTMLSpan("compat-table-cell compat-table-cell-updated");
 
         $html_a_date = new HTMLA("?d=".str_replace('-', '', $game->date), "Updated on {$game->date}", $game->date);
         $html_a_date->set_rel("nofollow");
@@ -587,11 +588,9 @@ public static function printTable() : void
         $html_div_cell->print();
 
 
-        print("</label>");
+        print("</summary>");
 
-        // Dropdown
-        print("<input type=\"checkbox\" id=\"compat-table-checkbox-{$game->key}\">");
-        print("<div class=\"compat-table-row compat-table-dropdown\">");
+        print("<div class=\"compat-table-dropdown compat-text\">");
 
         // Update information
         $changelog = "";
@@ -680,6 +679,7 @@ public static function printTable() : void
         }
 
         print("</div>");
+        print("</details>");
     }
 
     // End table

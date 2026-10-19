@@ -228,13 +228,13 @@ public static function printTableContent(array $array) : void
 
     foreach ($array as $entry)
     {
-        $html_img_media = new HTMLImg("compat-icon-media", $a_media[$entry->game_item->get_media_id()]["icon"]);
+        $html_img_media = new HTMLImg("compat-icon-media", $a_media[$entry->game_item->get_media_id()]["icon"], "Game Media");
         $html_img_media->set_title($a_media[$entry->game_item->get_media_id()]["name"]);
 
-        $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$entry->game_item->get_region_id()]);
+        $html_img_region = new HTMLImg("compat-icon-flag", $a_flags[$entry->game_item->get_region_id()], "Game Region");
         $html_img_region->set_title($entry->game_item->game_id);
 
-        $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png");
+        $html_img_move = new HTMLImg("compat-icon", "/img/icons/compat/psmove.png", "PS Move supported");
         $html_img_move->set_title("PS Move");
 
         print("<div class=\"compat-table-row\">");

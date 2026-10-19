@@ -26,3 +26,4 @@ if (!@include_once(__DIR__."/HTMLImg.php"))    throw new Exception("Compat: Fail
 if (!@include_once(__DIR__."/HTMLDiv.php"))    throw new Exception("Compat: Failed to include html/HTMLDiv.php");
 if (!@include_once(__DIR__."/HTMLSelect.php")) throw new Exception("Compat: Failed to include html/HTMLSelect.php");
 if (!@include_once(__DIR__."/HTMLOption.php")) throw new Exception("Compat: Failed to include html/HTMLOption.php");
+if (!@include_once(__DIR__."/HTMLSpan.php"))   throw new Exception("Compat: Failed to include html/HTMLSpan.php");

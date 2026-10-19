@@ -239,16 +239,30 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-table-dropdown {
-    display: none;
-    padding-left: 5px
+    font-size: 14px;
+    line-height: 26px;
+    padding: 8px
 }
 
-.compat-table-inside>input[type=checkbox] {
-    display: none;
-    height: auto
+.compat-entry {
+    margin-bottom: 2px
 }
 
-.compat-table-inside>input[type=checkbox]:checked+.compat-table-dropdown {
+summary.compat-table-row {
+    display: flex;
+    cursor: pointer;
+    list-style: none
+}
+
+summary.compat-table-row::-webkit-details-marker {
+    display: none
+}
+
+summary.compat-table-row::marker {
+    display: none
+}
+
+details[open] > .compat-table-dropdown {
     display: block
 }
 
@@ -603,6 +617,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .txt-compat-status {
+    display: inline-block;
     line-height: 15px;
     position: relative;
     width: 66px;

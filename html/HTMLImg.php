@@ -24,12 +24,14 @@ class HTMLImg
 {
     public  string $class;
     public  string $src;
+    public string $alt;
     public ?string $title;
 
-    function __construct(string $class, string $src)
+    function __construct(string $class, string $src, string $alt)
     {
         $this->class = $class;
         $this->src   = $src;
+        $this->alt   = $alt;
         $this->title = null;
     }
 
@@ -40,8 +42,9 @@ class HTMLImg
 
     public function to_string() : string
     {
-        $ret = sprintf("<img class=\"%s\" ", 
-                       htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
+        $ret = sprintf("<img class=\"%s\" alt=\"%s\"", 
+                       htmlspecialchars($this->class, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       htmlspecialchars($this->alt, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         if (!is_null($this->title))
         {

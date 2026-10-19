@@ -94,31 +94,31 @@ public static function printTable() : void
     print(getTableHeaders($headers, 'b'));
 
     // Prepare images that will be used
-    $html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png");
-    $html_img_win_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows.png");
+    $html_img_win = new HTMLImg("builds-icon", "/img/icons/compat/windows.png", "Windows x64");
+    $html_img_win_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows.png", "Windows x64 (unavailable)");
     $html_img_win_disabled->set_title("This Windows x64 build is not available");
 
-    $html_img_win_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/windows-arm64.png");
-    $html_img_win_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows-arm64.png");
+    $html_img_win_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/windows-arm64.png", "Windows arm64");
+    $html_img_win_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/windows-arm64.png", "Windows arm64 (unavailable)");
     $html_img_win_arm64_disabled->set_title("This Windows arm64 build is not available");
 
-    $html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png");
-    $html_img_linux_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux.png");
+    $html_img_linux = new HTMLImg("builds-icon", "/img/icons/compat/linux.png", "Linux x64");
+    $html_img_linux_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux.png", "Linux x64 (unavailable)");
     $html_img_linux_disabled->set_title("This Linux x64 build is not available");
 
-    $html_img_linux_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/linux-arm64.png");
-    $html_img_linux_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux-arm64.png");
+    $html_img_linux_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/linux-arm64.png", "Linux arm64");
+    $html_img_linux_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/linux-arm64.png", "Linux arm64 (unavailable)");
     $html_img_linux_arm64_disabled->set_title("This Linux arm64 build is not available");
 
-    $html_img_mac = new HTMLImg("builds-icon", "/img/icons/compat/macos.png");
-    $html_img_mac_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos.png");
+    $html_img_mac = new HTMLImg("builds-icon", "/img/icons/compat/macos.png", "macOS x64");
+    $html_img_mac_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos.png", "macOS x64 (unavailable)");
     $html_img_mac_disabled->set_title("This macOS x64 build is not available");
 
-    $html_img_mac_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/macos-arm64.png");
-    $html_img_mac_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos-arm64.png");
+    $html_img_mac_arm64 = new HTMLImg("builds-icon", "/img/icons/compat/macos-arm64.png", "macOS arm64");
+    $html_img_mac_arm64_disabled = new HTMLImg("builds-icon icon-disabled", "/img/icons/compat/macos-arm64.png", "macOS arm64 (unavailable)");
     $html_img_mac_arm64_disabled->set_title("This macOS arm64 build is not available");
 
-    $html_img_pr = new HTMLImg("builds-icon darkmode-invert", "/img/icons/compat/github.png");
+    $html_img_pr = new HTMLImg("builds-icon darkmode-invert", "/img/icons/compat/github.png", "Pull Request");
 
     // Print table body
     foreach ($builds as $build)
@@ -195,7 +195,7 @@ public static function printTable() : void
         /* Cell 2: Author */
         $html_div_cell = new HTMLDiv("compat-table-cell");
 
-        $html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar());
+        $html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar(), "Author");
         $author = htmlspecialchars($build->author, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
         $html_a_author = new HTMLA($build->get_url_author(), $build->author, "{$author}");
         $html_a_author->set_target("_blank");
