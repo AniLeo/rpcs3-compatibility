@@ -704,6 +704,11 @@ function getMenu(string $file) : string
         $html_a = new HTMLA("/compatibility?a", "Debug Panel", "Debug Panel");
         $html_div->add_content($html_a->to_string());
     }
+    else if (!is_null($get['w']))
+    {
+        $html_a = new HTMLA("/compatibility?a&logout=1", "Logout", "Logout");
+        $html_div->add_content($html_a->to_string());
+    }
 
     return $html_div->to_string();
 }
@@ -736,6 +741,13 @@ function getDebugPermissions() : ?array
 {
     if (session_status() !== PHP_SESSION_ACTIVE)
     {
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
         session_start();
     }
 

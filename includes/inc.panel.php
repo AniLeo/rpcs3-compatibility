@@ -29,6 +29,33 @@ if (!@include_once(__DIR__."/../services/PlayStation.php")) throw new Exception(
 if (!@include_once(__DIR__."/../services/Mediawiki.php"))   throw new Exception("Compat: Failed to include services/Mediawiki.php");
 if (!@include_once(__DIR__."/../html/HTML.php"))            throw new Exception("Compat: Failed to include html/HTML.php");
 
+// Logout (can be called even when already logged out)
+if (isset($_GET['logout']) || (isset($_POST['logout']) && $_POST['logout'] === '1'))
+{
+    if (session_status() === PHP_SESSION_ACTIVE)
+    {
+        $_SESSION = [];
+        if (ini_get("session.use_cookies"))
+        {
+            $params = session_get_cookie_params();
+            $name = session_name();
+            if (is_string($name))
+            {
+                setcookie(
+                    $name, 
+                    '', 
+                    time() - 133700,
+                    $params["path"], $params["domain"],
+                    $params["secure"], $params["httponly"]
+                );
+            }
+        }
+        session_destroy();
+    }
+    header("Location: /compatibility");
+    exit;
+}
+
 // Login handling (shown when not authenticated)
 if (is_null($get['w'] ?? null))
 {
@@ -36,40 +63,81 @@ if (is_null($get['w'] ?? null))
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['debug_login']))
     {
-        $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
-        $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+        // Simple rate limiting (session-based)
+        $max_attempts = 10;
+        $lockout_seconds = 300; // 5 minutes
+        $now = time();
 
-        if (!empty($username) && !empty($password))
+        $attempts = is_int($_SESSION['login_attempts'] ?? null) ? $_SESSION['login_attempts'] : 0;
+        $last_attempt = is_int($_SESSION['login_last_attempt'] ?? null) ? $_SESSION['login_last_attempt'] : 0;
+
+        if ($attempts >= $max_attempts && ($now - $last_attempt) < $lockout_seconds)
         {
-            $db = get_database("compat");
-            $s_username = mysqli_real_escape_string($db, $username);
+            $remaining = $lockout_seconds - ($now - $last_attempt);
+            $login_error = "Too many failed attempts. Try again in "
+                . (int) ceil($remaining / 60)
+                . " minute(s).";
+        }
+        else
+        {
+            $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
+            $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
 
-            $q = mysqli_query($db, "SELECT `id`, `password_hash`, `permissions`
-                                    FROM `debug_users`
-                                    WHERE `username` = '{$s_username}'
-                                    LIMIT 1;");
-
-            if (!is_bool($q) && mysqli_num_rows($q) === 1)
+            if (!empty($username) && !empty($password))
             {
-                $row = mysqli_fetch_object($q);
+                $db = get_database("compat");
+                $s_username = mysqli_real_escape_string($db, $username);
 
-                if ($row && is_string($row->password_hash) && password_verify($password, $row->password_hash))
+                $q = mysqli_query($db, "SELECT `id`, `password_hash`, `permissions`
+                                        FROM `debug_users`
+                                        WHERE `username` = '{$s_username}'
+                                        LIMIT 1;");
+
+                if (!is_bool($q) && mysqli_num_rows($q) === 1)
                 {
-                    $perms = is_string($row->permissions) ? $row->permissions : '';
+                    $row = mysqli_fetch_object($q);
 
-                    $_SESSION['debug_user_id'] = (int) $row->id;
-                    $_SESSION['debug_permissions'] = str_contains($perms, ',')
-                        ? array_filter(array_map('trim', explode(',', $perms)), 'is_string')
-                        : ($perms !== '' ? [trim($perms)] : []);
+                    if ($row && is_string($row->password_hash) && password_verify($password, $row->password_hash))
+                    {
+                        $perms = is_string($row->permissions) ? $row->permissions : '';
 
-                    session_regenerate_id(true);
+                        $_SESSION['debug_user_id'] = (int) $row->id;
+                        $_SESSION['debug_permissions'] = str_contains($perms, ',')
+                            ? array_filter(array_map('trim', explode(',', $perms)), 'is_string')
+                            : ($perms !== '' ? [trim($perms)] : []);
 
-                    $uri = is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '?a';
-                    header("Location: " . $uri);
-                    exit;
+                        // Clear any pre-login session data to reduce fixation risk
+                        $keep = [
+                            'debug_user_id' => $_SESSION['debug_user_id'],
+                            'debug_permissions' => $_SESSION['debug_permissions']
+                        ];
+                        $_SESSION = [];
+                        $_SESSION = $keep;
+
+                        session_regenerate_id(true);
+
+                        $uri = is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '?a';
+                        header("Location: " . $uri);
+                        exit;
+                    }
                 }
             }
+
+            // Failed login
+            $attempts++;
+            $_SESSION['login_attempts'] = $attempts;
+            $_SESSION['login_last_attempt'] = $now;
+
+            // Progressive delay (0.5s * attempts, capped)
+            usleep((int) min(500000 * $attempts, 2000000));
         }
+
+        // Reset counter on success (already redirected above)
+        if (isset($_SESSION['debug_user_id']))
+        {
+            unset($_SESSION['login_attempts'], $_SESSION['login_last_attempt']);
+        }
+
         $login_error = "Invalid username or password.";
     }
 ?>
