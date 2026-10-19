@@ -29,9 +29,81 @@ if (!@include_once(__DIR__."/../services/PlayStation.php")) throw new Exception(
 if (!@include_once(__DIR__."/../services/Mediawiki.php"))   throw new Exception("Compat: Failed to include services/Mediawiki.php");
 if (!@include_once(__DIR__."/../html/HTML.php"))            throw new Exception("Compat: Failed to include html/HTML.php");
 
+// Login handling (shown when not authenticated)
+if (is_null($get['w'] ?? null))
+{
+    $login_error = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['debug_login']))
+    {
+        $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
+        $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+
+        if (!empty($username) && !empty($password))
+        {
+            $db = get_database("compat");
+            $s_username = mysqli_real_escape_string($db, $username);
+
+            $q = mysqli_query($db, "SELECT `id`, `password_hash`, `permissions`
+                                    FROM `debug_users`
+                                    WHERE `username` = '{$s_username}'
+                                    LIMIT 1;");
+
+            if (!is_bool($q) && mysqli_num_rows($q) === 1)
+            {
+                $row = mysqli_fetch_object($q);
+
+                if ($row && is_string($row->password_hash) && password_verify($password, $row->password_hash))
+                {
+                    $perms = is_string($row->permissions) ? $row->permissions : '';
+
+                    $_SESSION['debug_user_id'] = (int) $row->id;
+                    $_SESSION['debug_permissions'] = str_contains($perms, ',')
+                        ? array_filter(array_map('trim', explode(',', $perms)), 'is_string')
+                        : ($perms !== '' ? [trim($perms)] : []);
+
+                    session_regenerate_id(true);
+
+                    $uri = is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '?a';
+                    header("Location: " . $uri);
+                    exit;
+                }
+            }
+        }
+        $login_error = "Invalid username or password.";
+    }
+?>
+    <div class="page-con-container">
+        <div class="page-in-container">
+            <div class="container-con-block darkmode-block">
+                <div class="container-con-wrapper">
+                    <div class="container-tx1-block">
+                        <span class="compat-text">Debug Panel</span>
+                    </div>
+                </div>
+                <div class="debug-main">
+                    <div class="debug-main-content">
+                        <?php if (!empty($login_error)): ?>
+                            <p class="compat-text"><?= htmlspecialchars($login_error) ?></p>
+                        <?php endif; ?>
+                        <form method="post" action="?a">
+                            <input type="hidden" name="debug_login" value="1">
+                            <input type="text" name="username" placeholder="Username" required autofocus>
+                            <input type="password" name="password" placeholder="Password" required>
+                            <button class="debug-menu-button" type="submit">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <?php print(getFooter()); ?>
+        </div>
+    </div>
+<?php
+    // Stop further panel rendering if not logged in
+    exit;
+}
 
 /*
-TODO: Login system
 TODO: Log commands with run time and datetime
 */
 
@@ -41,24 +113,30 @@ function runFunctions() : void
 {
     global $get, $a_panel;
 
-    if (array_key_exists($get['a'], $a_panel))
+    if (!isset($get['a']) || !array_key_exists($get['a'], $a_panel)) {
+        return;
+    }
+
+    // Permission check (function name or wildcard)
+    if (!hasDebugPermission($get['a'])) {
+        print("<p><b>Error:</b> You do not have permission to run this function.</p>");
+        return;
+    }
+
+    Profiler::add_data("Panel: Run Function ({$get['a']})");
+
+    $title = new HTMLDiv("debug-main-title compat-text");
+    $title->add_content($a_panel[$get['a']]['title']);
+    $title->print();
+
+    $ret = runFunctionWithCronometer($get['a']);
+
+    if (!empty($a_panel[$get['a']]['success']))
     {
-        Profiler::add_data("Panel: Run Function ({$get['a']})");
-
-        $title = new HTMLDiv("debug-main-title compat-text");
-        $title->add_content($a_panel[$get['a']]['title']);
-        $title->print();
-
-        $ret = runFunctionWithCronometer($get['a']);
-
-        if (!empty($a_panel[$get['a']]['success']))
-        {
-            printf("<p><b>Debug mode:</b> %s (%fs).</p>", $a_panel[$get['a']]['success'], $ret);
-        }
+        printf("<p><b>Debug mode:</b> %s (%fs).</p>", $a_panel[$get['a']]['success'], $ret);
     }
 }
 
-// TODO: Refactoring
 function checkInvalidThreads() : void
 {
     global $a_status, $get;
@@ -167,7 +245,6 @@ function checkInvalidThreads() : void
     }
 }
 
-// TODO: Refactoring
 function compatibilityUpdater() : void
 {
     global $a_histdates, $a_status, $get;
@@ -579,15 +656,6 @@ function compatibilityUpdater() : void
 
     if (isset($_POST['updateCompatibility']))
     {
-        // Permissions: Update
-        if (array_search("debug.update", $get['w']) === false)
-        {
-            print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
-            mysqli_close($db);
-            mysqli_close($db_forums);
-            return;
-        }
-
         $cr = curl_init();
 
         /*
@@ -679,7 +747,7 @@ function compatibilityUpdater() : void
 
 function refreshBuild() : void
 {
-    $pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : 0;
+    $pr = (isset($_POST["pr"]) && is_numeric($_POST["pr"])) ? (int) $_POST["pr"] : '';
 
     $form = new HTMLForm("", "POST");
     $form->add_input(new HTMLInput("pr", "text", "{$pr}", "Pull Request"));
@@ -688,7 +756,7 @@ function refreshBuild() : void
     $form->add_button($button);
     $form->print();
 
-    if (!isset($_POST["refreshBuild"]))
+    if (!isset($_POST["refreshBuild"]) || empty($pr))
         return;
 
     cache_build($pr);
@@ -848,14 +916,6 @@ function mergeGames() : void
     // Update: Set both game keys to the same previous picked key
     if (isset($_POST['mergeConfirm']))
     {
-        // Permissions: debug.update
-        if (array_search("debug.update", $get['w']) === false)
-        {
-            print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
-            mysqli_close($db);
-            return;
-        }
-
         // Copy network flag to new entry if necessary
         if ($game1->network !== $game2->network)
         {
@@ -972,11 +1032,6 @@ function flag_build_as_broken() : void
     if ($build_time === false || time() - $build_time > 3 * 24 * 60 * 60)
     {
         print("<b>The build is older than 3 days. Cannot flag or unflag as broken.</b><br>");
-    }
-    // Permissions: Update
-    else if (array_search("debug.update", $get['w']) === false)
-    {
-        print("<p><b>Error:</b> You do not have permission to issue database update commands</p>");
     }
     else if (isset($_POST["flag_build_as_broken"]))
     {
@@ -1450,27 +1505,20 @@ function edit_game() : void
 
     if ($row && isset($_POST["save_game"]))
     {
-        if (array_search("debug.update", $get["w"]) === false)
+        $sets = array();
+        foreach ($fields as $column => $label)
         {
-            print("<div class=\"debug-message compat-text\"><b>Error:</b> You do not have permission to issue database update commands</div>");
+            $value = (isset($_POST[$column]) && is_string($_POST[$column]) && (string) $_POST[$column] === "1") ? 1 : 0;
+            $sets[] = "`{$column}` = {$value}";
+            $row->{$column} = $value;
         }
-        else
-        {
-            $sets = array();
-            foreach ($fields as $column => $label)
-            {
-                $value = (isset($_POST[$column]) && is_string($_POST[$column]) && (string) $_POST[$column] === "1") ? 1 : 0;
-                $sets[] = "`{$column}` = {$value}";
-                $row->{$column} = $value;
-            }
 
-            mysqli_query($db, "UPDATE `game_list`
-                               SET ".implode(", ", $sets)."
-                               WHERE `key` = ".(int) $row->key."
-                               LIMIT 1;");
-            printf("<div class=\"debug-message compat-text\">Updated <b>%s</b></div>",
-                   htmlspecialchars($gid, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
-        }
+        mysqli_query($db, "UPDATE `game_list`
+                            SET ".implode(", ", $sets)."
+                            WHERE `key` = ".(int) $row->key."
+                            LIMIT 1;");
+        printf("<div class=\"debug-message compat-text\">Updated <b>%s</b></div>",
+                htmlspecialchars($gid, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
     }
 
     print("<form method=\"POST\">".PHP_EOL);

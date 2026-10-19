@@ -70,15 +70,6 @@ CREATE TABLE `initials_cache` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table structure for `debug_whitelist`
--- ----------------------------
-DROP TABLE IF EXISTS `debug_whitelist`;
-CREATE TABLE `debug_whitelist` (
-  `token` varchar(255) NOT NULL,
-  `permissions` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
 -- Table structure for `game_history`
 -- ----------------------------
 DROP TABLE IF EXISTS `game_history`;
@@ -219,3 +210,16 @@ CREATE TABLE `update_statistics` (
   `count` int(11) DEFAULT NULL,
   PRIMARY KEY (`date`,`version_tag`,`os_type`,`os_arch`,`os_version`,`ping_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for debug_users
+-- ----------------------------
+DROP TABLE IF EXISTS `debug_users`;
+CREATE TABLE `debug_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `permissions` mediumtext NOT NULL DEFAULT '*',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

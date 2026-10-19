@@ -339,12 +339,12 @@ function validateGet() : array
     {
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
+    }
 
-        // Admin debug mode
-        if (isset($_GET['a']) && is_string($_GET['a']) && array_search("debug.view", $get['w']) !== false)
-        {
-            $get['a'] = (string) $_GET['a'];
-        }
+    // Always allow the panel page to load so the login form can be shown
+    if (isset($_GET['a']) && is_string($_GET['a']))
+    {
+        $get['a'] = (string) $_GET['a'];
     }
 
     return $get;
@@ -729,48 +729,49 @@ function countPages(int $results, int $count) : int
 }
 
 
-// Checks if user has debug permissions
 /**
-* @return array<string> $permissions
-*/
+ * @return array<string>|null
+ */
 function getDebugPermissions() : ?array
 {
-    if (!isset($_COOKIE["debug"]) || !is_string($_COOKIE["debug"]) || !ctype_alnum($_COOKIE["debug"]))
-        return null;
+    if (session_status() !== PHP_SESSION_ACTIVE)
+    {
+        session_start();
+    }
 
-    $debug_cookie = (string) $_COOKIE["debug"];
-    
-    $db = get_database("compat");
-    $s_token = mysqli_real_escape_string($db, $debug_cookie);
-
-    $q_debug = mysqli_query($db, "SELECT `permissions` 
-                                  FROM `debug_whitelist`
-                                  WHERE `token` = '{$s_token}'
-                                  LIMIT 1; ");
-
-    if (is_bool($q_debug) || mysqli_num_rows($q_debug) === 0)
-        return null;
-
-    $row = mysqli_fetch_object($q_debug);
-
-    // This should be unreachable unless the database structure is damaged
-    if (!$row || !property_exists($row, "permissions"))
+    if (!isset($_SESSION['debug_permissions']) || !is_array($_SESSION['debug_permissions']))
     {
         return null;
     }
 
     $permissions = array();
 
-    if (!str_contains($row->permissions, ','))
+    foreach ($_SESSION['debug_permissions'] as $perm)
     {
-        $permissions[0] = $row->permissions;
-    }
-    else
-    {
-        $permissions = explode(',', $row->permissions);
+        if (is_string($perm) && $perm !== '')
+        {
+            $permissions[] = $perm;
+        }
     }
 
-    return $permissions;
+    return $permissions === [] ? null : $permissions;
+}
+
+
+function hasDebugPermission(string $function) : bool
+{
+    global $get;
+
+    if (!isset($get['w']) || !is_array($get['w'])) {
+        return false;
+    }
+
+    // Wildcard
+    if (in_array('*', $get['w'], true)) {
+        return true;
+    }
+
+    return in_array($function, $get['w'], true);
 }
 
 

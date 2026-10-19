@@ -43,12 +43,32 @@ if (isset($get['a']))
                         {
                             foreach ($a_panel_categories as $id => $category)
                             {
+                                // First check if the user has at least one permitted function in this category
+                                $has_any = false;
+                                foreach ($a_panel as $function => $data)
+                                {
+                                    if ($data["category"] !== $id)
+                                        continue;
+
+                                    if (hasDebugPermission($function))
+                                    {
+                                        $has_any = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!$has_any)
+                                    continue;
+
                                 printf("<div class=\"debug-main-title compat-text\">%s</div>", $category);
                                 print("<div class=\"debug-main-menu\">");
 
                                 foreach ($a_panel as $function => $data)
                                 {
                                     if ($data["category"] !== $id)
+                                        continue;
+
+                                    if (!hasDebugPermission($function))
                                         continue;
 
                                     printf("<div class=\"debug-menu-button\"><a href=\"?a=%s\">%s</a></div>", $function, $data["title"]);

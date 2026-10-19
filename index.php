@@ -27,6 +27,13 @@ if (phpversion()[0] < 8 || ((int) phpversion()[0] === 8 && phpversion()[2] < 5))
     trigger_error("[COMPAT] Initialization: Incompatible PHP version. This application requires PHP 8.5+", E_USER_ERROR);
 }
 
+ob_start();
+
+if (session_status() !== PHP_SESSION_ACTIVE)
+{
+    session_start();
+}
+
 // Parses the GET data before any other code
 $get = validateGet();
 
