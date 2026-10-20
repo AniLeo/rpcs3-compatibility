@@ -33,8 +33,7 @@ public static function printDescription() : void
 {
     global $get, $a_histdates, $a_currenthist;
 
-    print("<p>");
-    print("You're now watching the updates that altered a game's status for RPCS3's Compatibility List ");
+    print("<p>You're now watching the updates that altered a game's status for RPCS3's Compatibility List ");
 
     if ($get['h'] === $a_currenthist[0])
     {
@@ -42,10 +41,11 @@ public static function printDescription() : void
     }
     else
     {
-        $v = $a_histdates[$get['h']];
-        $m1 = monthNumberToName($v[0]['m']);
-        $m2 = monthNumberToName($v[1]['m']);
-        printf("from <b>%s %s, %s</b> to <b>%s %s, %s</b>.", $m1, $v[0]['d'], $v[0]['y'], $m2, $v[1]['d'], $v[1]['y']);
+        $r = $a_histdates[$get['h']];
+        $start = new DateTime("{$r[0]['y']}-{$r[0]['m']}-{$r[0]['d']}");
+        $end   = new DateTime("{$r[1]['y']}-{$r[1]['m']}-{$r[1]['d']}");
+
+        printf("from <b>%s</b> to <b>%s</b>.", $start->format('F j, Y'), $end->format('F j, Y'));
     }
 
     print("</p>");
@@ -59,41 +59,46 @@ public static function printMonths() : void
 {
     global $get, $a_histdates, $a_currenthist;
 
-    $spacer = "&nbsp;&#8226;&nbsp;&nbsp;";
-    $watchdog = '';
+    $current = $get['h'];
 
-    foreach ($a_histdates as $k => $v)
+    print("<form method=\"get\" class=\"compat-month-picker\">");
+    print("<span class=\"text-bold\">Month:</span>");
+    print("<select class=\"compat-text\" name=\"h\">");
+
+    $lastYear = "";
+    foreach ($a_histdates as $key => $_)
     {
-        $month = monthNumberToName((int) substr($k, -2));
-        $year  = substr($k, 0, 4);
+        $year  = substr($key, 0, 4);
+        $month = substr($key, -2);
+        $dt    = new DateTime("{$year}-{$month}-01");
 
-        if ($watchdog != $year)
+        if ($year !== $lastYear)
         {
-            if (!empty($watchdog))
-                print("<br>");
-
-            printf("<span class=\"text-bold\">%s:</span>", $year);
-            $watchdog = $year;
+            if ($lastYear !== "")
+            {
+                print("</optgroup>");
+            }
+            printf("<optgroup label=\"%s\">", $year);
+            $lastYear = $year;
         }
 
-        $html_a_month = new HTMLA("?h={$k}", "{$month} {$year}", $month);
-        if ($get['h'] === $k)
-            $html_a_month->set_class("compat-text text-bold text-underline");
-        $html_a_month->print();
-
-        if ($month != "December" && $v != end($a_histdates))
-            print($spacer);
+        $selected = ($key === $current) ? " selected" : "";
+        printf("<option value=\"%s\"%s>%s</option>", $key, $selected, $dt->format("F Y"));
+    }
+    if ($lastYear !== "")
+    {
+        print("</optgroup>");
     }
 
-    print("<br><span class=\"text-bold\">Current:</span>");
+    $curKey = $a_currenthist[0];
+    $curDt  = new DateTime(substr($curKey, 0, 4) . "-" . substr($curKey, -2) . "-01");
+    $selected = ($curKey === $current) ? " selected" : "";
+    printf("<optgroup label=\"Current\"><option value=\"%s\"%s>%s</option></optgroup>",
+           $curKey, $selected, $curDt->format("F Y"));
 
-    $month = monthNumberToName((int) substr($a_currenthist[0], -2));
-    $year = substr($a_currenthist[0], 0, 4);
-
-    $html_a_month = new HTMLA("?h", "{$month} {$year}", "{$month} {$year}");
-    if ($get['h'] === $a_currenthist[0])
-        $html_a_month->set_class("compat-text text-bold text-underline");
-    $html_a_month->print();
+    print("</select>");
+    print("<button type=\"submit\">View</button>");
+    print("</form>");
 }
 
 

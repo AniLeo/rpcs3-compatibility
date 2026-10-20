@@ -52,7 +52,7 @@ if (!@include_once(__DIR__."/../includes/inc.history.php")) throw new Exception(
                 </div>
             </div>
             <div class="compat-sort-row">
-                <div class="compat-sort compat-text history-months">
+                <div class="compat-sort compat-text">
                     <?php
                         Profiler::add_data("Page: Print Months");
                         History::printMonths();

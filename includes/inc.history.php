@@ -87,9 +87,11 @@ if ($get['h'] === $a_currenthist[0])
 }
 else
 {
-    $cmd_date = " AND `new_date` BETWEEN
-    CAST('{$a_histdates[$get['h']][0]['y']}-{$a_histdates[$get['h']][0]['m']}-{$a_histdates[$get['h']][0]['d']}' AS DATE)
-    AND CAST('{$a_histdates[$get['h']][1]['y']}-{$a_histdates[$get['h']][1]['m']}-{$a_histdates[$get['h']][1]['d']}' AS DATE) ";
+    $range = $a_histdates[$get['h']];
+    $from  = sprintf("%04d-%02d-%02d", $range[0]['y'], $range[0]['m'], $range[0]['d']);
+    $to    = sprintf("%04d-%02d-%02d", $range[1]['y'], $range[1]['m'], $range[1]['d']);
+
+    $cmd_date = " AND `new_date` BETWEEN CAST('{$from}' AS DATE) AND CAST('{$to}' AS DATE) ";
 }
 
 

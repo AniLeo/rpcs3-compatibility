@@ -838,14 +838,6 @@ function getDateDiff(string $datetime) : string
     return "{$diff} ago";
 }
 
-
-function monthNumberToName(int $month) : string
-{
-    $datetime = DateTime::createFromFormat('!m', (string) $month);
-    return $datetime ? $datetime->format('F') : "";
-}
-
-
 function dumpVar(mixed $var) : void
 {
     highlight_string("<?php\n\$data =\n".var_export($var, true).";\n?>");

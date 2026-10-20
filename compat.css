@@ -542,12 +542,34 @@ details.compat-entry[open] > .compat-table-dropdown {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
-.history-months {
-    line-height: 28px;
-    font-size: 13px
+.compat-month-picker select,
+.compat-month-picker button {
+    height: 42px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.compat-month-picker select {
+    color: #000;
+    min-width: 220px;
+    border: none;
+    background: transparent;
+    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
+    padding: 0 12px;
+    margin-right: 12px;
+}
+
+.compat-month-picker button {
+    padding: 0 18px;
+    border: none;
+    background: none;
+    color: #0074e7;
+    font-weight: bold;
+    box-shadow: 0 5px 32px 0 rgba(0,0,0,.1);
 }
 
 .compat-hdr-right {
@@ -555,7 +577,7 @@ details.compat-entry[open] > .compat-table-dropdown {
     float: right;
     width: auto;
     margin-top: -30px;
-    margin-right: 0;
+    margin-right: 10px;
     text-align: right;
     color: #000
 }
@@ -628,7 +650,7 @@ details.compat-entry[open] > .compat-table-dropdown {
     width: 100%;
     height: auto;
     margin-bottom: 20px;
-    margin-top: 40px;
+    margin-top: 32px;
     padding-top: 15px;
     padding-bottom: 15px;
     text-align: center;
