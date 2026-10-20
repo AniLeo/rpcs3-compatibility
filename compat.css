@@ -170,17 +170,18 @@ progress[value]::-webkit-progress-value {
     line-height: 32px;
     overflow: hidden;
     color: #000;
-    margin-bottom: 1px;
     display: flex;
     background: rgba(0,102,204,.02);
     border-radius: 6px
 }
 
-.compat-table-row:nth-child(2n) {
+.compat-table-row:nth-child(2n),
+.compat-entry:nth-child(2n) .compat-table-row {
     background: rgba(0,102,204,.06);
 }
 
-.compat-table-row:hover {
+.compat-table-row:hover,
+.compat-entry:hover .compat-table-row {
     background-color: rgba(0,102,204,.1);
 }
 
@@ -209,7 +210,6 @@ progress[value]::-webkit-progress-value {
 
 .compat-table-cell-gameid a {
     line-height: 28px;
-    font-weight: 700;
     background: rgb(0 127 255/0.05);
     padding-left: 8px;
     padding-right: 8px;
