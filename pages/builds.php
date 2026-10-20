@@ -37,7 +37,7 @@ if (!@include_once(__DIR__."/../includes/inc.builds.php")) throw new Exception("
                     <p>
                         This is the history of all RPCS3 master builds made per pull request after automated builds were firstly added to the project.
                     <br>
-                        Hovering over the build version displays the SHA-256 checksum and the build size.
+                        Clicking on a row displays the SHA-256 checksum and the build size.
                     </p>
                 </div>
 

@@ -127,57 +127,8 @@ public static function printTable() : void
         $length = !is_null($build->additions) ? strlen($build->additions) : 1;
         $padding = (7 - $length) * 7;
 
-        // Formatted version with metadata
-        $version = "";
-
-        // Tooltip
-        if (!is_null($build->checksum_win) && !is_null($build->get_size_mb_windows()))
-        {
-            $version .= "Windows x64 SHA-256: {$build->checksum_win}\n";
-            $version .= "Windows x64 Size: {$build->get_size_mb_windows()} MB\n";
-        }
-        if (!empty($version))
-            $version .= "\n";
-        if (!is_null($build->checksum_win_arm64) && !is_null($build->get_size_mb_windows_arm64()))
-        {
-            $version .= "Windows arm64 SHA-256: {$build->checksum_win_arm64}\n";
-            $version .= "Windows arm64 Size: {$build->get_size_mb_windows_arm64()} MB\n";
-        }
-        if (!empty($version))
-            $version .= "\n";
-        if (!is_null($build->checksum_linux) && !is_null($build->get_size_mb_linux()))
-        {
-            $version .= "Linux x64 SHA-256: {$build->checksum_linux}\n";
-            $version .= "Linux x64 Size: {$build->get_size_mb_linux()} MB\n";
-        }
-        if (!empty($version))
-            $version .= "\n";
-        if (!is_null($build->checksum_linux_arm64) && !is_null($build->get_size_mb_linux_arm64()))
-        {
-            $version .= "Linux arm64 SHA-256: {$build->checksum_linux_arm64}\n";
-            $version .= "Linux arm64 Size: {$build->get_size_mb_linux_arm64()} MB\n";
-        }
-        if (!empty($version))
-            $version .= "\n";
-        if (!is_null($build->checksum_mac) && !is_null($build->get_size_mb_mac()))
-        {
-            $version .= "macOS x64 SHA-256: {$build->checksum_mac}\n";
-            $version .= "macOS x64 Size: {$build->get_size_mb_mac()} MB\n";
-        }
-        if (!empty($version))
-            $version .= "\n";
-        if (!is_null($build->checksum_mac_arm64) && !is_null($build->get_size_mb_mac_arm64()))
-        {
-            $version .= "macOS arm64 SHA-256: {$build->checksum_mac_arm64}\n";
-            $version .= "macOS arm64 Size: {$build->get_size_mb_mac_arm64()} MB\n";
-        }
-
-        $html_version = htmlspecialchars($build->version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $html_title = htmlspecialchars($version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $version = !empty($version) ? "<span class=\"compat-builds-version\" title=\"{$html_title}\">{$html_version}</span>" : $html_version;
-
-        print("<div class=\"compat-table-row\">");
-
+        print("<details class=\"compat-entry\">");
+        print("<summary class=\"compat-table-row\">");
 
         /* Cell 1: PR */
         $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-pr");
@@ -312,15 +263,63 @@ public static function printTable() : void
         if ($build->broken)
             $html_div_cell->add_content("<s>");
 
-        $html_div_cell->add_content($version);
+        $html_version = htmlspecialchars($build->version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $html_div_cell->add_content($html_version);
 
         if ($build->broken)
             $html_div_cell->add_content("</s>");
 
         $html_div_cell->print();
 
+        print("</summary>");
+
+        // Dropdown with size / checksum data
+        print("<div class=\"compat-table-dropdown\">");
+
+        $has_info = false;
+
+        if (!is_null($build->checksum_win) && !is_null($build->get_size_mb_windows()))
+        {
+            $has_info = true;
+            printf("<div><b>Windows x64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_windows(), htmlspecialchars($build->checksum_win));
+        }
+        if (!is_null($build->checksum_win_arm64) && !is_null($build->get_size_mb_windows_arm64()))
+        {
+            $has_info = true;
+            printf("<div><b>Windows arm64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_windows_arm64(), htmlspecialchars($build->checksum_win_arm64));
+        }
+        if (!is_null($build->checksum_linux) && !is_null($build->get_size_mb_linux()))
+        {
+            $has_info = true;
+            printf("<div><b>Linux x64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_linux(), htmlspecialchars($build->checksum_linux));
+        }
+        if (!is_null($build->checksum_linux_arm64) && !is_null($build->get_size_mb_linux_arm64()))
+        {
+            $has_info = true;
+            printf("<div><b>Linux arm64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_linux_arm64(), htmlspecialchars($build->checksum_linux_arm64));
+        }
+        if (!is_null($build->checksum_mac) && !is_null($build->get_size_mb_mac()))
+        {
+            $has_info = true;
+            printf("<div><b>macOS x64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_mac(), htmlspecialchars($build->checksum_mac));
+        }
+        if (!is_null($build->checksum_mac_arm64) && !is_null($build->get_size_mb_mac_arm64()))
+        {
+            $has_info = true;
+            printf("<div><b>macOS arm64 (%s MB)</b><br> - SHA-256: <code>%s</code></div>",
+                   $build->get_size_mb_mac_arm64(), htmlspecialchars($build->checksum_mac_arm64));
+        }
+
+        if (!$has_info)
+            print("<div>No size or checksum information available for this build.</div>");
 
         print("</div>");
+        print("</details>");
     }
 
     // End table

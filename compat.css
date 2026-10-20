@@ -280,6 +280,13 @@ details[open] > .compat-table-dropdown {
     display: block
 }
 
+details.compat-entry > .compat-table-dropdown {
+    display: none;
+}
+details.compat-entry[open] > .compat-table-dropdown {
+    display: block;
+}
+
 .compat-icon-media {
     position: relative;
     z-index: 1;
