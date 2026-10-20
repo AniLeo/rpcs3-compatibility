@@ -30,7 +30,7 @@ class HTTPQuery
     public string $media;     // Game media
     public int    $date;      // Game report date
     public string $order;     // Search order by
-    public int    $move;      // Move support
+    public string $move;      // Move support
     public int    $stereo_3D; // 3D support
     public int    $type;      // Application type
     public int    $network;   // Network requirement
@@ -73,7 +73,7 @@ class HTTPQuery
             $this->order = (string) $get['o'];
 
         if (isset($get['move']))
-            $this->move = (int) $get['move'];
+            $this->move = (string) $get['move'];
 
         if (isset($get['3D']))
             $this->stereo_3D = (int) $get['3D'];

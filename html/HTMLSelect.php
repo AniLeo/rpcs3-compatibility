@@ -23,13 +23,20 @@
 class HTMLSelect
 {
     public string $name;
+    public string $label;
     /** @var array<HTMLOption> $options **/
     public array  $options;
 
     function __construct(string $name)
     {
-        $this->name = $name;
+        $this->name    = $name;
+        $this->label   = "";
         $this->options = array();
+    }
+
+    public function set_label(string $label) : void
+    {
+        $this->label = $label;
     }
 
     public function add_option(HTMLOption $option) : void
@@ -39,7 +46,8 @@ class HTMLSelect
 
     public function to_string() : string
     {
-        $ret = sprintf("<select name=\"%s\">".PHP_EOL,
+        $ret = sprintf("<select name=\"%s\" id=\"%s\">".PHP_EOL,
+                       htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                        htmlspecialchars($this->name, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         foreach ($this->options as $option)
@@ -49,11 +57,11 @@ class HTMLSelect
 
         $ret .= "</select>".PHP_EOL;
 
-        return $ret;
-    }
+        if ($this->label === "")
+            return $ret;
 
-    public function print() : void
-    {
-        print($this->to_string());
+        return sprintf("<label>%s%s</label>".PHP_EOL,
+                       htmlspecialchars($this->label, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       $ret);
     }
 }

@@ -25,6 +25,15 @@ progress[value]::-webkit-progress-value {
     border-radius: 24px
 }
 
+label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    font-weight: bold
+}
+
 .page-con-container {
     font-family: Roboto-Regular
 }
@@ -925,7 +934,7 @@ details.compat-entry[open] > .compat-table-dropdown {
     color: #fff;
     display: block;
     height: 42px;
-    width: 100%;
+    width: auto;
     max-width: 720px;
     margin-bottom: 20px;
     border: solid 2px #2f3a65;
@@ -1003,16 +1012,6 @@ details.compat-entry[open] > .compat-table-dropdown {
     padding-bottom: 6px;
     border-radius: 6px;
     font-size: 14px
-}
-
-.debug-entry-flag {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 180px;
-    margin-bottom: 12px;
-    color: #fff;
-    font-weight: bold
 }
 
 .debug-main-content input[type=checkbox] {

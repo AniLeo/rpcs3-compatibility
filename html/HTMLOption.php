@@ -24,22 +24,21 @@ class HTMLOption
 {
     public string $value;
     public string $text;
+    public bool   $selected;
 
-    function __construct(string $value, string $text)
+    function __construct(string $value, string $text, bool $selected = false)
     {
-        $this->value = $value;
-        $this->text = $text;
+        $this->value    = $value;
+        $this->text     = $text;
+        $this->selected = $selected;
     }
 
     public function to_string() : string
     {
-        return sprintf("<option value=\"%s\">%s</option>".PHP_EOL,
+        $selected = $this->selected ? " selected" : "";
+        return sprintf("<option value=\"%s\"%s>%s</option>".PHP_EOL,
                        htmlspecialchars($this->value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                       $selected,
                        htmlspecialchars($this->text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
-    }
-
-    public function print() : void
-    {
-        print($this->to_string());
     }
 }

@@ -289,7 +289,7 @@ function checkInvalidThreads() : void
         if (is_null($sid))
             continue;
 
-        $game = new Game(0, "", $sid, "", 0, 0, 0, null, null, null, null);
+        $game = new Game(0, "", $sid, "", 0, "", 0, null, null, null, null);
         $item = new GameItem($row->gid, $row->game_title, (int) $row->tid, null);
         $message = validate_thread($a_threads[(int) $row->tid] ?? null, $game, $item);
         if (!is_null($message))
@@ -1001,7 +1001,7 @@ function mergeGames() : void
         // Copy move flag to new entry if necessary
         if ($game1->move !== $game2->move)
         {
-            $move = (string) ($game1->move === 0 ? $game2->move : $game1->move);
+            $move = (string) ($game1->move !== 'None' ? $game2->move : $game1->move);
             mysqli_query($db, "UPDATE `game_list` SET `move` = '".mysqli_real_escape_string($db, $move)."' WHERE `key`='{$new->key}';");
         }
 
@@ -1535,7 +1535,6 @@ function edit_game() : void
 
     $fields = array(
         "network" => "Requires Network:",
-        "move"    => "Move Support:",
         "3d"      => "3D Support:"
     );
 
@@ -1586,6 +1585,19 @@ function edit_game() : void
         }
 
         $sets = array();
+
+        // Move support
+        $move_options = array("None", "Required", "Optional");
+        $move_value = "None";
+        if (isset($_POST["move"]) && is_string($_POST["move"]) && in_array($_POST["move"], $move_options, true))
+        {
+            $move_value = $_POST["move"];
+        }
+        $s_move = mysqli_real_escape_string($db, $move_value);
+        $sets[] = "`move` = '{$s_move}'";
+        $row->move = $move_value;
+
+
         foreach ($fields as $column => $label)
         {
             $value = (isset($_POST[$column]) && is_string($_POST[$column]) && (string) $_POST[$column] === "1") ? 1 : 0;
@@ -1646,8 +1658,18 @@ function edit_game() : void
     $form->add_input(new HTMLInput("gid", "hidden", $gid, ""));
 
     // Editable title
-    $title_input = new HTMLInput("game_title", "text", $row->game_title, "Game Title");
+    $title_input = new HTMLInput("game_title", "text", $row->game_title, "");
+    $title_input->set_label("Game Title:");
     $form->add_input($title_input);
+
+    // Move Support (select)
+    $move_select = new HTMLSelect("move");
+    $move_select->set_label("Move Support:");
+    foreach (array("None", "Required", "Optional") as $opt)
+    {
+        $move_select->add_option(new HTMLOption($opt, $opt, $row->move === $opt));
+    }
+    $form->add_select($move_select);
 
     foreach ($fields as $column => $label)
     {

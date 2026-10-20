@@ -63,7 +63,7 @@ class HTMLInput
         if ($this->label === "")
             return $input;
 
-        return sprintf("<label class=\"debug-entry-flag\">%s%s</label>".PHP_EOL,
+        return sprintf("<label>%s%s</label>".PHP_EOL,
                     htmlspecialchars($this->label, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                     $input);
     }
