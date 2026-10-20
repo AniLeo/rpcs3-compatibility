@@ -87,7 +87,17 @@ public static function generate_query(array $get, mysqli &$db) : string
         if (!empty($genquery)) { $genquery .= " AND "; }
 
         $s_t = mysqli_real_escape_string($db, (string) $get['t']);
-        $genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`, 1, 1) = '{$s_t}') ) ";
+
+        if ($s_t === 'b')
+        {
+            // Blu-Ray group
+            $genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`, 1, 1) IN ('B','M','X')) ) ";
+        }
+        else
+        {
+            // Single letter (Digital = N, or any other exact match)
+            $genquery .= " ( `key` = ANY (SELECT `key` FROM `game_id` WHERE SUBSTR(`gid`, 1, 1) = '{$s_t}') ) ";
+        }
     }
 
     // QUERYGEN: Search by date
@@ -263,6 +273,41 @@ public static function printTypeSort() : void
     $html_a_games->print();
     print("•&nbsp;");
     $html_a_apps->print();
+}
+
+
+public static function printMediaSort() : void
+{
+    global $get;
+
+    $http_query = new HTTPQuery($get);
+    $s_query = $http_query->get_except(array("media"));
+
+    $defined = array_key_exists("t", $get);
+    $current = $defined ? $get['t'] : '';
+
+    // All
+    $html_a = new HTMLA("?{$s_query}", "Show all media types", "All");
+    if (!$defined)
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+
+    if (!empty($s_query))
+        $s_query .= "&";
+
+    // Blu-Ray (B / M / X)
+    print("•&nbsp;");
+    $html_a = new HTMLA("?{$s_query}t=b", "Only show Blu-Ray releases", "Blu-Ray");
+    if ($current === 'b')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+
+    // Digital (N)
+    print("•&nbsp;");
+    $html_a = new HTMLA("?{$s_query}t=n", "Only show digital (PSN) releases", "Digital");
+    if ($current === 'n')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
 }
 
 

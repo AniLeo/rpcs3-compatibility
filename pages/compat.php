@@ -54,6 +54,10 @@ if (!@include_once(__DIR__."/../includes/inc.compat.php")) throw new Exception("
                     <?php Compat::printTypeSort(); ?>
                 </div>
                 <div class="compat-sort compat-text">
+                    <span class="text-bold">Media type:</span>
+                    <?php Compat::printMediaSort(); ?>
+                </div>
+                <div class="compat-sort compat-text">
                     <span class="text-bold">Requires network:</span>
                     <?php Compat::printNetworkSort(); ?>
                 </div>
