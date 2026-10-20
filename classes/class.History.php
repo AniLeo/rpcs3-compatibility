@@ -262,7 +262,7 @@ public static function printTableContent(array $array) : void
         
         $html_div_cell->add_content($entry->game_item->title.PHP_EOL);
 
-        if ($entry->move === 1)
+        if ($entry->move !== "None")
         {
             $html_div_cell->add_content($html_img_move->to_string());
         }

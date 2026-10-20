@@ -114,10 +114,8 @@ public static function generate_query(array $get, mysqli &$db) : string
     {
         if (!empty($genquery)) { $genquery .= " AND "; }
 
-        if ($get['move'] === 0)
-            $genquery .= " ( `move` = 0 ) ";
-        else
-            $genquery .= " ( `move` <> 0 ) ";
+        $s_move = mysqli_real_escape_string($db, (string) $get['move']);
+        $genquery .= " ( `move` = '{$s_move}' ) ";
     }
 
     // QUERYGEN: Search by 3D support
@@ -205,15 +203,22 @@ public static function printMoveSort() : void
     if (!empty($s_query))
         $s_query .= "&";
 
-    $html_a = new HTMLA("?{$s_query}move=1", "Only show games with PS Move support", "Yes");
-    if ($defined && $get['move'] === 1)
+    $html_a = new HTMLA("?{$s_query}move=Required", "Only show games that require PS Move", "Required");
+    if ($defined && $get['move'] === 'Required')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 
     print("•&nbsp;");
 
-    $html_a = new HTMLA("?{$s_query}move=0", "Only show games without PS Move support", "No");
-    if ($defined && $get['move'] === 0)
+    $html_a = new HTMLA("?{$s_query}move=Optional", "Only show games with optional PS Move", "Optional");
+    if ($defined && $get['move'] === 'Optional')
+        $html_a->set_class("compat-text text-bold text-underline");
+    $html_a->print();
+
+    print("•&nbsp;");
+
+    $html_a = new HTMLA("?{$s_query}move=None", "Only show games without PS Move support", "None");
+    if ($defined && $get['move'] === 'None')
         $html_a->set_class("compat-text text-bold text-underline");
     $html_a->print();
 }
@@ -532,7 +537,7 @@ public static function printTable() : void
         {
             $html_div_cell->add_content($html_img_network->to_string());
         }
-        if ($game->move !== 0)
+        if ($game->move !== 'None')
         {
             $html_div_cell->add_content($html_img_move->to_string());
         }

@@ -542,7 +542,7 @@ details.compat-entry[open] > .compat-table-dropdown {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 12px;
 }
 
 .compat-month-picker select,

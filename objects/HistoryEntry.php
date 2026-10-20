@@ -28,7 +28,7 @@ class HistoryEntry
     public  int      $new_status;
     public ?string   $old_date;
     public  string   $new_date;
-    public  int      $move;
+    public  string      $move;
 
     public GameItem $game_item;
 
@@ -39,7 +39,7 @@ class HistoryEntry
                           string $gid,
                           string $title,
                           int    $tid,
-                          int    $move)
+                          string $move)
     {
         if (!is_null($old_status))
             $this->old_status = getStatusID($old_status);

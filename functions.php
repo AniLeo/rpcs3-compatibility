@@ -252,18 +252,10 @@ function validateGet() : array
     }
 
     // Move support
-    if (isset($_GET['move']) && is_string($_GET['move']))
-    {
-        // No move support
-        if ((int) $_GET['move'] === 0)
-        {
-            $get['move'] = 0;
-        }
-        // Has move support
-        else if ((int) $_GET['move'] === 1)
-        {
-            $get['move'] = 1;
-        }
+    if (isset($_GET['move']) && is_string($_GET['move']) &&
+        in_array($_GET['move'], ['None', 'Required', 'Optional'], true))
+     {
+        $get['move'] = $_GET['move'];
     }
 
     // Stereoscopic 3D support

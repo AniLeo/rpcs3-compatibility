@@ -31,7 +31,7 @@ class Game
     public  int     $status;
     public  string  $date;
     public  int     $network;
-    public  int     $move;
+    public  string  $move;
     public  int     $stereo_3d;
     public ?int     $pr;
     public ?string  $version;
@@ -45,7 +45,7 @@ class Game
                           int    $status,
                           string $date,
                           int    $network,
-                          int    $move,
+                          string $move,
                           int    $stereo_3d,
                          ?int    $pr,
                          ?string $version,
