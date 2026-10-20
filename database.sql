@@ -13,7 +13,7 @@ CREATE TABLE `game_list` (
   `build_commit` varchar(64) DEFAULT NULL,
   `network` tinyint(1) NOT NULL DEFAULT '0',
   `3d` tinyint(1) NOT NULL DEFAULT '0',
-  `move` tinyint(1) NOT NULL DEFAULT '0',
+  `move` enum('None','Required','Optional') NOT NULL DEFAULT 'None',
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
