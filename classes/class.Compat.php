@@ -691,7 +691,7 @@ public static function printPagesCounter() : void
     $extra = $http_query->get_except(array());
 
     $html_div = new HTMLDiv("compat-con-pages");
-    $html_div->add_content(getPagesCounter($pages, $currentPage, $extra));
+    $html_div->add_content(get_pages_counter($pages, $currentPage, $extra));
     $html_div->print();
 }
 

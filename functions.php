@@ -538,71 +538,75 @@ function count_game_id_all(bool $ignore_cache = false) : int
 }
 
 
-// TODO: Cleanup
-function getPagesCounter(int $pages, int $currentPage, string $extra) : string
+function get_pages_counter(int $pages, int $currentPage, string $extra): string
 {
     global $c_pagelimit;
 
-    // Initialize string
-    $s_pagescounter = "";
+    if ($pages === 0)
+    {
+        return "No results found using the selected search criteria.";
+    }
 
     if (!empty($extra))
-        $extra .= "&";
-
-    // IF no results are found then the amount of pages is 0
-    // Returns no results found message
-    if ($pages === 0)
-        return "No results found using the selected search criteria.";
-
-    // Shows current page and total pages
-    $s_pagescounter .= "<span>Page {$currentPage} of {$pages}: &nbsp;&nbsp;</span>";
-
-    // If there's less pages to the left than current limit it loads the excess amount to the right for balance
-    if ($c_pagelimit > $currentPage)
-        $c_pagelimit += $c_pagelimit - $currentPage + 1;
-
-    // If there's less pages to the right than current limit it loads the excess amount to the left for balance
-    if ($c_pagelimit > $pages - $currentPage)
-        $c_pagelimit += $c_pagelimit - ($pages - $currentPage) + 1;
-
-    // Loop for each page link and make it properly clickable until there are no more pages left
-    for ($i = 1; $i <= $pages; $i++)
     {
-        if ( ($i >= $currentPage-$c_pagelimit && $i <= $currentPage) || ($i+$c_pagelimit >= $currentPage && $i <= $currentPage+$c_pagelimit) )
+        $extra .= "&";
+    }
+
+    $start = max(1, $currentPage - $c_pagelimit);
+    $end   = min($pages, $currentPage + $c_pagelimit);
+
+    // Expand window toward the opposite side when near an edge
+    if ($currentPage - $c_pagelimit < 1)
+    {
+        $end = min($pages, $end + ($c_pagelimit - $currentPage + 1));
+    }
+    if ($currentPage + $c_pagelimit > $pages)
+    {
+        $start = max(1, $start - (($currentPage + $c_pagelimit) - $pages));
+    }
+
+    $parts = array();
+
+    // Always show first page when outside the window
+    if ($start > 1)
+    {
+        $html_a = new HTMLA("?{$extra}p=1", "Page 1", "01");
+        $parts[] = $html_a->to_string() . "&nbsp;&#32;";
+
+        if ($start > 2)
         {
-            $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", str_pad((string) $i, 2, "0", STR_PAD_LEFT));
-            
-            // Highlights the page if it's the one we're currently in
-            if ($i === $currentPage)
-                $html_a->set_class("compat-text text-bold text-underline");
-
-            $s_pagescounter .= $html_a->to_string();
-            $s_pagescounter .= "&nbsp;&#32;";
-        }
-        // First page
-        elseif ($i === 1)
-        {
-            $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", "01");
-
-            $s_pagescounter .= $html_a->to_string();
-            $s_pagescounter .= "&nbsp;&#32;";
-
-            if ($currentPage != $c_pagelimit + 2)
-            {
-                $s_pagescounter .= "...&nbsp;&#32;";
-            }
-        }
-        // Last page
-        elseif ($pages === $i)
-        {
-            $s_pagescounter .= "...&nbsp;&#32;";
-
-            $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", (string) $i);
-            $s_pagescounter .= $html_a->to_string();
+            $parts[] = "...&nbsp;&#32;";
         }
     }
 
-    return $s_pagescounter;
+    // Window of pages around the current one
+    for ($i = $start; $i <= $end; $i++)
+    {
+        $label = str_pad((string) $i, 2, "0", STR_PAD_LEFT);
+        $html_a = new HTMLA("?{$extra}p={$i}", "Page {$i}", $label);
+
+        if ($i === $currentPage)
+        {
+            $html_a->set_class("compat-text text-bold text-underline");
+        }
+
+        $parts[] = $html_a->to_string()."&nbsp;&#32;";
+    }
+
+    // Always show last page when outside the window
+    if ($end < $pages)
+    {
+        if ($end < $pages - 1)
+        {
+            $parts[] = "...&nbsp;&#32;";
+        }
+
+        $label = str_pad((string) $pages, 2, "0", STR_PAD_LEFT);
+        $html_a = new HTMLA("?{$extra}p={$pages}", "Page {$pages}", $label);
+        $parts[] = $html_a->to_string() . "&nbsp;&#32;";
+    }
+
+    return "<span>Page {$currentPage} of {$pages}: &nbsp;&nbsp;</span>".implode("", $parts);
 }
 
 
