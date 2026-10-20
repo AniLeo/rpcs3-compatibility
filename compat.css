@@ -170,7 +170,7 @@ progress[value]::-webkit-progress-value {
     line-height: 32px;
     overflow: hidden;
     color: #000;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
     display: flex;
     background: rgba(0,102,204,.02);
     border-radius: 6px
@@ -188,10 +188,11 @@ progress[value]::-webkit-progress-value {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px
+    margin-bottom: 3px
 }
 
 .compat-gameid-entry:last-child {
+    margin-top: 2px;
     margin-bottom: 0
 }
 
@@ -207,6 +208,7 @@ progress[value]::-webkit-progress-value {
 }
 
 .compat-table-cell-gameid a {
+    line-height: 28px;
     font-weight: 700;
     background: rgb(0 127 255/0.05);
     padding-left: 8px;
