@@ -185,8 +185,11 @@ function cache_initials() : void
 
 function cache_game_count() : void
 {
-    // count_game_entry_all
-    file_put_contents(__DIR__."/../cache/count_game_entry_all.txt", (string) count_game_entry_all(true));
+    // count_game_entry_disc
+    file_put_contents(__DIR__."/../cache/count_game_entry_disc.txt", (string) count_game_entry_disc(true));
+
+    // count_game_entry_digital
+    file_put_contents(__DIR__."/../cache/count_game_entry_digital.txt", (string) count_game_entry_digital(true));
 
     // count_game_id_all
     file_put_contents(__DIR__."/../cache/count_game_id_all.txt", (string) count_game_id_all(true));

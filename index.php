@@ -206,7 +206,7 @@ if (!@include(__DIR__.'/../../lib/module/sys-js.php'))
                         else
                         {
                             Profiler::add_data("Index: Count Games");
-                            printf("There are currently %d games with %d IDs listed in our database", count_game_entry_all(), count_game_id_all());
+                            printf("Our database lists %d disc games and %d digital games, with a total of %d game IDs", count_game_entry_disc(), count_game_entry_digital(), count_game_id_all());
                         }
                     } else {
                         print("Compatibility is undergoing maintenance. Please try again in a few minutes.");

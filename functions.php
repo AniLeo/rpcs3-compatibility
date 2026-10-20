@@ -435,14 +435,11 @@ function countGames(mysqli $db, string $query = "") : array
 }
 
 
-function count_game_entry_all(bool $ignore_cache = false) : int
+function count_game_entry_disc(bool $ignore_cache = false) : int
 {
-    // If we don't ignore cache, try to retrieve the value from cache
     if (!$ignore_cache)
     {
-        $count = file_get_contents(__DIR__.'/cache/count_game_entry_all.txt');
-
-        // Return value from cache only if available
+        $count = file_get_contents(__DIR__.'/cache/count_game_entry_disc.txt');
         if ($count !== false)
             return (int) $count;
     }
@@ -450,24 +447,48 @@ function count_game_entry_all(bool $ignore_cache = false) : int
     $db = get_database("compat");
     $ret = 0;
 
-    // Total game count (without network games)
-    $q_unique = mysqli_query($db, "SELECT count(*) AS `c`
-                                   FROM `game_list`
-                                   WHERE (`network` = 0
-                                      OR (`network` = 1 && `status` <= 2))
-                                      AND `type` = 'PS3 Game'; ");
+    $q = mysqli_query($db, "SELECT count(DISTINCT `game_list`.`key`) AS `c`
+                            FROM `game_list`
+                            LEFT JOIN `game_id` ON `game_id`.`key` = `game_list`.`key`
+                            WHERE (`network` = 0 OR (`network` = 1 && `status` <= 2))
+                              AND `type` = 'PS3 Game'
+                              AND SUBSTR(`game_id`.`gid`, 1, 1) IN ('B','M','X');");
 
-    if (!is_bool($q_unique) && mysqli_num_rows($q_unique) === 1)
+    if (!is_bool($q) && mysqli_num_rows($q) === 1)
     {
-        $row = mysqli_fetch_object($q_unique);
+        $row = mysqli_fetch_object($q);
+        if ($row && property_exists($row, "c"))
+            $ret = (int) $row->c;
+    }
 
-        // This should be unreachable unless the database structure is damaged
-        if (!$row || !property_exists($row, "c"))
-        {
-            return 0;
-        }
+    mysqli_close($db);
+    return $ret;
+}
 
-        $ret = (int) $row->c;
+function count_game_entry_digital(bool $ignore_cache = false) : int
+{
+    if (!$ignore_cache)
+    {
+        $count = file_get_contents(__DIR__.'/cache/count_game_entry_digital.txt');
+        if ($count !== false)
+            return (int) $count;
+    }
+
+    $db = get_database("compat");
+    $ret = 0;
+
+    $q = mysqli_query($db, "SELECT count(DISTINCT `game_list`.`key`) AS `c`
+                            FROM `game_list`
+                            LEFT JOIN `game_id` ON `game_id`.`key` = `game_list`.`key`
+                            WHERE (`network` = 0 OR (`network` = 1 && `status` <= 2))
+                              AND `type` = 'PS3 Game'
+                              AND SUBSTR(`game_id`.`gid`, 1, 1) = 'N';");
+
+    if (!is_bool($q) && mysqli_num_rows($q) === 1)
+    {
+        $row = mysqli_fetch_object($q);
+        if ($row && property_exists($row, "c"))
+            $ret = (int) $row->c;
     }
 
     mysqli_close($db);
