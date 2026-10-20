@@ -274,7 +274,7 @@ public static function printTable() : void
         print("</summary>");
 
         // Dropdown with size / checksum data
-        print("<div class=\"compat-table-dropdown\">");
+        print("<div class=\"compat-table-dropdown compat-text\">");
 
         $has_info = false;
 
