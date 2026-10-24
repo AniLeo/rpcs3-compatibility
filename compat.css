@@ -337,10 +337,10 @@ details.compat-entry[open] > .compat-table-dropdown {
     position: relative;
     z-index: 1;
     float: left;
-    width: 28px;
-    height: 28px;
-    margin-right: 10px;
-    padding: 4px 0
+    width: 30px;
+    height: 30px;
+    margin-right: 9px;
+    padding: 3px 0
 }
 
 .icon-disabled {
