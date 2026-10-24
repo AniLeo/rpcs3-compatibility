@@ -186,6 +186,10 @@ label {
     border-radius: 6px
 }
 
+.builds-table-row {
+    line-height: 36px;
+}
+
 .compat-table-row:nth-child(2n),
 .compat-entry:nth-child(2n) .compat-table-row {
     background: rgba(0,102,204,.06);
@@ -249,16 +253,24 @@ label {
     width: 200px
 }
 
-.compat-table-cell-pr {
-    width: 800px;
+.builds-table-cell-pr {
+    width: 700px;
     padding-left: 30px
 }
 
-.compat-table-cell-loc {
-    width: 800px
+.builds-table-cell-author {
+    width: 1000px;
 }
 
-.compat-table-cell-version {
+.builds-table-cell-loc {
+    width: 700px
+}
+
+.builds-table-cell-date {
+    width: 1000px
+}
+
+.builds-table-cell-version {
     width: 600px
 }
 
@@ -325,9 +337,9 @@ details.compat-entry[open] > .compat-table-dropdown {
     position: relative;
     z-index: 1;
     float: left;
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
     padding: 4px 0
 }
 

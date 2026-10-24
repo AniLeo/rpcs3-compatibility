@@ -62,22 +62,22 @@ public static function printTable() : void
     $headers = array(
         array(
             'name' => 'Pull Request',
-            'class' => 'compat-table-cell compat-table-cell-pr',
+            'class' => 'compat-table-cell builds-table-cell-pr',
             'sort' => '1'
         ),
         array(
             'name' => 'Author',
-            'class' => 'compat-table-cell',
+            'class' => 'compat-table-cell builds-table-cell-author',
             'sort' => '0'
         ),
         array(
             'name' => 'Lines of Code',
-            'class' => 'compat-table-cell compat-table-cell-loc',
+            'class' => 'compat-table-cell builds-table-cell-loc',
             'sort' => '0'
         ),
         array(
             'name' => 'Build Date',
-            'class' => 'compat-table-cell',
+            'class' => 'compat-table-cell builds-table-cell-date',
             'sort' => '4'
         ),
         array(
@@ -87,7 +87,7 @@ public static function printTable() : void
         ),
         array(
             'name' => 'Version',
-            'class' => 'compat-table-cell compat-table-cell-version',
+            'class' => 'compat-table-cell builds-table-cell-version',
             'sort' => '6'
         )
     );
@@ -128,10 +128,10 @@ public static function printTable() : void
         $padding = (7 - $length) * 7;
 
         print("<details class=\"compat-entry\">");
-        print("<summary class=\"compat-table-row\">");
+        print("<summary class=\"compat-table-row builds-table-row\">");
 
         /* Cell 1: PR */
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-pr");
+        $html_div_cell = new HTMLDiv("compat-table-cell builds-table-cell-pr");
 
         $title = is_null($build->title) ? "Pull Request #{$build->pr}" : $build->title;
 
@@ -144,7 +144,7 @@ public static function printTable() : void
 
 
         /* Cell 2: Author */
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLDiv("compat-table-cell builds-table-cell-author");
 
         $html_img_author = new HTMLImg("builds-icon", $build->get_url_author_avatar(), "Author");
         $author = htmlspecialchars($build->author, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -157,7 +157,7 @@ public static function printTable() : void
 
 
         /* Cell 3: Lines of Code */
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-loc");
+        $html_div_cell = new HTMLDiv("compat-table-cell builds-table-cell-loc");
 
         $additions = !is_null($build->additions) ? $build->additions : "?";
         $deletions = !is_null($build->deletions) ? $build->deletions : "?";
@@ -168,7 +168,7 @@ public static function printTable() : void
 
 
         /* Cell 4: Diffdate and Fulldate */
-        $html_div_cell = new HTMLDiv("compat-table-cell");
+        $html_div_cell = new HTMLDiv("compat-table-cell builds-table-cell-date");
 
         $html_div_cell->add_content("{$build->diffdate} ({$build->fulldate})");
         $html_div_cell->print();
@@ -258,7 +258,7 @@ public static function printTable() : void
 
 
         /* Cell 6: Version, Size (MB) and Checksum */
-        $html_div_cell = new HTMLDiv("compat-table-cell compat-table-cell-version");
+        $html_div_cell = new HTMLDiv("compat-table-cell builds-table-cell-version");
 
         if ($build->broken)
             $html_div_cell->add_content("<s>");
