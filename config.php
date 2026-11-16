@@ -234,7 +234,7 @@ $a_panel = array(
 );
 
 // Current month
-$currenthist = '2026-10-01';
+$currenthist = '2026-11-01';
 $a_currenthist = array(date('Y_m', strtotime($currenthist)),
                        date('F jS, Y', strtotime($currenthist)),
                        $currenthist);
